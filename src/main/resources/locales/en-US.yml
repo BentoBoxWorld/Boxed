@@ -5,20 +5,22 @@
 # These strings are deltas to the strings in BentoBox. Any BentoBox string can be
 # overridden by placing it under the boxed key.
 boxed:
+  completed: "&a [name] completed!"
+  size-changed: "&a Box size increased by [number]!"
   # General strings
   general:
     errors:
-      no-island: "&c You do not have an area!"
-      player-has-island: "&c Player already has an area!"
-      player-has-no-island: "&c That player has no area!"
-      already-have-island: "&c You already have an area!"
-      no-safe-location: "&c No safe location found in area!"
+      no-island: "&c You do not have a box!"
+      player-has-island: "&c Player already has a box!"
+      player-has-no-island: "&c That player has no box!"
+      already-have-island: "&c You already have a box!"
+      no-safe-location: "&c No safe location found in box!"
       not-owner: "&c You are not the owner of your team!"
   commands:
     #Main Boxed command
     boxed:
       help:
-        description: "Start a Boxed game or teleport to your Boxed home"
+        description: "Start a Boxed game or teleport to your box"
       go:
         description: "Go home"
         tip: "&c You cannot teleport when falling!"
@@ -26,31 +28,31 @@ boxed:
     # Override BentoBox default island command strings
     island:
       info:
-        description: "display info about your area or the player's area"
+        description: "display info about your box or the player's box"
       reset:
-        description: "restart in another area"
+        description: "restart in another box"
         parameters: ""
         must-remove-members: "&c You must remove all team players before you can restart (/[label] team kick <player>)."
       sethome:
-        must-be-on-your-island: "&c You must be in your area to set home!"
+        must-be-on-your-island: "&c You must be in your box to set home!"
         home-set: "&6 Your home has been set to your current location."
       setname:
-        description: "set a name for your area"
+        description: "set a name for your box"
       resetname:
-        description: "reset your area name"
+        description: "reset your box name"
       team:
         coop:
           description: "make a player coop rank"
         uncoop:
-          you-are-no-longer-a-coop-member: "&c You are no longer a coop member of [name]'s area"
-          all-members-logged-off: "&c All team members logged off so you are no longer a coop member of [name]'s area"
+          you-are-no-longer-a-coop-member: "&c You are no longer a coop member of [name]'s box"
+          all-members-logged-off: "&c All team members logged off so you are no longer a coop member of [name]'s box"
         trust:
           description: "give a player trusted rank"
         invite:
           description: "invite a player to join your team"
           name-has-invited-you: "&a [name] has invited you to join their team."
           to-accept-or-reject: "&a Do /[label] team accept to accept, or /[label] team reject to reject"
-          you-will-lose-your-island: "&c WARNING! You will lose your our area if you accept!"
+          you-will-lose-your-island: "&c WARNING! You will lose your our box if you accept!"
           errors:
             island-is-full: "&c Your team is full, you can't invite anyone else."
           accept:
@@ -58,7 +60,7 @@ boxed:
             name-joined-your-island: "&a [name] joined your team!"
             confirmation: |-
               &c Are you sure you want to accept this invite?
-              &c&l This will &n WIPE &r&c&l your current area!
+              &c&l This will &n WIPE &r&c&l your current box!
           reject:
             you-rejected-invite: "&a You rejected the invitation to join a team."
             name-rejected-your-invite: "&c [name] rejected your invite!"
@@ -78,73 +80,73 @@ boxed:
           description: "transfer team ownership to a member"
           errors:
             target-is-not-member: "&c That player is not part of your team!"
-          name-is-the-owner: "&a [name] is now the area owner!"
-          you-are-the-owner: "&a You are now the area owner!"
+          name-is-the-owner: "&a [name] is now the box owner!"
+          you-are-the-owner: "&a You are now the box owner!"
       ban:
-        description: "ban a player from your area"
+        description: "ban a player from your box"
         cannot-ban-more-players: "&c You reached the ban limit, you cannot ban any more players."
-        owner-banned-you: "&b [name]&c  banned you from their area!"
-        you-are-banned: "&b You are banned from this area!"
+        owner-banned-you: "&b [name]&c  banned you from their box!"
+        you-are-banned: "&b You are banned from this box!"
       unban:
-        description: "unban a player from your area"
-        you-are-unbanned: "&b [name]&a  unbanned you from their area!"
+        description: "unban a player from your box"
+        you-are-unbanned: "&b [name]&a  unbanned you from their box!"
       banlist:
-        noone: "&a No one is banned on this area"
+        noone: "&a No one is banned on this box"
       settings:
-        description: "display area settings"
+        description: "display box settings"
     # Admin command /sgadmin
     admin:
       team:
         add:
-          name-has-island: "&c [name] has an area. Unregister or delete them first!"
+          name-has-island: "&c [name] has a box. Unregister or delete them first!"
         setowner:
-          description: "transfers area ownership to the player"
-          already-owner: "&c Player is already the owner of this area!"
+          description: "transfers box ownership to the player"
+          already-owner: "&c Player is already the owner of this box!"
       range:
-        description: "Admin area range command"
+        description: "Admin box range command"
         display:
-          description: "Show/hide area range indicators"
+          description: "Show/hide box range indicators"
           hint: |-
             &c Red Barrier icons &f show the current protected range limit.
             &7 Gray Particles &f show the max limit.
             &a Green Particles &f show the default protected range if the protection range differs from it.
         set:
-          description: "Sets the area protected range"
+          description: "Sets the box protected range"
         reset:
           description: "Resets the protected range to the world default"
       register:
         parameters: "<player>"
-        description: "register player to unowned area you are in"
-        registered-island: "&a Registered player to area at [xyz]."
+        description: "register player to unowned box you are in"
+        registered-island: "&a Registered player to box at [xyz]."
         already-owned: "&c Area is already owned by another player!"
-        no-island-here: "&c There is no player area here. Confirm to make one."
+        no-island-here: "&c There is no player box here. Confirm to make one."
         in-deletion: "&c This space is currently being regenerated. Try later."
       unregister:
-        description: "unregister owner from an area, but keep area blocks as-is"
-        unregistered-island: "&a Unregistered player from area at [xyz]."
+        description: "unregister owner from a box, but keep box blocks as-is"
+        unregistered-island: "&a Unregistered player from box at [xyz]."
       info:
         description: "get info on where you are or on player"
-        no-island: "&c You are not in a registered area right now..."
+        no-island: "&c You are not in a registered box right now..."
         island-location: "Area location: [xyz]"
         island-coords: "Area coordinates: [xz1] to [xz2]"
         is-spawn: "Area is a spawn island"
       setrange:
-        description: "set the range of player's area"
+        description: "set the range of player's box"
         range-updated: "Area range updated to [number]"
       tp:
-        description: "teleport to a player's area"
+        description: "teleport to a player's box"
       getrank:
-        description: "get a player's rank in their area"
-        rank-is: "&a Rank is [rank] in their area."
+        description: "get a player's rank in their box"
+        rank-is: "&a Rank is [rank] in their box."
       setrank:
-        description: "set a player's rank in their area"
+        description: "set a player's rank in their box"
       setspawn:
-        description: "set an area as spawn for this world"
-        already-spawn: "&c This area is already a spawn!"
-        no-island-here: "&c There is no registered area here."
-        confirmation: "&c Are you sure you want to set this area as the spawn for this world?"
+        description: "set a box as spawn for this world"
+        already-spawn: "&c This box is already a spawn!"
+        no-island-here: "&c There is no registered box here."
+        confirmation: "&c Are you sure you want to set this box as the spawn for this world?"
       delete:
-        description: "deletes a player and regenerates their area"
+        description: "deletes a player and regenerates their box"
         deleted-island: "&a Area at &e [xyz] &a has been successfully regenerated."
 
   protection:
@@ -157,49 +159,49 @@ boxed:
            &a blocks
       ENTER_EXIT_MESSAGES: 
         description: "Display entry and exit messages"
-        island: "[name]'s protected area"
+        island: "[name]'s protected box"
         name: "Enter/Exit messages"
         now-entering: '&a Now entering &b [name]&a .'
-        now-entering-your-island: '&a Now entering your area.'
+        now-entering-your-island: '&a Now entering your box.'
         now-leaving: '&a Now leaving &b [name]&a .'
-        now-leaving-your-island: '&a Now leaving your area.'
+        now-leaving-your-island: '&a Now leaving your box.'
       GEO_LIMIT_MOBS: 
         description: |-
            &a Remove mobs that go
            &a outside protected
            &a player space
-        name: "&e Limit mobs to player area"
+        name: "&e Limit mobs to player box"
       ISLAND_RESPAWN:
         description: |-
           &a Players respawn
-          &a in their area
+          &a in their box
         name: "Area respawn"
       LOCK: 
-        name: "Lock player area"
+        name: "Lock player box"
       OFFLINE_REDSTONE:
         description: |-
             &a When disabled, redstone
-            &a will not operate in areas
+            &a will not operate in boxs
             &a where all members are offline.
             &a May help reduce lag.   
       PISTON_PUSH: 
         description: |-
             &a Allow pistons to push
-            &a blocks outside a player's area
+            &a blocks outside a player's box
       PVP_OVERWORLD: 
         description: |-
             &c Enable/Disable PVP
-            &c in protected area.
+            &c in protected box.
       REMOVE_MOBS: 
         description: |-
           &a Remove monsters when
-          &a teleporting to an area
+          &a teleporting to a box
       PREVENT_TELEPORT_WHEN_FALLING:
         description: |-
           &a Prevent players from teleporting
           &a if they are falling.
         hint: "&c You cannot teleport while you are falling!"
-    locked: "&c This area is locked!"
+    locked: "&c This box is locked!"
     protected: "&c Area protected: [description]"
 
     panel:
@@ -207,9 +209,9 @@ boxed:
         title: "&6 Protection"
         description: |-
           &a Protection settings
-          &a for this area
+          &a for this box
       SETTING:
         description: |-
           &a General settings
-          &a for this area
+          &a for this box
 

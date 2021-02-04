@@ -3,7 +3,7 @@ boxed:
   command:
     # Player Command. What command users will run to access their area.
     # To define alias, just separate commands with white space.
-    island: boxed bx
+    island: boxed bx box
     # The admin command.
     # To define alias, just separate commands with white space.
     admin: boxadmin

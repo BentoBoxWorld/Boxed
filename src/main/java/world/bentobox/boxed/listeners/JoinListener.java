@@ -13,6 +13,7 @@ import world.bentobox.bentobox.BentoBox;
 import world.bentobox.boxed.Boxed;
 
 /**
+ * Just used for development right now
  * @author tastybento
  *
  */
@@ -29,15 +30,16 @@ public class JoinListener implements Listener {
         Iterator<Advancement> it = Bukkit.advancementIterator();
         while (it.hasNext()) {
             Advancement a = it.next();
-            if (!a.getKey().getKey().startsWith("recipe")) {
-                AdvancementProgress progress = e.getPlayer().getAdvancementProgress(a);
-                BentoBox.getInstance().logDebug(a.getKey() + " " + progress.isDone());
-                BentoBox.getInstance().logDebug("Awarded criteria");
-                progress.getAwardedCriteria().forEach(s -> BentoBox.getInstance().logDebug(s + " " + progress.getDateAwarded(s)));
+            //if (!a.getKey().getKey().startsWith("recipe")) {
+            AdvancementProgress progress = e.getPlayer().getAdvancementProgress(a);
+            BentoBox.getInstance().logDebug(a.getKey().toString());
+            //BentoBox.getInstance().logDebug(a.getKey() + " " + progress.isDone());
+            //BentoBox.getInstance().logDebug("Awarded criteria");
+            //progress.getAwardedCriteria().forEach(s -> BentoBox.getInstance().logDebug(s + " " + progress.getDateAwarded(s)));
 
-                BentoBox.getInstance().logDebug("Remaining criteria " + progress.getRemainingCriteria());
-                progress.getAwardedCriteria().forEach(progress::revokeCriteria);
-            }
+            //BentoBox.getInstance().logDebug("Remaining criteria " + progress.getRemainingCriteria());
+            //progress.getAwardedCriteria().forEach(progress::revokeCriteria);
+            //}
 
         }
     }

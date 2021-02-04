@@ -35,7 +35,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("Player Command. What command users will run to access their area.")
     @ConfigComment("To define alias, just separate commands with white space.")
     @ConfigEntry(path = "boxed.command.player")
-    private String playerCommandAliases = "boxed br";
+    private String playerCommandAliases = "box bx boxed";
 
     @ConfigComment("The admin command.")
     @ConfigComment("To define alias, just separate commands with white space.")

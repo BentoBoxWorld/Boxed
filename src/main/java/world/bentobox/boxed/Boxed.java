@@ -4,7 +4,6 @@ import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
-import org.bukkit.event.Listener;
 import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -24,7 +23,7 @@ import world.bentobox.boxed.listeners.AdvancementListener;
  * @author tastybento
  * @author Poslovitch
  */
-public class Boxed extends GameModeAddon implements Listener {
+public class Boxed extends GameModeAddon {
 
     private static final String NETHER = "_nether";
     private static final String THE_END = "_the_end";
@@ -33,6 +32,7 @@ public class Boxed extends GameModeAddon implements Listener {
     private Settings settings;
     private ChunkGenerator chunkGenerator;
     private Config<Settings> configObject = new Config<>(this, Settings.class);
+    private AdvancementsManager advManager;
 
     @Override
     public void onLoad() {
@@ -73,7 +73,7 @@ public class Boxed extends GameModeAddon implements Listener {
         settings = configObject.loadConfigObject();
         if (settings == null) {
             // Disable
-            logError("Brix settings could not load! Addon disabled.");
+            logError("Boxed settings could not load! Addon disabled.");
             setState(State.DISABLED);
             return false;
         }
@@ -83,18 +83,21 @@ public class Boxed extends GameModeAddon implements Listener {
     @Override
     public void onEnable(){
         // Register this
-        registerListener(this);
+        //registerListener(new JoinListener(this));
+        // Advancements manager
+        advManager = new AdvancementsManager(this);
     }
 
     @Override
     public void onDisable() {
-        // Nothing to do here
+        // Save the advancements cache
+        getAdvManager().save();
     }
 
     @Override
     public void onReload() {
         if (loadSettings()) {
-            log("Reloaded Brix settings");
+            log("Reloaded Boxed settings");
         }
     }
 
@@ -109,7 +112,7 @@ public class Boxed extends GameModeAddon implements Listener {
     public void createWorlds() {
         String worldName = settings.getWorldName().toLowerCase();
         if (getServer().getWorld(worldName) == null) {
-            log("Creating Brix world ...");
+            log("Creating Boxed world ...");
         }
 
         // Create the world if it does not exist
@@ -117,14 +120,14 @@ public class Boxed extends GameModeAddon implements Listener {
         // Make the nether if it does not exist
         if (settings.isNetherGenerate()) {
             if (getServer().getWorld(worldName + NETHER) == null) {
-                log("Creating Brix's Nether...");
+                log("Creating Boxed's Nether...");
             }
             netherWorld = settings.isNetherIslands() ? getWorld(worldName, World.Environment.NETHER, chunkGenerator) : getWorld(worldName, World.Environment.NETHER, null);
         }
         // Make the end if it does not exist
         if (settings.isEndGenerate()) {
             if (getServer().getWorld(worldName + THE_END) == null) {
-                log("Creating Brix's End World...");
+                log("Creating Boxed's End World...");
             }
             endWorld = settings.isEndIslands() ? getWorld(worldName, World.Environment.THE_END, chunkGenerator) : getWorld(worldName, World.Environment.THE_END, null);
         }
@@ -193,6 +196,13 @@ public class Boxed extends GameModeAddon implements Listener {
         // Reload settings and save them. This will occur after all addons have loaded
         this.loadSettings();
         this.saveWorldSettings();
+    }
+
+    /**
+     * @return the advManager
+     */
+    public AdvancementsManager getAdvManager() {
+        return advManager;
     }
 
 }
