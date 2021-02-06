@@ -64,10 +64,15 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.world-name")
     private String worldName = "boxed_world";
 
+    @ConfigComment("World seed.")
+    @ConfigComment("If you change this, stop the server and delete the worlds made.")
+    @ConfigEntry(path = "world.seed", needsReset = true)
+    private long seed = 978573758696L;
+
     @ConfigComment("World difficulty setting - PEACEFUL, EASY, NORMAL, HARD")
     @ConfigComment("Other plugins may override this setting")
     @ConfigEntry(path = "world.difficulty")
-    private Difficulty difficulty = Difficulty.PEACEFUL;
+    private Difficulty difficulty = Difficulty.NORMAL;
 
     @ConfigComment("Spawn limits. These override the limits set in bukkit.yml")
     @ConfigComment("If set to a negative number, the server defaults will be used")
@@ -1602,5 +1607,19 @@ public class Settings implements WorldSettings {
 
     public float getNoiseScaleHorizontal() {
         return 10;
+    }
+
+    /**
+     * @return the seed
+     */
+    public long getSeed() {
+        return seed;
+    }
+
+    /**
+     * @param seed the seed to set
+     */
+    public void setSeed(long seed) {
+        this.seed = seed;
     }
 }

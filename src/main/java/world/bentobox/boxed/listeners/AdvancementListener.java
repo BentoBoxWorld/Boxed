@@ -34,7 +34,7 @@ public class AdvancementListener implements Listener {
             if (score != 0) {
                 User user = User.getInstance(e.getPlayer());
                 e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
-                String adv = Util.prettifyText(e.getAdvancement().getKey().getKey().substring(e.getAdvancement().getKey().getKey().lastIndexOf("/"), e.getAdvancement().getKey().getKey().length()));
+                String adv = Util.prettifyText(e.getAdvancement().getKey().getKey().substring(e.getAdvancement().getKey().getKey().lastIndexOf("/") + 1, e.getAdvancement().getKey().getKey().length()));
                 user.sendMessage("boxed.completed", TextVariables.NAME,  adv);
                 user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(score));
             }

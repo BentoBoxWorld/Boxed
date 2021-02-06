@@ -17,10 +17,10 @@ public class BasicWorldGenerator implements BaseNoiseGenerator {
     private final Boxed addon;
 
 
-    public BasicWorldGenerator(Boxed addon, WorldRef world) {
+    public BasicWorldGenerator(Boxed addon, WorldRef world, long seed) {
         this.addon = addon;
         // Initialize the noise generator based on the world seed
-        this.mainNoiseGenerator = new SimplexNoiseGenerator(123456789L);
+        this.mainNoiseGenerator = new SimplexNoiseGenerator(seed);
     }
 
 

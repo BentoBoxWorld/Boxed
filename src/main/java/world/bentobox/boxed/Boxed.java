@@ -16,6 +16,7 @@ import world.bentobox.bentobox.api.commands.island.DefaultPlayerCommand;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.configuration.WorldSettings;
 import world.bentobox.boxed.generators.BasicWorldGenerator;
+import world.bentobox.boxed.generators.DeleteGen;
 import world.bentobox.boxed.listeners.AdvancementListener;
 
 /**
@@ -33,6 +34,7 @@ public class Boxed extends GameModeAddon {
     private ChunkGenerator chunkGenerator;
     private Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
+    private DeleteGen delChunks;
 
     @Override
     public void onLoad() {
@@ -41,13 +43,12 @@ public class Boxed extends GameModeAddon {
         // Load settings from config.yml. This will check if there are any issues with it too.
         loadSettings();
         // Chunk generator
-        //chunkGenerator = settings.isUseOwnGenerator() ? null : new ChunkGeneratorWorld(this);
         WorldRef wordRef = WorldRef.ofName(getSettings().getWorldName());
         chunkGenerator = WorldGeneratorApi
                 .getInstance(getPlugin(), 0, 5)
                 .createCustomGenerator(wordRef, generator -> {
                     // Set the noise generator
-                    generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, wordRef));
+                    generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, wordRef, getSettings().getSeed()));
                     generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
                     generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
                 });
@@ -86,6 +87,8 @@ public class Boxed extends GameModeAddon {
         //registerListener(new JoinListener(this));
         // Advancements manager
         advManager = new AdvancementsManager(this);
+        // Get delete chunk generator
+        delChunks = new DeleteGen(this);
     }
 
     @Override
@@ -144,8 +147,9 @@ public class Boxed extends GameModeAddon {
         // Set world name
         worldName2 = env.equals(World.Environment.NETHER) ? worldName2 + NETHER : worldName2;
         worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
-        WorldCreator wc = WorldCreator.name(worldName2).type(WorldType.FLAT).environment(env);
-        World w = settings.isUseOwnGenerator() ? wc.createWorld() : wc.generator(chunkGenerator2).createWorld();
+        World w = WorldCreator.name(worldName2).type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
+        // Backup world
+        WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
         // Set spawn rates
         if (w != null) {
             if (getSettings().getSpawnLimitMonsters() > 0) {
@@ -178,6 +182,9 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public @Nullable ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        if (id.equals("delete")) {
+            return delChunks;
+        }
         return chunkGenerator;
     }
 
