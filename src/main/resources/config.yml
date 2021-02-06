@@ -3,7 +3,7 @@ boxed:
   command:
     # Player Command. What command users will run to access their area.
     # To define alias, just separate commands with white space.
-    island: boxed bx box
+    player: boxed bx box
     # The admin command.
     # To define alias, just separate commands with white space.
     admin: boxadmin
@@ -21,6 +21,10 @@ world:
   # Name of the world - if it does not exist then it will be generated.
   # It acts like a prefix for nether and end (e.g. boxed_world, boxed_world_nether, boxed_world_end)
   world-name: boxed_world
+  # World seed.
+  # If you change this, stop the server and delete the worlds made.
+  # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
+  seed: 978573758696
   # World difficulty setting - PEACEFUL, EASY, NORMAL, HARD
   # Other plugins may override this setting
   difficulty: NORMAL
@@ -37,26 +41,21 @@ world:
     # Setting to 0 will disable monster spawns, but this is not recommended. Minecraft default is 400.
     # A negative value uses the server default
     ticks-per-monster-spawns: -1
-  # Radius of island in blocks. (So distance between islands is twice this)
+  # Radius of player areas. (So distance between player starting spots is twice this)
   # It is the same for every dimension : Overworld, Nether and End.
   # This value cannot be changed mid-game and the plugin will not start if it is different.
   # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
-  distance-between-islands: 400
-  # Default protection range radius in blocks. Cannot be larger than distance.
-  # Admins can change protection sizes for players individually using /boxadmin range set <player> <new range>
-  # or set this permission: boxed.island.range.<number>
-  protection-range: 1
-  # Start islands at these coordinates. This is where new islands will start in the
-  # world. These must be a factor of your island distance, but the plugin will auto
-  # calculate the closest location on the grid. Islands develop around this location
-  # both positively and negatively in a square grid.
+  area-radius: 400
+  # Starting size of boxed spaces. This is a radius so 1 = a 2x2 area.
+  # Admins can adjust via the /boxadmin range set <player> <new range> command
+  starting-protection-range: 1
+  # Start to place players at these coordinates. This is where players will start in the
+  # world. This must be a multiple of your area radius, but the plugin will auto
+  # calculate the closest location on the grid. Players are placed around this location
+  # in a spiral manner.
   # If none of this makes sense, leave it at 0,0.
-  # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
   start-x: 0
-  # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
   start-z: 0
-  offset-x: 0
-  offset-z: 0
   # Area height - Lowest is 5.
   # It is the y coordinate of the bedrock block in the blueprint.
   area-height: 5
@@ -83,13 +82,6 @@ world:
     # Note that with a standard nether all players arrive at the same portal and entering a
     # portal will return them back to their areas.
     generate: true
-    # Islands in Nether. Change to false for standard vanilla nether.
-    # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
-    areas: true
-    # Make the nether roof, if false, there is nothing up there
-    # Change to false if lag is a problem from the generation
-    # Only applies to areas Nether
-    roof: true
     # Nether spawn protection radius - this is the distance around the nether spawn
     # that will be protected from player interaction (breaking blocks, pouring lava etc.)
     # Minimum is 0 (not recommended), maximum is 100. Default is 25.
@@ -99,11 +91,6 @@ world:
     # End Nether - if this is false, the end world will not be made and access to
     # the end will not occur. Other plugins may still enable portal usage.
     generate: true
-    # Islands in The End. Change to false for standard vanilla end.
-    # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
-    areas: true
-    # /!\ This feature is experimental and might not work as expected or might not work at all.
-    dragon-spawn: false
   # Mob white list - these mobs will NOT be removed when logging in or doing /boxed
   remove-mobs-whitelist: []
   # World flags. These are boolean settings for various flags for this world
@@ -111,12 +98,12 @@ world:
     HURT_ANIMALS: false
     DRAGON_EGG: false
     ISLAND_RESPAWN: true
-    REDSTONE: false
-    CREEPER_GRIEFING: false
+    REDSTONE: true
+    CREEPER_GRIEFING: true
     BUCKET: false
     ENDER_PEARL: false
     DOOR: true
-    NATURAL_SPAWNING_OUTSIDE_RANGE: false
+    NATURAL_SPAWNING_OUTSIDE_RANGE: true
     BREAK_HOPPERS: false
     FURNACE: false
     LIQUIDS_FLOWING_OUT: true
@@ -125,40 +112,40 @@ world:
     FISH_SCOOPING: false
     END_PORTAL: false
     BREEDING: false
-    ENDER_CHEST: true
+    ENDER_CHEST: false
     HURT_VILLAGERS: false
     TREES_GROWING_OUTSIDE_RANGE: true
     WITHER_DAMAGE: false
-    FROST_WALKER: false
+    FROST_WALKER: true
     TURTLE_EGGS: false
-    PISTON_PUSH: true
+    PISTON_PUSH: false
     COLLECT_LAVA: false
     BREAK_SPAWNERS: false
     LEVER: false
     ELYTRA: true
-    COARSE_DIRT_TILLING: false
+    COARSE_DIRT_TILLING: true
     RIDING: false
     CAKE: false
-    HURT_MONSTERS: false
+    HURT_MONSTERS: true
     ARMOR_STAND: false
     NAME_TAG: false
     ENDERMAN_GRIEFING: true
     CLEAN_SUPER_FLAT: false
-    TRADING: true
+    TRADING: false
     EGGS: false
     ITEM_DROP: true
-    NOTE_BLOCK: false
+    NOTE_BLOCK: true
     ENTER_EXIT_MESSAGES: true
     FLINT_AND_STEEL: false
     NETHER_PORTAL: false
     REMOVE_END_EXIT_ISLAND: true
     LECTERN: false
     OFFLINE_GROWTH: true
-    ITEM_PICKUP: false
+    ITEM_PICKUP: true
     CROP_TRAMPLE: false
     BREWING: false
     DROPPER: false
-    OBSIDIAN_SCOOPING: true
+    OBSIDIAN_SCOOPING: false
     CREEPER_DAMAGE: true
     TNT_PRIMING: false
     COLLECT_WATER: false
@@ -167,14 +154,14 @@ world:
     FIRE_EXTINGUISH: false
     COMMAND_RANKS: false
     BEACON: false
-    TRAPDOOR: true
-    EXPERIENCE_BOTTLE_THROWING: false
-    PRESSURE_PLATE: true
+    TRAPDOOR: false
+    EXPERIENCE_BOTTLE_THROWING: true
+    PRESSURE_PLATE: false
     DYE: false
     ITEM_FRAME: false
     PLACE_BLOCKS: false
-    CRAFTING: true
-    REMOVE_MOBS: false
+    CRAFTING: false
+    REMOVE_MOBS: true
     ENCHANTING: true
     SHEARING: false
     BOAT: false
@@ -184,10 +171,10 @@ world:
     MILKING: false
     DISPENSER: false
     GATE: true
-    CHEST_DAMAGE: false
-    EXPERIENCE_PICKUP: false
+    CHEST_DAMAGE: true
+    EXPERIENCE_PICKUP: true
     PREVENT_TELEPORT_WHEN_FALLING: false
-    WORLD_TNT_DAMAGE: false
+    WORLD_TNT_DAMAGE: true
     HOPPER: false
     LEASH: false
     BREAK_BLOCKS: false
@@ -198,7 +185,7 @@ world:
     ITEM_FRAME_DAMAGE: false
     JUKEBOX: false
     POTION_THROWING: false
-    SPAWNER_SPAWN_EGGS: true
+    SPAWNER_SPAWN_EGGS: false
   # These are the default protection settings for new areas.
   # The value is the minimum area rank required allowed to do the action
   # Ranks are the following:
@@ -213,6 +200,7 @@ world:
     DRAGON_EGG: 500
     REDSTONE: 500
     BUCKET: 500
+    LOCK: 0
     ENDER_PEARL: 500
     DOOR: 0
     BREAK_HOPPERS: 500
@@ -261,19 +249,19 @@ world:
     ITEM_FRAME: 500
     CRAFTING: 0
     SHEARING: 500
-    ANIMAL_SPAWNERS_SPAWN: 500
     ENCHANTING: 500
+    ANIMAL_SPAWNERS_SPAWN: 500
     BOAT: 0
-    SPAWN_EGGS: 500
     BED: 500
+    SPAWN_EGGS: 500
     MILKING: 500
     DISPENSER: 500
     GATE: 0
     EXPERIENCE_PICKUP: 500
     HOPPER: 500
     LEASH: 500
-    MOUNT_INVENTORY: 500
     BREAK_BLOCKS: 500
+    MOUNT_INVENTORY: 500
     CHORUS_FRUIT: 500
     CONTAINER: 500
     POTION_THROWING: 500
@@ -282,16 +270,32 @@ world:
   default-area-settings:
     PVP_END: false
     PVP_NETHER: false
-    LEAF_DECAY: false
-    TNT_DAMAGE: false
-    ANIMAL_NATURAL_SPAWN: false
-    MONSTER_NATURAL_SPAWN: false
-    FIRE_SPREAD: false
+    LEAF_DECAY: true
+    TNT_DAMAGE: true
+    MONSTER_SPAWNERS_SPAWN: true
+    ANIMAL_NATURAL_SPAWN: true
+    MONSTER_NATURAL_SPAWN: true
+    FIRE_IGNITE: true
+    FIRE_SPREAD: true
     FIRE_BURNING: true
+    ANIMAL_SPAWNERS_SPAWN: true
     PVP_OVERWORLD: false
   # These settings/flags are hidden from users
   # Ops can toggle hiding in-game using SHIFT-LEFT-CLICK on flags in settings
-  hidden-flags: []
+  hidden-flags:
+  - PVP_END
+  - ANIMAL_NATURAL_SPAWN
+  - ANIMAL_SPAWNERS_SPAWN
+  - FIRE_IGNITE
+  - FIRE_SPREAD
+  - LEAF_DECAY
+  - MONSTER_NATURAL_SPAWN
+  - MONSTER_SPAWNERS_SPAWN
+  - PVP_NETHER
+  - PVP_OVERWORLD
+  - TNT_DAMAGE
+  - FIRE_BURNING
+  - COLLECT_LAVA
   # Visitor banned commands - Visitors to areas cannot use these commands in this world
   visitor-banned-commands: []
   # Falling banned commands - players cannot use these commands when falling
@@ -313,7 +317,7 @@ area:
   # Accessed via /is sethome <number> or /is go <number>
   max-homes: 5
   reset:
-    # How many resets a player is allowed (manage with /bsbadmin reset add/remove/reset/set command)
+    # How many resets a player is allowed (manage with /boxadmin reset add/remove/reset/set command)
     # Value of -1 means unlimited, 0 means hardcore - no resets.
     # Example, 2 resets means they get 2 resets or 3 areas lifetime
     reset-limit: -1
@@ -412,7 +416,7 @@ area:
     # 
     # Here are some examples of valid commands to execute:
     #    * "[SUDO] bbox version"
-    #    * "bsbadmin deaths set [player] 0"
+    #    * "boxadmin deaths set [player] 0"
     on-join:
     - advancement revoke [player] everything
     # List of commands to run when a player leaves an area, resets his area or gets kicked from it.
@@ -424,7 +428,7 @@ area:
     # 
     # Here are some examples of valid commands to execute:
     #    * '[SUDO] bbox version'
-    #    * 'bsbadmin deaths set [player] 0'
+    #    * 'boxadmin deaths set [player] 0'
     # 
     # Note that player-executed commands might not work, as these commands can be run with said player being offline.
     on-leave: []
@@ -459,4 +463,3 @@ protection:
 do-not-edit-these-settings:
   # These settings should not be edited
   reset-epoch: 0
-
