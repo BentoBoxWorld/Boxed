@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
@@ -25,7 +26,7 @@ public class JoinListener implements Listener {
         this.addon = addon;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onJoinEvent(PlayerJoinEvent e) {
         Iterator<Advancement> it = Bukkit.advancementIterator();
         while (it.hasNext()) {

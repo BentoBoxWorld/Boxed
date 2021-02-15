@@ -2,6 +2,7 @@ package world.bentobox.boxed.listeners;
 
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
@@ -27,7 +28,7 @@ public class AdvancementListener implements Listener {
     }
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
         if (e.getPlayer().getWorld().equals(addon.getOverWorld())) {
             int score = addon.getAdvManager().addAvancement(e.getPlayer(), e.getAdvancement());

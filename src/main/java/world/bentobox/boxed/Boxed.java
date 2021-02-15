@@ -18,6 +18,7 @@ import world.bentobox.bentobox.api.configuration.WorldSettings;
 import world.bentobox.boxed.generators.BasicWorldGenerator;
 import world.bentobox.boxed.generators.DeleteGen;
 import world.bentobox.boxed.listeners.AdvancementListener;
+import world.bentobox.boxed.listeners.EnderPearlListener;
 
 /**
  * Main BSkyBlock class - provides an island minigame in the sky
@@ -66,6 +67,7 @@ public class Boxed extends GameModeAddon {
 
         // Register listeners
         this.registerListener(new AdvancementListener(this));
+        this.registerListener(new EnderPearlListener(this));
         //this.registerListener(new JoinListener(this));
     }
 
