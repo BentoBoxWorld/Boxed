@@ -16,6 +16,7 @@ import world.bentobox.bentobox.api.commands.island.DefaultPlayerCommand;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.configuration.WorldSettings;
 import world.bentobox.boxed.generators.BasicWorldGenerator;
+import world.bentobox.boxed.generators.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.DeleteGen;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
@@ -52,6 +53,7 @@ public class Boxed extends GameModeAddon {
                     generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, wordRef, getSettings().getSeed()));
                     generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
                     generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
+                    generator.setBiomeGenerator(new BoxedBiomeGenerator(this));
                 });
         // Register commands
         playerCommand = new DefaultPlayerCommand(this)
