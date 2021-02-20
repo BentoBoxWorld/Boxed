@@ -1,0 +1,205 @@
+biomes:
+  BADLANDS_PLATEAU: 
+    height: 9
+    scale: 16
+  BADLANDS:
+    height: 8
+    scale: 10
+  BAMBOO_JUNGLE_HILLS: 
+    height: 9
+    scale: 2.5
+  BAMBOO_JUNGLE: 
+    height: 8
+    scale: 10
+  BEACH: 
+    height: 7
+    scale: 16
+  BIRCH_FOREST_HILLS: 
+    height: 9
+    scale: 2.5
+  BIRCH_FOREST: 
+    height: 8
+    scale: 10
+  COLD_OCEAN: 
+    height: 5
+    scale: 3.33
+  DARK_FOREST_HILLS: 
+    height: 9
+    scale: 2.5
+  DARK_FOREST: 
+    height: 8
+    scale: 10
+  DEEP_COLD_OCEAN: 
+    height: 5
+    scale: 3.33
+  DEEP_FROZEN_OCEAN: 
+    height: 5
+    scale: 3.33
+  DEEP_LUKEWARM_OCEAN: 
+    height: 5
+    scale: 3.33
+  DEEP_OCEAN: 
+    height: 5
+    scale: 3.33
+  DEEP_WARM_OCEAN: 
+    height: 5
+    scale: 3.33
+  DESERT_HILLS: 
+    height: 9
+    scale: 2.5
+  DESERT_LAKES: 
+    height: 8
+    scale: 10
+  DESERT: 
+    height: 8
+    scale: 15
+  ERODED_BADLANDS: 
+    height: 8
+    scale: 17
+  FLOWER_FOREST: 
+    height: 8
+    scale: 10
+  FOREST: 
+    height: 8
+    scale: 10
+  FROZEN_OCEAN: 
+    height: 5
+    scale: 3.33
+  FROZEN_RIVER: 
+    height: 5
+    scale: 10
+  GIANT_SPRUCE_TAIGA_HILLS: 
+    height: 9
+    scale: 2.5
+  GIANT_SPRUCE_TAIGA: 
+    height: 8
+    scale: 10
+  GIANT_TREE_TAIGA_HILLS: 
+    height: 9
+    scale: 2.5
+  GIANT_TREE_TAIGA: 
+    height: 8
+    scale: 10
+  GRAVELLY_MOUNTAINS: 
+    height: 10
+    scale: 2.5
+  ICE_SPIKES: 
+    height: 8
+    scale: 20
+  JUNGLE_EDGE: 
+    height: 8
+    scale: 10
+  JUNGLE_HILLS: 
+    height: 9
+    scale: 2.5
+  JUNGLE: 
+    height: 8
+    scale: 10
+  LUKEWARM_OCEAN: 
+    height: 5
+    scale: 3.33
+  MODIFIED_BADLANDS_PLATEAU: 
+    height: 9
+    scale: 16
+  MODIFIED_GRAVELLY_MOUNTAINS: 
+    height: 10
+    scale: 2.5
+  MODIFIED_JUNGLE_EDGE: 
+    height: 8
+    scale: 10
+  MODIFIED_JUNGLE: 
+    height: 8
+    scale: 10
+  MODIFIED_WOODED_BADLANDS_PLATEAU: 
+    height: 9
+    scale: 16
+  MOUNTAIN_EDGE: 
+    height: 10
+    scale: 2.5
+  MOUNTAINS: 
+    height: 10
+    scale: 2.5
+  MUSHROOM_FIELD_SHORE: 
+    height: 5
+    scale: 10
+  MUSHROOM_FIELDS: 
+    height: 8
+    scale: 10
+  OCEAN: 
+    height: 5
+    scale: 3.33
+  PLAINS: 
+    height: 8
+    scale: 10
+  RIVER: 
+    height: 5
+    scale: 10
+  SAVANNA_PLATEAU: 
+    height: 9
+    scale: 16
+  SAVANNA: 
+    height: 8
+    scale: 10
+  SHATTERED_SAVANNA_PLATEAU: 
+    height: 9
+    scale: 16
+  SHATTERED_SAVANNA: 
+    height: 8
+    scale: 10
+  SNOWY_BEACH: 
+    height: 7
+    scale: 16
+  SNOWY_MOUNTAINS: 
+    height: 10
+    scale: 2.5
+  SNOWY_TAIGA_HILLS: 
+    height: 9
+    scale: 2.5
+  SNOWY_TAIGA_MOUNTAINS: 
+    height: 10
+    scale: 2.5
+  SNOWY_TAIGA: 
+    height: 8
+    scale: 10
+  SNOWY_TUNDRA: 
+    height: 8
+    scale: 10
+  STONE_SHORE: 
+    height: 8
+    scale: 10
+  SUNFLOWER_PLAINS: 
+    height: 8
+    scale: 10
+  SWAMP_HILLS: 
+    height: 9
+    scale: 2.5
+  SWAMP: 
+    height: 8
+    scale: 10
+  TAIGA_HILLS: 
+    height: 9
+    scale: 2.5
+  TAIGA_MOUNTAINS: 
+    height: 10
+    scale: 2.5
+  TAIGA: 
+    height: 8
+    scale: 10
+  TALL_BIRCH_FOREST: 
+    height: 8
+    scale: 10
+  TALL_BIRCH_HILLS: 
+    height: 9
+    scale: 2.5
+  WARM_OCEAN: 
+    height: 5
+    scale: 3.33
+  WOODED_BADLANDS_PLATEAU: 
+    height: 9
+    scale: 16
+  WOODED_HILLS: 
+    height: 9
+    scale: 2.5
+  WOODED_MOUNTAINS: 
+    height: 10
+    scale: 2.5

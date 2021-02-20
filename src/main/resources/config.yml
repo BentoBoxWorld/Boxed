@@ -105,10 +105,10 @@ world:
     DOOR: true
     NATURAL_SPAWNING_OUTSIDE_RANGE: true
     BREAK_HOPPERS: false
-    FURNACE: false
+    FURNACE: true
     LIQUIDS_FLOWING_OUT: true
     ANVIL: false
-    MINECART: false
+    MINECART: true
     FISH_SCOOPING: false
     END_PORTAL: false
     BREEDING: false
@@ -131,7 +131,7 @@ world:
     NAME_TAG: false
     ENDERMAN_GRIEFING: true
     CLEAN_SUPER_FLAT: false
-    TRADING: false
+    TRADING: true
     EGGS: false
     ITEM_DROP: true
     NOTE_BLOCK: true
@@ -160,11 +160,11 @@ world:
     DYE: false
     ITEM_FRAME: false
     PLACE_BLOCKS: false
-    CRAFTING: false
+    CRAFTING: true
     REMOVE_MOBS: true
     ENCHANTING: true
     SHEARING: false
-    BOAT: false
+    BOAT: true
     BANK_ACCESS: false
     BED: false
     SPAWN_EGGS: false
@@ -181,10 +181,10 @@ world:
     MOUNT_INVENTORY: false
     OFFLINE_REDSTONE: true
     CHORUS_FRUIT: false
-    CONTAINER: false
+    CONTAINER: true
     ITEM_FRAME_DAMAGE: false
     JUKEBOX: false
-    POTION_THROWING: false
+    POTION_THROWING: true
     SPAWNER_SPAWN_EGGS: false
   # These are the default protection settings for new areas.
   # The value is the minimum area rank required allowed to do the action

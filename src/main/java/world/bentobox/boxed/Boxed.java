@@ -44,6 +44,8 @@ public class Boxed extends GameModeAddon {
         saveDefaultConfig();
         // Load settings from config.yml. This will check if there are any issues with it too.
         loadSettings();
+        // Save biomes
+        this.saveResource("biomes.yml", false);
         // Chunk generator
         WorldRef wordRef = WorldRef.ofName(getSettings().getWorldName());
         chunkGenerator = WorldGeneratorApi
@@ -51,7 +53,7 @@ public class Boxed extends GameModeAddon {
                 .createCustomGenerator(wordRef, generator -> {
                     // Set the noise generator
                     generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, wordRef, getSettings().getSeed()));
-                    generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
+                    //generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
                     generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
                     generator.setBiomeGenerator(new BoxedBiomeGenerator(this));
                 });
@@ -153,7 +155,9 @@ public class Boxed extends GameModeAddon {
         worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
         World w = WorldCreator.name(worldName2).type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
         // Backup world
-        WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
+        if (env.equals(Environment.NORMAL)) {
+            WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
+        }
         // Set spawn rates
         if (w != null) {
             if (getSettings().getSpawnLimitMonsters() > 0) {

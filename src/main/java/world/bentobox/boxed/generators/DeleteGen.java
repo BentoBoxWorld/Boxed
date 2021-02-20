@@ -24,8 +24,8 @@ public class DeleteGen extends ChunkGenerator {
     public DeleteGen(Boxed addon) {
         backMap = new HashMap<>();
         backMap.put(addon.getOverWorld(), Bukkit.getWorld(addon.getOverWorld().getName() + "_bak"));
-        backMap.put(addon.getNetherWorld(), Bukkit.getWorld(addon.getNetherWorld().getName() + "_bak"));
-        backMap.put(addon.getEndWorld(), Bukkit.getWorld(addon.getEndWorld().getName() + "_bak"));
+        //backMap.put(addon.getNetherWorld(), Bukkit.getWorld(addon.getNetherWorld().getName() + "_bak"));
+        //backMap.put(addon.getEndWorld(), Bukkit.getWorld(addon.getEndWorld().getName() + "_bak"));
     }
 
     @Override
