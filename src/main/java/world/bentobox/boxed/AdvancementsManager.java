@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import world.bentobox.bentobox.api.events.island.IslandEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Util;
@@ -158,8 +159,18 @@ public class AdvancementsManager {
         // Get island
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
         if (island != null && addAdvancement(island, advancement.getKey().toString())) {
-            int newSize = Math.max(1, island.getProtectionRange() + score);
+            int oldSize = island.getProtectionRange();
+            int newSize = Math.max(1, oldSize + score);
             island.setProtectionRange(newSize);
+            // Call Protection Range Change event. Does not support canceling.
+            IslandEvent.builder()
+            .island(island)
+            .location(island.getCenter())
+            .reason(IslandEvent.Reason.RANGE_CHANGE)
+            .involvedPlayer(p.getUniqueId())
+            .admin(true)
+            .protectionRange(newSize, island.getProtectionRange())
+            .build();
             return score;
         }
         return 0;
