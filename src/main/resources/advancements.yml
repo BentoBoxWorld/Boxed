@@ -27,7 +27,7 @@ advancements:
   'minecraft:end/kill_dragon': 1
   'minecraft:end/levitate': 1
   'minecraft:end/respawn_dragon': 1
-  'minecraft:end/root': 1
+  'minecraft:end/root': 0
   'minecraft:husbandry/balanced_diet': 1
   'minecraft:husbandry/bred_all_animals': 1
   'minecraft:husbandry/breed_an_animal': 1
@@ -59,7 +59,7 @@ advancements:
   'minecraft:nether/obtain_crying_obsidian': 1
   'minecraft:nether/return_to_sender': 1
   'minecraft:nether/ride_strider': 1
-  'minecraft:nether/root': 1
+  'minecraft:nether/root': 0
   'minecraft:nether/summon_wither': 1
   'minecraft:nether/uneasy_alliance': 1
   'minecraft:nether/use_lodestone': 1
