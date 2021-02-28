@@ -1622,4 +1622,10 @@ public class Settings implements WorldSettings {
     public void setSeed(long seed) {
         this.seed = seed;
     }
+    
+    @Override
+    public boolean isCheckForBlocks() {
+        // Do not check for blocks when looking for a new island spot
+        return false;
+    }
 }
