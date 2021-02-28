@@ -129,7 +129,7 @@ public class BoxedBiomeGenerator implements BiomeGenerator {
         return en == null ? Biome.OCEAN : en.getValue();
     }
 
-    public Vector getClosestIsland(Vector v) {
+    Vector getClosestIsland(Vector v) {
         int d = dist * 2;
         long x = Math.round((double) v.getBlockX() / d) * d + offsetX;
         long z = Math.round((double) v.getBlockZ() / d) * d + offsetZ;
