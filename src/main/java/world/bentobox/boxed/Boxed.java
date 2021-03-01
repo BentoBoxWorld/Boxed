@@ -1,5 +1,8 @@
 package world.bentobox.boxed;
 
+import java.util.Collections;
+
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
@@ -15,6 +18,10 @@ import world.bentobox.bentobox.api.commands.admin.DefaultAdminCommand;
 import world.bentobox.bentobox.api.commands.island.DefaultPlayerCommand;
 import world.bentobox.bentobox.api.configuration.Config;
 import world.bentobox.bentobox.api.configuration.WorldSettings;
+import world.bentobox.bentobox.api.flags.Flag;
+import world.bentobox.bentobox.api.flags.Flag.Mode;
+import world.bentobox.bentobox.api.flags.Flag.Type;
+import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.generators.BasicWorldGenerator;
 import world.bentobox.boxed.generators.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.DeleteGen;
@@ -22,12 +29,17 @@ import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 
 /**
- * Main BSkyBlock class - provides an island minigame in the sky
+ * Main Boxed class - provides an survival game inside a box
  * @author tastybento
- * @author Poslovitch
  */
 public class Boxed extends GameModeAddon {
 
+    public static final Flag MOVE_BOX = new Flag.Builder("MOVE_BOX", Material.COMPOSTER)
+            .mode(Mode.BASIC)
+            .type(Type.PROTECTION)
+            .defaultRank(RanksManager.OWNER_RANK)
+            .build();
+    
     private static final String NETHER = "_nether";
     private static final String THE_END = "_the_end";
 
@@ -72,7 +84,6 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
-        //this.registerListener(new JoinListener(this));
     }
 
     private boolean loadSettings() {
@@ -95,6 +106,11 @@ public class Boxed extends GameModeAddon {
         advManager = new AdvancementsManager(this);
         // Get delete chunk generator
         delChunks = new DeleteGen(this);
+        // Make flag only applicable to this game mode
+        MOVE_BOX.setGameModes(Collections.singleton(this));
+        // Register protection flag with BentoBox
+        getPlugin().getFlagsManager().registerFlag(this, MOVE_BOX);
+        
     }
 
     @Override

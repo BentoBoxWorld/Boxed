@@ -14,7 +14,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import world.bentobox.bentobox.api.user.User;
-import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -47,9 +46,8 @@ public class EnderPearlListener implements Listener {
         if (ep.getShooter() instanceof Player) {
             User u = User.getInstance((Player)ep.getShooter());
             addon.getIslands().getIslandAt(l).ifPresent(i -> {
-                // TODO make this a flag
-                if (i.getMemberSet(RanksManager.OWNER_RANK).contains(u.getUniqueId())
-                        && addon.getIslands().isSafeLocation(l)) {
+             // Check flag
+                if (i.isAllowed(u, Boxed.MOVE_BOX) && addon.getIslands().isSafeLocation(l)) {
                     // Reset home locations
                     i.getMemberSet().forEach(uuid -> {
                         addon.getPlayers().getPlayer(uuid).clearHomeLocations(l.getWorld());
@@ -59,8 +57,7 @@ public class EnderPearlListener implements Listener {
                         i.setProtectionCenter(l);
                         u.getPlayer().playSound(l, Sound.ENTITY_GENERIC_EXPLODE, 2F, 2F);
                     } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                        addon.logError("Could not move box " + e1.getMessage());
                     }
                 }
             });
