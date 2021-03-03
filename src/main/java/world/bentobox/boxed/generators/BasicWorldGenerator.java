@@ -42,8 +42,8 @@ public class BasicWorldGenerator implements BaseNoiseGenerator {
         Biome biome = biomeGenerator.getZoomedOutBiome(scaledX, scaledZ);
         double noiseScaleHorizontal = config.getDouble("biomes." + biome.name() + ".scale", 10D);
         double height = config.getDouble("biomes." + biome.name() + ".height", 8D);
-        double x = (((scaledX*4) % dist) / 4) / noiseScaleHorizontal;
-        double z = (((scaledZ*4) % dist) / 4) / noiseScaleHorizontal;
+        double x = ((((double)scaledX*4) % dist) / 4) / noiseScaleHorizontal;
+        double z = ((((double)scaledZ*4) % dist) / 4) / noiseScaleHorizontal;
 
         for (int y = 0; y < buffer.length; y++) {
             double noise = this.mainNoiseGenerator.noise(x, y, z);
