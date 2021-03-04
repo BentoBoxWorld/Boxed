@@ -166,7 +166,7 @@ public class Settings implements WorldSettings {
     private boolean netherGenerate = true;
 
     @ConfigComment("Nether spawn protection radius - this is the distance around the nether spawn")
-    @ConfigComment("that will be protected from player interaction (breaking blocks, pouring lava etc.)")
+    @ConfigComment("that will be public from player interaction (breaking blocks, pouring lava etc.)")
     @ConfigComment("Minimum is 0 (not recommended), maximum is 100. Default is 25.")
     @ConfigComment("Only applies to vanilla nether")
     @ConfigEntry(path = "world.nether.spawn-radius")
@@ -1638,28 +1638,28 @@ public class Settings implements WorldSettings {
     /**
      * @return the allowStructures
      */
-    protected boolean isAllowStructures() {
+    public boolean isAllowStructures() {
         return allowStructures;
     }
 
     /**
      * @param allowStructures the allowStructures to set
      */
-    protected void setAllowStructures(boolean allowStructures) {
+    public void setAllowStructures(boolean allowStructures) {
         this.allowStructures = allowStructures;
     }
 
     /**
      * @return the allowStrongholds
      */
-    protected boolean isAllowStrongholds() {
+    public boolean isAllowStrongholds() {
         return allowStrongholds;
     }
 
     /**
      * @param allowStrongholds the allowStrongholds to set
      */
-    protected void setAllowStrongholds(boolean allowStrongholds) {
+    public void setAllowStrongholds(boolean allowStrongholds) {
         this.allowStrongholds = allowStrongholds;
     }
 }

@@ -2,6 +2,7 @@ package world.bentobox.boxed;
 
 import java.util.Collections;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -10,9 +11,6 @@ import org.bukkit.WorldType;
 import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.Nullable;
 
-import nl.rutgerkok.worldgeneratorapi.WorldGeneratorApi;
-import nl.rutgerkok.worldgeneratorapi.WorldRef;
-import nl.rutgerkok.worldgeneratorapi.decoration.DecorationType;
 import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.commands.admin.DefaultAdminCommand;
 import world.bentobox.bentobox.api.commands.island.DefaultPlayerCommand;
@@ -22,8 +20,7 @@ import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
-import world.bentobox.boxed.generators.BasicWorldGenerator;
-import world.bentobox.boxed.generators.BoxedBiomeGenerator;
+import world.bentobox.boxed.generators.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.DeleteGen;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
@@ -49,6 +46,7 @@ public class Boxed extends GameModeAddon {
     private Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private DeleteGen delChunks;
+    private boolean disabled;
 
     @Override
     public void onLoad() {
@@ -58,21 +56,15 @@ public class Boxed extends GameModeAddon {
         loadSettings();
         // Save biomes
         this.saveResource("biomes.yml", false);
+        // Check for WGAPI
+        if (isNoWGAPI()) {
+            logError("WorldGeneratorAPI plugin is required.");
+            logError("Download the correct one for your server from https://github.com/rutgerkok/WorldGeneratorApi/releases");
+            disabled = true;
+            return;
+        }
         // Chunk generator
-        WorldRef wordRef = WorldRef.ofName(getSettings().getWorldName());
-        chunkGenerator = WorldGeneratorApi
-                .getInstance(getPlugin(), 0, 5)
-                .createCustomGenerator(wordRef, generator -> {
-                    // Set the noise generator
-                    generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, getSettings().getSeed()));
-                    if (getSettings().isAllowStructures()) {
-                        generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
-                    }
-                    if (getSettings().isAllowStrongholds()) {
-                        generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
-                    }
-                    generator.setBiomeGenerator(new BoxedBiomeGenerator(this));
-                });
+        chunkGenerator = new BoxedChunkGenerator(this).getGenerator();
         // Register commands
         playerCommand = new DefaultPlayerCommand(this) {};
 
@@ -81,6 +73,10 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
+    }
+
+    private boolean isNoWGAPI() {
+        return Bukkit.getPluginManager().getPlugin("WorldGeneratorAPI") == null;
     }
 
     private boolean loadSettings() {
@@ -97,6 +93,18 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void onEnable(){
+        // Disable in onEnable
+        if (disabled) {
+            this.setState(State.DISABLED);
+            return;
+        }
+        // Check for recommended addons
+        if (!this.getPlugin().getAddonsManager().getAddonByName("Border").isPresent()) {
+            this.logWarning("Boxed normally requires the Border addon.");
+        }
+        if (!this.getPlugin().getAddonsManager().getAddonByName("InvSwitcher").isPresent()) {
+            this.logWarning("Boxed normally requires the InvSwitcher addon for per-world Advancements.");
+        }
         // Advancements manager
         advManager = new AdvancementsManager(this);
         // Get delete chunk generator
