@@ -67,7 +67,7 @@ public class AdvancementsManager {
      */
     @NonNull
     protected IslandAdvancements getIsland(Island island) {
-        return cache.computeIfAbsent(island.getUniqueId(), k -> getFromDb(k));
+        return cache.computeIfAbsent(island.getUniqueId(), this::getFromDb);
 
     }
 

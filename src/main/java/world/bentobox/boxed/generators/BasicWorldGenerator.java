@@ -8,7 +8,6 @@ import org.bukkit.util.noise.SimplexNoiseGenerator;
 
 import nl.rutgerkok.worldgeneratorapi.BaseNoiseGenerator;
 import nl.rutgerkok.worldgeneratorapi.BiomeGenerator;
-import nl.rutgerkok.worldgeneratorapi.WorldRef;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -22,7 +21,7 @@ public class BasicWorldGenerator implements BaseNoiseGenerator {
     private final YamlConfiguration config;
 
 
-    public BasicWorldGenerator(Boxed addon, WorldRef world, long seed) {
+    public BasicWorldGenerator(Boxed addon, long seed) {
         this.addon = addon;
         // Initialize the noise generator based on the world seed
         this.mainNoiseGenerator = new SimplexNoiseGenerator(seed);

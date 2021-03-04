@@ -1615,10 +1615,6 @@ public class Settings implements WorldSettings {
         this.defaultEndBiome = defaultEndBiome;
     }
 
-    public float getNoiseScaleHorizontal() {
-        return 10;
-    }
-
     /**
      * @return the seed
      */

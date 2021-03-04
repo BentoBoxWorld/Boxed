@@ -64,7 +64,7 @@ public class Boxed extends GameModeAddon {
                 .getInstance(getPlugin(), 0, 5)
                 .createCustomGenerator(wordRef, generator -> {
                     // Set the noise generator
-                    generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, wordRef, getSettings().getSeed()));
+                    generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, getSettings().getSeed()));
                     if (getSettings().isAllowStructures()) {
                         generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
                     }
@@ -74,15 +74,8 @@ public class Boxed extends GameModeAddon {
                     generator.setBiomeGenerator(new BoxedBiomeGenerator(this));
                 });
         // Register commands
-        playerCommand = new DefaultPlayerCommand(this)
+        playerCommand = new DefaultPlayerCommand(this) {};
 
-        {
-            @Override
-            public void setup()
-            {
-                super.setup();
-            }
-        };
         adminCommand = new DefaultAdminCommand(this) {};
 
         // Register listeners
@@ -104,8 +97,6 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void onEnable(){
-        // Register this
-        //registerListener(new JoinListener(this));
         // Advancements manager
         advManager = new AdvancementsManager(this);
         // Get delete chunk generator
@@ -180,27 +171,31 @@ public class Boxed extends GameModeAddon {
         }
         // Set spawn rates
         if (w != null) {
-            if (getSettings().getSpawnLimitMonsters() > 0) {
-                w.setMonsterSpawnLimit(getSettings().getSpawnLimitMonsters());
-            }
-            if (getSettings().getSpawnLimitAmbient() > 0) {
-                w.setAmbientSpawnLimit(getSettings().getSpawnLimitAmbient());
-            }
-            if (getSettings().getSpawnLimitAnimals() > 0) {
-                w.setAnimalSpawnLimit(getSettings().getSpawnLimitAnimals());
-            }
-            if (getSettings().getSpawnLimitWaterAnimals() > 0) {
-                w.setWaterAnimalSpawnLimit(getSettings().getSpawnLimitWaterAnimals());
-            }
-            if (getSettings().getTicksPerAnimalSpawns() > 0) {
-                w.setTicksPerAnimalSpawns(getSettings().getTicksPerAnimalSpawns());
-            }
-            if (getSettings().getTicksPerMonsterSpawns() > 0) {
-                w.setTicksPerMonsterSpawns(getSettings().getTicksPerMonsterSpawns());
-            }
+            setSpawnRates(w);
         }
         return w;
 
+    }
+
+    private void setSpawnRates(World w) {
+        if (getSettings().getSpawnLimitMonsters() > 0) {
+            w.setMonsterSpawnLimit(getSettings().getSpawnLimitMonsters());
+        }
+        if (getSettings().getSpawnLimitAmbient() > 0) {
+            w.setAmbientSpawnLimit(getSettings().getSpawnLimitAmbient());
+        }
+        if (getSettings().getSpawnLimitAnimals() > 0) {
+            w.setAnimalSpawnLimit(getSettings().getSpawnLimitAnimals());
+        }
+        if (getSettings().getSpawnLimitWaterAnimals() > 0) {
+            w.setWaterAnimalSpawnLimit(getSettings().getSpawnLimitWaterAnimals());
+        }
+        if (getSettings().getTicksPerAnimalSpawns() > 0) {
+            w.setTicksPerAnimalSpawns(getSettings().getTicksPerAnimalSpawns());
+        }
+        if (getSettings().getTicksPerMonsterSpawns() > 0) {
+            w.setTicksPerMonsterSpawns(getSettings().getTicksPerMonsterSpawns());
+        }       
     }
 
     @Override
