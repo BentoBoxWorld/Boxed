@@ -73,6 +73,16 @@ public class Settings implements WorldSettings {
     @ConfigComment("Other plugins may override this setting")
     @ConfigEntry(path = "world.difficulty")
     private Difficulty difficulty = Difficulty.NORMAL;
+    
+    @ConfigComment("Allow surface structures - villages, shipwrecks, broken portals, etc.")
+    @ConfigComment("These will be randomly placed, so may not be available for every player.")
+    @ConfigEntry(path = "world.allow-structures", needsRestart = true)
+    private boolean allowStructures = true;
+    
+    @ConfigComment("Allow strongholds.")
+    @ConfigComment("These will be randomly placed, so may not be available for every player.")
+    @ConfigEntry(path = "world.allow-strongholds", experimental = true, needsRestart = true)
+    private boolean allowStrongholds = false;
 
     @ConfigComment("Spawn limits. These override the limits set in bukkit.yml")
     @ConfigComment("If set to a negative number, the server defaults will be used")
@@ -1627,5 +1637,33 @@ public class Settings implements WorldSettings {
     public boolean isCheckForBlocks() {
         // Do not check for blocks when looking for a new island spot
         return false;
+    }
+
+    /**
+     * @return the allowStructures
+     */
+    protected boolean isAllowStructures() {
+        return allowStructures;
+    }
+
+    /**
+     * @param allowStructures the allowStructures to set
+     */
+    protected void setAllowStructures(boolean allowStructures) {
+        this.allowStructures = allowStructures;
+    }
+
+    /**
+     * @return the allowStrongholds
+     */
+    protected boolean isAllowStrongholds() {
+        return allowStrongholds;
+    }
+
+    /**
+     * @param allowStrongholds the allowStrongholds to set
+     */
+    protected void setAllowStrongholds(boolean allowStrongholds) {
+        this.allowStrongholds = allowStrongholds;
     }
 }

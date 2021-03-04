@@ -39,7 +39,7 @@ public class Boxed extends GameModeAddon {
             .type(Type.PROTECTION)
             .defaultRank(RanksManager.OWNER_RANK)
             .build();
-    
+
     private static final String NETHER = "_nether";
     private static final String THE_END = "_the_end";
 
@@ -65,8 +65,12 @@ public class Boxed extends GameModeAddon {
                 .createCustomGenerator(wordRef, generator -> {
                     // Set the noise generator
                     generator.setBaseNoiseGenerator(new BasicWorldGenerator(this, wordRef, getSettings().getSeed()));
-                    //generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
-                    generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
+                    if (getSettings().isAllowStructures()) {
+                        generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
+                    }
+                    if (getSettings().isAllowStrongholds()) {
+                        generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
+                    }
                     generator.setBiomeGenerator(new BoxedBiomeGenerator(this));
                 });
         // Register commands
@@ -110,7 +114,7 @@ public class Boxed extends GameModeAddon {
         MOVE_BOX.setGameModes(Collections.singleton(this));
         // Register protection flag with BentoBox
         getPlugin().getFlagsManager().registerFlag(this, MOVE_BOX);
-        
+
     }
 
     @Override
