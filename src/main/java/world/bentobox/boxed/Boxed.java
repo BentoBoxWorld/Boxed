@@ -46,7 +46,6 @@ public class Boxed extends GameModeAddon {
     private Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private DeleteGen delChunks;
-    private boolean disabled;
 
     @Override
     public void onLoad() {
@@ -60,7 +59,6 @@ public class Boxed extends GameModeAddon {
         if (isNoWGAPI()) {
             logError("WorldGeneratorAPI plugin is required.");
             logError("Download the correct one for your server from https://github.com/rutgerkok/WorldGeneratorApi/releases");
-            disabled = true;
             return;
         }
         // Chunk generator
@@ -94,7 +92,7 @@ public class Boxed extends GameModeAddon {
     @Override
     public void onEnable(){
         // Disable in onEnable
-        if (disabled) {
+        if (isNoWGAPI()) {
             this.setState(State.DISABLED);
             return;
         }
@@ -138,6 +136,9 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void createWorlds() {
+        if (isNoWGAPI()) {
+            return;
+        }
         String worldName = settings.getWorldName().toLowerCase();
         if (getServer().getWorld(worldName) == null) {
             log("Creating Boxed world ...");
