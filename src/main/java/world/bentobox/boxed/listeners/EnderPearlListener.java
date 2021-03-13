@@ -55,6 +55,7 @@ public class EnderPearlListener implements Listener {
                     });
                     try {
                         i.setProtectionCenter(l);
+                        i.setSpawnPoint(l.getWorld().getEnvironment(), l);
                         u.getPlayer().playSound(l, Sound.ENTITY_GENERIC_EXPLODE, 2F, 2F);
                     } catch (IOException e1) {
                         addon.logError("Could not move box " + e1.getMessage());
