@@ -62,11 +62,11 @@ public class AdvancementsManager {
 
     /**
      * Get advancements for the island, loading from database if required
-     * @param island
+     * @param island - island
      * @return the island's advancement list object
      */
     @NonNull
-    protected IslandAdvancements getIsland(Island island) {
+    public IslandAdvancements getIsland(Island island) {
         return cache.computeIfAbsent(island.getUniqueId(), this::getFromDb);
 
     }
@@ -146,7 +146,7 @@ public class AdvancementsManager {
      * @param advancement - advancement
      * @return score for advancement. 0 if the advancement was not added.
      */
-    public int addAvancement(Player p, Advancement advancement) {
+    public int addAdvancement(Player p, Advancement advancement) {
         if (!addon.getOverWorld().equals(Util.getWorld(p.getWorld()))) {
             // Wrong world
             return 0;
@@ -176,4 +176,5 @@ public class AdvancementsManager {
         return 0;
 
     }
+
 }

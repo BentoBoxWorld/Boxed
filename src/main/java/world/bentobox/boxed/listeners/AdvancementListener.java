@@ -7,6 +7,7 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
@@ -15,7 +16,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import world.bentobox.bentobox.api.events.island.IslandNewIslandEvent;
@@ -23,6 +26,8 @@ import world.bentobox.bentobox.api.events.team.TeamJoinedEvent;
 import world.bentobox.bentobox.api.events.team.TeamLeaveEvent;
 import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
+import world.bentobox.bentobox.database.objects.Island;
+import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 
@@ -62,21 +67,37 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
         if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
-            int score = addon.getAdvManager().addAvancement(e.getPlayer(), e.getAdvancement());
+            int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
             if (score != 0) {
                 User user = User.getInstance(e.getPlayer());
-                Bukkit.getScheduler().runTask(addon.getPlugin(), () -> {
-                    e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
-                    String adv = user.getTranslation("boxed.advancements." + e.getAdvancement().getKey().toString());
-                    if (adv.isEmpty()) {
-                        adv = Util.prettifyText(e.getAdvancement().getKey().getKey().substring(e.getAdvancement().getKey().getKey().lastIndexOf("/") + 1, e.getAdvancement().getKey().getKey().length()));
-                    }
-                    user.sendMessage("boxed.completed", TextVariables.NAME,  adv);
-                    user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(score));
-                });
+                Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
             }
         }
     }
+
+    private void tellTeam(User user, NamespacedKey key, int score) {
+        addon.getIslands().getIsland(addon.getOverWorld(), user).getMemberSet(RanksManager.COOP_RANK).stream()
+        .map(User::getInstance)
+        .filter(User::isOnline)
+        .forEach(u -> {
+            informPlayer(u, key, score);
+            // Sync
+            this.syncAdvancements(u);
+        });
+    }
+
+
+    private void informPlayer(User user, NamespacedKey key, int score) {
+        user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
+        String adv = user.getTranslation("boxed.advancements." + key.toString());
+        if (adv.isEmpty()) {
+            adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1, key.getKey().length()));
+        }
+        user.sendMessage("boxed.completed", TextVariables.NAME,  adv);
+        user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(score));
+
+    }
+
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent e) {
@@ -99,18 +120,37 @@ public class AdvancementListener implements Listener {
             adv.getCriteria().forEach(player.getAdvancementProgress(adv)::awardCriteria);
         }
     }
-    
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        User user = User.getInstance(e.getPlayer());
+        if (addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
+            // Set advancements to same as island
+            syncAdvancements(user);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent e) {
+        User user = User.getInstance(e.getPlayer());
+        if (e.getTo() != null && e.getTo().getWorld() != null && addon.getOverWorld().equals(Util.getWorld(e.getTo().getWorld()))) {
+            // Set advancements to same as island
+            syncAdvancements(user);
+        }
+    }
+
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamJoinTime(TeamJoinedEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
         if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
-            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
-            
-        }
+            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements()); 
+            // Set advancements to same as island
+            syncAdvancements(user);
+        }  
     }
-    
+
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamLeaveTime(TeamLeaveEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
@@ -118,10 +158,10 @@ public class AdvancementListener implements Listener {
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnLeaveResetAdvancements(), addon.getSettings().getOnLeaveGrantAdvancements());
-           
+
         }
     }
-    
+
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onFirstTime(IslandNewIslandEvent e) {
         clearAndSetAdv(User.getInstance(e.getPlayerUUID()), addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
@@ -133,14 +173,14 @@ public class AdvancementListener implements Listener {
             return;
         }
         if (clear) {
-            // Clear advancements
-            Iterator<Advancement> it = Bukkit.advancementIterator();
-            while (it.hasNext()) {
-                Advancement a = it.next();
-                AdvancementProgress p = user.getPlayer().getAdvancementProgress(a);
-                p.getAwardedCriteria().forEach(p::revokeCriteria);
-            }
+            clearAdv(user);
         }
+        grantAdv(user, list);
+
+    }
+
+
+    private void grantAdv(User user, List<String> list) {
         // Grant advancements
         list.forEach(k -> {
             Iterator<Advancement> it = Bukkit.advancementIterator();
@@ -152,7 +192,28 @@ public class AdvancementListener implements Listener {
                 }
             }
         });
-        
+
+    }
+
+    private void clearAdv(User user) {
+        // Clear advancements
+        Iterator<Advancement> it = Bukkit.advancementIterator();
+        while (it.hasNext()) {
+            Advancement a = it.next();
+            AdvancementProgress p = user.getPlayer().getAdvancementProgress(a);
+            p.getAwardedCriteria().forEach(p::revokeCriteria);
+        }
     } 
-    
+
+    /**
+     * Synchronize the player's advancements to that of the island.
+     * Player's advancements should be cleared before calling this othewise they will get add the island ones as well.
+     * @param user - user
+     */
+    public void syncAdvancements(User user) {
+        Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        if (island != null) {
+            grantAdv(user, addon.getAdvManager().getIsland(island).getAdvancements());
+        }
+    }
 }

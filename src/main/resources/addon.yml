@@ -1,7 +1,7 @@
 name: Boxed
 main: world.bentobox.boxed.Boxed
 version: ${version}${build.number}
-api-version: 1.16
+api-version: 1.16.1-SNAPSHOT
 metrics: true
 icon: "COMPOSTER"
 repository: "BentoBoxWorld/Boxed"
