@@ -103,7 +103,7 @@ world:
     BUCKET: false
     ENDER_PEARL: false
     DOOR: true
-    NATURAL_SPAWNING_OUTSIDE_RANGE: true
+    NATURAL_SPAWNING_OUTSIDE_RANGE: false
     BREAK_HOPPERS: false
     FURNACE: true
     LIQUIDS_FLOWING_OUT: true
