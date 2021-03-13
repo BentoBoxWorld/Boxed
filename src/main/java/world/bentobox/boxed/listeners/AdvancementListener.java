@@ -13,9 +13,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import world.bentobox.bentobox.api.localization.TextVariables;
+import world.bentobox.bentobox.api.metadata.MetaDataValue;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
@@ -93,5 +95,24 @@ public class AdvancementListener implements Listener {
             adv.getCriteria().forEach(player.getAdvancementProgress(adv)::awardCriteria);
         }
     }
+    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onFirstTime(PlayerTeleportEvent e) {
+        User user = User.getInstance(e.getPlayer());
+        boolean firstTime = user.getMetaData("Boxed-first-time").map(MetaDataValue::asBoolean).orElse(true);
+        if (firstTime 
+                && e.getTo() != null 
+                && e.getTo().getWorld() != null 
+                && addon.getOverWorld().equals(Util.getWorld(e.getTo().getWorld()))
+                && addon.getIslands().hasIsland(addon.getOverWorld(), user) // Owner of island
+                ) {
+            // Clear advancements
+            addon.getPlugin().logDebug("Clear advancements");
+            // Add meta data
+            user.putMetaData("Boxed-first-time", new MetaDataValue(false));
+            addon.getPlayers().save(user.getUniqueId());
+        }
+    }
 
+    
 }

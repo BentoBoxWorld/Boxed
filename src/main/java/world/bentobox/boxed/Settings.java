@@ -293,6 +293,14 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "area.reset.on-join.ender-chest")
     private boolean onJoinResetEnderChest = false;
 
+    @ConfigComment("Reset advancements.")
+    @ConfigEntry(path = "area.reset.on-join.reset-advancements")
+    private boolean onJoinResetAdvancements = true;
+
+    @ConfigComment("Grant these advancements")
+    @ConfigEntry(path = "area.reset.on-join.grant-advancements")
+    private List<String> onJoinGrantAdvancements = new ArrayList<>();
+
     @ConfigComment("What the plugin should reset when the player leaves or is kicked from an area")
     @ConfigComment("Reset Money - if this is true, will reset the player's money to the starting money")
     @ConfigComment("Recommendation is that this is set to true, but if you run multi-worlds")
@@ -321,6 +329,14 @@ public class Settings implements WorldSettings {
     @ConfigComment("Reset Ender Chest - if true, the player's Ender Chest will be cleared.")
     @ConfigEntry(path = "area.reset.on-leave.ender-chest")
     private boolean onLeaveResetEnderChest = false;
+
+    @ConfigComment("Reset advancements.")
+    @ConfigEntry(path = "area.reset.on-leave.reset-advancements")
+    private boolean oLeaveResetAdvancements = false;
+
+    @ConfigComment("Grant these advancements")
+    @ConfigEntry(path = "area.reset.on-leave.grant-advancements")
+    private List<String> onLeaveGrantAdvancements = new ArrayList<>();
 
     @ConfigComment("Toggles the automatic area creation upon the player's first login on your server.")
     @ConfigComment("If set to true,")
@@ -1661,5 +1677,61 @@ public class Settings implements WorldSettings {
      */
     public void setAllowStrongholds(boolean allowStrongholds) {
         this.allowStrongholds = allowStrongholds;
+    }
+
+    /**
+     * @return the onJoinResetAdvancements
+     */
+    public boolean isOnJoinResetAdvancements() {
+        return onJoinResetAdvancements;
+    }
+
+    /**
+     * @param onJoinResetAdvancements the onJoinResetAdvancements to set
+     */
+    public void setOnJoinResetAdvancements(boolean onJoinResetAdvancements) {
+        this.onJoinResetAdvancements = onJoinResetAdvancements;
+    }
+
+    /**
+     * @return the onJoinGrantAdvancements
+     */
+    public List<String> getOnJoinGrantAdvancements() {
+        return onJoinGrantAdvancements;
+    }
+
+    /**
+     * @param onJoinGrantAdvancements the onJoinGrantAdvancements to set
+     */
+    public void setOnJoinGrantAdvancements(List<String> onJoinGrantAdvancements) {
+        this.onJoinGrantAdvancements = onJoinGrantAdvancements;
+    }
+
+    /**
+     * @return the oLeaveResetAdvancements
+     */
+    public boolean isoLeaveResetAdvancements() {
+        return oLeaveResetAdvancements;
+    }
+
+    /**
+     * @param oLeaveResetAdvancements the oLeaveResetAdvancements to set
+     */
+    public void setoLeaveResetAdvancements(boolean oLeaveResetAdvancements) {
+        this.oLeaveResetAdvancements = oLeaveResetAdvancements;
+    }
+
+    /**
+     * @return the onLeaveGrantAdvancements
+     */
+    public List<String> getOnLeaveGrantAdvancements() {
+        return onLeaveGrantAdvancements;
+    }
+
+    /**
+     * @param onLeaveGrantAdvancements the onLeaveGrantAdvancements to set
+     */
+    public void setOnLeaveGrantAdvancements(List<String> onLeaveGrantAdvancements) {
+        this.onLeaveGrantAdvancements = onLeaveGrantAdvancements;
     }
 }
