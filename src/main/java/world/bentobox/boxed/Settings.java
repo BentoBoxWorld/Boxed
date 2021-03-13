@@ -332,7 +332,7 @@ public class Settings implements WorldSettings {
 
     @ConfigComment("Reset advancements.")
     @ConfigEntry(path = "area.reset.on-leave.reset-advancements")
-    private boolean oLeaveResetAdvancements = false;
+    private boolean onLeaveResetAdvancements = false;
 
     @ConfigComment("Grant these advancements")
     @ConfigEntry(path = "area.reset.on-leave.grant-advancements")
@@ -1708,20 +1708,6 @@ public class Settings implements WorldSettings {
     }
 
     /**
-     * @return the oLeaveResetAdvancements
-     */
-    public boolean isoLeaveResetAdvancements() {
-        return oLeaveResetAdvancements;
-    }
-
-    /**
-     * @param oLeaveResetAdvancements the oLeaveResetAdvancements to set
-     */
-    public void setoLeaveResetAdvancements(boolean oLeaveResetAdvancements) {
-        this.oLeaveResetAdvancements = oLeaveResetAdvancements;
-    }
-
-    /**
      * @return the onLeaveGrantAdvancements
      */
     public List<String> getOnLeaveGrantAdvancements() {
@@ -1734,4 +1720,19 @@ public class Settings implements WorldSettings {
     public void setOnLeaveGrantAdvancements(List<String> onLeaveGrantAdvancements) {
         this.onLeaveGrantAdvancements = onLeaveGrantAdvancements;
     }
+
+    /**
+     * @return the onLeaveResetAdvancements
+     */
+    public boolean isOnLeaveResetAdvancements() {
+        return onLeaveResetAdvancements;
+    }
+
+    /**
+     * @param onLeaveResetAdvancements the onLeaveResetAdvancements to set
+     */
+    public void setOnLeaveResetAdvancements(boolean onLeaveResetAdvancements) {
+        this.onLeaveResetAdvancements = onLeaveResetAdvancements;
+    }
+    
 }

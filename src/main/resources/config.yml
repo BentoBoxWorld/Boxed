@@ -352,7 +352,7 @@ area:
       reset-advancements: true
       # Grant these advancements
       grant-advancements:
-      - "minecraft/story:root": true    
+      - minecraft:story/root   
     on-leave:
       # What the plugin should reset when the player leaves or is kicked from an area
       # Reset Money - if this is true, will reset the player's money to the starting money

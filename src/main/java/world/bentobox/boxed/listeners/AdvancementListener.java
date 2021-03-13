@@ -1,5 +1,7 @@
 package world.bentobox.boxed.listeners;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
@@ -7,17 +9,19 @@ import java.util.stream.StreamSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
+import world.bentobox.bentobox.api.events.island.IslandNewIslandEvent;
+import world.bentobox.bentobox.api.events.team.TeamJoinedEvent;
+import world.bentobox.bentobox.api.events.team.TeamLeaveEvent;
 import world.bentobox.bentobox.api.localization.TextVariables;
-import world.bentobox.bentobox.api.metadata.MetaDataValue;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
@@ -96,23 +100,59 @@ public class AdvancementListener implements Listener {
         }
     }
     
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onFirstTime(PlayerTeleportEvent e) {
-        User user = User.getInstance(e.getPlayer());
-        boolean firstTime = user.getMetaData("Boxed-first-time").map(MetaDataValue::asBoolean).orElse(true);
-        if (firstTime 
-                && e.getTo() != null 
-                && e.getTo().getWorld() != null 
-                && addon.getOverWorld().equals(Util.getWorld(e.getTo().getWorld()))
-                && addon.getIslands().hasIsland(addon.getOverWorld(), user) // Owner of island
-                ) {
-            // Clear advancements
-            addon.getPlugin().logDebug("Clear advancements");
-            // Add meta data
-            user.putMetaData("Boxed-first-time", new MetaDataValue(false));
-            addon.getPlayers().save(user.getUniqueId());
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onTeamJoinTime(TeamJoinedEvent e) {
+        User user = User.getInstance(e.getPlayerUUID());
+        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+                && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
+            // Clear and set advancements
+            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
+            
         }
     }
+    
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onTeamLeaveTime(TeamLeaveEvent e) {
+        User user = User.getInstance(e.getPlayerUUID());
+        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+                && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
+            // Clear and set advancements
+            clearAndSetAdv(user, addon.getSettings().isOnLeaveResetAdvancements(), addon.getSettings().getOnLeaveGrantAdvancements());
+           
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onFirstTime(IslandNewIslandEvent e) {
+        clearAndSetAdv(User.getInstance(e.getPlayerUUID()), addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
+    }
 
+
+    private void clearAndSetAdv(User user, boolean clear, List<String> list) { 
+        if (!user.isOnline()) {
+            return;
+        }
+        if (clear) {
+            // Clear advancements
+            Iterator<Advancement> it = Bukkit.advancementIterator();
+            while (it.hasNext()) {
+                Advancement a = it.next();
+                AdvancementProgress p = user.getPlayer().getAdvancementProgress(a);
+                p.getAwardedCriteria().forEach(p::revokeCriteria);
+            }
+        }
+        // Grant advancements
+        list.forEach(k -> {
+            Iterator<Advancement> it = Bukkit.advancementIterator();
+            while (it.hasNext()) {
+                Advancement a = it.next();                
+                if (a.getKey().toString().equals(k)) {
+                    // Award                    
+                    a.getCriteria().forEach(user.getPlayer().getAdvancementProgress(a)::awardCriteria);
+                }
+            }
+        });
+        
+    } 
     
 }
