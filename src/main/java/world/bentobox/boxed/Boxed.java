@@ -59,6 +59,7 @@ public class Boxed extends GameModeAddon {
         if (isNoWGAPI()) {
             logError("WorldGeneratorAPI plugin is required.");
             logError("Download the correct one for your server from https://github.com/rutgerkok/WorldGeneratorApi/releases");
+            this.setState(State.DISABLED);
             return;
         }
         // Chunk generator
@@ -74,7 +75,7 @@ public class Boxed extends GameModeAddon {
     }
 
     private boolean isNoWGAPI() {
-        return Bukkit.getPluginManager().getPlugin("WorldGeneratorAPI") == null;
+        return Bukkit.getPluginManager().getPlugin("WorldGeneratorApi") == null;
     }
 
     private boolean loadSettings() {
