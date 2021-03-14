@@ -36,6 +36,11 @@ public class Boxed extends GameModeAddon {
             .type(Type.PROTECTION)
             .defaultRank(RanksManager.OWNER_RANK)
             .build();
+    public static final Flag ALLOW_MOVE_BOX = new Flag.Builder("ALLOW_MOVE_BOX", Material.COMPOSTER)
+            .mode(Mode.BASIC)
+            .type(Type.WORLD_SETTING)
+            .defaultSetting(true)
+            .build();
 
     private static final String NETHER = "_nether";
     private static final String THE_END = "_the_end";
@@ -108,10 +113,16 @@ public class Boxed extends GameModeAddon {
         advManager = new AdvancementsManager(this);
         // Get delete chunk generator
         delChunks = new DeleteGen(this);
-        // Make flag only applicable to this game mode
+        // Make flags only applicable to this game mode
         MOVE_BOX.setGameModes(Collections.singleton(this));
+        ALLOW_MOVE_BOX.setGameModes(Collections.singleton(this));
         // Register protection flag with BentoBox
-        getPlugin().getFlagsManager().registerFlag(this, MOVE_BOX);
+        getPlugin().getFlagsManager().registerFlag(this, ALLOW_MOVE_BOX);
+        if (ALLOW_MOVE_BOX.isSetForWorld(getOverWorld())) {
+            getPlugin().getFlagsManager().registerFlag(this, MOVE_BOX);
+        } else {
+            getPlugin().getFlagsManager().unregister(MOVE_BOX);
+        }
 
     }
 

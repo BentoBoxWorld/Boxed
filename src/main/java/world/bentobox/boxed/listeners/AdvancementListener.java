@@ -1,5 +1,6 @@
 package world.bentobox.boxed.listeners;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -7,10 +8,13 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.Statistic;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -195,7 +199,41 @@ public class AdvancementListener implements Listener {
 
     }
 
+    @SuppressWarnings("deprecation")
     private void clearAdv(User user) {
+        // Clear stats
+        // Statistics
+        Arrays.stream(Statistic.values()).forEach(s -> {
+            switch(s.getType()) {
+            case BLOCK:
+                for (Material m: Material.values()) {
+                    if (m.isBlock() && !m.isLegacy()) {
+                            user.getPlayer().setStatistic(s, m, 0);
+                    }
+                }
+            case ITEM:
+                for (Material m: Material.values()) {
+                    if (m.isItem() && !m.isLegacy()) {
+                        user.getPlayer().setStatistic(s, m, 0);
+                    }
+                }
+                break;
+            case ENTITY:
+                for (EntityType en: EntityType.values()) {
+                    if (en.isAlive()) {
+                        user.getPlayer().setStatistic(s, en, 0);
+                    }
+                }
+                break;
+            case UNTYPED:
+                user.getPlayer().setStatistic(s, 0);
+                break;
+            default:
+                break;
+
+            }
+
+        });
         // Clear advancements
         Iterator<Advancement> it = Bukkit.advancementIterator();
         while (it.hasNext()) {
@@ -203,6 +241,7 @@ public class AdvancementListener implements Listener {
             AdvancementProgress p = user.getPlayer().getAdvancementProgress(a);
             p.getAwardedCriteria().forEach(p::revokeCriteria);
         }
+
     } 
 
     /**
