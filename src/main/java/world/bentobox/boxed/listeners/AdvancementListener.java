@@ -47,7 +47,6 @@ public class AdvancementListener implements Listener {
     private final Advancement netherRoot;
     private final Advancement endRoot;
 
-
     /**
      * @param addon
      */
@@ -80,16 +79,28 @@ public class AdvancementListener implements Listener {
     }
 
     private void tellTeam(User user, NamespacedKey key, int score) {
-        addon.getIslands().getIsland(addon.getOverWorld(), user).getMemberSet(RanksManager.COOP_RANK).stream()
+        Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        island.getMemberSet(RanksManager.COOP_RANK).stream()
         .map(User::getInstance)
         .filter(User::isOnline)
         .forEach(u -> {
             informPlayer(u, key, score);
             // Sync
-            this.syncAdvancements(u);
+            grantAdv(u, addon.getAdvManager().getIsland(island).getAdvancements());
         });
     }
 
+    /**
+     * Synchronize the player's advancements to that of the island.
+     * Player's advancements should be cleared before calling this othewise they will get add the island ones as well.
+     * @param user - user
+     */
+    public void syncAdvancements(User user) {
+        Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        if (island != null) {
+            grantAdv(user, addon.getAdvManager().getIsland(island).getAdvancements());
+        }
+    }
 
     private void informPlayer(User user, NamespacedKey key, int score) {
         user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
@@ -184,19 +195,21 @@ public class AdvancementListener implements Listener {
     }
 
 
+    /**
+     * Grant advancement to user
+     * @param user - user
+     * @param list - list of advancements to grant
+     */
     private void grantAdv(User user, List<String> list) {
-        // Grant advancements
-        list.forEach(k -> {
-            Iterator<Advancement> it = Bukkit.advancementIterator();
-            while (it.hasNext()) {
-                Advancement a = it.next();                
-                if (a.getKey().toString().equals(k)) {
-                    // Award                    
-                    a.getCriteria().forEach(user.getPlayer().getAdvancementProgress(a)::awardCriteria);
-                }
+        Iterator<Advancement> it = Bukkit.advancementIterator();
+        while (it.hasNext()) {
+            Advancement a = it.next();  
+            AdvancementProgress progress = user.getPlayer().getAdvancementProgress(a);
+            if (list.contains(a.getKey().toString()) && !progress.isDone()) {
+                // Award                    
+                a.getCriteria().forEach(progress::awardCriteria);
             }
-        });
-
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -244,15 +257,4 @@ public class AdvancementListener implements Listener {
 
     } 
 
-    /**
-     * Synchronize the player's advancements to that of the island.
-     * Player's advancements should be cleared before calling this othewise they will get add the island ones as well.
-     * @param user - user
-     */
-    public void syncAdvancements(User user) {
-        Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
-        if (island != null) {
-            grantAdv(user, addon.getAdvManager().getIsland(island).getAdvancements());
-        }
-    }
 }
