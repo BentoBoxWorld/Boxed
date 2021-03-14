@@ -226,7 +226,7 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public @Nullable ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        if (id.equals("delete")) {
+        if (id != null && id.equals("delete")) {
             return delChunks;
         }
         return chunkGenerator;
