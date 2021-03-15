@@ -428,7 +428,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("   * 'bsbadmin deaths set [player] 0'")
     @ConfigComment("")
     @ConfigComment("Note that player-executed commands might not work, as these commands can be run with said player being offline.")
-    @ConfigEntry(path = "island.commands.on-respawn", since = "1.14.0")
+    @ConfigEntry(path = "area.commands.on-respawn", since = "1.14.0")
     private List<String> onRespawnCommands = new ArrayList<>();
 
     // Sethome
