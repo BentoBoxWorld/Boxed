@@ -153,8 +153,14 @@ public class AdvancementsManager {
             // Wrong world
             return 0;
         }
+        String adv = "advancements." + advancement.getKey().toString();
         // Check score of advancement
-        int score = advConfig.getInt("advancements." + advancement.getKey().toString(), this.unknownAdvChange);
+        int score = 0;
+        if (!advConfig.contains(adv) && adv.endsWith("/root")) {
+            score = advConfig.getInt("settings.default-root-increase");
+        } else {
+            score = advConfig.getInt(adv, this.unknownAdvChange);
+        }
         if (score == 0) {
             return 0;
         }

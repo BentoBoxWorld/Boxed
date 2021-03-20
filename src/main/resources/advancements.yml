@@ -1,5 +1,6 @@
 # Lists how many blocks the box will increase when advancement occurs
 settings:
+  default-root-increase: 0
   unknown-advancement-increase: 1
 advancements:
   'minecraft:adventure/adventuring_time': 1

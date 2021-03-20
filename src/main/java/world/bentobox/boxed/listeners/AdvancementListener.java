@@ -104,7 +104,7 @@ public class AdvancementListener implements Listener {
 
     private void informPlayer(User user, NamespacedKey key, int score) {
         user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
-        String adv = user.getTranslation("boxed.advancements." + key.toString());
+        String adv = user.getTranslationOrNothing("boxed.advancements." + key.toString());
         if (adv.isEmpty()) {
             adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1, key.getKey().length()));
         }
