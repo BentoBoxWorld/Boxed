@@ -1,3 +1,6 @@
+# Lists how many blocks the box will increase when advancement occurs
+settings:
+  unknown-advancement-increase: 1
 advancements:
   'minecraft:adventure/adventuring_time': 1
   'minecraft:adventure/arbalistic': 1

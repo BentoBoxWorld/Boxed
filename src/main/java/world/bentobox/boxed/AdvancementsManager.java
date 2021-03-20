@@ -32,6 +32,7 @@ public class AdvancementsManager {
     // A cache of island levels.
     private final Map<String, IslandAdvancements> cache;
     private final YamlConfiguration advConfig;
+    private int unknownAdvChange;
 
     /**
      * @param addon
@@ -53,6 +54,7 @@ public class AdvancementsManager {
         } else {
             try {
                 advConfig.load(advFile);
+                unknownAdvChange = advConfig.getInt("settings.unknown-advancement-increase", 0);
             } catch (IOException | InvalidConfigurationException e) {
                 addon.logError("advancements.yml cannot be found! " + e.getLocalizedMessage());
             }
@@ -152,7 +154,7 @@ public class AdvancementsManager {
             return 0;
         }
         // Check score of advancement
-        int score = advConfig.getInt("advancements." + advancement.getKey().toString());
+        int score = advConfig.getInt("advancements." + advancement.getKey().toString(), this.unknownAdvChange);
         if (score == 0) {
             return 0;
         }
