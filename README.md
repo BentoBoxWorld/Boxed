@@ -42,6 +42,10 @@ A game mode where you are boxed into a tiny space that only expands by completin
 
 ## Advanced Config
 
+### Game rule
+
+If you are using InvSwitcher, then it will switch out Advancements when you change worlds and that can cause spam, so we recommend you set the game rule `/gamerule announceAdvancements false`.
+
 ### config.yml
 The config is very similar to BSkyBlock, AcidIsland, etc.
 
