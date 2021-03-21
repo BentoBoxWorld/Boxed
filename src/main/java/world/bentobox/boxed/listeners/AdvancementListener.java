@@ -10,6 +10,7 @@ import java.util.stream.StreamSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.Statistic;
 import org.bukkit.advancement.Advancement;
@@ -88,8 +89,14 @@ public class AdvancementListener implements Listener {
             // Sync
             grantAdv(u, addon.getAdvManager().getIsland(island).getAdvancements());
         });
+        // Broadcast
+        if (addon.getSettings().isBroadcastAdvancements()) {
+            Bukkit.getOnlinePlayers().stream().filter(p -> p.hasPermission(Server.BROADCAST_CHANNEL_USERS))
+            .map(User::getInstance)
+            .forEach(u -> u.sendMessage("boxed.user-completed", TextVariables.NAME, user.getName(), TextVariables.DESCRIPTION, this.keyToString(u, key)));
+        }
     }
-
+    
     /**
      * Synchronize the player's advancements to that of the island.
      * Player's advancements should be cleared before calling this othewise they will get add the island ones as well.
@@ -104,13 +111,17 @@ public class AdvancementListener implements Listener {
 
     private void informPlayer(User user, NamespacedKey key, int score) {
         user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
+        user.sendMessage("boxed.completed", TextVariables.NAME,  keyToString(user, key));
+        user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(score));
+
+    }
+
+    private String keyToString(User user, NamespacedKey key) {
         String adv = user.getTranslationOrNothing("boxed.advancements." + key.toString());
         if (adv.isEmpty()) {
             adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1, key.getKey().length()));
         }
-        user.sendMessage("boxed.completed", TextVariables.NAME,  adv);
-        user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(score));
-
+        return adv;
     }
 
 

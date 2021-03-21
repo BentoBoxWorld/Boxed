@@ -54,6 +54,12 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "boxed.command.default-action")
     private String defaultPlayerAction = "go";
 
+    /* Boxed */
+    @ConfigComment("Announce advancements. We recommend you set the game rule `/gamerule announceAdvancements false`")
+    @ConfigComment("but that blocks all new advancement announcements. This setting tells Boxed to broadcast new advancements.")
+    @ConfigEntry(path = "boxed.broadcast-advancements")
+    private boolean broadcastAdvancements;
+    
     /*      WORLD       */
     @ConfigComment("Friendly name for this world. Used in admin commands. Must be a single word")
     @ConfigEntry(path = "world.friendly-name")
@@ -1787,5 +1793,19 @@ public class Settings implements WorldSettings {
      */
     public void setMakeNetherPortals(boolean makeNetherPortals) {
         this.makeNetherPortals = makeNetherPortals;
+    }
+
+    /**
+     * @return the broadcastAdvancements
+     */
+    public boolean isBroadcastAdvancements() {
+        return broadcastAdvancements;
+    }
+
+    /**
+     * @param broadcastAdvancements the broadcastAdvancements to set
+     */
+    public void setBroadcastAdvancements(boolean broadcastAdvancements) {
+        this.broadcastAdvancements = broadcastAdvancements;
     }
 }

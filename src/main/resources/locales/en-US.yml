@@ -4,6 +4,7 @@
 boxed:
   completed: '&a [name] completed!'
   size-changed: '&a Box size increased by [number]!'
+  user-completed: '&a [name] completed [description]!'
   general:
     errors:
       no-island: '&c You do not have a box!'
