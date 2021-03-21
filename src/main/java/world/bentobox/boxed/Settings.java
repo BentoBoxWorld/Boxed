@@ -59,7 +59,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("but that blocks all new advancement announcements. This setting tells Boxed to broadcast new advancements.")
     @ConfigEntry(path = "boxed.broadcast-advancements")
     private boolean broadcastAdvancements;
-    
+
     /*      WORLD       */
     @ConfigComment("Friendly name for this world. Used in admin commands. Must be a single word")
     @ConfigEntry(path = "world.friendly-name")
@@ -79,12 +79,12 @@ public class Settings implements WorldSettings {
     @ConfigComment("Other plugins may override this setting")
     @ConfigEntry(path = "world.difficulty")
     private Difficulty difficulty = Difficulty.NORMAL;
-    
+
     @ConfigComment("Allow surface structures - villages, shipwrecks, broken portals, etc.")
     @ConfigComment("These will be randomly placed, so may not be available for every player.")
     @ConfigEntry(path = "world.allow-structures", needsRestart = true)
     private boolean allowStructures = true;
-    
+
     @ConfigComment("Allow strongholds.")
     @ConfigComment("These will be randomly placed, so may not be available for every player.")
     @ConfigEntry(path = "world.allow-strongholds", experimental = true, needsRestart = true)
@@ -181,7 +181,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("This option indicates if nether portals should be linked via dimensions.")
     @ConfigComment("Option will simulate vanilla portal mechanics that links portals together")
     @ConfigComment("or creates a new portal, if there is not a portal in that dimension.")
-    @ConfigEntry(path = "world.nether.create-and-link-portals", since = "1.16")
+    @ConfigEntry(path = "world.nether.create-and-link-portals", since = "1.0.3")
     private boolean makeNetherPortals = false;
 
     // End
@@ -1688,7 +1688,7 @@ public class Settings implements WorldSettings {
     public void setSeed(long seed) {
         this.seed = seed;
     }
-    
+
     @Override
     public boolean isCheckForBlocks() {
         // Do not check for blocks when looking for a new island spot
