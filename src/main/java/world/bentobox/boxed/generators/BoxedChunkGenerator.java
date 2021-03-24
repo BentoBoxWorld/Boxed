@@ -15,10 +15,14 @@ public class BoxedChunkGenerator {
 
     private final WorldRef wordRef;
     private final Boxed addon;
+    private WorldRef wordRefNether;
+    private WorldRef wordRefEnd;
 
     public BoxedChunkGenerator(Boxed addon) {
         this.addon = addon;
         wordRef = WorldRef.ofName(addon.getSettings().getWorldName());
+        wordRefNether = WorldRef.ofName(addon.getSettings().getWorldName() + "_nether");
+        wordRefEnd = WorldRef.ofName(addon.getSettings().getWorldName() + "_end");
     }
 
     public ChunkGenerator getGenerator() {
@@ -26,7 +30,7 @@ public class BoxedChunkGenerator {
                 .getInstance(addon.getPlugin(), 0, 5)
                 .createCustomGenerator(wordRef, generator -> {
                     // Set the noise generator
-                    generator.setBaseNoiseGenerator(new BasicWorldGenerator(addon, addon.getSettings().getSeed()));
+                    generator.setBaseNoiseGenerator(new OverWorldGenerator(addon, addon.getSettings().getSeed()));
                     if (addon.getSettings().isAllowStructures()) {
                         generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
                     }
@@ -34,6 +38,22 @@ public class BoxedChunkGenerator {
                         generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
                     }
                     generator.setBiomeGenerator(new BoxedBiomeGenerator(addon));
+                });
+    }
+
+    public ChunkGenerator getNetherGenerator() {
+        return WorldGeneratorApi
+                .getInstance(addon.getPlugin(), 0, 5)
+                .createCustomGenerator(wordRefNether, generator -> {
+                    // Set the noise generator
+                    generator.setBaseNoiseGenerator(new NetherGenerator(addon, addon.getSettings().getSeed()));
+                    if (addon.getSettings().isAllowStructures()) {
+                        generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
+                    }
+                    if (addon.getSettings().isAllowStrongholds()) {
+                        generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
+                    }
+                    generator.setBiomeGenerator(new NetherBiomeGenerator(addon));
                 });
     }
 

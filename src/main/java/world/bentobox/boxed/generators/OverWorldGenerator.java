@@ -14,14 +14,14 @@ import world.bentobox.boxed.Boxed;
  * @author tastybento
  *
  */
-public class BasicWorldGenerator implements BaseNoiseGenerator {
+public class OverWorldGenerator implements BaseNoiseGenerator {
 
     private final SimplexNoiseGenerator mainNoiseGenerator;
     private final Boxed addon;
     private final YamlConfiguration config;
 
 
-    public BasicWorldGenerator(Boxed addon, long seed) {
+    public OverWorldGenerator(Boxed addon, long seed) {
         this.addon = addon;
         // Initialize the noise generator based on the world seed
         this.mainNoiseGenerator = new SimplexNoiseGenerator(seed);

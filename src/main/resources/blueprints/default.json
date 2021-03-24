@@ -3,12 +3,12 @@
   "icon": "PAPER",
   "displayName": "Default bundle",
   "description": [
-    "§bDefault bundle of blueprints"
+    "Boxed Starter Blocks"
   ],
   "requirePermission": false,
   "blueprints": {
     "NORMAL": "island",
-    "NETHER": "bedrock",
+    "NETHER": "nether",
     "THE_END": "bedrock"
   },
   "slot": 0

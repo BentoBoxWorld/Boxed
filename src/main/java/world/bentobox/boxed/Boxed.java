@@ -51,6 +51,7 @@ public class Boxed extends GameModeAddon {
     private Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private DeleteGen delChunks;
+    private ChunkGenerator netherChunkGenerator;
 
     @Override
     public void onLoad() {
@@ -69,6 +70,7 @@ public class Boxed extends GameModeAddon {
         }
         // Chunk generator
         chunkGenerator = new BoxedChunkGenerator(this).getGenerator();
+        netherChunkGenerator = new BoxedChunkGenerator(this).getNetherGenerator();
         // Register commands
         playerCommand = new DefaultPlayerCommand(this) {};
 
@@ -163,7 +165,7 @@ public class Boxed extends GameModeAddon {
             if (getServer().getWorld(worldName + NETHER) == null) {
                 log("Creating Boxed's Nether...");
             }
-            netherWorld = settings.isNetherIslands() ? getWorld(worldName, World.Environment.NETHER, chunkGenerator) : getWorld(worldName, World.Environment.NETHER, null);
+            netherWorld = settings.isNetherIslands() ? getWorld(worldName, World.Environment.NETHER, netherChunkGenerator) : getWorld(worldName, World.Environment.NETHER, null);
         }
         // Make the end if it does not exist
         if (settings.isEndGenerate()) {
@@ -187,9 +189,7 @@ public class Boxed extends GameModeAddon {
         worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
         World w = WorldCreator.name(worldName2).type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
         // Backup world
-        if (env.equals(Environment.NORMAL)) {
-            WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
-        }
+        WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
         // Set spawn rates
         if (w != null) {
             setSpawnRates(w);
@@ -216,7 +216,7 @@ public class Boxed extends GameModeAddon {
         }
         if (getSettings().getTicksPerMonsterSpawns() > 0) {
             w.setTicksPerMonsterSpawns(getSettings().getTicksPerMonsterSpawns());
-        }       
+        }
     }
 
     @Override
@@ -229,7 +229,7 @@ public class Boxed extends GameModeAddon {
         if (id != null && id.equals("delete")) {
             return delChunks;
         }
-        return chunkGenerator;
+        return worldName.endsWith("_nether") ? netherChunkGenerator : chunkGenerator;
     }
 
     @Override
