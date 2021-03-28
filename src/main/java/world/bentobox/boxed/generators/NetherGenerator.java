@@ -91,7 +91,6 @@ public class NetherGenerator implements BaseNoiseGenerator {
         if (biome == null) {
             // edge of island
             biome = Biome.NETHER_WASTES;
-            return;
         }
         BiomeNoise bm = this.biomeNoiseMap.getOrDefault(biome, DEFAULT_NOISE);
         double x = ((((double)scaledX*4) % dist) / 4) / bm.noiseScaleHorizontal;
