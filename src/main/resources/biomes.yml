@@ -1,3 +1,54 @@
+# Change these mid-game will only affect newly generated chunks, so be careful!
+distribution:
+  overworld:
+    north-east:
+    - 0.05:PLAINS
+    - 0.1:DESERT
+    - 0.2:SAVANNA
+    - 0.4:JUNGLE_EDGE
+    - 0.5:JUNGLE
+    - 0.6:JUNGLE_HILLS
+    - 0.75:BAMBOO_JUNGLE_HILLS
+    - 0.8:BAMBOO_JUNGLE
+    - 0.9:BADLANDS_PLATEAU
+    - 1.0:BADLANDS
+    - 1.1:LUKEWARM_OCEAN
+    - 20.0:WARM_OCEAN
+    south-east:
+    - 0.05:PLAINS
+    - 0.1:SUNFLOWER_PLAINS
+    - 0.2:FLOWER_FOREST
+    - 0.3:SAVANNA
+    - 0.4:DESERT
+    - 0.5:SHATTERED_SAVANNA
+    - 0.65:DESERT_HILLS
+    - 0.7:GRAVELLY_MOUNTAINS
+    - 0.9:BADLANDS_PLATEAU
+    - 1.0:ERODED_BADLANDS
+    - 1.1:MUSHROOM_FIELD_SHORE
+    - 20.0:WARM_OCEAN
+    north-west:
+    - 0.05:PLAINS
+    - 0.25:FOREST
+    - 0.3:FLOWER_FOREST
+    - 0.4:DARK_FOREST
+    - 0.5:SNOWY_TAIGA
+    - 0.65:SNOWY_TAIGA_HILLS
+    - 0.7:SNOWY_MOUNTAINS
+    - 0.9:MOUNTAIN_EDGE
+    - 1.1:BEACH
+    - 20.0:COLD_OCEAN
+    south-west:
+    - 0.05:PLAINS
+    - 0.25:SWAMP
+    - 0.3:FOREST
+    - 0.4:DARK_FOREST
+    - 0.5:SNOWY_TAIGA
+    - 0.65:SNOWY_TAIGA_HILLS
+    - 0.7:SNOWY_MOUNTAINS
+    - 0.9:MOUNTAIN_EDGE
+    - 1.1:ICE_SPIKES
+    - 20.0:COLD_OCEAN
 nether:
   biomes:
     NETHER_WASTES:
