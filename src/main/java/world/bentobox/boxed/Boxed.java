@@ -3,6 +3,7 @@ package world.bentobox.boxed;
 import java.util.Collections;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Difficulty;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -187,9 +188,10 @@ public class Boxed extends GameModeAddon {
         // Set world name
         worldName2 = env.equals(World.Environment.NETHER) ? worldName2 + NETHER : worldName2;
         worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
-        World w = WorldCreator.name(worldName2).type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
+        World w = WorldCreator.name(worldName2).type(WorldType.FLAT).environment(env).generator(chunkGenerator2).seed(settings.getSeed()).createWorld();
         // Backup world
-        WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).createWorld();
+        World b = WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).seed(settings.getSeed()).createWorld();
+        b.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
         // Set spawn rates
         if (w != null) {
             setSpawnRates(w);

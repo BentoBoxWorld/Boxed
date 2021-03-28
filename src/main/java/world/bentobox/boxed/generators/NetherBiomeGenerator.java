@@ -20,66 +20,70 @@ import world.bentobox.boxed.Boxed;
  */
 public class NetherBiomeGenerator implements BiomeGenerator {
 
-    private static final double ONE = 0.05;
-    private static final double TWO = 0.25;
-    private static final double THREE = 0.5;
-    private static final double FOUR = 0.75;
-    private static final double FIVE = 1.0;
-    private static final double SIX = 1.25;
-    private static final double SEVEN = 1.50;
+    private static final double ONE = 0.03;
+    private static final double TWO = 0.13;
+    private static final double THREE = 0.25;
+    private static final double FOUR = 0.5;
+    private static final double FIVE = 0.75;
+    private static final double SIX = 1.0;
+    private static final double SEVEN = 1.25;
     private static final double EIGHT = 1.75;
     private static final double LAST = 2.0;
 
 
     private static final TreeMap<Double, Biome> NORTH_EAST = new TreeMap<>();
     static {
-        NORTH_EAST.put(ONE, Biome.BASALT_DELTAS);
-        NORTH_EAST.put(TWO, Biome.CRIMSON_FOREST);
-        NORTH_EAST.put(THREE, Biome.SOUL_SAND_VALLEY);
-        NORTH_EAST.put(FOUR, Biome.WARPED_FOREST);
-        NORTH_EAST.put(FIVE, Biome.BASALT_DELTAS);
-        NORTH_EAST.put(SIX, Biome.CRIMSON_FOREST);
-        NORTH_EAST.put(SEVEN, Biome.SOUL_SAND_VALLEY);
-        NORTH_EAST.put(EIGHT, Biome.WARPED_FOREST);
-        NORTH_EAST.put(LAST, Biome.NETHER_WASTES);
+        double f = 0.01;
+        NORTH_EAST.put(ONE + f, Biome.NETHER_WASTES);
+        NORTH_EAST.put(TWO + f, Biome.CRIMSON_FOREST);
+        NORTH_EAST.put(THREE + f, Biome.NETHER_WASTES);
+        NORTH_EAST.put(FOUR + f, Biome.WARPED_FOREST);
+        NORTH_EAST.put(FIVE + f, Biome.NETHER_WASTES);
+        NORTH_EAST.put(SIX + f, Biome.CRIMSON_FOREST);
+        NORTH_EAST.put(SEVEN + f, Biome.SOUL_SAND_VALLEY);
+        NORTH_EAST.put(EIGHT + f, Biome.BASALT_DELTAS);
+        NORTH_EAST.put(LAST + f, Biome.NETHER_WASTES);
     }
     private static final TreeMap<Double, Biome> SOUTH_EAST = new TreeMap<>();
     static {
-        SOUTH_EAST.put(ONE, Biome.NETHER_WASTES);
-        SOUTH_EAST.put(TWO, Biome.BASALT_DELTAS);
-        SOUTH_EAST.put(THREE, Biome.SOUL_SAND_VALLEY);
-        SOUTH_EAST.put(FOUR, Biome.WARPED_FOREST);
-        SOUTH_EAST.put(FIVE, Biome.NETHER_WASTES);
-        SOUTH_EAST.put(SIX, Biome.BASALT_DELTAS);
-        SOUTH_EAST.put(SEVEN, Biome.SOUL_SAND_VALLEY);
-        SOUTH_EAST.put(EIGHT, Biome.WARPED_FOREST);
-        SOUTH_EAST.put(LAST, Biome.CRIMSON_FOREST);
+        double f = -0.01;
+        SOUTH_EAST.put(ONE + f, Biome.NETHER_WASTES);
+        SOUTH_EAST.put(TWO + f, Biome.BASALT_DELTAS);
+        SOUTH_EAST.put(THREE + f, Biome.SOUL_SAND_VALLEY);
+        SOUTH_EAST.put(FOUR + f, Biome.WARPED_FOREST);
+        SOUTH_EAST.put(FIVE + f, Biome.NETHER_WASTES);
+        SOUTH_EAST.put(SIX + f, Biome.BASALT_DELTAS);
+        SOUTH_EAST.put(SEVEN + f, Biome.SOUL_SAND_VALLEY);
+        SOUTH_EAST.put(EIGHT + f, Biome.WARPED_FOREST);
+        SOUTH_EAST.put(LAST + f, Biome.CRIMSON_FOREST);
     }
 
     private static final TreeMap<Double, Biome> NORTH_WEST = new TreeMap<>();
     static {
-        NORTH_WEST.put(ONE, Biome.NETHER_WASTES);
-        NORTH_WEST.put(TWO, Biome.NETHER_WASTES);
-        NORTH_WEST.put(THREE, Biome.SOUL_SAND_VALLEY);
-        NORTH_WEST.put(FOUR, Biome.WARPED_FOREST);
-        NORTH_WEST.put(FIVE, Biome.BASALT_DELTAS);
-        NORTH_WEST.put(SIX, Biome.CRIMSON_FOREST);
-        NORTH_WEST.put(SEVEN, Biome.SOUL_SAND_VALLEY);
-        NORTH_WEST.put(EIGHT, Biome.WARPED_FOREST);
-        NORTH_WEST.put(LAST, Biome.NETHER_WASTES);
+        double f = 0.02;
+        NORTH_WEST.put(ONE + f, Biome.NETHER_WASTES);
+        NORTH_WEST.put(TWO + f, Biome.SOUL_SAND_VALLEY);
+        NORTH_WEST.put(THREE + f, Biome.SOUL_SAND_VALLEY);
+        NORTH_WEST.put(FOUR + f, Biome.BASALT_DELTAS);
+        NORTH_WEST.put(FIVE + f, Biome.NETHER_WASTES);
+        NORTH_WEST.put(SIX + f, Biome.CRIMSON_FOREST);
+        NORTH_WEST.put(SEVEN + f, Biome.SOUL_SAND_VALLEY);
+        NORTH_WEST.put(EIGHT + f, Biome.WARPED_FOREST);
+        NORTH_WEST.put(LAST + f, Biome.NETHER_WASTES);
     }
 
     private static final TreeMap<Double, Biome> SOUTH_WEST = new TreeMap<>();
     static {
-        SOUTH_WEST.put(ONE, Biome.NETHER_WASTES);
-        SOUTH_WEST.put(TWO, Biome.SOUL_SAND_VALLEY);
-        SOUTH_WEST.put(THREE, Biome.WARPED_FOREST);
-        SOUTH_WEST.put(FOUR, Biome.SOUL_SAND_VALLEY);
-        SOUTH_WEST.put(FIVE, Biome.BASALT_DELTAS);
-        SOUTH_WEST.put(SIX, Biome.CRIMSON_FOREST);
-        SOUTH_WEST.put(SEVEN, Biome.WARPED_FOREST);
-        SOUTH_WEST.put(EIGHT, Biome.SOUL_SAND_VALLEY);
-        SOUTH_WEST.put(LAST, Biome.NETHER_WASTES);
+        double f = -0.01;
+        SOUTH_WEST.put(ONE + f, Biome.NETHER_WASTES);
+        SOUTH_WEST.put(TWO + f, Biome.SOUL_SAND_VALLEY);
+        SOUTH_WEST.put(THREE + f, Biome.NETHER_WASTES);
+        SOUTH_WEST.put(FOUR + f, Biome.SOUL_SAND_VALLEY);
+        SOUTH_WEST.put(FIVE + f, Biome.NETHER_WASTES);
+        SOUTH_WEST.put(SIX + f, Biome.CRIMSON_FOREST);
+        SOUTH_WEST.put(SEVEN + f, Biome.WARPED_FOREST);
+        SOUTH_WEST.put(EIGHT + f, Biome.BASALT_DELTAS);
+        SOUTH_WEST.put(LAST + f, Biome.NETHER_WASTES);
     }
     private static final Map<BlockFace, SortedMap<Double, Biome>> QUADRANTS;
     static {

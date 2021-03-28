@@ -1,19 +1,24 @@
 nether:
   biomes:
     NETHER_WASTES:
-      height: 8
-      scale: 5
+      height: 0
+      vscale: 2
+      scale: 8
     BASALT_DELTAS:
-      height: 8
+      height: 0
+      vscale: 1
       scale: 1
     CRIMSON_FOREST:
-      height: 9
+      height: 10
+      vscale: 10
       scale: 10
     SOUL_SAND_VALLEY:
-      height: 9
+      height: 8
+      vscale: 16
       scale: 16
     WARPED_FOREST:
-      height: 10
+      height: 9
+      vscale: 10
       scale: 10 
 biomes:
   BADLANDS_PLATEAU: 
