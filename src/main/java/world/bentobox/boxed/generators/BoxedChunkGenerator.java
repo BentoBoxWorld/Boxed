@@ -31,10 +31,10 @@ public class BoxedChunkGenerator {
                 .createCustomGenerator(wordRef, generator -> {
                     // Set the noise generator
                     generator.setBaseNoiseGenerator(new OverWorldGenerator(addon, addon.getSettings().getSeed()));
-                    if (addon.getSettings().isAllowStructures()) {
+                    if (!addon.getSettings().isAllowStructures()) {
                         generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
                     }
-                    if (addon.getSettings().isAllowStrongholds()) {
+                    if (!addon.getSettings().isAllowStrongholds()) {
                         generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
                     }
                     generator.setBiomeGenerator(new BoxedBiomeGenerator(addon));
@@ -47,10 +47,10 @@ public class BoxedChunkGenerator {
                 .createCustomGenerator(wordRefNether, generator -> {
                     // Set the noise generator
                     generator.setBaseNoiseGenerator(new NetherGenerator(addon, addon.getSettings().getSeed()));
-                    if (addon.getSettings().isAllowStructures()) {
+                    if (!addon.getSettings().isAllowStructures()) {
                         generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.SURFACE_STRUCTURES);
                     }
-                    if (addon.getSettings().isAllowStrongholds()) {
+                    if (!addon.getSettings().isAllowStrongholds()) {
                         generator.getWorldDecorator().withoutDefaultDecorations(DecorationType.STRONGHOLDS);
                     }
                     generator.setBiomeGenerator(new NetherBiomeGenerator(addon));

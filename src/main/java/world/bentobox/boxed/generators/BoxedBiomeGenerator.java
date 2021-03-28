@@ -22,8 +22,9 @@ public class BoxedBiomeGenerator implements BiomeGenerator {
 
     private static final TreeMap<Double, Biome> NORTH_EAST = new TreeMap<>();
     static {
-        NORTH_EAST.put(0.2, Biome.PLAINS);
-        NORTH_EAST.put(0.3, Biome.SAVANNA);
+        NORTH_EAST.put(0.05, Biome.PLAINS);
+        NORTH_EAST.put(0.1, Biome.DESERT);
+        NORTH_EAST.put(0.2, Biome.SAVANNA);
         NORTH_EAST.put(0.4, Biome.JUNGLE_EDGE);
         NORTH_EAST.put(0.5, Biome.JUNGLE);
         NORTH_EAST.put(0.6, Biome.JUNGLE_HILLS);
@@ -36,7 +37,7 @@ public class BoxedBiomeGenerator implements BiomeGenerator {
     }
     private static final TreeMap<Double, Biome> SOUTH_EAST = new TreeMap<>();
     static {
-        SOUTH_EAST.put(0.2, Biome.PLAINS);
+        SOUTH_EAST.put(0.05, Biome.PLAINS);
         SOUTH_EAST.put(0.3, Biome.SAVANNA);
         SOUTH_EAST.put(0.4, Biome.DESERT);
         SOUTH_EAST.put(0.5, Biome.SHATTERED_SAVANNA);
@@ -50,7 +51,7 @@ public class BoxedBiomeGenerator implements BiomeGenerator {
 
     private static final TreeMap<Double, Biome> NORTH_WEST = new TreeMap<>();
     static {
-        NORTH_WEST.put(0.2, Biome.PLAINS);
+        NORTH_WEST.put(0.05, Biome.PLAINS);
         NORTH_WEST.put(0.25, Biome.SUNFLOWER_PLAINS);
         NORTH_WEST.put(0.3, Biome.FLOWER_FOREST);
         NORTH_WEST.put(0.4, Biome.DARK_FOREST);
@@ -64,7 +65,7 @@ public class BoxedBiomeGenerator implements BiomeGenerator {
 
     private static final TreeMap<Double, Biome> SOUTH_WEST = new TreeMap<>();
     static {
-        SOUTH_WEST.put(0.2, Biome.PLAINS);
+        SOUTH_WEST.put(0.05, Biome.PLAINS);
         SOUTH_WEST.put(0.25, Biome.SWAMP);
         SOUTH_WEST.put(0.3, Biome.FOREST);
         SOUTH_WEST.put(0.4, Biome.DARK_FOREST);

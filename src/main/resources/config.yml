@@ -48,7 +48,7 @@ world:
   # It is the same for every dimension : Overworld, Nether and End.
   # This value cannot be changed mid-game and the plugin will not start if it is different.
   # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
-  area-radius: 400
+  area-radius: 1000
   # Starting size of boxed spaces. This is a radius so 1 = a 2x2 area.
   # Admins can adjust via the /boxadmin range set <player> <new range> command
   starting-protection-range: 1

@@ -9,10 +9,7 @@ import java.util.Set;
 
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
-
-import com.google.common.base.Enums;
 
 import world.bentobox.bentobox.api.configuration.ConfigComment;
 import world.bentobox.bentobox.api.configuration.ConfigEntry;
@@ -88,7 +85,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("Allow strongholds.")
     @ConfigComment("These will be randomly placed, so may not be available for every player.")
     @ConfigEntry(path = "world.allow-strongholds", experimental = true, needsRestart = true)
-    private boolean allowStrongholds = false;
+    private boolean allowStrongholds = true;
 
     @ConfigComment("Spawn limits. These override the limits set in bukkit.yml")
     @ConfigComment("If set to a negative number, the server defaults will be used")
