@@ -16,13 +16,11 @@ public class BoxedChunkGenerator {
     private final WorldRef wordRef;
     private final Boxed addon;
     private WorldRef wordRefNether;
-    private WorldRef wordRefEnd;
 
     public BoxedChunkGenerator(Boxed addon) {
         this.addon = addon;
         wordRef = WorldRef.ofName(addon.getSettings().getWorldName());
         wordRefNether = WorldRef.ofName(addon.getSettings().getWorldName() + "_nether");
-        wordRefEnd = WorldRef.ofName(addon.getSettings().getWorldName() + "_end");
     }
 
     public ChunkGenerator getGenerator() {

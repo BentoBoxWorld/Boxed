@@ -100,23 +100,6 @@ public class NetherGenerator implements BaseNoiseGenerator {
             double heightOffset = y < 12 && bm.height != 0 ? bm.height - y : 0;
             buffer[y] = noise + heightOffset;
         }
-
-
-        /*
-        for (int y = 0; y < buffer.length; y++) {
-            double noise = this.mainNoiseGenerator.noise(x, y, z);
-            double heightOffset = height - y;
-            buffer[y] = noise + heightOffset;
-        }
-        // Ceiling
-
-        x = ((((double)scaledX*4) % dist) / 4);
-        z = ((((double)scaledZ*4) % dist) / 4);
-        for (int y = 15; y > height + 2; y--) {
-            double noise = this.mainNoiseGenerator.noise(x, y, z) * 2;
-            double heightOffset = y - height;
-            buffer[y] = noise + heightOffset;
-        }*/
     }
 
 }
