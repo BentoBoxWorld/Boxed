@@ -25,7 +25,7 @@ import world.bentobox.boxed.Boxed;
  * @author tastybento
  *
  */
-public abstract class AbstractBoxedBiomeGenerator implements BiomeGenerator {
+abstract class AbstractBoxedBiomeGenerator implements BiomeGenerator {
 
     private static final Map<Environment, String> ENV_MAP;
     static {
@@ -77,24 +77,25 @@ public abstract class AbstractBoxedBiomeGenerator implements BiomeGenerator {
 
     private SortedMap<Double, Biome> loadQuad(YamlConfiguration config, String string) {
         SortedMap<Double, Biome> result = new TreeMap<>();
-        if (config.contains(string)) {
-            for (String ring : config.getStringList(string)) {
-                String[] split = ring.split(":");
-                if (split.length == 2 && NumberUtils.isNumber(split[0])) {
-                    try {
-                        double d = Double.parseDouble(split[0]);
-                        Biome biome = Enums.getIfPresent(Biome.class, split[1].toUpperCase(Locale.ENGLISH)).orNull();
-                        if (biome == null) {
-                            addon.logError(split[1].toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
-                        } else {
-                            result.put(d, biome);
-                        }
-                    } catch(Exception e) {
-                        addon.logError(string + ": " + split[0] + " does not seem to be a double. For integers add a .0 to the end");
+        if (!config.contains(string)) {
+            return result;
+        }
+        for (String ring : config.getStringList(string)) {
+            String[] split = ring.split(":");
+            if (split.length == 2 && NumberUtils.isNumber(split[0])) {
+                try {
+                    double d = Double.parseDouble(split[0]);
+                    Biome biome = Enums.getIfPresent(Biome.class, split[1].toUpperCase(Locale.ENGLISH)).orNull();
+                    if (biome == null) {
+                        addon.logError(split[1].toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
+                    } else {
+                        result.put(d, biome);
                     }
-                } else {
-                    addon.logError(ring + " must be in the format ratio:biome where ratio is a double.");
+                } catch(Exception e) {
+                    addon.logError(string + ": " + split[0] + " does not seem to be a double. For integers add a .0 to the end");
                 }
+            } else {
+                addon.logError(ring + " must be in the format ratio:biome where ratio is a double.");
             }
         }
         return result;

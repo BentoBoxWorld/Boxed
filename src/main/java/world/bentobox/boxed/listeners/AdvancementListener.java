@@ -235,6 +235,7 @@ public class AdvancementListener implements Listener {
                             user.getPlayer().setStatistic(s, m, 0);
                     }
                 }
+                break;
             case ITEM:
                 for (Material m: Material.values()) {
                     if (m.isItem() && !m.isLegacy()) {
