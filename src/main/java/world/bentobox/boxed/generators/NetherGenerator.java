@@ -23,7 +23,8 @@ import world.bentobox.boxed.Boxed;
  */
 public class NetherGenerator implements BaseNoiseGenerator {
 
-    private final BiomeNoise DEFAULT_NOISE = new BiomeNoise(10D, 0D, 2D);
+    private static final String NETHER_BIOMES = "nether.biomes";
+    private final BiomeNoise defaultNoise = new BiomeNoise(10D, 0D, 2D);
     private final NoiseGenerator mainNoiseGenerator;
     private final Boxed addon;
     private final YamlConfiguration config;
@@ -41,11 +42,11 @@ public class NetherGenerator implements BaseNoiseGenerator {
         }
         config = YamlConfiguration.loadConfiguration(biomeFile);
         biomeNoiseMap = new EnumMap<>(Biome.class);
-        if (config.isConfigurationSection("nether.biomes")) {
-            for (String key : config.getConfigurationSection("nether.biomes").getKeys(false)) {
-                double noiseScaleHorizontal = config.getDouble("nether.biomes." + key + ".scale", 10D);
-                double height = config.getDouble("nether.biomes." + key + ".height", 0D);
-                double noiseScaleVertical = config.getDouble("nether.biomes." + key + ".vscale", 2D);
+        if (config.isConfigurationSection(NETHER_BIOMES)) {
+            for (String key : config.getConfigurationSection(NETHER_BIOMES).getKeys(false)) {
+                double noiseScaleHorizontal = config.getDouble(NETHER_BIOMES + "." + key + ".scale", 10D);
+                double height = config.getDouble(NETHER_BIOMES + "." + key + ".height", 0D);
+                double noiseScaleVertical = config.getDouble(NETHER_BIOMES + "." + key + ".vscale", 2D);
                 Enums.getIfPresent(Biome.class, key).toJavaUtil()
                 .ifPresent(biome -> biomeNoiseMap.put(biome, new BiomeNoise(noiseScaleHorizontal, height, noiseScaleVertical)));
             }
@@ -92,7 +93,7 @@ public class NetherGenerator implements BaseNoiseGenerator {
             // edge of island
             biome = Biome.NETHER_WASTES;
         }
-        BiomeNoise bm = this.biomeNoiseMap.getOrDefault(biome, DEFAULT_NOISE);
+        BiomeNoise bm = this.biomeNoiseMap.getOrDefault(biome, defaultNoise);
         double x = ((((double)scaledX*4) % dist) / 4) / bm.noiseScaleHorizontal;
         double z = ((((double)scaledZ*4) % dist) / 4) / bm.noiseScaleHorizontal;
         for (int y = 0; y < 16; y++) {

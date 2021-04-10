@@ -231,7 +231,7 @@ public class Boxed extends GameModeAddon {
         if (id != null && id.equals("delete")) {
             return delChunks;
         }
-        return worldName.endsWith("_nether") ? netherChunkGenerator : chunkGenerator;
+        return worldName.endsWith(NETHER) ? netherChunkGenerator : chunkGenerator;
     }
 
     @Override
