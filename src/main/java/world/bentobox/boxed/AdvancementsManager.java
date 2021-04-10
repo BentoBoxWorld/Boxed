@@ -16,6 +16,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import world.bentobox.bentobox.api.events.island.IslandEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
+import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.objects.IslandAdvancements;
 
@@ -166,7 +167,9 @@ public class AdvancementsManager {
         }
         // Get island
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
-        if (island != null && addAdvancement(island, advancement.getKey().toString())) {
+        if (island != null
+                && island.getRank(p.getUniqueId()) > RanksManager.MEMBER_RANK // Only island members expand island
+                && addAdvancement(island, advancement.getKey().toString())) {
             int oldSize = island.getProtectionRange();
             int newSize = Math.max(1, oldSize + score);
             island.setProtectionRange(newSize);

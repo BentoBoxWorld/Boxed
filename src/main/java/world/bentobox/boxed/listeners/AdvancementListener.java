@@ -71,6 +71,16 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
         if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
+            // Only allow members or higher to get advancements in a box
+            if (!addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
+                // Remove advancement from player
+                e.getAdvancement().getCriteria().forEach(c ->
+                e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
+                User u = User.getInstance(e.getPlayer());
+                u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+                return;
+            }
+
             int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
             if (score != 0) {
                 User user = User.getInstance(e.getPlayer());
@@ -81,7 +91,7 @@ public class AdvancementListener implements Listener {
 
     private void tellTeam(User user, NamespacedKey key, int score) {
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
-        island.getMemberSet(RanksManager.COOP_RANK).stream()
+        island.getMemberSet(RanksManager.MEMBER_RANK).stream()
         .map(User::getInstance)
         .filter(User::isOnline)
         .forEach(u -> {
@@ -96,7 +106,7 @@ public class AdvancementListener implements Listener {
             .forEach(u -> u.sendMessage("boxed.user-completed", TextVariables.NAME, user.getName(), TextVariables.DESCRIPTION, this.keyToString(u, key)));
         }
     }
-    
+
     /**
      * Synchronize the player's advancements to that of the island.
      * Player's advancements should be cleared before calling this othewise they will get add the island ones as well.
@@ -171,10 +181,10 @@ public class AdvancementListener implements Listener {
         if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
-            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements()); 
+            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
             // Set advancements to same as island
             syncAdvancements(user);
-        }  
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -194,7 +204,7 @@ public class AdvancementListener implements Listener {
     }
 
 
-    private void clearAndSetAdv(User user, boolean clear, List<String> list) { 
+    private void clearAndSetAdv(User user, boolean clear, List<String> list) {
         if (!user.isOnline()) {
             return;
         }
@@ -214,10 +224,10 @@ public class AdvancementListener implements Listener {
     private void grantAdv(User user, List<String> list) {
         Iterator<Advancement> it = Bukkit.advancementIterator();
         while (it.hasNext()) {
-            Advancement a = it.next();  
+            Advancement a = it.next();
             AdvancementProgress progress = user.getPlayer().getAdvancementProgress(a);
             if (list.contains(a.getKey().toString()) && !progress.isDone()) {
-                // Award                    
+                // Award
                 a.getCriteria().forEach(progress::awardCriteria);
             }
         }
@@ -232,7 +242,7 @@ public class AdvancementListener implements Listener {
             case BLOCK:
                 for (Material m: Material.values()) {
                     if (m.isBlock() && !m.isLegacy()) {
-                            user.getPlayer().setStatistic(s, m, 0);
+                        user.getPlayer().setStatistic(s, m, 0);
                     }
                 }
                 break;
@@ -267,6 +277,6 @@ public class AdvancementListener implements Listener {
             p.getAwardedCriteria().forEach(p::revokeCriteria);
         }
 
-    } 
+    }
 
 }
