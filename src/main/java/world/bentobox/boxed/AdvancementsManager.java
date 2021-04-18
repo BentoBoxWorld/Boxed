@@ -168,7 +168,7 @@ public class AdvancementsManager {
         // Get island
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
         if (island != null
-                && island.getRank(p.getUniqueId()) > RanksManager.MEMBER_RANK // Only island members expand island
+                && island.getRank(p.getUniqueId()) >= RanksManager.MEMBER_RANK // Only island members expand island
                 && addAdvancement(island, advancement.getKey().toString())) {
             int oldSize = island.getProtectionRange();
             int newSize = Math.max(1, oldSize + score);
