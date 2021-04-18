@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.advancement.Advancement;
@@ -144,6 +145,20 @@ public class AdvancementsManager {
     }
 
     /**
+     * Check and correct the island's protection size based on accumulated advancements
+     * @param island - island to check
+     * @return value of island size change. Negative values means the island range shrank.
+     */
+    public int checkIslandSize(Island island) {
+        int shouldSize = getIsland(island).getAdvancements().stream().mapToInt(this::getScore).sum();
+        int diff = shouldSize - island.getProtectionRange();
+        if (diff != 0) {
+            this.setProtectionSize(island, shouldSize, null);
+        }
+        return diff;
+    }
+
+    /**
      * Add advancement to island and adjusts the island's protection size accordingly
      * @param p - player who just advanced
      * @param advancement - advancement
@@ -154,14 +169,7 @@ public class AdvancementsManager {
             // Wrong world
             return 0;
         }
-        String adv = "advancements." + advancement.getKey().toString();
-        // Check score of advancement
-        int score = 0;
-        if (!advConfig.contains(adv) && adv.endsWith("/root")) {
-            score = advConfig.getInt("settings.default-root-increase");
-        } else {
-            score = advConfig.getInt(adv, this.unknownAdvChange);
-        }
+        int score = getScore(advancement.getKey().toString());
         if (score == 0) {
             return 0;
         }
@@ -172,20 +180,31 @@ public class AdvancementsManager {
                 && addAdvancement(island, advancement.getKey().toString())) {
             int oldSize = island.getProtectionRange();
             int newSize = Math.max(1, oldSize + score);
-            island.setProtectionRange(newSize);
-            // Call Protection Range Change event. Does not support canceling.
-            IslandEvent.builder()
-            .island(island)
-            .location(island.getCenter())
-            .reason(IslandEvent.Reason.RANGE_CHANGE)
-            .involvedPlayer(p.getUniqueId())
-            .admin(true)
-            .protectionRange(newSize, island.getProtectionRange())
-            .build();
+            setProtectionSize(island, newSize, p.getUniqueId());
             return score;
         }
         return 0;
 
+    }
+
+    private void setProtectionSize(@NonNull Island island, int newSize, @Nullable UUID uuid) {
+        island.setProtectionRange(newSize);
+        // Call Protection Range Change event. Does not support canceling.
+        IslandEvent.builder()
+        .island(island)
+        .location(island.getCenter())
+        .reason(IslandEvent.Reason.RANGE_CHANGE)
+        .involvedPlayer(uuid)
+        .admin(true)
+        .protectionRange(newSize, island.getProtectionRange())
+        .build();
+
+    }
+
+    private int getScore(String string) {
+        String adv = "advancements." + string;
+        // Check score of advancement
+        return !advConfig.contains(adv) && adv.endsWith("/root") ? advConfig.getInt("settings.default-root-increase") : advConfig.getInt(adv, this.unknownAdvChange);
     }
 
 }

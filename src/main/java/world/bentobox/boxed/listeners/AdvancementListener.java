@@ -116,6 +116,14 @@ public class AdvancementListener implements Listener {
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
         if (island != null) {
             grantAdv(user, addon.getAdvManager().getIsland(island).getAdvancements());
+            int diff = addon.getAdvManager().checkIslandSize(island);
+            if (diff > 0) {
+                user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(diff));
+                user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
+            } else if (diff < 0) {
+                user.sendMessage("boxed.size-decreased", TextVariables.NUMBER, String.valueOf(Math.abs(diff)));
+                user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_VILLAGER_DEATH, 1F, 2F);
+            }
         }
     }
 
