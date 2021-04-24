@@ -151,6 +151,10 @@ public class AdvancementsManager {
      */
     public int checkIslandSize(Island island) {
         int shouldSize = getIsland(island).getAdvancements().stream().mapToInt(this::getScore).sum();
+        if (shouldSize < 1) {
+            // Boxes can never be less than 1 in protection size
+            return 0;
+        }
         int diff = shouldSize - island.getProtectionRange();
         if (diff != 0) {
             this.setProtectionSize(island, shouldSize, null);
@@ -187,6 +191,12 @@ public class AdvancementsManager {
 
     }
 
+    /**
+     * Sets the island protection size and fires an event for it
+     * @param island - island
+     * @param newSize - new size of protected area
+     * @param uuid - UUID of player making the change. null if the change is system-driven.
+     */
     private void setProtectionSize(@NonNull Island island, int newSize, @Nullable UUID uuid) {
         island.setProtectionRange(newSize);
         // Call Protection Range Change event. Does not support canceling.
