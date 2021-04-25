@@ -53,6 +53,7 @@ public class Boxed extends GameModeAddon {
     private AdvancementsManager advManager;
     private DeleteGen delChunks;
     private ChunkGenerator netherChunkGenerator;
+    private PlaceholdersManager phManager;
 
     @Override
     public void onLoad() {
@@ -77,9 +78,6 @@ public class Boxed extends GameModeAddon {
 
         adminCommand = new DefaultAdminCommand(this) {};
 
-        // Register listeners
-        this.registerListener(new AdvancementListener(this));
-        this.registerListener(new EnderPearlListener(this));
     }
 
     private boolean isNoWGAPI() {
@@ -126,6 +124,15 @@ public class Boxed extends GameModeAddon {
         } else {
             getPlugin().getFlagsManager().unregister(MOVE_BOX);
         }
+
+        // Register listeners
+        this.registerListener(new AdvancementListener(this));
+        this.registerListener(new EnderPearlListener(this));
+
+        // Register placeholders
+        phManager = new PlaceholdersManager(this);
+        getPlugin().getPlaceholdersManager().registerPlaceholder(this,"visited_island_advancements", phManager::getCountByLocation);
+        getPlugin().getPlaceholdersManager().registerPlaceholder(this,"island_advancements", phManager::getCount);
 
     }
 
