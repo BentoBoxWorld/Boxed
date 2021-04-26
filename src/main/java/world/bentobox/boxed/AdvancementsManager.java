@@ -150,7 +150,8 @@ public class AdvancementsManager {
      * @return value of island size change. Negative values means the island range shrank.
      */
     public int checkIslandSize(Island island) {
-        int shouldSize = getIsland(island).getAdvancements().stream().mapToInt(this::getScore).sum();
+        // Island is always a minimum of 1 for free.
+        int shouldSize = getIsland(island).getAdvancements().stream().mapToInt(this::getScore).sum() + 1;
         if (shouldSize < 1) {
             // Boxes can never be less than 1 in protection size
             return 0;
