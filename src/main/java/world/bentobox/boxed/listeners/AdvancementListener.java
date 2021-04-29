@@ -21,9 +21,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import world.bentobox.bentobox.api.events.island.IslandNewIslandEvent;
@@ -168,16 +168,16 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent e) {
         User user = User.getInstance(e.getPlayer());
-        if (addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
+        if (Util.sameWorld(addon.getOverWorld(), e.getPlayer().getWorld())) {
             // Set advancements to same as island
             syncAdvancements(user);
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent e) {
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerEnterWorld(PlayerChangedWorldEvent e) {
         User user = User.getInstance(e.getPlayer());
-        if (e.getTo() != null && e.getTo().getWorld() != null && addon.getOverWorld().equals(Util.getWorld(e.getTo().getWorld()))) {
+        if (Util.sameWorld(addon.getOverWorld(), e.getPlayer().getWorld())) {
             // Set advancements to same as island
             syncAdvancements(user);
         }
