@@ -2,6 +2,7 @@ package world.bentobox.boxed.generators;
 
 import java.io.File;
 
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.noise.SimplexNoiseGenerator;
@@ -31,6 +32,14 @@ public class OverWorldGenerator implements BaseNoiseGenerator {
             addon.saveResource("biomes.yml", true);
         }
         config = YamlConfiguration.loadConfiguration(biomeFile);
+    }
+
+    @Override
+    public TerrainSettings getTerrainSettings() {
+        TerrainSettings ts = new TerrainSettings();
+        ts.stoneBlock = Material.STONE.createBlockData();
+        ts.waterBlock = Material.WATER.createBlockData();
+        return ts;
     }
 
 
