@@ -77,20 +77,27 @@ public class AdvancementListener implements Listener {
                 e.getAdvancement().getCriteria().forEach(c ->
                 e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
                 User u = User.getInstance(e.getPlayer());
-                u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+                if (u != null) {
+                    u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+                }
                 return;
             }
 
             int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
             if (score != 0) {
                 User user = User.getInstance(e.getPlayer());
-                Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
+                if (user != null) {
+                    Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
+                }
             }
         }
     }
 
     private void tellTeam(User user, NamespacedKey key, int score) {
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        if (island == null) {
+            return;
+        }
         island.getMemberSet(RanksManager.MEMBER_RANK).stream()
         .map(User::getInstance)
         .filter(User::isOnline)
