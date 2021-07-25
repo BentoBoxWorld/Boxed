@@ -3,6 +3,7 @@ package world.bentobox.boxed.listeners;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
@@ -126,16 +127,16 @@ public class AdvancementListener implements Listener {
             int diff = addon.getAdvManager().checkIslandSize(island);
             if (diff > 0) {
                 user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(diff));
-                user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
+                user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
             } else if (diff < 0) {
                 user.sendMessage("boxed.size-decreased", TextVariables.NUMBER, String.valueOf(Math.abs(diff)));
-                user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_VILLAGER_DEATH, 1F, 2F);
+                user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_VILLAGER_DEATH, 1F, 2F);
             }
         }
     }
 
     private void informPlayer(User user, NamespacedKey key, int score) {
-        user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
+        user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
         user.sendMessage("boxed.completed", TextVariables.NAME,  keyToString(user, key));
         user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(score));
 
@@ -193,7 +194,7 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamJoinTime(TeamJoinedEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
-        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+        if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
@@ -205,7 +206,7 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamLeaveTime(TeamLeaveEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
-        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+        if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnLeaveResetAdvancements(), addon.getSettings().getOnLeaveGrantAdvancements());
@@ -215,7 +216,10 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onFirstTime(IslandNewIslandEvent e) {
-        clearAndSetAdv(User.getInstance(e.getPlayerUUID()), addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
+        User user = User.getInstance(e.getPlayerUUID());
+        if (user != null) {
+            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
+        }
     }
 
 
