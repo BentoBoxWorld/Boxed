@@ -23,11 +23,8 @@ public class SettingsTest {
 
     Settings s;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         s = new Settings();
     }
     /**
@@ -404,7 +401,7 @@ public class SettingsTest {
     }
 
     /**
-     * Test method for {@link world.bentobox.boxed.Settings#getIslandCommand()}.
+     * Test method for {@link Settings#getPlayerCommandAliases()} Command()}.
      */
     @Test
     public void testGetIslandCommand() {
@@ -413,7 +410,7 @@ public class SettingsTest {
     }
 
     /**
-     * Test method for {@link world.bentobox.boxed.Settings#getAdminCommand()}.
+     * Test method for {@link Settings#getAdminCommandAliases()}.
      */
     @Test
     public void testGetAdminCommand() {
