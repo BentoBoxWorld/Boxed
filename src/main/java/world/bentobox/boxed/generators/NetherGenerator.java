@@ -27,7 +27,6 @@ public class NetherGenerator implements BaseNoiseGenerator {
     private final BiomeNoise defaultNoise = new BiomeNoise(10D, 0D, 2D);
     private final NoiseGenerator mainNoiseGenerator;
     private final Boxed addon;
-    private final YamlConfiguration config;
     private final Map<Biome, BiomeNoise> biomeNoiseMap;
 
 
@@ -40,7 +39,7 @@ public class NetherGenerator implements BaseNoiseGenerator {
         if (!biomeFile.exists()) {
             addon.saveResource("biomes.yml", true);
         }
-        config = YamlConfiguration.loadConfiguration(biomeFile);
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(biomeFile);
         biomeNoiseMap = new EnumMap<>(Biome.class);
         if (config.isConfigurationSection(NETHER_BIOMES)) {
             for (String key : config.getConfigurationSection(NETHER_BIOMES).getKeys(false)) {
@@ -53,14 +52,14 @@ public class NetherGenerator implements BaseNoiseGenerator {
         }
     }
 
-    class BiomeNoise {
+    static class BiomeNoise {
         double noiseScaleHorizontal = 10D;
         double height = 0D;
         double noiseScaleVertical = 2D;
         /**
-         * @param noiseScaleHorizontal
-         * @param height
-         * @param noiseScaleVertical
+         * @param noiseScaleHorizontal horizontal noise scale
+         * @param height height
+         * @param noiseScaleVertical vertical noise scale
          */
         public BiomeNoise(double noiseScaleHorizontal, double height, double noiseScaleVertical) {
             this.noiseScaleHorizontal = noiseScaleHorizontal;

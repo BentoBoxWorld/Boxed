@@ -15,7 +15,7 @@ public class BoxedChunkGenerator {
 
     private final WorldRef wordRef;
     private final Boxed addon;
-    private WorldRef wordRefNether;
+    private final WorldRef wordRefNether;
 
     public BoxedChunkGenerator(Boxed addon) {
         this.addon = addon;

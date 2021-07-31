@@ -49,7 +49,7 @@ public class Boxed extends GameModeAddon {
     // Settings
     private Settings settings;
     private ChunkGenerator chunkGenerator;
-    private Config<Settings> configObject = new Config<>(this, Settings.class);
+    private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private DeleteGen delChunks;
     private ChunkGenerator netherChunkGenerator;
@@ -103,10 +103,10 @@ public class Boxed extends GameModeAddon {
             return;
         }
         // Check for recommended addons
-        if (!this.getPlugin().getAddonsManager().getAddonByName("Border").isPresent()) {
+        if (this.getPlugin().getAddonsManager().getAddonByName("Border").isEmpty()) {
             this.logWarning("Boxed normally requires the Border addon.");
         }
-        if (!this.getPlugin().getAddonsManager().getAddonByName("InvSwitcher").isPresent()) {
+        if (this.getPlugin().getAddonsManager().getAddonByName("InvSwitcher").isEmpty()) {
             this.logWarning("Boxed normally requires the InvSwitcher addon for per-world Advancements.");
         }
         // Advancements manager
