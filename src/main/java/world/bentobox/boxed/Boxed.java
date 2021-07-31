@@ -53,7 +53,6 @@ public class Boxed extends GameModeAddon {
     private AdvancementsManager advManager;
     private DeleteGen delChunks;
     private ChunkGenerator netherChunkGenerator;
-    private PlaceholdersManager phManager;
 
     @Override
     public void onLoad() {
@@ -130,7 +129,7 @@ public class Boxed extends GameModeAddon {
         this.registerListener(new EnderPearlListener(this));
 
         // Register placeholders
-        phManager = new PlaceholdersManager(this);
+        PlaceholdersManager phManager  = new PlaceholdersManager(this);
         getPlugin().getPlaceholdersManager().registerPlaceholder(this,"visited_island_advancements", phManager::getCountByLocation);
         getPlugin().getPlaceholdersManager().registerPlaceholder(this,"island_advancements", phManager::getCount);
 

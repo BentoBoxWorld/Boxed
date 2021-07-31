@@ -43,10 +43,10 @@ public class EnderPearlListener implements Listener {
         }
         Location l = e.getHitBlock().getRelative(BlockFace.UP).getLocation();
         EnderPearl ep = (EnderPearl)e.getEntity();
-        if (ep.getShooter() instanceof Player) {
-            User u = User.getInstance((Player)ep.getShooter());
+        if (ep.getShooter() instanceof Player player) {
+            User u = User.getInstance(player);
             addon.getIslands().getIslandAt(l).ifPresent(i -> {
-             // Check flag
+                // Check flag
                 if (i.isAllowed(u, Boxed.MOVE_BOX) && addon.getIslands().isSafeLocation(l)) {
                     // Reset home locations
                     i.getMemberSet().forEach(uuid -> {

@@ -50,7 +50,7 @@ abstract class AbstractBoxedBiomeGenerator implements BiomeGenerator {
     private final Biome defaultBiome;
 
 
-    public AbstractBoxedBiomeGenerator(Boxed boxed, Environment env, Biome defaultBiome) {
+    protected AbstractBoxedBiomeGenerator(Boxed boxed, Environment env, Biome defaultBiome) {
         this.addon = boxed;
         this.defaultBiome = defaultBiome;
         dist = addon.getSettings().getIslandDistance();

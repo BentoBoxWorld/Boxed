@@ -252,42 +252,11 @@ public class AdvancementListener implements Listener {
         }
     }
 
-    @SuppressWarnings("deprecation")
+
     private void clearAdv(User user) {
         // Clear stats
         // Statistics
-        Arrays.stream(Statistic.values()).forEach(s -> {
-            switch(s.getType()) {
-            case BLOCK:
-                for (Material m: Material.values()) {
-                    if (m.isBlock() && !m.isLegacy()) {
-                        user.getPlayer().setStatistic(s, m, 0);
-                    }
-                }
-                break;
-            case ITEM:
-                for (Material m: Material.values()) {
-                    if (m.isItem() && !m.isLegacy()) {
-                        user.getPlayer().setStatistic(s, m, 0);
-                    }
-                }
-                break;
-            case ENTITY:
-                for (EntityType en: EntityType.values()) {
-                    if (en.isAlive()) {
-                        user.getPlayer().setStatistic(s, en, 0);
-                    }
-                }
-                break;
-            case UNTYPED:
-                user.getPlayer().setStatistic(s, 0);
-                break;
-            default:
-                break;
-
-            }
-
-        });
+        Arrays.stream(Statistic.values()).forEach(s -> resetStats(user, s));
         // Clear advancements
         Iterator<Advancement> it = Bukkit.advancementIterator();
         while (it.hasNext()) {
@@ -296,6 +265,39 @@ public class AdvancementListener implements Listener {
             p.getAwardedCriteria().forEach(p::revokeCriteria);
         }
 
+    }
+
+    @SuppressWarnings("deprecation")
+    private void resetStats(User user, Statistic s) {
+        switch(s.getType()) {
+        case BLOCK:
+            for (Material m: Material.values()) {
+                if (m.isBlock() && !m.isLegacy()) {
+                    user.getPlayer().setStatistic(s, m, 0);
+                }
+            }
+            break;
+        case ITEM:
+            for (Material m: Material.values()) {
+                if (m.isItem() && !m.isLegacy()) {
+                    user.getPlayer().setStatistic(s, m, 0);
+                }
+            }
+            break;
+        case ENTITY:
+            for (EntityType en: EntityType.values()) {
+                if (en.isAlive()) {
+                    user.getPlayer().setStatistic(s, en, 0);
+                }
+            }
+            break;
+        case UNTYPED:
+            user.getPlayer().setStatistic(s, 0);
+            break;
+        default:
+            break;
+
+        }
     }
 
 }
