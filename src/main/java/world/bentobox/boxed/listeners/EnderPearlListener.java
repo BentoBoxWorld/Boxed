@@ -26,7 +26,7 @@ public class EnderPearlListener implements Listener {
     private final Boxed addon;
 
     /**
-     * @param addon
+     * @param addon addon
      */
     public EnderPearlListener(Boxed addon) {
         this.addon = addon;

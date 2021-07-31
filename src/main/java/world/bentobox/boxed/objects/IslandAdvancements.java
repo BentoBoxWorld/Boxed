@@ -22,7 +22,7 @@ public class IslandAdvancements implements DataObject {
     List<String> advancements = new ArrayList<>();
 
     /**
-     * @param uniqueId
+     * @param uniqueId unique ID
      */
     public IslandAdvancements(String uniqueId) {
         this.uniqueId = uniqueId;

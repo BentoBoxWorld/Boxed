@@ -43,14 +43,14 @@ import world.bentobox.boxed.Boxed;
  */
 public class AdvancementListener implements Listener {
 
-    private Boxed addon;
+    private final Boxed addon;
     private final Advancement netherAdvancement;
     private final Advancement endAdvancement;
     private final Advancement netherRoot;
     private final Advancement endRoot;
 
     /**
-     * @param addon
+     * @param addon addon
      */
     public AdvancementListener(Boxed addon) {
         this.addon = addon;
@@ -145,7 +145,7 @@ public class AdvancementListener implements Listener {
     private String keyToString(User user, NamespacedKey key) {
         String adv = user.getTranslationOrNothing("boxed.advancements." + key.toString());
         if (adv.isEmpty()) {
-            adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1, key.getKey().length()));
+            adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1));
         }
         return adv;
     }
