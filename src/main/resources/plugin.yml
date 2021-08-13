@@ -1,4 +1,4 @@
-name: Boxed
+name: Pladdon
 main: world.bentobox.boxed.BoxedPladdon
 version: ${version}
 api-version: 1.17
