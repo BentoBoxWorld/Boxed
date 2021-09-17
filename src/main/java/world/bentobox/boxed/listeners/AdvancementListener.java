@@ -3,6 +3,7 @@ package world.bentobox.boxed.listeners;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.StreamSupport;
@@ -42,14 +43,14 @@ import world.bentobox.boxed.Boxed;
  */
 public class AdvancementListener implements Listener {
 
-    private Boxed addon;
+    private final Boxed addon;
     private final Advancement netherAdvancement;
     private final Advancement endAdvancement;
     private final Advancement netherRoot;
     private final Advancement endRoot;
 
     /**
-     * @param addon
+     * @param addon addon
      */
     public AdvancementListener(Boxed addon) {
         this.addon = addon;
@@ -77,20 +78,27 @@ public class AdvancementListener implements Listener {
                 e.getAdvancement().getCriteria().forEach(c ->
                 e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
                 User u = User.getInstance(e.getPlayer());
-                u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+                if (u != null) {
+                    u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+                }
                 return;
             }
 
             int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
             if (score != 0) {
                 User user = User.getInstance(e.getPlayer());
-                Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
+                if (user != null) {
+                    Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
+                }
             }
         }
     }
 
     private void tellTeam(User user, NamespacedKey key, int score) {
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        if (island == null) {
+            return;
+        }
         island.getMemberSet(RanksManager.MEMBER_RANK).stream()
         .map(User::getInstance)
         .filter(User::isOnline)
@@ -119,16 +127,16 @@ public class AdvancementListener implements Listener {
             int diff = addon.getAdvManager().checkIslandSize(island);
             if (diff > 0) {
                 user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(diff));
-                user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
+                user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
             } else if (diff < 0) {
                 user.sendMessage("boxed.size-decreased", TextVariables.NUMBER, String.valueOf(Math.abs(diff)));
-                user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_VILLAGER_DEATH, 1F, 2F);
+                user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_VILLAGER_DEATH, 1F, 2F);
             }
         }
     }
 
     private void informPlayer(User user, NamespacedKey key, int score) {
-        user.getPlayer().playSound(user.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
+        user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
         user.sendMessage("boxed.completed", TextVariables.NAME,  keyToString(user, key));
         user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(score));
 
@@ -137,7 +145,7 @@ public class AdvancementListener implements Listener {
     private String keyToString(User user, NamespacedKey key) {
         String adv = user.getTranslationOrNothing("boxed.advancements." + key.toString());
         if (adv.isEmpty()) {
-            adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1, key.getKey().length()));
+            adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1));
         }
         return adv;
     }
@@ -186,7 +194,7 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamJoinTime(TeamJoinedEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
-        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+        if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
@@ -198,7 +206,7 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamLeaveTime(TeamLeaveEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
-        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+        if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnLeaveResetAdvancements(), addon.getSettings().getOnLeaveGrantAdvancements());
@@ -208,7 +216,10 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onFirstTime(IslandNewIslandEvent e) {
-        clearAndSetAdv(User.getInstance(e.getPlayerUUID()), addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
+        User user = User.getInstance(e.getPlayerUUID());
+        if (user != null) {
+            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
+        }
     }
 
 
@@ -241,42 +252,11 @@ public class AdvancementListener implements Listener {
         }
     }
 
-    @SuppressWarnings("deprecation")
+
     private void clearAdv(User user) {
         // Clear stats
         // Statistics
-        Arrays.stream(Statistic.values()).forEach(s -> {
-            switch(s.getType()) {
-            case BLOCK:
-                for (Material m: Material.values()) {
-                    if (m.isBlock() && !m.isLegacy()) {
-                        user.getPlayer().setStatistic(s, m, 0);
-                    }
-                }
-                break;
-            case ITEM:
-                for (Material m: Material.values()) {
-                    if (m.isItem() && !m.isLegacy()) {
-                        user.getPlayer().setStatistic(s, m, 0);
-                    }
-                }
-                break;
-            case ENTITY:
-                for (EntityType en: EntityType.values()) {
-                    if (en.isAlive()) {
-                        user.getPlayer().setStatistic(s, en, 0);
-                    }
-                }
-                break;
-            case UNTYPED:
-                user.getPlayer().setStatistic(s, 0);
-                break;
-            default:
-                break;
-
-            }
-
-        });
+        Arrays.stream(Statistic.values()).forEach(s -> resetStats(user, s));
         // Clear advancements
         Iterator<Advancement> it = Bukkit.advancementIterator();
         while (it.hasNext()) {
@@ -285,6 +265,39 @@ public class AdvancementListener implements Listener {
             p.getAwardedCriteria().forEach(p::revokeCriteria);
         }
 
+    }
+
+    @SuppressWarnings("deprecation")
+    private void resetStats(User user, Statistic s) {
+        switch(s.getType()) {
+        case BLOCK:
+            for (Material m: Material.values()) {
+                if (m.isBlock() && !m.isLegacy()) {
+                    user.getPlayer().setStatistic(s, m, 0);
+                }
+            }
+            break;
+        case ITEM:
+            for (Material m: Material.values()) {
+                if (m.isItem() && !m.isLegacy()) {
+                    user.getPlayer().setStatistic(s, m, 0);
+                }
+            }
+            break;
+        case ENTITY:
+            for (EntityType en: EntityType.values()) {
+                if (en.isAlive()) {
+                    user.getPlayer().setStatistic(s, en, 0);
+                }
+            }
+            break;
+        case UNTYPED:
+            user.getPlayer().setStatistic(s, 0);
+            break;
+        default:
+            break;
+
+        }
     }
 
 }

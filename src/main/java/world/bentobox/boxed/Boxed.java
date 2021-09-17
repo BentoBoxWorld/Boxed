@@ -49,11 +49,10 @@ public class Boxed extends GameModeAddon {
     // Settings
     private Settings settings;
     private ChunkGenerator chunkGenerator;
-    private Config<Settings> configObject = new Config<>(this, Settings.class);
+    private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private DeleteGen delChunks;
     private ChunkGenerator netherChunkGenerator;
-    private PlaceholdersManager phManager;
 
     @Override
     public void onLoad() {
@@ -104,10 +103,10 @@ public class Boxed extends GameModeAddon {
             return;
         }
         // Check for recommended addons
-        if (!this.getPlugin().getAddonsManager().getAddonByName("Border").isPresent()) {
+        if (this.getPlugin().getAddonsManager().getAddonByName("Border").isEmpty()) {
             this.logWarning("Boxed normally requires the Border addon.");
         }
-        if (!this.getPlugin().getAddonsManager().getAddonByName("InvSwitcher").isPresent()) {
+        if (this.getPlugin().getAddonsManager().getAddonByName("InvSwitcher").isEmpty()) {
             this.logWarning("Boxed normally requires the InvSwitcher addon for per-world Advancements.");
         }
         // Advancements manager
@@ -130,7 +129,7 @@ public class Boxed extends GameModeAddon {
         this.registerListener(new EnderPearlListener(this));
 
         // Register placeholders
-        phManager = new PlaceholdersManager(this);
+        PlaceholdersManager phManager  = new PlaceholdersManager(this);
         getPlugin().getPlaceholdersManager().registerPlaceholder(this,"visited_island_advancements", phManager::getCountByLocation);
         getPlugin().getPlaceholdersManager().registerPlaceholder(this,"island_advancements", phManager::getCount);
 

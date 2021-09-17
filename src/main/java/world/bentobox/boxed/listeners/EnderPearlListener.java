@@ -26,7 +26,7 @@ public class EnderPearlListener implements Listener {
     private final Boxed addon;
 
     /**
-     * @param addon
+     * @param addon addon
      */
     public EnderPearlListener(Boxed addon) {
         this.addon = addon;
@@ -38,15 +38,15 @@ public class EnderPearlListener implements Listener {
     public void onEnderPearlLand(ProjectileHitEvent e) {
         if (!e.getEntityType().equals(EntityType.ENDER_PEARL)
                 || e.getHitBlock() == null
-                || !addon.getPlugin().getIWM().inWorld(e.getHitBlock().getLocation())) {
+                || !addon.inWorld(e.getHitBlock().getLocation())) {
             return;
         }
         Location l = e.getHitBlock().getRelative(BlockFace.UP).getLocation();
         EnderPearl ep = (EnderPearl)e.getEntity();
-        if (ep.getShooter() instanceof Player) {
-            User u = User.getInstance((Player)ep.getShooter());
+        if (ep.getShooter() instanceof Player player) {
+            User u = User.getInstance(player);
             addon.getIslands().getIslandAt(l).ifPresent(i -> {
-             // Check flag
+                // Check flag
                 if (i.isAllowed(u, Boxed.MOVE_BOX) && addon.getIslands().isSafeLocation(l)) {
                     // Reset home locations
                     i.getMemberSet().forEach(uuid -> {

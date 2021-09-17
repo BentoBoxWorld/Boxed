@@ -36,11 +36,6 @@ abstract class AbstractBoxedBiomeGenerator implements BiomeGenerator {
         ENV_MAP = Collections.unmodifiableMap(e);
     }
 
-    private final SortedMap<Double, Biome> northEast;
-    private final SortedMap<Double, Biome> southEast;
-    private final SortedMap<Double, Biome> northWest;
-    private final SortedMap<Double, Biome> southWest;
-
     protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
 
     private final Boxed addon;
@@ -50,7 +45,7 @@ abstract class AbstractBoxedBiomeGenerator implements BiomeGenerator {
     private final Biome defaultBiome;
 
 
-    public AbstractBoxedBiomeGenerator(Boxed boxed, Environment env, Biome defaultBiome) {
+    protected AbstractBoxedBiomeGenerator(Boxed boxed, Environment env, Biome defaultBiome) {
         this.addon = boxed;
         this.defaultBiome = defaultBiome;
         dist = addon.getSettings().getIslandDistance();
@@ -62,10 +57,10 @@ abstract class AbstractBoxedBiomeGenerator implements BiomeGenerator {
             addon.saveResource("biomes.yml", true);
         }
         YamlConfiguration config = YamlConfiguration.loadConfiguration(biomeFile);
-        northEast = loadQuad(config, ENV_MAP.get(env) + ".north-east");
-        southEast = loadQuad(config, ENV_MAP.get(env) + ".south-east");
-        northWest = loadQuad(config, ENV_MAP.get(env) + ".north-west");
-        southWest = loadQuad(config, ENV_MAP.get(env) + ".south-west");
+        SortedMap<Double, Biome> northEast = loadQuad(config, ENV_MAP.get(env) + ".north-east");
+        SortedMap<Double, Biome> southEast = loadQuad(config, ENV_MAP.get(env) + ".south-east");
+        SortedMap<Double, Biome> northWest = loadQuad(config, ENV_MAP.get(env) + ".north-west");
+        SortedMap<Double, Biome> southWest = loadQuad(config, ENV_MAP.get(env) + ".south-west");
 
         quadrants = new EnumMap<>(BlockFace.class);
         quadrants.put(BlockFace.NORTH_EAST, northEast);

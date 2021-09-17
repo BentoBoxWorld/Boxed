@@ -37,7 +37,7 @@ public class AdvancementsManager {
     private int unknownAdvChange;
 
     /**
-     * @param addon
+     * @param addon addon
      */
     public AdvancementsManager(Boxed addon) {
         this.addon = addon;

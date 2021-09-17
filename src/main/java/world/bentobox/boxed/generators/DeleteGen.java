@@ -19,7 +19,7 @@ public class DeleteGen extends ChunkGenerator {
 
     private final Map<World, World> backMap;
     /**
-     * @param addon
+     * @param addon addon
      */
     public DeleteGen(Boxed addon) {
         backMap = new HashMap<>();
