@@ -49,10 +49,7 @@ public class EnderPearlListener implements Listener {
                 // Check flag
                 if (i.isAllowed(u, Boxed.MOVE_BOX) && addon.getIslands().isSafeLocation(l)) {
                     // Reset home locations
-                    i.getMemberSet().forEach(uuid -> {
-                        addon.getPlayers().getPlayer(uuid).clearHomeLocations(l.getWorld());
-                        addon.getPlayers().getPlayer(uuid).setHomeLocation(l);
-                    });
+                    i.getMemberSet().forEach(uuid -> addon.getIslands().setHomeLocation(uuid, l));
                     try {
                         i.setProtectionCenter(l);
                         i.setSpawnPoint(l.getWorld().getEnvironment(), l);
