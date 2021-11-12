@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.generator.WorldInfo;
 
 import world.bentobox.boxed.Boxed;
 
@@ -17,33 +18,57 @@ import world.bentobox.boxed.Boxed;
  */
 public class DeleteGen extends ChunkGenerator {
 
-    private final Map<World, World> backMap;
+    private final Map<String, World> backMap;
     /**
      * @param addon addon
      */
     public DeleteGen(Boxed addon) {
         backMap = new HashMap<>();
-        backMap.put(addon.getOverWorld(), Bukkit.getWorld(addon.getOverWorld().getName() + "_bak"));
+        backMap.put(addon.getOverWorld().getName(), Bukkit.getWorld(addon.getOverWorld().getName() + "_bak"));
         if (addon.getNetherWorld() != null) {
-            backMap.put(addon.getNetherWorld(), Bukkit.getWorld(addon.getNetherWorld().getName() + "_bak"));
+            backMap.put(addon.getNetherWorld().getName(), Bukkit.getWorld(addon.getNetherWorld().getName() + "_bak"));
         }
     }
 
     @Override
-    public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ, BiomeGrid biomeGrid) {
-        ChunkData result = createChunkData(world);
-        if (backMap.containsKey(world)) {
+    public void generateSurface(WorldInfo worldInfo, Random random, int x, int z, ChunkData chunkData) {
+        if (backMap.containsKey(worldInfo.getName())) {
             // Load the chunk from the back world
-            Chunk chunk = backMap.get(world).getChunkAt(chunkX, chunkZ);
-            for (int x = 0; x < 16; x++) {
-                for (int y = 0; y < world.getMaxHeight(); y++) {
-                    for (int z = 0; z < 16; z++) {
-                        result.setBlock(x, y, z, chunk.getBlock(x, y, z).getBlockData());
+            Chunk chunk = backMap.get(worldInfo.getName()).getChunkAt(x, z);
+            for (int xx = 0; xx < 16; xx++) {
+                for (int y = 0; y < worldInfo.getMaxHeight(); y++) {
+                    for (int zz = 0; zz < 16; zz++) {
+                        chunkData.setBlock(xx, y, zz, chunk.getBlock(xx, y, zz).getBlockData());
                     }
                 }
             }
         }
-        return result;
+    }
+
+    @Override
+    public boolean canSpawn(World world, int x, int z)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateNoise() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateSurface() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateBedrock() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateCaves() {
+        return true;
     }
 
 }

@@ -58,7 +58,7 @@
         <!-- Non-minecraft related dependencies -->
         <powermock.version>2.0.9</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.17-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
         <bentobox.version>1.18.0-SNAPSHOT</bentobox.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
@@ -165,9 +165,8 @@
         <dependency>
             <groupId>nl.rutgerkok</groupId>
             <artifactId>worldgeneratorapi</artifactId>
-            <version>1.2.0</version>
-            <scope>provided</scope> <!-- Important, otherwise WorldGeneratorApi will be placed in your JAR file 
-                if you're using maven-shade-plugin -->
+            <version>1.3</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

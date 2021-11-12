@@ -1,28 +1,58 @@
 package world.bentobox.boxed.generators;
 
-import org.bukkit.generator.ChunkGenerator;
+import java.util.Random;
 
-import nl.rutgerkok.worldgeneratorapi.WorldGeneratorApi;
-import nl.rutgerkok.worldgeneratorapi.WorldRef;
-import nl.rutgerkok.worldgeneratorapi.decoration.DecorationType;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.generator.WorldInfo;
+
 import world.bentobox.boxed.Boxed;
 
 /**
  * @author tastybento
  *
  */
-public class BoxedChunkGenerator {
+public class BoxedChunkGenerator extends ChunkGenerator {
 
-    private final WorldRef wordRef;
+    //private final WorldRef wordRef;
     private final Boxed addon;
-    private final WorldRef wordRefNether;
+    //private final WorldRef wordRefNether;
 
     public BoxedChunkGenerator(Boxed addon) {
         this.addon = addon;
-        wordRef = WorldRef.ofName(addon.getSettings().getWorldName());
-        wordRefNether = WorldRef.ofName(addon.getSettings().getWorldName() + "_nether");
+        //wordRef = WorldRef.ofName(addon.getSettings().getWorldName());
+        //wordRefNether = WorldRef.ofName(addon.getSettings().getWorldName() + "_nether");
     }
 
+    @Override
+    public boolean canSpawn(World world, int x, int z)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateNoise() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateSurface() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateBedrock() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerateCaves() {
+        return true;
+    }
+
+    /*
+    @SuppressWarnings({ "removal", "deprecation" })
     public ChunkGenerator getGenerator() {
         return WorldGeneratorApi
                 .getInstance(addon.getPlugin(), 0, 5)
@@ -39,6 +69,7 @@ public class BoxedChunkGenerator {
                 });
     }
 
+    @SuppressWarnings({ "removal", "deprecation" })
     public ChunkGenerator getNetherGenerator() {
         return WorldGeneratorApi
                 .getInstance(addon.getPlugin(), 0, 5)
@@ -54,5 +85,5 @@ public class BoxedChunkGenerator {
                     generator.setBiomeGenerator(new NetherBiomeGenerator(addon));
                 });
     }
-
+     */
 }
