@@ -7,7 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
+import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -22,6 +22,7 @@ import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.generators.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.DeleteGen;
+import world.bentobox.boxed.generators.SimpleBiomeProvider;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 

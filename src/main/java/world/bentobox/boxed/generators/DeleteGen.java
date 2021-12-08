@@ -58,7 +58,7 @@ public class DeleteGen extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateSurface() {
-        return true;
+        return false;
     }
 
     @Override
