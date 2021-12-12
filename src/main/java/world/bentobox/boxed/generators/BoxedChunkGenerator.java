@@ -9,7 +9,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.noise.SimplexNoiseGenerator;
-import org.bukkit.util.noise.SimplexOctaveGenerator;
 
 import world.bentobox.boxed.Boxed;
 
