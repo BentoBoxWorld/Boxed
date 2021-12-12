@@ -73,7 +73,7 @@ public class AdvancementListener implements Listener {
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
         if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
             // Only allow members or higher to get advancements in a box
-            if (!addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
+            if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
                 // Remove advancement from player
                 e.getAdvancement().getCriteria().forEach(c ->
                 e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));

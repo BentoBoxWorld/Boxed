@@ -57,6 +57,11 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "boxed.broadcast-advancements")
     private boolean broadcastAdvancements;
 
+    @ConfigComment("Deny advancements for visitors.")
+    @ConfigComment("Visitors cannot get an advancement. Note visitors will still get the reward, e.g., experience")
+    @ConfigEntry(path = "boxed.deny-visitor-advancements")
+    private boolean denyVisitorAdvancements = true;
+
     /*      WORLD       */
     @ConfigComment("Friendly name for this world. Used in admin commands. Must be a single word")
     @ConfigEntry(path = "world.friendly-name")
@@ -1752,5 +1757,19 @@ public class Settings implements WorldSettings {
      */
     public void setBroadcastAdvancements(boolean broadcastAdvancements) {
         this.broadcastAdvancements = broadcastAdvancements;
+    }
+
+    /**
+     * @return the denyVisitorAdvancements
+     */
+    public boolean isDenyVisitorAdvancements() {
+        return denyVisitorAdvancements;
+    }
+
+    /**
+     * @param denyVisitorAdvancements the denyVisitorAdvancements to set
+     */
+    public void setDenyVisitorAdvancements(boolean denyVisitorAdvancements) {
+        this.denyVisitorAdvancements = denyVisitorAdvancements;
     }
 }
