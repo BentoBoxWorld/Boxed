@@ -151,7 +151,7 @@ public class AdvancementsManager {
      */
     public int checkIslandSize(Island island) {
         // Island is always a minimum of 1 for free.
-				int defaultSize = addon.getSettings().getIslandProtectionRange();
+        int defaultSize = addon.getSettings().getIslandProtectionRange();
         int shouldSize = getIsland(island).getAdvancements().stream().mapToInt(this::getScore).sum() + defaultSize;
         if (shouldSize < 1) {
             // Boxes can never be less than 1 in protection size
