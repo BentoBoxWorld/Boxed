@@ -58,7 +58,7 @@ public class Boxed extends GameModeAddon {
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private DeleteGenV2 delChunks;
-    // private ChunkGenerator netherChunkGenerator;
+    private BoxedChunkGeneratorV2 netherChunkGenerator;
 
     @Override
     public void onLoad() {
@@ -76,9 +76,9 @@ public class Boxed extends GameModeAddon {
         //     return;
         // }
         // Chunk generator
-        chunkGenerator = new BoxedChunkGeneratorV2(this, new BoxedBiomeGeneratorV2(this));
+        chunkGenerator = new BoxedChunkGeneratorV2(this, new BoxedBiomeGeneratorV2(this, Environment.NORMAL, Biome.PLAINS));
         // chunkGenerator = new BoxedChunkGenerator(this).getGenerator();
-        // netherChunkGenerator = new BoxedChunkGenerator(this).getNetherGenerator();
+        netherChunkGenerator = new BoxedChunkGeneratorV2(this, new BoxedBiomeGeneratorV2(this, Environment.NETHER, Biome.NETHER_WASTES));
         // Register commands
         playerCommand = new DefaultPlayerCommand(this) {};
 
@@ -175,12 +175,14 @@ public class Boxed extends GameModeAddon {
         // Create the world if it does not exist
         islandWorld = getWorld(worldName, World.Environment.NORMAL, chunkGenerator);
         // Make the nether if it does not exist
-        // if (settings.isNetherGenerate()) {
-        //     if (getServer().getWorld(worldName + NETHER) == null) {
-        //         log("Creating Boxed's Nether...");
-        //     }
-        //     netherWorld = settings.isNetherIslands() ? getWorld(worldName, World.Environment.NETHER, netherChunkGenerator) : getWorld(worldName, World.Environment.NETHER, null);
-        // }
+        if (settings.isNetherGenerate()) {
+            if (getServer().getWorld(worldName + NETHER) == null) {
+                log("Creating Boxed's Nether...");
+            }
+            netherWorld = settings.isNetherIslands()
+							? getWorld(worldName, World.Environment.NETHER, netherChunkGenerator)
+							: getWorld(worldName, World.Environment.NETHER, null);
+        }
         // Make the end if it does not exist
         if (settings.isEndGenerate()) {
             if (getServer().getWorld(worldName + THE_END) == null) {
@@ -257,8 +259,7 @@ public class Boxed extends GameModeAddon {
         if (id != null && id.equals("delete")) {
             return delChunks;
         }
-				return chunkGenerator;
-        // return worldName.endsWith(NETHER) ? netherChunkGenerator : chunkGenerator;
+        return worldName.endsWith(NETHER) ? netherChunkGenerator : chunkGenerator;
     }
 
     @Override

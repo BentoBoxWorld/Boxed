@@ -11,8 +11,8 @@ import world.bentobox.boxed.Boxed;
  */
 public class BoxedBiomeGeneratorV2 extends AbstractBoxedBiomeGeneratorV2 {
 
-    public BoxedBiomeGeneratorV2(Boxed boxed) {
-        super(boxed, Environment.NORMAL, Biome.OCEAN);
+    public BoxedBiomeGeneratorV2(Boxed boxed, Environment env, Biome defaultBiome) {
+        super(boxed, env, defaultBiome);
     }
 
 }
