@@ -9,6 +9,8 @@ import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
+import org.bukkit.block.Biome;
+import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -22,7 +24,11 @@ import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.generators.BoxedChunkGenerator;
+import world.bentobox.boxed.generators.BoxedChunkGeneratorV2;
+import world.bentobox.boxed.generators.BoxedBiomeGeneratorV2;
+import world.bentobox.boxed.generators.BoxedBiomeProvider;
 import world.bentobox.boxed.generators.DeleteGen;
+import world.bentobox.boxed.generators.DeleteGenV2;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 
@@ -48,11 +54,11 @@ public class Boxed extends GameModeAddon {
 
     // Settings
     private Settings settings;
-    private ChunkGenerator chunkGenerator;
+    private BoxedChunkGeneratorV2 chunkGenerator;
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
-    private DeleteGen delChunks;
-    private ChunkGenerator netherChunkGenerator;
+    private DeleteGenV2 delChunks;
+    // private ChunkGenerator netherChunkGenerator;
 
     @Override
     public void onLoad() {
@@ -63,15 +69,16 @@ public class Boxed extends GameModeAddon {
         // Save biomes
         this.saveResource("biomes.yml", false);
         // Check for WGAPI
-        if (isNoWGAPI()) {
-            logError("WorldGeneratorAPI plugin is required.");
-            logError("Download the correct one for your server from https://github.com/rutgerkok/WorldGeneratorApi/releases");
-            this.setState(State.DISABLED);
-            return;
-        }
+        // if (isNoWGAPI()) {
+        //     logError("WorldGeneratorAPI plugin is required.");
+        //     logError("Download the correct one for your server from https://github.com/rutgerkok/WorldGeneratorApi/releases");
+        //     this.setState(State.DISABLED);
+        //     return;
+        // }
         // Chunk generator
-        chunkGenerator = new BoxedChunkGenerator(this).getGenerator();
-        netherChunkGenerator = new BoxedChunkGenerator(this).getNetherGenerator();
+        chunkGenerator = new BoxedChunkGeneratorV2(this, new BoxedBiomeGeneratorV2(this));
+        // chunkGenerator = new BoxedChunkGenerator(this).getGenerator();
+        // netherChunkGenerator = new BoxedChunkGenerator(this).getNetherGenerator();
         // Register commands
         playerCommand = new DefaultPlayerCommand(this) {};
 
@@ -79,9 +86,9 @@ public class Boxed extends GameModeAddon {
 
     }
 
-    private boolean isNoWGAPI() {
-        return Bukkit.getPluginManager().getPlugin("WorldGeneratorApi") == null;
-    }
+    // private boolean isNoWGAPI() {
+    //     return Bukkit.getPluginManager().getPlugin("WorldGeneratorApi") == null;
+    // }
 
     private boolean loadSettings() {
         // Load settings again to get worlds
@@ -98,10 +105,10 @@ public class Boxed extends GameModeAddon {
     @Override
     public void onEnable(){
         // Disable in onEnable
-        if (isNoWGAPI()) {
-            this.setState(State.DISABLED);
-            return;
-        }
+        // if (isNoWGAPI()) {
+        //     this.setState(State.DISABLED);
+        //     return;
+        // }
         // Check for recommended addons
         if (this.getPlugin().getAddonsManager().getAddonByName("Border").isEmpty()) {
             this.logWarning("Boxed normally requires the Border addon.");
@@ -112,7 +119,7 @@ public class Boxed extends GameModeAddon {
         // Advancements manager
         advManager = new AdvancementsManager(this);
         // Get delete chunk generator
-        delChunks = new DeleteGen(this);
+        delChunks = new DeleteGenV2(this);
         // Make flags only applicable to this game mode
         MOVE_BOX.setGameModes(Collections.singleton(this));
         ALLOW_MOVE_BOX.setGameModes(Collections.singleton(this));
@@ -157,9 +164,9 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void createWorlds() {
-        if (isNoWGAPI()) {
-            return;
-        }
+        // if (isNoWGAPI()) {
+        //     return;
+        // }
         String worldName = settings.getWorldName().toLowerCase();
         if (getServer().getWorld(worldName) == null) {
             log("Creating Boxed world ...");
@@ -168,18 +175,20 @@ public class Boxed extends GameModeAddon {
         // Create the world if it does not exist
         islandWorld = getWorld(worldName, World.Environment.NORMAL, chunkGenerator);
         // Make the nether if it does not exist
-        if (settings.isNetherGenerate()) {
-            if (getServer().getWorld(worldName + NETHER) == null) {
-                log("Creating Boxed's Nether...");
-            }
-            netherWorld = settings.isNetherIslands() ? getWorld(worldName, World.Environment.NETHER, netherChunkGenerator) : getWorld(worldName, World.Environment.NETHER, null);
-        }
+        // if (settings.isNetherGenerate()) {
+        //     if (getServer().getWorld(worldName + NETHER) == null) {
+        //         log("Creating Boxed's Nether...");
+        //     }
+        //     netherWorld = settings.isNetherIslands() ? getWorld(worldName, World.Environment.NETHER, netherChunkGenerator) : getWorld(worldName, World.Environment.NETHER, null);
+        // }
         // Make the end if it does not exist
         if (settings.isEndGenerate()) {
             if (getServer().getWorld(worldName + THE_END) == null) {
                 log("Creating Boxed's End World...");
             }
-            endWorld = settings.isEndIslands() ? getWorld(worldName, World.Environment.THE_END, chunkGenerator) : getWorld(worldName, World.Environment.THE_END, null);
+            endWorld = settings.isEndIslands()
+						  ? getWorld(worldName, World.Environment.THE_END, chunkGenerator) 
+							: getWorld(worldName, World.Environment.THE_END, null);
         }
     }
 
@@ -190,13 +199,22 @@ public class Boxed extends GameModeAddon {
      * @param chunkGenerator2 - the chunk generator. If <tt>null</tt> then the generator will not be specified
      * @return world loaded or generated
      */
-    private World getWorld(String worldName2, Environment env, ChunkGenerator chunkGenerator2) {
+    private World getWorld(String worldName, Environment env, @Nullable BoxedChunkGeneratorV2 chunkGenerator2) {
         // Set world name
-        worldName2 = env.equals(World.Environment.NETHER) ? worldName2 + NETHER : worldName2;
-        worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
-        World w = WorldCreator.name(worldName2).type(WorldType.FLAT).environment(env).generator(chunkGenerator2).seed(settings.getSeed()).createWorld();
+				String suffix = env.equals(World.Environment.NETHER)
+				? NETHER
+				: env.equals(World.Environment.THE_END)
+					? THE_END
+					: "";
+
+				worldName = worldName + suffix;
+				long seed = settings.getSeed();
+				@Nullable BiomeProvider biomeProvider = chunkGenerator2 != null
+					? new BoxedBiomeProvider(chunkGenerator2.biomeGenerator)
+					: null;
+        World w = WorldCreator.name(worldName).type(WorldType.NORMAL).environment(env).generator(chunkGenerator2).biomeProvider(biomeProvider).seed(seed).createWorld();
         // Backup world
-        World b = WorldCreator.name(worldName2 + "_bak").type(WorldType.FLAT).environment(env).generator(chunkGenerator2).seed(settings.getSeed()).createWorld();
+        World b = WorldCreator.name(worldName + "_bak").type(WorldType.NORMAL).environment(env).generator(chunkGenerator2).biomeProvider(biomeProvider).seed(seed).createWorld();
         b.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
         // Set spawn rates
         if (w != null) {
@@ -234,10 +252,13 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public @Nullable ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+			this.log("Getting world generator");
+			this.log(id);
         if (id != null && id.equals("delete")) {
             return delChunks;
         }
-        return worldName.endsWith(NETHER) ? netherChunkGenerator : chunkGenerator;
+				return chunkGenerator;
+        // return worldName.endsWith(NETHER) ? netherChunkGenerator : chunkGenerator;
     }
 
     @Override

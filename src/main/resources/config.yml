@@ -62,9 +62,9 @@ world:
   # If none of this makes sense, leave it at 0,0.
   start-x: 0
   start-z: 0
-  # Area height - Lowest is 5.
+  # Area height - Lowest is -64.
   # It is the y coordinate of the bedrock block in the blueprint.
-  area-height: 5
+  area-height: -64
   # Maximum number of player areas in the world. Set to -1 or 0 for unlimited.
   # If the number of areas is greater than this number, it will stop players from joining the world.
   max-areas: -1

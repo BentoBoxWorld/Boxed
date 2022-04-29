@@ -72,25 +72,24 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
         if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
-            // Only allow members or higher to get advancements in a box
-            if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
-                // Remove advancement from player
-                e.getAdvancement().getCriteria().forEach(c ->
-                e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
-                User u = User.getInstance(e.getPlayer());
-                if (u != null) {
-                    u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
-                }
-                return;
-            }
-
-            int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
-            if (score != 0) {
-                User user = User.getInstance(e.getPlayer());
-                if (user != null) {
-                    Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
-                }
-            }
+					int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
+					if (score != 0) {
+						// Only allow members or higher to get advancements in a box
+						if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
+								// Remove advancement from player
+								e.getAdvancement().getCriteria().forEach(c ->
+								e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
+								User u = User.getInstance(e.getPlayer());
+								if (u != null) {
+										u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+								}
+								return;
+						}
+						User user = User.getInstance(e.getPlayer());
+						if (user != null) {
+								Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
+						}
+					}
         }
     }
 
