@@ -1282,6 +1282,9 @@ boxed:
     minecraft:story/upgrade_tools: ''
 protection:
   flags:
+    ALLOW_MOVE_BOX:
+      name: Allow moving box
+      description: "&aBoxes can be moved\n&ausing EnderPearls\n"
     MOVE_BOX:
       name: Move Box
       description: "&b Toggle who can\n&b move the box with\n&b EnderPearls   \n"

@@ -38,7 +38,8 @@ public class EnderPearlListener implements Listener {
     public void onEnderPearlLand(ProjectileHitEvent e) {
         if (!e.getEntityType().equals(EntityType.ENDER_PEARL)
                 || e.getHitBlock() == null
-                || !addon.inWorld(e.getHitBlock().getLocation())) {
+                || !addon.inWorld(e.getHitBlock().getLocation())
+								|| !Boxed.ALLOW_MOVE_BOX.isSetForWorld(addon.getOverWorld())) {
             return;
         }
         Location l = e.getHitBlock().getRelative(BlockFace.UP).getLocation();
