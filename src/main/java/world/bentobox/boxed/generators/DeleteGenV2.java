@@ -26,7 +26,9 @@ public class DeleteGenV2 extends ChunkGenerator {
      */
     public DeleteGenV2(Boxed addon) {
         backMap = new HashMap<>();
+				addon.log("poop");
         backMap.put(addon.getOverWorld(), Bukkit.getWorld(addon.getOverWorld().getName() + "_bak"));
+				addon.log("pooiuiouiop");
         if (addon.getNetherWorld() != null) {
             backMap.put(addon.getNetherWorld(), Bukkit.getWorld(addon.getNetherWorld().getName() + "_bak"));
         }

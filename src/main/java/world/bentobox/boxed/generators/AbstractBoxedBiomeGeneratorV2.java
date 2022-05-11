@@ -87,7 +87,9 @@ abstract class AbstractBoxedBiomeGeneratorV2 {
                         addon.logError(split[1].toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
                     } else {
                         result.put(d, biome);
+												addon.log("yoo");
 												BiomeList.add(biome);
+												addon.log("after");
 											}
                 } catch(Exception e) {
                     addon.logError(string + ": " + split[0] + " does not seem to be a double. For integers add a .0 to the end");
