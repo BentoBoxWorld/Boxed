@@ -35,6 +35,7 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.bentobox.util.Util;
+import world.bentobox.boxed.AdvancementsManager;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -71,21 +72,21 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
-        if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
-            // Only allow members or higher to get advancements in a box
-            if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
-                // Remove advancement from player
-                e.getAdvancement().getCriteria().forEach(c ->
-                e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
-                User u = User.getInstance(e.getPlayer());
-                if (u != null) {
-                    u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
-                }
-                return;
-            }
-
-            int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
+        AdvancementsManager advManager = addon.getAdvManager();
+        if (advManager.advancementAllowedInWorld(e.getPlayer().getWorld())) {
+            int score = advManager.addAdvancement(e.getPlayer(), e.getAdvancement());
             if (score != 0) {
+                // Only allow members or higher to get advancements in a box
+                if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
+                    // Remove advancement from player
+                    e.getAdvancement().getCriteria().forEach(c ->
+                    e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
+                    User u = User.getInstance(e.getPlayer());
+                    if (u != null) {
+                        u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+                    }
+                    return;
+                }
                 User user = User.getInstance(e.getPlayer());
                 if (user != null) {
                     Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
@@ -153,7 +154,7 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent e) {
-        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
+        if (!addon.getAdvManager().advancementAllowedInWorld(e.getPlayer().getWorld())) {
             return;
         }
         if (e.getCause().equals(TeleportCause.NETHER_PORTAL)) {
@@ -176,7 +177,7 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent e) {
         User user = User.getInstance(e.getPlayer());
-        if (Util.sameWorld(addon.getOverWorld(), e.getPlayer().getWorld())) {
+        if (addon.getAdvManager().advancementAllowedInWorld(e.getPlayer().getWorld())) {
             // Set advancements to same as island
             syncAdvancements(user);
         }
@@ -185,7 +186,7 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerEnterWorld(PlayerChangedWorldEvent e) {
         User user = User.getInstance(e.getPlayer());
-        if (Util.sameWorld(addon.getOverWorld(), e.getPlayer().getWorld())) {
+        if (addon.getAdvManager().advancementAllowedInWorld(e.getPlayer().getWorld())) {
             // Set advancements to same as island
             syncAdvancements(user);
         }
@@ -195,7 +196,7 @@ public class AdvancementListener implements Listener {
     public void onTeamJoinTime(TeamJoinedEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
         if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
-                && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
+                && addon.getAdvManager().advancementAllowedInWorld(user.getWorld())) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
             // Set advancements to same as island
@@ -207,7 +208,7 @@ public class AdvancementListener implements Listener {
     public void onTeamLeaveTime(TeamLeaveEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
         if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
-                && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
+                && addon.getAdvManager().advancementAllowedInWorld(user.getWorld())) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnLeaveResetAdvancements(), addon.getSettings().getOnLeaveGrantAdvancements());
 

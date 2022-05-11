@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.bukkit.World;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -170,7 +172,7 @@ public class AdvancementsManager {
      * @return score for advancement. 0 if the advancement was not added.
      */
     public int addAdvancement(Player p, Advancement advancement) {
-        if (!addon.getOverWorld().equals(Util.getWorld(p.getWorld()))) {
+        if (!advancementAllowedInWorld(p.getWorld())) {
             // Wrong world
             return 0;
         }
@@ -218,4 +220,7 @@ public class AdvancementsManager {
         return !advConfig.contains(adv) && adv.endsWith("/root") ? advConfig.getInt("settings.default-root-increase") : advConfig.getInt(adv, this.unknownAdvChange);
     }
 
+    public boolean advancementAllowedInWorld(World w) {
+        return Util.sameWorld(addon.getOverWorld(), w) || addon.getSettings().getAllowAdvancementsInWorlds().contains(w.getName());
+    }
 }

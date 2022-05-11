@@ -62,6 +62,11 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "boxed.deny-visitor-advancements")
     private boolean denyVisitorAdvancements = true;
 
+    @ConfigComment("Allow advancements in different worlds")
+    @ConfigComment("Add worlds that allow advancements. Boxed's Overworld, Nether and End worlds are automatically included.")
+    @ConfigEntry(path = "boxed.allow-advancements-in-worlds")
+    private List<String> allowAdvancementsInWorlds = new ArrayList<>();
+
     /*      WORLD       */
     @ConfigComment("Friendly name for this world. Used in admin commands. Must be a single word")
     @ConfigEntry(path = "world.friendly-name")
@@ -1771,5 +1776,19 @@ public class Settings implements WorldSettings {
      */
     public void setDenyVisitorAdvancements(boolean denyVisitorAdvancements) {
         this.denyVisitorAdvancements = denyVisitorAdvancements;
+    }
+
+    /**
+     * @return the allowAdvancementsInWorlds
+     */
+    public List<String> getAllowAdvancementsInWorlds() {
+        return allowAdvancementsInWorlds;
+    }
+
+    /**
+     * @param allowAdvancementsInWorlds the allowAdvancementsInWorlds to set
+     */
+    public void setAllowAdvancementsInWorlds(List<String> allowAdvancementsInWorlds) {
+        this.allowAdvancementsInWorlds = allowAdvancementsInWorlds;
     }
 }
