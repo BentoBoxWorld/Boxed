@@ -138,10 +138,10 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.start-z")
     private int islandStartZ = 0;
 
-    @ConfigComment("Area height - Lowest is -64.")
+    @ConfigComment("Area height - Lowest is 5.")
     @ConfigComment("It is the y coordinate of the bedrock block in the blueprint.")
     @ConfigEntry(path = "world.area-height")
-    private int islandHeight = -64;
+    private int islandHeight = 5;
 
     @ConfigComment("Maximum number of player areas in the world. Set to -1 or 0 for unlimited.")
     @ConfigComment("If the number of areas is greater than this number, it will stop players from joining the world.")
