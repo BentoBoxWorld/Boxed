@@ -2,11 +2,13 @@ package world.bentobox.boxed;
 
 import java.util.Collections;
 
-import org.bukkit.Difficulty;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.SpawnCategory;
+import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -19,7 +21,9 @@ import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
-import world.bentobox.boxed.generators.CopyGenerator;
+import world.bentobox.boxed.generators.BoxedBiomeGenerator;
+import world.bentobox.boxed.generators.BoxedChunkGenerator;
+import world.bentobox.boxed.generators.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 
@@ -45,11 +49,12 @@ public class Boxed extends GameModeAddon {
 
     // Settings
     private Settings settings;
-    private ChunkGenerator chunkGenerator;
+    private BoxedChunkGenerator chunkGenerator;
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private ChunkGenerator netherChunkGenerator;
     private World seedWorld;
+    private BiomeProvider boxedBiomeProvider;
 
     @Override
     public void onLoad() {
@@ -74,6 +79,8 @@ public class Boxed extends GameModeAddon {
             setState(State.DISABLED);
             return false;
         }
+        // Initialize the Generator because createWorlds will be run after onLoad
+        this.chunkGenerator = new BoxedChunkGenerator(this);
         return true;
     }
 
@@ -102,6 +109,7 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
+        //this.registerListener(new DebugListener(this));
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);
@@ -133,19 +141,32 @@ public class Boxed extends GameModeAddon {
     @Override
     public void createWorlds() {
         // Create seed world
+        log("Creating Boxed Seed world ...");
+        seedWorld = WorldCreator
+                .name("seed")
+                .generator(new BoxedSeedChunkGenerator())
+                .environment(Environment.NORMAL)
+                .generateStructures(false)
+                .seed(getSettings().getSeed())
+                .createWorld();
+        saveChunks(seedWorld);
+
+
         String worldName = settings.getWorldName().toLowerCase();
+        /*
         if (getServer().getWorld(worldName) == null) {
             log("Creating Boxed Seed world ...");
         }
         seedWorld = WorldCreator.name(worldName + "_bak").seed(settings.getSeed()).createWorld();
         seedWorld.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
-
+         */
         if (getServer().getWorld(worldName) == null) {
             log("Creating Boxed world ...");
         }
 
         // Create the world if it does not exist
         islandWorld = getWorld(worldName, World.Environment.NORMAL);
+        /*
         // Make the nether if it does not exist
         if (settings.isNetherGenerate()) {
             if (getServer().getWorld(worldName + NETHER) == null) {
@@ -160,6 +181,32 @@ public class Boxed extends GameModeAddon {
             }
             endWorld = settings.isEndIslands() ? getWorld(worldName, World.Environment.THE_END) : getWorld(worldName, World.Environment.THE_END);
         }
+         */
+    }
+
+    private void saveChunks(World seedWorld) {
+        int size = this.getSettings().getIslandDistance();
+        double percent = size * 4 * size;
+        int count = 0;
+        for (int x = -size; x < size; x ++) {
+            for (int z = -size; z < size; z++) {
+                ChunkSnapshot chunk = seedWorld.getChunkAt(x, z).getChunkSnapshot(true, true, false);
+                this.chunkGenerator.setChunk(chunk);
+                count++;
+                int p = (int) (count / percent * 100);
+                if (p % 10 == 0) {
+                    this.log("Storing seed chunks. " + p + "% done");
+                }
+
+            }
+        }
+    }
+
+    /**
+     * @return the chunkGenerator
+     */
+    public BoxedChunkGenerator getChunkGenerator() {
+        return chunkGenerator;
     }
 
     /**
@@ -172,7 +219,13 @@ public class Boxed extends GameModeAddon {
         // Set world name
         worldName2 = env.equals(World.Environment.NETHER) ? worldName2 + NETHER : worldName2;
         worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
-        World w = WorldCreator.name(worldName2).environment(env).seed(settings.getSeed()).createWorld();
+        boxedBiomeProvider = new BoxedBiomeGenerator(this);
+        World w = WorldCreator
+                .name(worldName2)
+                .generator(chunkGenerator)
+                .environment(env)
+                .seed(seedWorld.getSeed()) // For development
+                .createWorld();
         // Set spawn rates
         if (w != null) {
             setSpawnRates(w);
@@ -181,24 +234,31 @@ public class Boxed extends GameModeAddon {
 
     }
 
+    /**
+     * @return the boxedBiomeProvider
+     */
+    public BiomeProvider getBoxedBiomeProvider() {
+        return boxedBiomeProvider;
+    }
+
     private void setSpawnRates(World w) {
         if (getSettings().getSpawnLimitMonsters() > 0) {
-            w.setMonsterSpawnLimit(getSettings().getSpawnLimitMonsters());
+            w.setSpawnLimit(SpawnCategory.MONSTER, getSettings().getSpawnLimitMonsters());
         }
         if (getSettings().getSpawnLimitAmbient() > 0) {
-            w.setAmbientSpawnLimit(getSettings().getSpawnLimitAmbient());
+            w.setSpawnLimit(SpawnCategory.AMBIENT, getSettings().getSpawnLimitAmbient());
         }
         if (getSettings().getSpawnLimitAnimals() > 0) {
-            w.setAnimalSpawnLimit(getSettings().getSpawnLimitAnimals());
+            w.setSpawnLimit(SpawnCategory.ANIMAL, getSettings().getSpawnLimitAnimals());
         }
         if (getSettings().getSpawnLimitWaterAnimals() > 0) {
-            w.setWaterAnimalSpawnLimit(getSettings().getSpawnLimitWaterAnimals());
+            w.setSpawnLimit(SpawnCategory.WATER_ANIMAL, getSettings().getSpawnLimitWaterAnimals());
         }
         if (getSettings().getTicksPerAnimalSpawns() > 0) {
-            w.setTicksPerAnimalSpawns(getSettings().getTicksPerAnimalSpawns());
+            w.setTicksPerSpawns(SpawnCategory.ANIMAL, getSettings().getTicksPerAnimalSpawns());
         }
         if (getSettings().getTicksPerMonsterSpawns() > 0) {
-            w.setTicksPerMonsterSpawns(getSettings().getTicksPerMonsterSpawns());
+            w.setTicksPerSpawns(SpawnCategory.MONSTER, getSettings().getTicksPerMonsterSpawns());
         }
     }
 

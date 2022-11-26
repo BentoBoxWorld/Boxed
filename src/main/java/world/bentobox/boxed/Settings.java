@@ -77,15 +77,31 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.difficulty")
     private Difficulty difficulty = Difficulty.NORMAL;
 
+    @ConfigComment("Generate surface")
+    @ConfigEntry(path = "world.generate-surface", needsRestart = true)
+    private boolean generateSurface = true;
+
+    @ConfigComment("Generate bedrock")
+    @ConfigEntry(path = "world.generate-bedrock", needsRestart = true)
+    private boolean generateBedrock = true;
+
+    @ConfigComment("Generate caves")
+    @ConfigEntry(path = "world.generate-caves", needsRestart = true)
+    private boolean generateCaves = true;
+
+    @ConfigComment("Generate Decorations")
+    @ConfigEntry(path = "world.generate-decorations", needsRestart = true)
+    private boolean generateDecorations = true;
+
+    @ConfigComment("Generate mobs")
+    @ConfigEntry(path = "world.generate-mobs", needsRestart = true)
+    private boolean generateMobs = true;
+
     @ConfigComment("Allow surface structures - villages, shipwrecks, broken portals, etc.")
     @ConfigComment("These will be randomly placed, so may not be available for every player.")
     @ConfigEntry(path = "world.allow-structures", needsRestart = true)
     private boolean allowStructures = true;
 
-    @ConfigComment("Allow strongholds.")
-    @ConfigComment("These will be randomly placed, so may not be available for every player.")
-    @ConfigEntry(path = "world.allow-strongholds", experimental = true, needsRestart = true)
-    private boolean allowStrongholds = true;
 
     @ConfigComment("Spawn limits. These override the limits set in bukkit.yml")
     @ConfigComment("If set to a negative number, the server defaults will be used")
@@ -106,11 +122,11 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.spawn-limits.ticks-per-monster-spawns")
     private int ticksPerMonsterSpawns = -1;
 
-    @ConfigComment("Radius of player areas. (So distance between player starting spots is twice this)")
+    @ConfigComment("Radius of player area in chunks. (So distance between player starting spots is twice this)")
     @ConfigComment("It is the same for every dimension : Overworld, Nether and End.")
     @ConfigComment("This value cannot be changed mid-game and the plugin will not start if it is different.")
-    @ConfigEntry(path = "world.area-radius", needsReset = true)
-    private int islandDistance = 400;
+    @ConfigEntry(path = "world.chunk-radius", needsReset = true)
+    private int islandDistance = 10;
 
     @ConfigComment("Starting size of boxed spaces. This is a radius so 1 = a 2x2 area.")
     @ConfigComment("Admins can adjust via the /boxadmin range set <player> <new range> command")
@@ -1655,20 +1671,6 @@ public class Settings implements WorldSettings {
     }
 
     /**
-     * @return the allowStrongholds
-     */
-    public boolean isAllowStrongholds() {
-        return allowStrongholds;
-    }
-
-    /**
-     * @param allowStrongholds the allowStrongholds to set
-     */
-    public void setAllowStrongholds(boolean allowStrongholds) {
-        this.allowStrongholds = allowStrongholds;
-    }
-
-    /**
      * @return the onJoinResetAdvancements
      */
     public boolean isOnJoinResetAdvancements() {
@@ -1752,5 +1754,75 @@ public class Settings implements WorldSettings {
      */
     public void setBroadcastAdvancements(boolean broadcastAdvancements) {
         this.broadcastAdvancements = broadcastAdvancements;
+    }
+
+    /**
+     * @return the generateSurface
+     */
+    public boolean isGenerateSurface() {
+        return generateSurface;
+    }
+
+    /**
+     * @param generateSurface the generateSurface to set
+     */
+    public void setGenerateSurface(boolean generateSurface) {
+        this.generateSurface = generateSurface;
+    }
+
+    /**
+     * @return the generateBedrock
+     */
+    public boolean isGenerateBedrock() {
+        return generateBedrock;
+    }
+
+    /**
+     * @param generateBedrock the generateBedrock to set
+     */
+    public void setGenerateBedrock(boolean generateBedrock) {
+        this.generateBedrock = generateBedrock;
+    }
+
+    /**
+     * @return the generateCaves
+     */
+    public boolean isGenerateCaves() {
+        return generateCaves;
+    }
+
+    /**
+     * @param generateCaves the generateCaves to set
+     */
+    public void setGenerateCaves(boolean generateCaves) {
+        this.generateCaves = generateCaves;
+    }
+
+    /**
+     * @return the generateDecorations
+     */
+    public boolean isGenerateDecorations() {
+        return generateDecorations;
+    }
+
+    /**
+     * @param generateDecorations the generateDecorations to set
+     */
+    public void setGenerateDecorations(boolean generateDecorations) {
+        this.generateDecorations = generateDecorations;
+    }
+
+    /**
+     * @return the generateMobs
+     */
+    public boolean isGenerateMobs() {
+        return generateMobs;
+    }
+
+    /**
+     * @param generateMobs the generateMobs to set
+     */
+    public void setGenerateMobs(boolean generateMobs) {
+        this.generateMobs = generateMobs;
     }
 }

@@ -23,13 +23,13 @@ public class SimpleBiomeProvider extends BiomeProvider {
         if (generator.noise(x, z, 1, 1, true) < 0) {
             return Biome.OCEAN;
         } else {
-            return Biome.MOUNTAINS;
+            return Biome.DESERT;
         }
     }
 
     @NonNull
     @Override
     public List<Biome> getBiomes(@NonNull WorldInfo worldInfo) {
-        return Lists.newArrayList(Biome.OCEAN, Biome.MOUNTAINS);
+        return Lists.newArrayList(Biome.OCEAN, Biome.DESERT);
     }
 }
