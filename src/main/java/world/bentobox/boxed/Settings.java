@@ -69,8 +69,8 @@ public class Settings implements WorldSettings {
 
     @ConfigComment("World seed.")
     @ConfigComment("If you change this, stop the server and delete the worlds made.")
-    @ConfigEntry(path = "world.seed", needsReset = true)
-    private long seed = 978573758696L;
+    @ConfigEntry(path = "world.generator.seed", needsReset = true)
+    private long seed = 602103456450L;
 
     @ConfigComment("World difficulty setting - PEACEFUL, EASY, NORMAL, HARD")
     @ConfigComment("Other plugins may override this setting")
@@ -78,28 +78,28 @@ public class Settings implements WorldSettings {
     private Difficulty difficulty = Difficulty.NORMAL;
 
     @ConfigComment("Generate surface")
-    @ConfigEntry(path = "world.generate-surface", needsRestart = true)
+    @ConfigEntry(path = "world.generator.generate-surface", needsRestart = true)
     private boolean generateSurface = true;
 
     @ConfigComment("Generate bedrock")
-    @ConfigEntry(path = "world.generate-bedrock", needsRestart = true)
+    @ConfigEntry(path = "world.generator.generate-bedrock", needsRestart = true)
     private boolean generateBedrock = true;
 
     @ConfigComment("Generate caves")
-    @ConfigEntry(path = "world.generate-caves", needsRestart = true)
+    @ConfigEntry(path = "world.generator.generate-caves", needsRestart = true)
     private boolean generateCaves = true;
 
     @ConfigComment("Generate Decorations")
-    @ConfigEntry(path = "world.generate-decorations", needsRestart = true)
+    @ConfigEntry(path = "world.generator.generate-decorations", needsRestart = true)
     private boolean generateDecorations = true;
 
     @ConfigComment("Generate mobs")
-    @ConfigEntry(path = "world.generate-mobs", needsRestart = true)
+    @ConfigEntry(path = "world.generator.generate-mobs", needsRestart = true)
     private boolean generateMobs = true;
 
     @ConfigComment("Allow surface structures - villages, shipwrecks, broken portals, etc.")
     @ConfigComment("These will be randomly placed, so may not be available for every player.")
-    @ConfigEntry(path = "world.allow-structures", needsRestart = true)
+    @ConfigEntry(path = "world.generator.allow-structures", needsRestart = true)
     private boolean allowStructures = true;
 
 
@@ -124,9 +124,13 @@ public class Settings implements WorldSettings {
 
     @ConfigComment("Radius of player area in chunks. (So distance between player starting spots is twice this)")
     @ConfigComment("It is the same for every dimension : Overworld, Nether and End.")
-    @ConfigComment("This value cannot be changed mid-game and the plugin will not start if it is different.")
     @ConfigEntry(path = "world.chunk-radius", needsReset = true)
     private int islandDistance = 10;
+
+    @ConfigComment("Space around each player area in chunks.")
+    @ConfigComment("It is the same for every dimension : Overworld, Nether and End.")
+    @ConfigEntry(path = "world.chunk-radius", needsReset = true)
+    private int islandGap = 10;
 
     @ConfigComment("Starting size of boxed spaces. This is a radius so 1 = a 2x2 area.")
     @ConfigComment("Admins can adjust via the /boxadmin range set <player> <new range> command")
@@ -1824,5 +1828,19 @@ public class Settings implements WorldSettings {
      */
     public void setGenerateMobs(boolean generateMobs) {
         this.generateMobs = generateMobs;
+    }
+
+    /**
+     * @return the islandGap
+     */
+    public int getIslandGap() {
+        return islandGap;
+    }
+
+    /**
+     * @param islandGap the islandGap to set
+     */
+    public void setIslandGap(int islandGap) {
+        this.islandGap = islandGap;
     }
 }

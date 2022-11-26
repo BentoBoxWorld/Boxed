@@ -7,10 +7,12 @@ import java.util.Random;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 
@@ -82,27 +84,33 @@ public class BoxedChunkGenerator extends ChunkGenerator {
         Pair<Integer, Integer> coords = new Pair<>(xx, zz);
         if (!chunks.containsKey(coords)) {
             // This should never be needed because islands should abut each other
-            //BentoBox.getInstance().logDebug("Water chunk: " + chunkX + "," + chunkZ);
             cd.setRegion(0, minY, 0, 16, 0, 16, Material.WATER);
             return;
         }
-        //BentoBox.getInstance().logDebug("Copying chunk: " + xx + "," + zz);
+        // Copy the chunk
         ChunkSnapshot chunk = chunks.get(coords);
         for (int x = 0; x < 16; x ++) {
             for (int z = 0; z < 16; z++) {
                 for (int y = minY; y < height; y++) {
                     Material m = chunk.getBlockType(x, y, z);
-
-                    switch (m) {
-                    case WATER:
-                    case LAVA:
-                    case NETHERRACK:
-                        cd.setBlock(x, y, z, m);
-                        break;
-                    default:
-                        cd.setBlock(x, y, z, isGround(m) ? Material.STONE: Material.AIR);
+                    // Handle blocks that occur naturally in water
+                    if (isInWater(m)) {
+                        cd.setBlock(x, y, z, Material.WATER);
+                    } else {
+                        // Handle liquids and default blocks
+                        switch (m) {
+                        case WATER:
+                        case LAVA:
+                        case NETHERRACK:
+                        case STONE:
+                        case END_STONE:
+                            cd.setBlock(x, y, z, m);
+                            break;
+                        default:
+                            // Most other blocks
+                            cd.setBlock(x, y, z, isGround(m) ? Material.STONE: Material.AIR);
+                        }
                     }
-
                 }
             }
         }
@@ -113,6 +121,57 @@ public class BoxedChunkGenerator extends ChunkGenerator {
      */
     public Map<Pair<Integer, Integer>, ChunkSnapshot> getChunks() {
         return chunks;
+    }
+
+    private static boolean isInWater(Material m) {
+        switch (m) {
+        // Underwater plants
+        case KELP:
+        case KELP_PLANT:
+        case SEAGRASS:
+        case BUBBLE_COLUMN:
+        case BUBBLE_CORAL:
+        case BUBBLE_CORAL_BLOCK:
+        case BUBBLE_CORAL_FAN:
+        case BUBBLE_CORAL_WALL_FAN:
+        case DEAD_BRAIN_CORAL:
+        case DEAD_BRAIN_CORAL_BLOCK:
+        case DEAD_BRAIN_CORAL_FAN:
+        case DEAD_BRAIN_CORAL_WALL_FAN:
+        case DEAD_BUBBLE_CORAL:
+        case DEAD_BUBBLE_CORAL_BLOCK:
+        case DEAD_BUBBLE_CORAL_FAN:
+        case DEAD_BUBBLE_CORAL_WALL_FAN:
+        case DEAD_BUSH:
+        case DEAD_FIRE_CORAL:
+        case DEAD_FIRE_CORAL_BLOCK:
+        case DEAD_FIRE_CORAL_FAN:
+        case DEAD_FIRE_CORAL_WALL_FAN:
+        case DEAD_HORN_CORAL:
+        case DEAD_HORN_CORAL_BLOCK:
+        case DEAD_HORN_CORAL_FAN:
+        case DEAD_HORN_CORAL_WALL_FAN:
+        case DEAD_TUBE_CORAL:
+        case DEAD_TUBE_CORAL_BLOCK:
+        case DEAD_TUBE_CORAL_FAN:
+        case DEAD_TUBE_CORAL_WALL_FAN:
+        case FIRE_CORAL:
+        case FIRE_CORAL_BLOCK:
+        case FIRE_CORAL_FAN:
+        case FIRE_CORAL_WALL_FAN:
+        case HORN_CORAL:
+        case HORN_CORAL_BLOCK:
+        case HORN_CORAL_FAN:
+        case HORN_CORAL_WALL_FAN:
+        case TUBE_CORAL:
+        case TUBE_CORAL_BLOCK:
+        case TUBE_CORAL_FAN:
+        case TUBE_CORAL_WALL_FAN:
+        case TALL_SEAGRASS:
+            return true;
+        default:
+            return false;
+        }
     }
 
 
@@ -266,6 +325,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
         case SMOOTH_RED_SANDSTONE:
         case SMOOTH_SANDSTONE:
         case SMOOTH_STONE:
+        case TUFF:
         case WARPED_HYPHAE:
         case WARPED_NYLIUM:
         case WHITE_CONCRETE:

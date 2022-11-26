@@ -9,6 +9,7 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
@@ -27,6 +28,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.island.IslandNewIslandEvent;
 import world.bentobox.bentobox.api.events.team.TeamJoinedEvent;
 import world.bentobox.bentobox.api.events.team.TeamLeaveEvent;
@@ -71,14 +73,19 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
+        // Ignore if player is not in survival
+        if (!e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
+            return;
+        }
         if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
+
             // Only allow members or higher to get advancements in a box
             if (!addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
                 // Remove advancement from player
                 e.getAdvancement().getCriteria().forEach(c ->
                 e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
                 User u = User.getInstance(e.getPlayer());
-                if (u != null) {
+                if (u != null && addon.getAdvManager().getScore(e.getAdvancement().getKey().getKey()) > 0) {
                     u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
                 }
                 return;
@@ -153,7 +160,7 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent e) {
-        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
+        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
             return;
         }
         if (e.getCause().equals(TeleportCause.NETHER_PORTAL)) {

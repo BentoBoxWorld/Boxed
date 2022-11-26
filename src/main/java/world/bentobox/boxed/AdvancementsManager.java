@@ -212,7 +212,12 @@ public class AdvancementsManager {
 
     }
 
-    private int getScore(String string) {
+    /**
+     * Get the score for this advancement
+     * @param key - advancement key as stored in the config file
+     * @return score of advancement
+     */
+    public int getScore(String string) {
         String adv = "advancements." + string;
         // Check score of advancement
         return !advConfig.contains(adv) && adv.endsWith("/root") ? advConfig.getInt("settings.default-root-increase") : advConfig.getInt(adv, this.unknownAdvChange);
