@@ -2,6 +2,7 @@
 settings:
   default-root-increase: 0
   unknown-advancement-increase: 1
+  unknown-recipe-increase: 0
 advancements:
   'minecraft:adventure/adventuring_time': 1
   'minecraft:adventure/arbalistic': 1
