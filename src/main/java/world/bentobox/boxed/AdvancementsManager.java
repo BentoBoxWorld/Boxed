@@ -216,7 +216,7 @@ public class AdvancementsManager {
 
     /**
      * Get the score for this advancement
-     * @param key - advancement key as stored in the config file
+     * @param string - advancement key as stored in the config file
      * @return score of advancement, or default values if the key is not in the file
      */
     public int getScore(String string) {

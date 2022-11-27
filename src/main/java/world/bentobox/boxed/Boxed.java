@@ -29,7 +29,7 @@ import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 
 /**
- * Main Boxed class - provides an survival game inside a box
+ * Main Boxed class - provides a survival game inside a box
  * @author tastybento
  */
 public class Boxed extends GameModeAddon {

@@ -54,7 +54,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
     }
 
     /**
-     * @param chunk the chunk to set
+     * @param chunks the chunks to set
      */
     public void setChunks(Map<Pair<Integer, Integer>, ChunkSnapshot> chunks) {
         this.chunks = chunks;
@@ -91,16 +91,10 @@ public class BoxedChunkGenerator extends ChunkGenerator {
                     } else {
                         // Handle liquids and default blocks
                         switch (m) {
-                        case WATER:
-                        case LAVA:
-                        case NETHERRACK:
-                        case STONE:
-                        case END_STONE:
-                            cd.setBlock(x, y, z, m);
-                            break;
-                        default:
-                            // Most other blocks
-                            cd.setBlock(x, y, z, isGround(m) ? Material.STONE: Material.AIR);
+                            case WATER, LAVA, NETHERRACK, STONE, END_STONE -> cd.setBlock(x, y, z, m);
+                            default ->
+                                    // Most other blocks
+                                    cd.setBlock(x, y, z, isGround(m) ? Material.STONE : Material.AIR);
                         }
                     }
                 }
@@ -111,7 +105,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
     /**
      * Calculates the repeating value for a given size
      * @param chunkCoord chunk coord
-     * @param size
+     * @param s size
      * @return mapped chunk coord
      */
     public static int repeatCalc(int chunkCoord, int s) {
@@ -132,223 +126,56 @@ public class BoxedChunkGenerator extends ChunkGenerator {
     }
 
     private static boolean isInWater(Material m) {
-        switch (m) {
-        // Underwater plants
-        case KELP:
-        case KELP_PLANT:
-        case SEAGRASS:
-        case BUBBLE_COLUMN:
-        case BUBBLE_CORAL:
-        case BUBBLE_CORAL_BLOCK:
-        case BUBBLE_CORAL_FAN:
-        case BUBBLE_CORAL_WALL_FAN:
-        case DEAD_BRAIN_CORAL:
-        case DEAD_BRAIN_CORAL_BLOCK:
-        case DEAD_BRAIN_CORAL_FAN:
-        case DEAD_BRAIN_CORAL_WALL_FAN:
-        case DEAD_BUBBLE_CORAL:
-        case DEAD_BUBBLE_CORAL_BLOCK:
-        case DEAD_BUBBLE_CORAL_FAN:
-        case DEAD_BUBBLE_CORAL_WALL_FAN:
-        case DEAD_BUSH:
-        case DEAD_FIRE_CORAL:
-        case DEAD_FIRE_CORAL_BLOCK:
-        case DEAD_FIRE_CORAL_FAN:
-        case DEAD_FIRE_CORAL_WALL_FAN:
-        case DEAD_HORN_CORAL:
-        case DEAD_HORN_CORAL_BLOCK:
-        case DEAD_HORN_CORAL_FAN:
-        case DEAD_HORN_CORAL_WALL_FAN:
-        case DEAD_TUBE_CORAL:
-        case DEAD_TUBE_CORAL_BLOCK:
-        case DEAD_TUBE_CORAL_FAN:
-        case DEAD_TUBE_CORAL_WALL_FAN:
-        case FIRE_CORAL:
-        case FIRE_CORAL_BLOCK:
-        case FIRE_CORAL_FAN:
-        case FIRE_CORAL_WALL_FAN:
-        case HORN_CORAL:
-        case HORN_CORAL_BLOCK:
-        case HORN_CORAL_FAN:
-        case HORN_CORAL_WALL_FAN:
-        case TUBE_CORAL:
-        case TUBE_CORAL_BLOCK:
-        case TUBE_CORAL_FAN:
-        case TUBE_CORAL_WALL_FAN:
-        case TALL_SEAGRASS:
-            return true;
-        default:
-            return false;
-        }
+        return switch (m) {
+            // Underwater plants
+            case KELP, KELP_PLANT, SEAGRASS, BUBBLE_COLUMN, BUBBLE_CORAL, BUBBLE_CORAL_BLOCK, BUBBLE_CORAL_FAN,
+                    BUBBLE_CORAL_WALL_FAN, DEAD_BRAIN_CORAL, DEAD_BRAIN_CORAL_BLOCK, DEAD_BRAIN_CORAL_FAN,
+                    DEAD_BRAIN_CORAL_WALL_FAN, DEAD_BUBBLE_CORAL, DEAD_BUBBLE_CORAL_BLOCK, DEAD_BUBBLE_CORAL_FAN,
+                    DEAD_BUBBLE_CORAL_WALL_FAN, DEAD_BUSH, DEAD_FIRE_CORAL, DEAD_FIRE_CORAL_BLOCK, DEAD_FIRE_CORAL_FAN,
+                    DEAD_FIRE_CORAL_WALL_FAN, DEAD_HORN_CORAL, DEAD_HORN_CORAL_BLOCK, DEAD_HORN_CORAL_FAN,
+                    DEAD_HORN_CORAL_WALL_FAN, DEAD_TUBE_CORAL, DEAD_TUBE_CORAL_BLOCK, DEAD_TUBE_CORAL_FAN,
+                    DEAD_TUBE_CORAL_WALL_FAN, FIRE_CORAL, FIRE_CORAL_BLOCK, FIRE_CORAL_FAN, FIRE_CORAL_WALL_FAN,
+                    HORN_CORAL, HORN_CORAL_BLOCK, HORN_CORAL_FAN, HORN_CORAL_WALL_FAN, TUBE_CORAL, TUBE_CORAL_BLOCK,
+                    TUBE_CORAL_FAN, TUBE_CORAL_WALL_FAN, TALL_SEAGRASS -> true;
+            default -> false;
+        };
     }
 
 
     private static boolean isGround(Material m) {
         if (m.isAir() || m.isBurnable() || !m.isSolid()) return false;
-        switch (m) {
-        case ANDESITE:
-        case BEDROCK:
-        case CALCITE:
-        case CLAY:
-        case COAL_ORE:
-        case COARSE_DIRT:
-        case COBBLESTONE:
-        case COPPER_ORE:
-        case DEEPSLATE:
-        case DEEPSLATE_COAL_ORE:
-        case DEEPSLATE_COPPER_ORE:
-        case DEEPSLATE_DIAMOND_ORE:
-        case DEEPSLATE_EMERALD_ORE:
-        case DEEPSLATE_GOLD_ORE:
-        case DEEPSLATE_IRON_ORE:
-        case DEEPSLATE_LAPIS_ORE:
-        case DEEPSLATE_REDSTONE_ORE:
-        case DIAMOND_ORE:
-        case DIORITE:
-        case DIRT:
-        case DIRT_PATH:
-        case DRIPSTONE_BLOCK:
-        case EMERALD_ORE:
-        case END_STONE:
-        case FARMLAND:
-        case GLOWSTONE:
-        case GOLD_ORE:
-        case GRANITE:
-        case GRASS_BLOCK:
-        case IRON_ORE:
-        case MAGMA_BLOCK:
-        case MYCELIUM:
-        case NETHERITE_BLOCK:
-        case NETHERRACK:
-        case RED_SAND:
-        case RED_SANDSTONE:
-        case ROOTED_DIRT:
-        case SAND:
-        case SANDSTONE:
-        case SOUL_SAND:
-        case SOUL_SOIL:
-        case STONE:
-        case TERRACOTTA:
-        case AMETHYST_BLOCK:
-        case AMETHYST_CLUSTER:
-        case AMETHYST_SHARD:
-        case BASALT:
-        case BLACKSTONE:
-        case BLACK_CONCRETE:
-        case BLACK_GLAZED_TERRACOTTA:
-        case BLACK_TERRACOTTA:
-        case BLUE_CONCRETE:
-        case BLUE_GLAZED_TERRACOTTA:
-        case BLUE_TERRACOTTA:
-        case BONE_BLOCK:
-        case BROWN_CONCRETE:
-        case BROWN_GLAZED_TERRACOTTA:
-        case BROWN_TERRACOTTA:
-        case BUDDING_AMETHYST:
-        case CHISELED_DEEPSLATE:
-        case CHISELED_NETHER_BRICKS:
-        case CHISELED_POLISHED_BLACKSTONE:
-        case CHISELED_QUARTZ_BLOCK:
-        case CHISELED_RED_SANDSTONE:
-        case CHISELED_SANDSTONE:
-        case CHISELED_STONE_BRICKS:
-        case COAL_BLOCK:
-        case COBBLED_DEEPSLATE:
-        case CRYING_OBSIDIAN:
-        case CUT_RED_SANDSTONE:
-        case CUT_RED_SANDSTONE_SLAB:
-        case CUT_SANDSTONE:
-        case CUT_SANDSTONE_SLAB:
-        case CYAN_CONCRETE:
-        case CYAN_GLAZED_TERRACOTTA:
-        case CYAN_TERRACOTTA:
-        case DEEPSLATE_BRICKS:
-        case DIAMOND_BLOCK:
-        case ECHO_SHARD:
-        case EMERALD_BLOCK:
-        case GOLD_BLOCK:
-        case GRAVEL:
-        case GRAY_CONCRETE:
-        case GRAY_GLAZED_TERRACOTTA:
-        case GRAY_TERRACOTTA:
-        case GREEN_CONCRETE:
-        case GREEN_GLAZED_TERRACOTTA:
-        case GREEN_TERRACOTTA:
-        case INFESTED_CHISELED_STONE_BRICKS:
-        case INFESTED_COBBLESTONE:
-        case INFESTED_CRACKED_STONE_BRICKS:
-        case INFESTED_DEEPSLATE:
-        case INFESTED_MOSSY_STONE_BRICKS:
-        case INFESTED_STONE:
-        case INFESTED_STONE_BRICKS:
-        case LAPIS_ORE:
-        case LARGE_AMETHYST_BUD:
-        case LIGHT_BLUE_CONCRETE:
-        case LIGHT_BLUE_GLAZED_TERRACOTTA:
-        case LIGHT_BLUE_TERRACOTTA:
-        case LIGHT_GRAY_CONCRETE:
-        case LIGHT_GRAY_GLAZED_TERRACOTTA:
-        case LIGHT_GRAY_TERRACOTTA:
-        case LIME_CONCRETE:
-        case LIME_GLAZED_TERRACOTTA:
-        case LIME_TERRACOTTA:
-        case MAGENTA_CONCRETE:
-        case MAGENTA_GLAZED_TERRACOTTA:
-        case MAGENTA_TERRACOTTA:
-        case MOSSY_COBBLESTONE:
-        case MUD:
-        case NETHERITE_SCRAP:
-        case NETHER_GOLD_ORE:
-        case NETHER_QUARTZ_ORE:
-        case OBSIDIAN:
-        case ORANGE_CONCRETE:
-        case ORANGE_GLAZED_TERRACOTTA:
-        case ORANGE_TERRACOTTA:
-        case PACKED_MUD:
-        case PINK_CONCRETE:
-        case PINK_GLAZED_TERRACOTTA:
-        case PINK_TERRACOTTA:
-        case PODZOL:
-        case POLISHED_ANDESITE:
-        case POLISHED_BASALT:
-        case POLISHED_BLACKSTONE:
-        case POLISHED_DEEPSLATE:
-        case POLISHED_DIORITE:
-        case POLISHED_GRANITE:
-        case PURPLE_CONCRETE:
-        case PURPLE_GLAZED_TERRACOTTA:
-        case PURPLE_TERRACOTTA:
-        case PURPUR_BLOCK:
-        case QUARTZ_BLOCK:
-        case RAW_COPPER_BLOCK:
-        case RAW_GOLD_BLOCK:
-        case RAW_IRON_BLOCK:
-        case REDSTONE_BLOCK:
-        case REDSTONE_ORE:
-        case RED_CONCRETE:
-        case RED_GLAZED_TERRACOTTA:
-        case RED_TERRACOTTA:
-        case SMOOTH_BASALT:
-        case SMOOTH_QUARTZ:
-        case SMOOTH_RED_SANDSTONE:
-        case SMOOTH_SANDSTONE:
-        case SMOOTH_STONE:
-        case TUFF:
-        case WARPED_HYPHAE:
-        case WARPED_NYLIUM:
-        case WHITE_CONCRETE:
-        case WHITE_GLAZED_TERRACOTTA:
-        case WHITE_TERRACOTTA:
-        case YELLOW_CONCRETE:
-        case YELLOW_GLAZED_TERRACOTTA:
-        case YELLOW_TERRACOTTA:
-            return true;
-        default:
-            return false;
-
-
-
-        }
+        return switch (m) {
+            case ANDESITE, BEDROCK, CALCITE, CLAY, COAL_ORE, COARSE_DIRT, COBBLESTONE, COPPER_ORE, DEEPSLATE,
+                    DEEPSLATE_COAL_ORE, DEEPSLATE_COPPER_ORE, DEEPSLATE_DIAMOND_ORE, DEEPSLATE_EMERALD_ORE,
+                    DEEPSLATE_GOLD_ORE, DEEPSLATE_IRON_ORE, DEEPSLATE_LAPIS_ORE, DEEPSLATE_REDSTONE_ORE, DIAMOND_ORE,
+                    DIORITE, DIRT, DIRT_PATH, DRIPSTONE_BLOCK, EMERALD_ORE, END_STONE, FARMLAND, GLOWSTONE, GOLD_ORE,
+                    GRANITE, GRASS_BLOCK, IRON_ORE, MAGMA_BLOCK, MYCELIUM, NETHERITE_BLOCK, NETHERRACK, RED_SAND,
+                    RED_SANDSTONE, ROOTED_DIRT, SAND, SANDSTONE, SOUL_SAND, SOUL_SOIL, STONE, TERRACOTTA, AMETHYST_BLOCK,
+                    AMETHYST_CLUSTER, AMETHYST_SHARD, BASALT, BLACKSTONE, BLACK_CONCRETE, BLACK_GLAZED_TERRACOTTA,
+                    BLACK_TERRACOTTA, BLUE_CONCRETE, BLUE_GLAZED_TERRACOTTA, BLUE_TERRACOTTA, BONE_BLOCK, BROWN_CONCRETE,
+                    BROWN_GLAZED_TERRACOTTA, BROWN_TERRACOTTA, BUDDING_AMETHYST, CHISELED_DEEPSLATE,
+                    CHISELED_NETHER_BRICKS, CHISELED_POLISHED_BLACKSTONE, CHISELED_QUARTZ_BLOCK, CHISELED_RED_SANDSTONE,
+                    CHISELED_SANDSTONE, CHISELED_STONE_BRICKS, COAL_BLOCK, COBBLED_DEEPSLATE, CRYING_OBSIDIAN,
+                    CUT_RED_SANDSTONE, CUT_RED_SANDSTONE_SLAB, CUT_SANDSTONE, CUT_SANDSTONE_SLAB, CYAN_CONCRETE,
+                    CYAN_GLAZED_TERRACOTTA, CYAN_TERRACOTTA, DEEPSLATE_BRICKS, DIAMOND_BLOCK, ECHO_SHARD, EMERALD_BLOCK,
+                    GOLD_BLOCK, GRAVEL, GRAY_CONCRETE, GRAY_GLAZED_TERRACOTTA, GRAY_TERRACOTTA, GREEN_CONCRETE,
+                    GREEN_GLAZED_TERRACOTTA, GREEN_TERRACOTTA, INFESTED_CHISELED_STONE_BRICKS, INFESTED_COBBLESTONE,
+                    INFESTED_CRACKED_STONE_BRICKS, INFESTED_DEEPSLATE, INFESTED_MOSSY_STONE_BRICKS, INFESTED_STONE,
+                    INFESTED_STONE_BRICKS, LAPIS_ORE, LARGE_AMETHYST_BUD, LIGHT_BLUE_CONCRETE,
+                    LIGHT_BLUE_GLAZED_TERRACOTTA, LIGHT_BLUE_TERRACOTTA, LIGHT_GRAY_CONCRETE,
+                    LIGHT_GRAY_GLAZED_TERRACOTTA, LIGHT_GRAY_TERRACOTTA, LIME_CONCRETE, LIME_GLAZED_TERRACOTTA,
+                    LIME_TERRACOTTA, MAGENTA_CONCRETE, MAGENTA_GLAZED_TERRACOTTA, MAGENTA_TERRACOTTA, MOSSY_COBBLESTONE,
+                    MUD, NETHERITE_SCRAP, NETHER_GOLD_ORE, NETHER_QUARTZ_ORE, OBSIDIAN, ORANGE_CONCRETE,
+                    ORANGE_GLAZED_TERRACOTTA, ORANGE_TERRACOTTA, PACKED_MUD, PINK_CONCRETE, PINK_GLAZED_TERRACOTTA,
+                    PINK_TERRACOTTA, PODZOL, POLISHED_ANDESITE, POLISHED_BASALT, POLISHED_BLACKSTONE,
+                    POLISHED_DEEPSLATE, POLISHED_DIORITE, POLISHED_GRANITE, PURPLE_CONCRETE, PURPLE_GLAZED_TERRACOTTA,
+                    PURPLE_TERRACOTTA, PURPUR_BLOCK, QUARTZ_BLOCK, RAW_COPPER_BLOCK, RAW_GOLD_BLOCK, RAW_IRON_BLOCK,
+                    REDSTONE_BLOCK, REDSTONE_ORE, RED_CONCRETE, RED_GLAZED_TERRACOTTA, RED_TERRACOTTA, SMOOTH_BASALT,
+                    SMOOTH_QUARTZ, SMOOTH_RED_SANDSTONE, SMOOTH_SANDSTONE, SMOOTH_STONE, TUFF, WARPED_HYPHAE,
+                    WARPED_NYLIUM, WHITE_CONCRETE, WHITE_GLAZED_TERRACOTTA, WHITE_TERRACOTTA, YELLOW_CONCRETE,
+                    YELLOW_GLAZED_TERRACOTTA, YELLOW_TERRACOTTA -> true;
+            default -> false;
+        };
     }
 
     @Override

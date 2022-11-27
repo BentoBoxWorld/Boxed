@@ -123,7 +123,7 @@ public class AdvancementListener implements Listener {
 
     /**
      * Synchronize the player's advancements to that of the island.
-     * Player's advancements should be cleared before calling this othewise they will get add the island ones as well.
+     * Player's advancements should be cleared before calling this otherwise they will get add the island ones as well.
      * @param user - user
      */
     public void syncAdvancements(User user) {
