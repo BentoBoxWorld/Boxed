@@ -86,10 +86,6 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.generator.generate-surface", needsRestart = true)
     private boolean generateSurface = true;
 
-    @ConfigComment("Generate bedrock")
-    @ConfigEntry(path = "world.generator.generate-bedrock", needsRestart = true)
-    private boolean generateBedrock = true;
-
     @ConfigComment("Generate caves")
     @ConfigEntry(path = "world.generator.generate-caves", needsRestart = true)
     private boolean generateCaves = true;
@@ -1772,20 +1768,6 @@ public class Settings implements WorldSettings {
      */
     public void setGenerateSurface(boolean generateSurface) {
         this.generateSurface = generateSurface;
-    }
-
-    /**
-     * @return the generateBedrock
-     */
-    public boolean isGenerateBedrock() {
-        return generateBedrock;
-    }
-
-    /**
-     * @param generateBedrock the generateBedrock to set
-     */
-    public void setGenerateBedrock(boolean generateBedrock) {
-        this.generateBedrock = generateBedrock;
     }
 
     /**
