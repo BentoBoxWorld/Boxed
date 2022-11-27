@@ -18,6 +18,9 @@ boxed:
   # Announce advancements. We recommend you set the game rule `/gamerule announceAdvancements false`
   # but that blocks all new advancement announcements. This setting tells Boxed to broadcast new advancements.
   broadcast-advancements: false
+  # Deny advancements for visitors.
+  # Visitors cannot get an advancement. Note visitors will still get the reward, e.g., experience
+  deny-visitor-advancements: true
 world:
   # Friendly name for this world. Used in admin commands. Must be a single word
   friendly-name: Boxed
