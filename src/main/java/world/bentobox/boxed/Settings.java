@@ -1829,4 +1829,18 @@ public class Settings implements WorldSettings {
     public void setGenerateMobs(boolean generateMobs) {
         this.generateMobs = generateMobs;
     }
+
+    /**
+     * @return the denyVisitorAdvancements
+     */
+    public boolean isDenyVisitorAdvancements() {
+        return denyVisitorAdvancements;
+    }
+
+    /**
+     * @param denyVisitorAdvancements the denyVisitorAdvancements to set
+     */
+    public void setDenyVisitorAdvancements(boolean denyVisitorAdvancements) {
+        this.denyVisitorAdvancements = denyVisitorAdvancements;
+    }
 }
