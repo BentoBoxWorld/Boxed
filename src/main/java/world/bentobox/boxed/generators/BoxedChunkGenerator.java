@@ -7,12 +7,10 @@ import java.util.Random;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 
@@ -30,7 +28,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
 
     public BoxedChunkGenerator(Boxed addon) {
         this.addon = addon;
-        size = addon.getSettings().getIslandDistance();
+        this.size = (int)(addon.getSettings().getIslandDistance() / 16D); // Size is chunks
     }
 
     @Override
@@ -62,8 +60,6 @@ public class BoxedChunkGenerator extends ChunkGenerator {
     public void setChunks(Map<Pair<Integer, Integer>, ChunkSnapshot> chunks) {
         this.chunks = chunks;
     }
-
-
 
     @Override
     public boolean canSpawn(World world, int x, int z)

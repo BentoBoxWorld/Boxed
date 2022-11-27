@@ -24,32 +24,33 @@ world:
   # Name of the world - if it does not exist then it will be generated.
   # It acts like a prefix for nether and end (e.g. boxed_world, boxed_world_nether, boxed_world_end)
   world-name: boxed_world
-  # World seed.
-  # If you change this, stop the server and delete the worlds made.
-  # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
-  seed: 602103456450
+  generator:
+    # World seed.
+    # If you change this, stop the server and delete the worlds made.
+    # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
+    seed: 602103456450
+    # Generate surface
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    generate-surface: true
+    # Generate bedrock
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    generate-bedrock: true
+    # Generate caves
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    generate-caves: true
+    # Generate Decorations
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    generate-decorations: true
+    # Generate mobs
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    generate-mobs: true
+    # Allow surface structures - villages, shipwrecks, broken portals, etc.
+    # These will be randomly placed, so may not be available for every player.
+    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
+    allow-structures: true
   # World difficulty setting - PEACEFUL, EASY, NORMAL, HARD
   # Other plugins may override this setting
   difficulty: NORMAL
-  # Generate surface
-  # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-  generate-surface: true
-  # Generate bedrock
-  # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-  generate-bedrock: true
-  # Generate caves
-  # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-  generate-caves: false
-  # Generate Decorations
-  # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-  generate-decorations: true
-  # Generate mobs
-  # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-  generate-mobs: true
-  # Allow surface structures - villages, shipwrecks, broken portals, etc.
-  # These will be randomly placed, so may not be available for every player.
-  # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-  allow-structures: true
   spawn-limits:
     # Spawn limits. These override the limits set in bukkit.yml
     # If set to a negative number, the server defaults will be used
@@ -63,11 +64,10 @@ world:
     # Setting to 0 will disable monster spawns, but this is not recommended. Minecraft default is 400.
     # A negative value uses the server default
     ticks-per-monster-spawns: -1
-  # Radius of player area in chunks. (So distance between player starting spots is twice this)
+  # Radius of player area. (So distance between player starting spots is twice this)
   # It is the same for every dimension : Overworld, Nether and End.
-  # This value cannot be changed mid-game and the plugin will not start if it is different.
   # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
-  chunk-radius: 20
+  area-radius: 320
   # Starting size of boxed spaces. This is a radius so 1 = a 2x2 area.
   # Admins can adjust via the /boxadmin range set <player> <new range> command
   starting-protection-range: 1
@@ -231,20 +231,20 @@ world:
     MONSTER_SPAWNERS_SPAWN: 500
     MINECART: 500
     ANVIL: 500
-    FIRE_IGNITE: 500
     FISH_SCOOPING: 500
+    FIRE_IGNITE: 500
     END_PORTAL: 500
     BREEDING: 500
     HURT_VILLAGERS: 500
-    FROST_WALKER: 500
     TURTLE_EGGS: 500
+    FROST_WALKER: 500
     COLLECT_LAVA: 500
     BREAK_SPAWNERS: 500
     LEVER: 0
     ELYTRA: 0
-    HURT_MONSTERS: 0
-    RIDING: 500
     CAKE: 500
+    RIDING: 500
+    HURT_MONSTERS: 0
     NAME_TAG: 500
     ARMOR_STAND: 500
     TRADING: 0
@@ -254,8 +254,8 @@ world:
     FLINT_AND_STEEL: 500
     NETHER_PORTAL: 0
     LECTERN: 500
-    CROP_TRAMPLE: 500
     ITEM_PICKUP: 0
+    CROP_TRAMPLE: 500
     BREWING: 500
     DROPPER: 500
     TNT_PRIMING: 500
@@ -265,18 +265,18 @@ world:
     COMMAND_RANKS: 500
     BEACON: 500
     TRAPDOOR: 500
-    EXPERIENCE_BOTTLE_THROWING: 500
     PRESSURE_PLATE: 0
+    EXPERIENCE_BOTTLE_THROWING: 500
     DYE: 500
-    ITEM_FRAME: 500
     PLACE_BLOCKS: 500
+    ITEM_FRAME: 500
     CRAFTING: 0
-    ENCHANTING: 500
     SHEARING: 500
     ANIMAL_SPAWNERS_SPAWN: 500
+    ENCHANTING: 500
     BOAT: 0
-    SPAWN_EGGS: 500
     BED: 500
+    SPAWN_EGGS: 500
     MILKING: 500
     DISPENSER: 500
     GATE: 0
@@ -294,8 +294,8 @@ world:
     PVP_END: false
     PVP_NETHER: false
     LEAF_DECAY: true
-    TNT_DAMAGE: true
     MONSTER_SPAWNERS_SPAWN: true
+    TNT_DAMAGE: true
     ANIMAL_NATURAL_SPAWN: true
     MONSTER_NATURAL_SPAWN: true
     FIRE_IGNITE: true

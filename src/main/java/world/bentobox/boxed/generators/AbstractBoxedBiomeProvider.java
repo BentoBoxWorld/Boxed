@@ -22,7 +22,6 @@ import org.bukkit.util.Vector;
 
 import com.google.common.base.Enums;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -54,7 +53,7 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
     protected AbstractBoxedBiomeProvider(Boxed boxed, Environment env, Biome defaultBiome) {
         this.addon = boxed;
         this.defaultBiome = defaultBiome;
-        dist = addon.getSettings().getIslandDistance() * 16; // Distance is in chunks
+        dist = addon.getSettings().getIslandDistance();
         offsetX = addon.getSettings().getIslandXOffset();
         offsetZ = addon.getSettings().getIslandZOffset();
         // Load the config
@@ -85,7 +84,7 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
     public Biome getBiome(WorldInfo worldInfo, int x, int y, int z) {
         int chunkX = (int)((double)x/16);
         int chunkZ = (int)((double)z/16);
-        int size = addon.getSettings().getIslandDistance();
+        int size = (int)(dist / 16D); // Convert to chunk
         chunkX = Math.floorMod(chunkX, chunkX < 0 ? -size: size);
         chunkZ = Math.floorMod(chunkZ, chunkZ < 0 ? -size : size);
         ChunkSnapshot c = addon.getChunkGenerator().getChunk(chunkX, chunkZ);
@@ -105,7 +104,7 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
                 return getMappedBiome(x,z);
             }
         } else {
-            return getMappedBiome(x,z);
+            return Biome.WARM_OCEAN;
         }
     }
 

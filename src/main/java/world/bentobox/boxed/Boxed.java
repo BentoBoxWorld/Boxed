@@ -185,7 +185,8 @@ public class Boxed extends GameModeAddon {
     }
 
     private void saveChunks(World seedWorld) {
-        int size = this.getSettings().getIslandDistance();
+        // Convert to chunks
+        int size = (int)(this.getSettings().getIslandDistance() / 16D);
         double percent = size * 4 * size;
         int count = 0;
         int last = 0;

@@ -122,15 +122,10 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.spawn-limits.ticks-per-monster-spawns")
     private int ticksPerMonsterSpawns = -1;
 
-    @ConfigComment("Radius of player area in chunks. (So distance between player starting spots is twice this)")
+    @ConfigComment("Radius of player area. (So distance between player starting spots is twice this)")
     @ConfigComment("It is the same for every dimension : Overworld, Nether and End.")
-    @ConfigEntry(path = "world.chunk-radius", needsReset = true)
-    private int islandDistance = 10;
-
-    @ConfigComment("Space around each player area in chunks.")
-    @ConfigComment("It is the same for every dimension : Overworld, Nether and End.")
-    @ConfigEntry(path = "world.chunk-radius", needsReset = true)
-    private int islandGap = 10;
+    @ConfigEntry(path = "world.area-radius", needsReset = true)
+    private int islandDistance = 320;
 
     @ConfigComment("Starting size of boxed spaces. This is a radius so 1 = a 2x2 area.")
     @ConfigComment("Admins can adjust via the /boxadmin range set <player> <new range> command")
@@ -1828,19 +1823,5 @@ public class Settings implements WorldSettings {
      */
     public void setGenerateMobs(boolean generateMobs) {
         this.generateMobs = generateMobs;
-    }
-
-    /**
-     * @return the islandGap
-     */
-    public int getIslandGap() {
-        return islandGap;
-    }
-
-    /**
-     * @param islandGap the islandGap to set
-     */
-    public void setIslandGap(int islandGap) {
-        this.islandGap = islandGap;
     }
 }
