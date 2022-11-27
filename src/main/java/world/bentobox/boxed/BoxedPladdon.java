@@ -9,4 +9,5 @@ public class BoxedPladdon extends Pladdon {
     public Addon getAddon() {
         return new Boxed();
     }
+
 }

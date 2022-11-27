@@ -35,6 +35,7 @@ public class AdvancementsManager {
     private final Map<String, IslandAdvancements> cache;
     private final YamlConfiguration advConfig;
     private int unknownAdvChange;
+    private int unknownRecipeChange;
 
     /**
      * @param addon addon
@@ -57,6 +58,7 @@ public class AdvancementsManager {
             try {
                 advConfig.load(advFile);
                 unknownAdvChange = advConfig.getInt("settings.unknown-advancement-increase", 0);
+                unknownRecipeChange = advConfig.getInt("settings.unknown-recipe-increase", 0);
             } catch (IOException | InvalidConfigurationException e) {
                 addon.logError("advancements.yml cannot be found! " + e.getLocalizedMessage());
             }
@@ -212,10 +214,25 @@ public class AdvancementsManager {
 
     }
 
-    private int getScore(String string) {
+    /**
+     * Get the score for this advancement
+     * @param string - advancement key as stored in the config file
+     * @return score of advancement, or default values if the key is not in the file
+     */
+    public int getScore(String string) {
         String adv = "advancements." + string;
         // Check score of advancement
-        return !advConfig.contains(adv) && adv.endsWith("/root") ? advConfig.getInt("settings.default-root-increase") : advConfig.getInt(adv, this.unknownAdvChange);
+        if (advConfig.contains(adv)) {
+            return advConfig.getInt(adv, this.unknownAdvChange);
+        }
+        // Unknowns
+        if (adv.endsWith("/root")) {
+            return advConfig.getInt("settings.default-root-increase");
+        }
+        if (adv.contains("minecraft:recipes")) {
+            return this.unknownRecipeChange;
+        }
+        return this.unknownAdvChange;
     }
 
 }

@@ -321,7 +321,7 @@ boxed:
       LOCK:
         name: Lock player box
       OFFLINE_REDSTONE:
-        description: "&a When disabled, redstone\n&a will not operate in boxs\n&a\
+        description: "&a When disabled, redstone\n&a will not operate in boxes\n&a\
           \ where all members are offline.\n&a May help reduce lag.   "
       PISTON_PUSH:
         description: |-
