@@ -85,8 +85,8 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
         int chunkX = (int)((double)x/16);
         int chunkZ = (int)((double)z/16);
         int size = (int)(dist / 16D); // Convert to chunk
-        chunkX = Math.floorMod(chunkX, chunkX < 0 ? -size: size);
-        chunkZ = Math.floorMod(chunkZ, chunkZ < 0 ? -size : size);
+        chunkX = BoxedChunkGenerator.repeatCalc(chunkX, size);
+        chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ, size);
         ChunkSnapshot c = addon.getChunkGenerator().getChunk(chunkX, chunkZ);
 
         if (c != null) {

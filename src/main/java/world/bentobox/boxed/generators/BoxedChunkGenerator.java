@@ -40,6 +40,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
      * @param chunk the chunk to set
      */
     public void setChunk(ChunkSnapshot chunk) {
+        // Make the coords always positive
         chunks.putIfAbsent(new Pair<>(chunk.getX(), chunk.getZ()), chunk);
     }
 
@@ -49,9 +50,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
      * @return chunk snapshot or null if there is none
      */
     public ChunkSnapshot getChunk(int x, int z) {
-        int xx = Math.floorMod(x, size);
-        int zz = Math.floorMod(z, size);
-        return chunks.get(new Pair<>(xx, zz));
+        return chunks.get(new Pair<>(x, z));
     }
 
     /**
@@ -72,11 +71,8 @@ public class BoxedChunkGenerator extends ChunkGenerator {
 
         int height = worldInfo.getMaxHeight();
         int minY = worldInfo.getMinHeight();
-
-        // Repeat islands
-        int xx = Math.floorMod(chunkX, chunkX < 0 ? -size: size);
-        int zz = Math.floorMod(chunkZ, chunkZ < 0 ? -size : size);
-
+        int xx = repeatCalc(chunkX, size);
+        int zz = repeatCalc(chunkZ, size);
         Pair<Integer, Integer> coords = new Pair<>(xx, zz);
         if (!chunks.containsKey(coords)) {
             // This should never be needed because islands should abut each other
@@ -110,6 +106,22 @@ public class BoxedChunkGenerator extends ChunkGenerator {
                 }
             }
         }
+    }
+
+    /**
+     * Calculates the repeating value for a given size
+     * @param chunkCoord chunk coord
+     * @param size
+     * @return mapped chunk coord
+     */
+    public static int repeatCalc(int chunkCoord, int s) {
+        int xx;
+        if (chunkCoord > 0) {
+            xx = Math.floorMod(chunkCoord + s, s*2) - s;
+        } else {
+            xx = Math.floorMod(chunkCoord - s, -s*2) + s;
+        }
+        return xx;
     }
 
     /**
@@ -373,15 +385,5 @@ public class BoxedChunkGenerator extends ChunkGenerator {
     public boolean shouldGenerateStructures() {
         return this.addon.getSettings().isAllowStructures();
     }
-
-    public ChunkSnapshot getChunkFromXZ(int x, int z) {
-        int chunkX = (int)((double)x/16);
-        int chunkZ = (int)((double)z/16);
-        return this.getChunk(chunkX, chunkZ);
-
-    }
-
-
-
 
 }
