@@ -3,6 +3,7 @@ package world.bentobox.boxed;
 import java.util.Collections;
 
 import org.bukkit.ChunkSnapshot;
+import org.bukkit.Difficulty;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -149,17 +150,11 @@ public class Boxed extends GameModeAddon {
                 .generateStructures(false)
                 .seed(getSettings().getSeed())
                 .createWorld();
+        seedWorld.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
         saveChunks(seedWorld);
 
-
         String worldName = settings.getWorldName().toLowerCase();
-        /*
-        if (getServer().getWorld(worldName) == null) {
-            log("Creating Boxed Seed world ...");
-        }
-        seedWorld = WorldCreator.name(worldName + "_bak").seed(settings.getSeed()).createWorld();
-        seedWorld.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
-         */
+
         if (getServer().getWorld(worldName) == null) {
             log("Creating Boxed world ...");
         }
