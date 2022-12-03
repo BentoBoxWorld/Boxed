@@ -2,6 +2,7 @@ package world.bentobox.boxed;
 
 import java.util.Collections;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Difficulty;
 import org.bukkit.Material;
@@ -27,6 +28,7 @@ import world.bentobox.boxed.generators.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
+import world.bentobox.boxed.listeners.NewAreaListener;
 
 /**
  * Main Boxed class - provides a survival game inside a box
@@ -110,7 +112,7 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
-        //this.registerListener(new DebugListener(this));
+        this.registerListener(new NewAreaListener(this));
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);
@@ -152,7 +154,8 @@ public class Boxed extends GameModeAddon {
                 .createWorld();
         seedWorld.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
         saveChunks(seedWorld);
-
+        // Unload seed world
+        //Bukkit.getServer().unloadWorld("seed", false);
         String worldName = settings.getWorldName().toLowerCase();
 
         if (getServer().getWorld(worldName) == null) {
