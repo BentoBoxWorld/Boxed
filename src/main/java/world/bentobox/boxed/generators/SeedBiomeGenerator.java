@@ -9,9 +9,9 @@ import world.bentobox.boxed.Boxed;
  * @author tastybento
  *
  */
-public class BoxedBiomeGenerator extends AbstractCopyBiomeProvider {
+public class SeedBiomeGenerator extends AbstractSeendBiomeProvider {
 
-    public BoxedBiomeGenerator(Boxed boxed) {
+    public SeedBiomeGenerator(Boxed boxed) {
         super(boxed, Environment.NORMAL, Biome.OCEAN);
     }
 

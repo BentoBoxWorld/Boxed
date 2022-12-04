@@ -37,11 +37,12 @@ public class BoxedChunkGenerator extends ChunkGenerator {
     }
 
     /**
+     * @param z - chunk z coord
+     * @param x - chunk x coord
      * @param chunk the chunk to set
      */
-    public void setChunk(ChunkSnapshot chunk) {
-        // Make the coords always positive
-        chunks.putIfAbsent(new Pair<>(chunk.getX(), chunk.getZ()), chunk);
+    public void setChunk(int x, int z, ChunkSnapshot chunk) {
+        chunks.put(new Pair<>(x, z), chunk);
     }
 
     /**
@@ -81,6 +82,21 @@ public class BoxedChunkGenerator extends ChunkGenerator {
         }
         // Copy the chunk
         ChunkSnapshot chunk = chunks.get(coords);
+        copyChunkVerbatim(cd, chunk, minY, height);
+
+    }
+
+    private void copyChunkVerbatim(ChunkData cd, ChunkSnapshot chunk, int minY, int height) {
+        for (int x = 0; x < 16; x ++) {
+            for (int z = 0; z < 16; z++) {
+                for (int y = minY; y < height; y++) {
+                    cd.setBlock(x, y, z, chunk.getBlockData(x, y, z));
+                }
+            }
+        }
+    }
+
+    private void copyChunk(ChunkData cd, ChunkSnapshot chunk, int minY, int height) {
         for (int x = 0; x < 16; x ++) {
             for (int z = 0; z < 16; z++) {
                 for (int y = minY; y < height; y++) {
@@ -185,17 +201,20 @@ public class BoxedChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateSurface() {
-        return this.addon.getSettings().isGenerateSurface();
+
+        return false;
     }
 
     @Override
     public boolean shouldGenerateCaves() {
-        return this.addon.getSettings().isGenerateCaves();
+        return false;
+        //return this.addon.getSettings().isGenerateCaves();
     }
 
     @Override
     public boolean shouldGenerateDecorations() {
-        return this.addon.getSettings().isGenerateDecorations();
+        return false;
+        //return this.addon.getSettings().isGenerateDecorations();
     }
 
     @Override
@@ -205,7 +224,8 @@ public class BoxedChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateStructures() {
-        return this.addon.getSettings().isAllowStructures();
+        return false;
+        //return this.addon.getSettings().isAllowStructures();
     }
 
 }

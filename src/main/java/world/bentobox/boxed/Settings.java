@@ -73,9 +73,14 @@ public class Settings implements WorldSettings {
     private String worldName = "boxed_world";
 
     @ConfigComment("World seed.")
-    @ConfigComment("If you change this, stop the server and delete the worlds made.")
     @ConfigEntry(path = "world.generator.seed", needsReset = true)
     private long seed = 602103456450L;
+
+    @ConfigComment("Seed center chunk. This is where the areas are copied from.")
+    @ConfigEntry(path = "world.generator.start-chunk.x")
+    private int chunkX = 0;
+    @ConfigEntry(path = "world.generator.start-chunk.z")
+    private int chunkZ = 0;
 
     @ConfigComment("World difficulty setting - PEACEFUL, EASY, NORMAL, HARD")
     @ConfigComment("Other plugins may override this setting")
@@ -1824,5 +1829,33 @@ public class Settings implements WorldSettings {
      */
     public void setDenyVisitorAdvancements(boolean denyVisitorAdvancements) {
         this.denyVisitorAdvancements = denyVisitorAdvancements;
+    }
+
+    /**
+     * @return the chunkX
+     */
+    public int getChunkX() {
+        return chunkX;
+    }
+
+    /**
+     * @param chunkX the chunkX to set
+     */
+    public void setChunkX(int chunkX) {
+        this.chunkX = chunkX;
+    }
+
+    /**
+     * @return the chunkZ
+     */
+    public int getChunkZ() {
+        return chunkZ;
+    }
+
+    /**
+     * @param chunkZ the chunkZ to set
+     */
+    public void setChunkZ(int chunkZ) {
+        this.chunkZ = chunkZ;
     }
 }

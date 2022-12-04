@@ -26,6 +26,7 @@ import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.generators.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.BoxedSeedChunkGenerator;
+import world.bentobox.boxed.generators.SeedBiomeGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 import world.bentobox.boxed.listeners.NewAreaListener;
@@ -147,7 +148,7 @@ public class Boxed extends GameModeAddon {
         log("Creating Boxed Seed world ...");
         seedWorld = WorldCreator
                 .name("seed")
-                .generator(new BoxedSeedChunkGenerator())
+                .generator(new BoxedSeedChunkGenerator(this))
                 .environment(Environment.NORMAL)
                 .generateStructures(false)
                 .seed(getSettings().getSeed())
@@ -188,10 +189,10 @@ public class Boxed extends GameModeAddon {
         double percent = size * 4D * size;
         int count = 0;
         int last = 0;
-        for (int x = -size; x < size; x ++) {
-            for (int z = -size; z < size; z++) {
-                ChunkSnapshot chunk = seedWorld.getChunkAt(x, z).getChunkSnapshot(true, true, false);
-                this.chunkGenerator.setChunk(chunk);
+        for (int x = -size; x <= size; x ++) {
+            for (int z = -size; z <= size; z++) {
+                ChunkSnapshot chunk = seedWorld.getChunkAt(this.settings.getChunkX() + x, this.settings.getChunkZ() + z).getChunkSnapshot(true, true, false);
+                this.chunkGenerator.setChunk(x, z, chunk);
                 count++;
                 int p = (int) (count / percent * 100);
                 if (p % 10 == 0 && p != last) {

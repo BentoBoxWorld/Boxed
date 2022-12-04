@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.bukkit.ChunkSnapshot;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockFace;
@@ -25,11 +24,11 @@ import com.google.common.base.Enums;
 import world.bentobox.boxed.Boxed;
 
 /**
- * NOT USED
+ * Generates the biomes for the seed world
  * @author tastybento
  *
  */
-public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
+public abstract class AbstractSeendBiomeProvider extends BiomeProvider {
 
     private static final Map<Environment, String> ENV_MAP;
 
@@ -51,7 +50,7 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
     protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
 
 
-    protected AbstractBoxedBiomeProvider(Boxed boxed, Environment env, Biome defaultBiome) {
+    protected AbstractSeendBiomeProvider(Boxed boxed, Environment env, Biome defaultBiome) {
         this.addon = boxed;
         this.defaultBiome = defaultBiome;
         dist = addon.getSettings().getIslandDistance();
@@ -83,30 +82,7 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
 
     @Override
     public Biome getBiome(WorldInfo worldInfo, int x, int y, int z) {
-        int chunkX = (int)((double)x/16);
-        int chunkZ = (int)((double)z/16);
-        int size = (int)(dist / 16D); // Convert to chunk
-        chunkX = BoxedChunkGenerator.repeatCalc(chunkX, size);
-        chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ, size);
-        ChunkSnapshot c = addon.getChunkGenerator().getChunk(chunkX, chunkZ);
-
-        if (c != null) {
-            int xx = Math.floorMod(x, 16);
-            int zz = Math.floorMod(z, 16);
-            int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
-
-            Biome b = c.getBiome(xx, yy, zz);
-            // Some biomes should stay from the seed world. These are mostly underground biomes.
-            if (!b.equals(Biome.CUSTOM) && (b.equals(Biome.DRIPSTONE_CAVES) || b.equals(Biome.LUSH_CAVES)
-                    || b.equals(Biome.RIVER) || b.equals(Biome.DEEP_DARK))) {
-                return b;
-            } else {
-                // Return the mapped biome
-                return getMappedBiome(x,z);
-            }
-        } else {
-            return this.defaultBiome;
-        }
+        return getMappedBiome(x,z);
     }
 
     private Biome getMappedBiome(int x, int z) {

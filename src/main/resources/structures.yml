@@ -1,3 +1,6 @@
 structures:
-  new-island:
-    "minecraft:village": 100,0,100
+  new:
+    village_plains: "0,64,80"
+    ruined_portal_mountain: "-38,63,20"
+    pillager_outpost: "3,63,-60"
+
