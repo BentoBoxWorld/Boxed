@@ -76,11 +76,23 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.generator.seed", needsReset = true)
     private long seed = 602103456450L;
 
-    @ConfigComment("Seed center chunk. This is where the areas are copied from.")
-    @ConfigEntry(path = "world.generator.start-chunk.x")
-    private int chunkX = 0;
-    @ConfigEntry(path = "world.generator.start-chunk.z")
-    private int chunkZ = 0;
+    @ConfigComment("Area seed center. This is where the areas are copied from.")
+    @ConfigEntry(path = "world.generator.seed-start.normal.x")
+    private int seedX = 0;
+    @ConfigEntry(path = "world.generator.seed-start.normal.z")
+    private int seedZ = 0;
+
+    @ConfigComment("Nether area seed center. This is where the areas are copied from.")
+    @ConfigEntry(path = "world.generator.seed-start.nether.x")
+    private int netherSeedX = 0;
+    @ConfigEntry(path = "world.generator.seed-start.nether.z")
+    private int netherSeedZ = 0;
+
+    @ConfigComment("End area seed center. This is where the areas are copied from.")
+    @ConfigEntry(path = "world.generator.seed-start.end.x")
+    private int endSeedX = 0;
+    @ConfigEntry(path = "world.generator.seed-start.end.z")
+    private int endSeedZ = 0;
 
     @ConfigComment("World difficulty setting - PEACEFUL, EASY, NORMAL, HARD")
     @ConfigComment("Other plugins may override this setting")
@@ -1832,30 +1844,88 @@ public class Settings implements WorldSettings {
     }
 
     /**
-     * @return the chunkX
+     * @return the seedX
      */
-    public int getChunkX() {
-        return chunkX;
+    public int getSeedX() {
+        return seedX;
     }
 
     /**
-     * @param chunkX the chunkX to set
+     * @param seedX the seedX to set
      */
-    public void setChunkX(int chunkX) {
-        this.chunkX = chunkX;
+    public void setSeedX(int seedX) {
+        this.seedX = seedX;
     }
 
     /**
-     * @return the chunkZ
+     * @return the seedZ
      */
-    public int getChunkZ() {
-        return chunkZ;
+    public int getSeedZ() {
+        return seedZ;
     }
 
     /**
-     * @param chunkZ the chunkZ to set
+     * @param seedZ the seedZ to set
      */
-    public void setChunkZ(int chunkZ) {
-        this.chunkZ = chunkZ;
+    public void setSeedZ(int seedZ) {
+        this.seedZ = seedZ;
     }
+
+    /**
+     * @return the netherSeedX
+     */
+    public int getNetherSeedX() {
+        return netherSeedX;
+    }
+
+    /**
+     * @param netherSeedX the netherSeedX to set
+     */
+    public void setNetherSeedX(int netherSeedX) {
+        this.netherSeedX = netherSeedX;
+    }
+
+    /**
+     * @return the netherSeedZ
+     */
+    public int getNetherSeedZ() {
+        return netherSeedZ;
+    }
+
+    /**
+     * @param netherSeedZ the netherSeedZ to set
+     */
+    public void setNetherSeedZ(int netherSeedZ) {
+        this.netherSeedZ = netherSeedZ;
+    }
+
+    /**
+     * @return the endSeedX
+     */
+    public int getEndSeedX() {
+        return endSeedX;
+    }
+
+    /**
+     * @param endSeedX the endSeedX to set
+     */
+    public void setEndSeedX(int endSeedX) {
+        this.endSeedX = endSeedX;
+    }
+
+    /**
+     * @return the endSeedZ
+     */
+    public int getEndSeedZ() {
+        return endSeedZ;
+    }
+
+    /**
+     * @param endSeedZ the endSeedZ to set
+     */
+    public void setEndSeedZ(int endSeedZ) {
+        this.endSeedZ = endSeedZ;
+    }
+
+
 }

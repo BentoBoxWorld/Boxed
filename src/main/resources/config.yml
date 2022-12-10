@@ -29,15 +29,24 @@ world:
   world-name: boxed_world
   generator:
     # World seed.
-    # If you change this, stop the server and delete the worlds made.
     # /!\ BentoBox currently does not support changing this value mid-game. If you do need to change it, do a full reset of your databases and worlds.
     seed: 602103456450
+    seed-start:
+      normal:
+        # Area seed center. This is where the areas are copied from.
+        x: 9920
+        z: 9856
+      nether:
+        # Nether area seed center. This is where the areas are copied from.
+        x: 9999
+        z: 10015
+      end:
+        # End area seed center. This is where the areas are copied from.
+        x: 0
+        z: 0
     # Generate surface
     # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
     generate-surface: true
-    # Generate bedrock
-    # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-    generate-bedrock: true
     # Generate caves
     # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
     generate-caves: true
@@ -50,7 +59,7 @@ world:
     # Allow surface structures - villages, shipwrecks, broken portals, etc.
     # These will be randomly placed, so may not be available for every player.
     # /!\ In order to apply the changes made to this option, you must restart your server. Reloading BentoBox or the server won't work.
-    allow-structures: true
+    allow-structures: false
   # World difficulty setting - PEACEFUL, EASY, NORMAL, HARD
   # Other plugins may override this setting
   difficulty: NORMAL
@@ -100,7 +109,7 @@ world:
     # Note: Some default challenges will not be possible if there is no nether.
     # Note that with a standard nether all players arrive at the same portal and entering a
     # portal will return them back to their areas.
-    generate: false
+    generate: true
     # Nether spawn protection radius - this is the distance around the nether spawn
     # that will be public from player interaction (breaking blocks, pouring lava etc.)
     # Minimum is 0 (not recommended), maximum is 100. Default is 25.
@@ -170,6 +179,7 @@ world:
     CROP_TRAMPLE: false
     BREWING: false
     DROPPER: false
+    ENTITY_PORTAL_TELEPORT: false
     OBSIDIAN_SCOOPING: false
     CREEPER_DAMAGE: true
     TNT_PRIMING: false
@@ -232,8 +242,8 @@ world:
     BREAK_HOPPERS: 500
     FURNACE: 500
     MONSTER_SPAWNERS_SPAWN: 500
-    MINECART: 500
     ANVIL: 500
+    MINECART: 500
     FISH_SCOOPING: 500
     FIRE_IGNITE: 500
     END_PORTAL: 500
@@ -246,8 +256,8 @@ world:
     LEVER: 0
     ELYTRA: 0
     CAKE: 500
-    RIDING: 500
     HURT_MONSTERS: 0
+    RIDING: 500
     NAME_TAG: 500
     ARMOR_STAND: 500
     TRADING: 0
@@ -268,15 +278,15 @@ world:
     COMMAND_RANKS: 500
     BEACON: 500
     TRAPDOOR: 500
-    PRESSURE_PLATE: 0
     EXPERIENCE_BOTTLE_THROWING: 500
+    PRESSURE_PLATE: 0
     DYE: 500
-    PLACE_BLOCKS: 500
     ITEM_FRAME: 500
+    PLACE_BLOCKS: 500
     CRAFTING: 0
-    SHEARING: 500
-    ANIMAL_SPAWNERS_SPAWN: 500
     ENCHANTING: 500
+    ANIMAL_SPAWNERS_SPAWN: 500
+    SHEARING: 500
     BOAT: 0
     BED: 500
     SPAWN_EGGS: 500

@@ -1,6 +1,6 @@
 structures:
   new:
-    village_plains: "0,64,80"
-    ruined_portal_mountain: "-38,63,20"
-    pillager_outpost: "3,63,-60"
+    village_plains: "normal, 0 ,64, 80"
+    ruined_portal_mountain: "normal, -38, 63, 20"
+    pillager_outpost: "normal, 3, 63, -60"
 

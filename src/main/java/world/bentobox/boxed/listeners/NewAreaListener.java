@@ -4,21 +4,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent;
-import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.bentobox.util.Util;
@@ -35,6 +34,8 @@ public class NewAreaListener implements Listener {
     private Queue<Item> itemsToBuild = new LinkedList<>();
     private boolean pasting;
     private record Item(World w, List<Pair<Integer, Integer>> cs, String cmd) {};
+    Pair<Integer, Integer> min = new Pair<Integer, Integer>(0,0);
+    Pair<Integer, Integer> max = new Pair<Integer, Integer>(0,0);
 
 
     /**
@@ -87,13 +88,15 @@ public class NewAreaListener implements Listener {
         // Loop through the structures in the file - there could be more than one
         for (String structure : section.getKeys(false)) {
             addon.log(structure);
-            String value = section.getString(structure,"");
+            String key = section.getString(structure,"");
             // Extract coords
-            String[] coords = value.split(",");
-            if (coords.length == 3) {
-                int x = Integer.valueOf(coords[0]) + center.getBlockX();
-                int y = Integer.valueOf(coords[1]);
-                int z = Integer.valueOf(coords[2]) + center.getBlockZ();
+            String[] value = key.split(",");
+            if (value.length == 4) {
+                Environment env = Environment.valueOf(value[0].toUpperCase(Locale.ENGLISH).strip());
+                World world = env.equals(Environment.NORMAL) ? addon.getOverWorld() : addon.getNetherWorld();
+                int x = Integer.valueOf(value[1].strip()) + center.getBlockX();
+                int y = Integer.valueOf(value[2].strip());
+                int z = Integer.valueOf(value[3].strip()) + center.getBlockZ();
                 List<Pair<Integer, Integer>> cs = new ArrayList<>();
                 int size = 10;
                 for (int cx = (x >> 4) - size; cx < (x >>4) + size; cx++) {
@@ -102,13 +105,13 @@ public class NewAreaListener implements Listener {
                     }
                 }
                 // Make command
-                String cmd = "execute in " + center.getWorld().getName() + " run place "+ string + " minecraft:" + structure + " "
+                String cmd = "execute in " + world.getName() + " run place "+ string + " minecraft:" + structure + " "
                         + x + " "
                         + y + " "
                         + z + " ";
-                itemsToBuild.add(new Item(center.getWorld(), cs, cmd));
+                itemsToBuild.add(new Item(world, cs, cmd));
             } else {
-                addon.logError("Structure file syntax error: " + structure + " " + value);
+                addon.logError("Structure file syntax error: " + structure + " " + key);
             }
         }
     }
@@ -117,15 +120,27 @@ public class NewAreaListener implements Listener {
     private void LoadChunksAsync(World w, List<Pair<Integer, Integer>> cs, int i, String cmd) {
         pasting = true;
         int total = cs.size();
+
         //addon.log("Loading chunk async " + i);
         if (i < total) {
+            if (i == 0) {
+                min = new Pair<>(cs.get(0).x, cs.get(0).z);
+                max = new Pair<>(cs.get(0).x, cs.get(0).z);
+            }
+            if (cs.get(i).x < min.x || cs.get(i).z < min.z) {
+                min = cs.get(i);
+            }
+            if (cs.get(i).x > min.x || cs.get(i).z > min.z) {
+                max = cs.get(i);
+            }
             Util.getChunkAtAsync(w, cs.get(i).x, cs.get(i).z, true).thenAccept(c -> {
-                //addon.log("Loaded chunk " + c.getX() + " " + c.getZ());
                 LoadChunksAsync(w, cs, i + 1, cmd);
 
             });
         } else {
             addon.log("Complete");
+            addon.log("Loaded chunks in " + w.getName() + " min " + (min.x << 4) + " " + (min.z << 4) + " to " +
+                    (max.x << 4) + " " + (max.z << 4));
             addon.log("run command " + cmd);
             Bukkit.getScheduler().runTaskLater(addon.getPlugin(), () -> {
                 addon.log("Comand success = " + addon.getServer().dispatchCommand(Bukkit.getConsoleSender(), cmd));
