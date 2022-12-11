@@ -1,8 +1,10 @@
 package world.bentobox.boxed;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Difficulty;
 import org.bukkit.Material;
@@ -11,6 +13,7 @@ import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.SpawnCategory;
 import org.bukkit.generator.BiomeProvider;
+import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -22,8 +25,10 @@ import world.bentobox.bentobox.api.configuration.WorldSettings;
 import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
+import world.bentobox.bentobox.blueprints.BlueprintClipboard;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.generators.BoxedBiomeGenerator;
+import world.bentobox.boxed.generators.BoxedBlockPopulator;
 import world.bentobox.boxed.generators.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.generators.SeedBiomeGenerator;
@@ -61,6 +66,7 @@ public class Boxed extends GameModeAddon {
     private World seedWorldNether;
     private World seedWorldEnd;
     private BiomeProvider boxedBiomeProvider;
+    private BlockPopulator boxedBlockPopulator;
 
     @Override
     public void onLoad() {
@@ -116,7 +122,7 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
-        this.registerListener(new NewAreaListener(this));
+        //this.registerListener(new NewAreaListener(this));
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);
@@ -155,9 +161,9 @@ public class Boxed extends GameModeAddon {
                 .environment(Environment.NORMAL)
                 .seed(getSettings().getSeed())
                 .createWorld();
-        seedWorld.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
-        saveChunks(seedWorld);
-
+        seedWorld.setDifficulty(Difficulty.EASY);
+        copyChunks(seedWorld);
+        seedWorld.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
 
 
         // Unload seed world
@@ -180,8 +186,8 @@ public class Boxed extends GameModeAddon {
                     .environment(Environment.NETHER)
                     .seed(getSettings().getSeed())
                     .createWorld();
-            seedWorldNether.setDifficulty(Difficulty.PEACEFUL); // No damage wanted in this world.
-            saveChunks(seedWorldNether);
+            seedWorldNether.setDifficulty(Difficulty.EASY); // No damage wanted in this world.
+            copyChunks(seedWorldNether);
 
             if (getServer().getWorld(worldName + NETHER) == null) {
                 log("Creating Boxed's Nether...");
@@ -199,7 +205,11 @@ public class Boxed extends GameModeAddon {
          */
     }
 
-    private void saveChunks(World seedWorld) {
+    /**
+     * Copies chunks from the seed world so they can be pasted in the game world
+     * @param seedWorld - souce world
+     */
+    private void copyChunks(World seedWorld) {
         BoxedChunkGenerator gen;
         int startX = 0;
         int startZ = 0;
@@ -220,8 +230,7 @@ public class Boxed extends GameModeAddon {
         int last = 0;
         for (int x = -size; x <= size; x ++) {
             for (int z = -size; z <= size; z++) {
-                ChunkSnapshot chunk = seedWorld.getChunkAt(startX + x, startZ + z).getChunkSnapshot(true, true, false);
-                gen.setChunk(x, z, chunk);
+                gen.setChunk(x, z, seedWorld.getChunkAt(startX + x, startZ + z));
                 count++;
                 int p = (int) (count / percent * 100);
                 if (p % 10 == 0 && p != last) {
@@ -256,6 +265,7 @@ public class Boxed extends GameModeAddon {
         worldName2 = env.equals(World.Environment.NETHER) ? worldName2 + NETHER : worldName2;
         worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
         boxedBiomeProvider = new BoxedBiomeGenerator(this);
+        boxedBlockPopulator = new BoxedBlockPopulator(this);
         World w = WorldCreator
                 .name(worldName2)
                 .generator(env.equals(World.Environment.NETHER) ? netherChunkGenerator : chunkGenerator)
@@ -329,6 +339,13 @@ public class Boxed extends GameModeAddon {
      */
     public AdvancementsManager getAdvManager() {
         return advManager;
+    }
+
+    /**
+     * @return the boxedBlockPopulator
+     */
+    public BlockPopulator getBoxedBlockPopulator() {
+        return boxedBlockPopulator;
     }
 
 }

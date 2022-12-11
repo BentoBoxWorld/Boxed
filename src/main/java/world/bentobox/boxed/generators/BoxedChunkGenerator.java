@@ -1,20 +1,51 @@
 package world.bentobox.boxed.generators;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
+import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Banner;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Villager;
 import org.bukkit.generator.BiomeProvider;
+import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Attachable;
+import org.bukkit.material.Colorable;
+import org.bukkit.util.Vector;
 
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintEntity;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 
 /**
+ * Chunk generator for all environments
  * @author tastybento
  *
  */
@@ -22,7 +53,10 @@ public class BoxedChunkGenerator extends ChunkGenerator {
 
     private final Boxed addon;
     private final int size;
-    private Map<Pair<Integer, Integer>, ChunkSnapshot> chunks = new HashMap<>();
+    private Map<Pair<Integer, Integer>, ChunkStore> chunks = new HashMap<>();
+    public record ChunkStore(ChunkSnapshot snapshot, List<EntityData> bpEnts, List<ChestData> chests) {};
+    public record EntityData(Vector relativeLoc, BlueprintEntity entity) {};
+    public record ChestData(Vector relativeLoc, BlueprintBlock chest) {};
 
     //private final WorldRef wordRefNether;
 
@@ -36,13 +70,30 @@ public class BoxedChunkGenerator extends ChunkGenerator {
         return addon.getBoxedBiomeProvider();
     }
 
+    @Override
+    public List<BlockPopulator> getDefaultPopulators(World world) {
+        world.getPopulators().add(addon.getBoxedBlockPopulator());
+        return world.getPopulators();
+    }
+
     /**
+     * Save a chunk
      * @param z - chunk z coord
      * @param x - chunk x coord
      * @param chunk the chunk to set
      */
-    public void setChunk(int x, int z, ChunkSnapshot chunk) {
-        chunks.put(new Pair<>(x, z), chunk);
+    public void setChunk(int x, int z, Chunk chunk) {
+        List<LivingEntity> ents = Arrays.stream(chunk.getEntities())
+                .filter(Objects::nonNull)
+                .filter(e -> !(e instanceof Player))
+                .filter(e -> e instanceof LivingEntity)
+                .map(LivingEntity.class::cast)
+                .toList();
+        // Grab entities
+        List<EntityData> bpEnts = this.setEntities(ents);
+        // Grab tile entities
+        List<ChestData> chests = Arrays.stream(chunk.getTileEntities()).map(t -> new ChestData(getLocInChunk(t.getLocation()), this.getBluePrintBlock(t.getBlock()))).toList();
+        chunks.put(new Pair<>(x, z), new ChunkStore(chunk.getChunkSnapshot(false, true, false), bpEnts, chests));
     }
 
     /**
@@ -51,14 +102,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
      * @return chunk snapshot or null if there is none
      */
     public ChunkSnapshot getChunk(int x, int z) {
-        return chunks.get(new Pair<>(x, z));
-    }
-
-    /**
-     * @param chunks the chunks to set
-     */
-    public void setChunks(Map<Pair<Integer, Integer>, ChunkSnapshot> chunks) {
-        this.chunks = chunks;
+        return chunks.get(new Pair<>(x, z)).snapshot;
     }
 
     @Override
@@ -81,7 +125,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
             return;
         }
         // Copy the chunk
-        ChunkSnapshot chunk = chunks.get(coords);
+        ChunkSnapshot chunk = chunks.get(coords).snapshot;
         copyChunkVerbatim(cd, chunk, minY, height);
 
     }
@@ -96,6 +140,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
         }
     }
 
+    /*
     private void copyChunk(ChunkData cd, ChunkSnapshot chunk, int minY, int height) {
         for (int x = 0; x < 16; x ++) {
             for (int z = 0; z < 16; z++) {
@@ -117,7 +162,7 @@ public class BoxedChunkGenerator extends ChunkGenerator {
             }
         }
     }
-
+     */
     /**
      * Calculates the repeating value for a given size
      * @param chunkCoord chunk coord
@@ -137,10 +182,10 @@ public class BoxedChunkGenerator extends ChunkGenerator {
     /**
      * @return the chunks
      */
-    public Map<Pair<Integer, Integer>, ChunkSnapshot> getChunks() {
+    public Map<Pair<Integer, Integer>, ChunkStore> getChunks() {
         return chunks;
     }
-
+    /*
     private static boolean isInWater(Material m) {
         return switch (m) {
         // Underwater plants
@@ -193,6 +238,118 @@ public class BoxedChunkGenerator extends ChunkGenerator {
         default -> false;
         };
     }
+     */
+    private List<EntityData> setEntities(Collection<LivingEntity> entities) {
+        List<EntityData> bpEnts = new ArrayList<>();
+        for (LivingEntity entity: entities) {
+            BlueprintEntity bpe = new BlueprintEntity();
+            bpe.setType(entity.getType());
+            bpe.setCustomName(entity.getCustomName());
+            if (entity instanceof Villager villager) {
+                setVillager(villager, bpe);
+            }
+            if (entity instanceof Colorable c) {
+                if (c.getColor() != null) {
+                    bpe.setColor(c.getColor());
+                }
+            }
+            if (entity instanceof Tameable) {
+                bpe.setTamed(((Tameable)entity).isTamed());
+            }
+            if (entity instanceof ChestedHorse) {
+                bpe.setChest(((ChestedHorse)entity).isCarryingChest());
+            }
+            // Only set if child. Most animals are adults
+            if (entity instanceof Ageable && !((Ageable)entity).isAdult()) {
+                bpe.setAdult(false);
+            }
+            if (entity instanceof AbstractHorse horse) {
+                bpe.setDomestication(horse.getDomestication());
+                bpe.setInventory(new HashMap<>());
+                for (int i = 0; i < horse.getInventory().getSize(); i++) {
+                    ItemStack item = horse.getInventory().getItem(i);
+                    if (item != null) {
+                        bpe.getInventory().put(i, item);
+                    }
+                }
+            }
+
+            if (entity instanceof Horse horse) {
+                bpe.setStyle(horse.getStyle());
+            }
+            bpEnts.add(new EntityData(getLocInChunk(entity.getLocation()), bpe));
+        }
+        return bpEnts;
+    }
+
+    private Vector getLocInChunk(Location l) {
+        return new Vector(l.getBlockX() % 16, l.getBlockY(), l.getBlockZ() % 16);
+
+    }
+
+    /**
+     * Set the villager stats
+     * @param v - villager
+     * @param bpe - Blueprint Entity
+     */
+    private void setVillager(Villager v, BlueprintEntity bpe) {
+        bpe.setExperience(v.getVillagerExperience());
+        bpe.setLevel(v.getVillagerLevel());
+        bpe.setProfession(v.getProfession());
+        bpe.setVillagerType(v.getVillagerType());
+    }
+
+    /**
+     * Converts the block into a BluePrintBlock that can be pasted later
+     * @param block - block to convert
+     * @return Blueprint block
+     */
+    private BlueprintBlock getBluePrintBlock(Block block) {
+        // Block state
+        BlockState blockState = block.getState();
+        BlueprintBlock b = new BlueprintBlock(block.getBlockData().getAsString());
+
+        // Signs
+        if (blockState instanceof Sign sign) {
+            b.setSignLines(Arrays.asList(sign.getLines()));
+            b.setGlowingText(sign.isGlowingText());
+        }
+
+        // Chests
+        if (blockState instanceof InventoryHolder ih) {
+            b.setInventory(new HashMap<>());
+            for (int i = 0; i < ih.getInventory().getSize(); i++) {
+                ItemStack item = ih.getInventory().getItem(i);
+                if (item != null) {
+                    b.getInventory().put(i, item);
+                }
+            }
+        }
+        // Spawner type
+        if (blockState instanceof CreatureSpawner spawner) {
+            b.setCreatureSpawner(getSpawner(spawner));
+        }
+
+        // Banners
+        if (blockState instanceof Banner banner) {
+            b.setBannerPatterns(banner.getPatterns());
+        }
+
+        return b;
+    }
+
+    private BlueprintCreatureSpawner getSpawner(CreatureSpawner spawner) {
+        BlueprintCreatureSpawner cs = new BlueprintCreatureSpawner();
+        cs.setSpawnedType(spawner.getSpawnedType());
+        cs.setDelay(spawner.getDelay());
+        cs.setMaxNearbyEntities(spawner.getMaxNearbyEntities());
+        cs.setMaxSpawnDelay(spawner.getMaxSpawnDelay());
+        cs.setMinSpawnDelay(spawner.getMinSpawnDelay());
+        cs.setRequiredPlayerRange(spawner.getRequiredPlayerRange());
+        cs.setSpawnRange(spawner.getSpawnRange());
+        return cs;
+    }
+
 
     @Override
     public boolean shouldGenerateNoise() {
