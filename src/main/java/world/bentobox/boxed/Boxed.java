@@ -1,11 +1,7 @@
 package world.bentobox.boxed;
 
-import java.util.Arrays;
 import java.util.Collections;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
 import org.bukkit.Difficulty;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -25,16 +21,13 @@ import world.bentobox.bentobox.api.configuration.WorldSettings;
 import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
-import world.bentobox.bentobox.blueprints.BlueprintClipboard;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.generators.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.BoxedBlockPopulator;
 import world.bentobox.boxed.generators.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.BoxedSeedChunkGenerator;
-import world.bentobox.boxed.generators.SeedBiomeGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
-import world.bentobox.boxed.listeners.NewAreaListener;
 
 /**
  * Main Boxed class - provides a survival game inside a box
@@ -64,7 +57,7 @@ public class Boxed extends GameModeAddon {
     private BoxedChunkGenerator netherChunkGenerator;
     private World seedWorld;
     private World seedWorldNether;
-    private World seedWorldEnd;
+    //private World seedWorldEnd;
     private BiomeProvider boxedBiomeProvider;
     private BlockPopulator boxedBlockPopulator;
 
@@ -180,6 +173,24 @@ public class Boxed extends GameModeAddon {
         // Make the nether if it does not exist
         if (settings.isNetherGenerate()) {
             log("Creating Boxed Seed Nether world ...");
+            // Copy regions
+            /*
+            boolean newWorld = Bukkit.getWorld(SEED + NETHER) == null;
+            if (newWorld) {
+                // New world
+                File root = new File(getDataFolder(), "../../../..");
+                BentoBox.getInstance().logDebug("Absolute path " + root.getAbsolutePath());
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.18.18.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.18.19.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.18.20.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.19.18.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.19.19.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.19.20.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.20.18.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.20.19.mca", root, false, false);
+                this.saveResource("worlds/seed_nether/DIM-1/region/r.20.20.mca", root, false, false);
+            }*/
+
             seedWorldNether = WorldCreator
                     .name(SEED + NETHER)
                     .generator(new BoxedSeedChunkGenerator(this, Environment.NETHER))
@@ -187,6 +198,10 @@ public class Boxed extends GameModeAddon {
                     .seed(getSettings().getSeed())
                     .createWorld();
             seedWorldNether.setDifficulty(Difficulty.EASY); // No damage wanted in this world.
+
+
+
+
             copyChunks(seedWorldNether);
 
             if (getServer().getWorld(worldName + NETHER) == null) {
@@ -207,7 +222,7 @@ public class Boxed extends GameModeAddon {
 
     /**
      * Copies chunks from the seed world so they can be pasted in the game world
-     * @param seedWorld - souce world
+     * @param seedWorld - source world
      */
     private void copyChunks(World seedWorld) {
         BoxedChunkGenerator gen;

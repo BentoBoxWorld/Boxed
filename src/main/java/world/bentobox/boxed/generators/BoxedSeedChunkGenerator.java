@@ -3,6 +3,7 @@ package world.bentobox.boxed.generators;
 import org.bukkit.World.Environment;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.generator.WorldInfo;
 
 import world.bentobox.boxed.Boxed;
 
@@ -25,12 +26,12 @@ public class BoxedSeedChunkGenerator extends ChunkGenerator {
         this.env = env;
     }
 
-    /*
+
     @Override
     public BiomeProvider getDefaultBiomeProvider(WorldInfo worldInfo) {
         return seedBiomeProvider;
     }
-     */
+
     @Override
     public boolean shouldGenerateNoise() {
         return true;

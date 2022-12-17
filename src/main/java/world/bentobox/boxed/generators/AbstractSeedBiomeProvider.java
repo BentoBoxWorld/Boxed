@@ -28,7 +28,7 @@ import world.bentobox.boxed.Boxed;
  * @author tastybento
  *
  */
-public abstract class AbstractSeendBiomeProvider extends BiomeProvider {
+public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
 
     private static final Map<Environment, String> ENV_MAP;
 
@@ -50,7 +50,7 @@ public abstract class AbstractSeendBiomeProvider extends BiomeProvider {
     protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
 
 
-    protected AbstractSeendBiomeProvider(Boxed boxed, Environment env, Biome defaultBiome) {
+    protected AbstractSeedBiomeProvider(Boxed boxed, Environment env, Biome defaultBiome) {
         this.addon = boxed;
         this.defaultBiome = defaultBiome;
         dist = addon.getSettings().getIslandDistance();
@@ -129,9 +129,10 @@ public abstract class AbstractSeendBiomeProvider extends BiomeProvider {
                 try {
                     double d = Double.parseDouble(split[0]);
                     Biome biome = Enums.getIfPresent(Biome.class, split[1].toUpperCase(Locale.ENGLISH)).orNull();
-                    if (biome == null) {
+                    if (biome == null && !split[1].toUpperCase(Locale.ENGLISH).equalsIgnoreCase("default")) {
                         addon.logError(split[1].toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
                     } else {
+                        // A biome of null means that no alternative biome should be applied
                         result.put(d, biome);
                     }
                 } catch(Exception e) {
