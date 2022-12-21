@@ -22,10 +22,12 @@ import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
+import world.bentobox.boxed.generators.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.BoxedBlockPopulator;
 import world.bentobox.boxed.generators.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.BoxedSeedChunkGenerator;
+import world.bentobox.boxed.generators.SeedBiomeGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 
@@ -48,13 +50,15 @@ public class Boxed extends GameModeAddon {
     private static final String SEED = "seed";
     private static final String NETHER = "_nether";
     private static final String THE_END = "_the_end";
+    private static final String BASE = "_base";
 
     // Settings
     private Settings settings;
-    private BoxedChunkGenerator chunkGenerator;
+    private AbstractBoxedChunkGenerator chunkGenerator;
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
-    private BoxedChunkGenerator netherChunkGenerator;
+    private AbstractBoxedChunkGenerator netherChunkGenerator;
+    private World baseWorld;
     private World seedWorld;
     private World seedWorldNether;
     //private World seedWorldEnd;
@@ -146,22 +150,70 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void createWorlds() {
-        // Create seed world
+        String worldName = settings.getWorldName().toLowerCase();
+        // Create overworld
+        createOverWorld(worldName);
+
+        // Make the nether if it does not exist
+        if (settings.isNetherGenerate()) {
+            createNether(worldName);
+        }
+        /*
+        // Make the end if it does not exist
+        if (settings.isEndGenerate()) {
+          //TODO
+         */
+    }
+
+    private void createNether(String worldName) {
+        log("Creating Boxed Seed Nether world ...");
+        seedWorldNether = WorldCreator
+                .name(SEED + NETHER)
+                .generator(new BoxedSeedChunkGenerator(this, Environment.NETHER))
+                .environment(Environment.NETHER)
+                .seed(getSettings().getSeed())
+                .createWorld();
+        seedWorldNether.setDifficulty(Difficulty.EASY); // No damage wanted in this world.
+
+        copyChunks(seedWorldNether, this.netherChunkGenerator);
+
+        if (getServer().getWorld(worldName + NETHER) == null) {
+            log("Creating Boxed's Nether...");
+        }
+        netherWorld = getWorld(worldName, World.Environment.NETHER);
+    }
+
+    private void createOverWorld(String worldName) {
+        // Create vanilla seed world
         log("Creating Boxed Seed world ...");
+        // This creates a vanilla base world with biomes
+        AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL);
+        baseWorld = WorldCreator
+                .name(SEED+BASE)
+                .generator(seedBaseGen)
+                .environment(Environment.NORMAL)
+                .seed(getSettings().getSeed())
+                .createWorld();
+        baseWorld.setDifficulty(Difficulty.PEACEFUL);
+        baseWorld.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
+        copyChunks(baseWorld, seedBaseGen);
+        // Create seed world
+        // This copies a base world with custom biomes
+        log("Creating Boxed Biomed world ...");
+
         seedWorld = WorldCreator
                 .name(SEED)
-                .generator(new BoxedSeedChunkGenerator(this, Environment.NORMAL))
+                .generator(new BoxedSeedChunkGenerator(this, Environment.NORMAL, new SeedBiomeGenerator(this, seedBaseGen)))
                 .environment(Environment.NORMAL)
                 .seed(getSettings().getSeed())
                 .createWorld();
         seedWorld.setDifficulty(Difficulty.EASY);
-        copyChunks(seedWorld);
+
         seedWorld.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
 
+        copyChunks(seedWorld, chunkGenerator);
 
-        // Unload seed world
-        //Bukkit.getServer().unloadWorld("seed", false);
-        String worldName = settings.getWorldName().toLowerCase();
+
 
         if (getServer().getWorld(worldName) == null) {
             log("Creating Boxed world ...");
@@ -170,70 +222,20 @@ public class Boxed extends GameModeAddon {
         // Create the world if it does not exist
         islandWorld = getWorld(worldName, World.Environment.NORMAL);
 
-        // Make the nether if it does not exist
-        if (settings.isNetherGenerate()) {
-            log("Creating Boxed Seed Nether world ...");
-            // Copy regions
-            /*
-            boolean newWorld = Bukkit.getWorld(SEED + NETHER) == null;
-            if (newWorld) {
-                // New world
-                File root = new File(getDataFolder(), "../../../..");
-                BentoBox.getInstance().logDebug("Absolute path " + root.getAbsolutePath());
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.18.18.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.18.19.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.18.20.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.19.18.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.19.19.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.19.20.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.20.18.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.20.19.mca", root, false, false);
-                this.saveResource("worlds/seed_nether/DIM-1/region/r.20.20.mca", root, false, false);
-            }*/
-
-            seedWorldNether = WorldCreator
-                    .name(SEED + NETHER)
-                    .generator(new BoxedSeedChunkGenerator(this, Environment.NETHER))
-                    .environment(Environment.NETHER)
-                    .seed(getSettings().getSeed())
-                    .createWorld();
-            seedWorldNether.setDifficulty(Difficulty.EASY); // No damage wanted in this world.
-
-
-
-
-            copyChunks(seedWorldNether);
-
-            if (getServer().getWorld(worldName + NETHER) == null) {
-                log("Creating Boxed's Nether...");
-            }
-            netherWorld = getWorld(worldName, World.Environment.NETHER);
-        }
-        /*
-        // Make the end if it does not exist
-        if (settings.isEndGenerate()) {
-            if (getServer().getWorld(worldName + THE_END) == null) {
-                log("Creating Boxed's End World...");
-            }
-            endWorld = settings.isEndIslands() ? getWorld(worldName, World.Environment.THE_END) : getWorld(worldName, World.Environment.THE_END);
-        }
-         */
     }
 
     /**
      * Copies chunks from the seed world so they can be pasted in the game world
-     * @param seedWorld - source world
+     * @param world - source world
+     * @param gen - generator to store the chunks
      */
-    private void copyChunks(World seedWorld) {
-        BoxedChunkGenerator gen;
+    private void copyChunks(World world, AbstractBoxedChunkGenerator gen) {
         int startX = 0;
         int startZ = 0;
-        if (seedWorld.getEnvironment().equals(Environment.NORMAL)) {
-            gen = chunkGenerator;
+        if (world.getEnvironment().equals(Environment.NORMAL)) {
             startX = this.settings.getSeedX() >> 4;
             startZ = this.settings.getSeedZ() >> 4;
         } else {
-            gen = netherChunkGenerator;
             startX = this.settings.getNetherSeedX() >> 4;
             startZ = this.settings.getNetherSeedZ() >> 4;
         }
@@ -245,12 +247,12 @@ public class Boxed extends GameModeAddon {
         int last = 0;
         for (int x = -size; x <= size; x ++) {
             for (int z = -size; z <= size; z++) {
-                gen.setChunk(x, z, seedWorld.getChunkAt(startX + x, startZ + z));
+                gen.setChunk(x, z, world.getChunkAt(startX + x, startZ + z));
                 count++;
                 int p = (int) (count / percent * 100);
                 if (p % 10 == 0 && p != last) {
                     last = p;
-                    this.log("Storing seed chunks for " + seedWorld.getEnvironment() + " " + p + "% done");
+                    this.log("Storing seed chunks for " + world.getEnvironment() + " " + p + "% done");
                 }
 
             }
@@ -262,7 +264,7 @@ public class Boxed extends GameModeAddon {
      * @param env - nether, normal, or end
      * @return the chunkGenerator for the environment
      */
-    public BoxedChunkGenerator getChunkGenerator(Environment env) {
+    public AbstractBoxedChunkGenerator getChunkGenerator(Environment env) {
         if (env.equals(Environment.NORMAL)) {
             return chunkGenerator;
         }

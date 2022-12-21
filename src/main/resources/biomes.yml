@@ -2,27 +2,25 @@
 distribution:
   overworld:
     north-east:
-    - 0.05:PLAINS
+    - 0.05:CUSTOM
     - 0.1:DESERT
     - 0.2:SAVANNA
     - 0.5:SPARSE_JUNGLE
     - 0.65:JUNGLE
     - 0.8:BAMBOO_JUNGLE
     - 1.0:MANGROVE_SWAMP
+    - 2.0:CUSTOM
     south-east:
-    - 0.05:PLAINS
-    - 0.8:SUNFLOWER_PLAINS
+    - 0.05:CUSTOM
+    - 0.08:SUNFLOWER_PLAINS
     - 0.2:FLOWER_FOREST
     - 0.3:SAVANNA
     - 0.4:BEACH
-    - 0.5:COLD_OCEAN
+    - 0.5:CUSTOM
     north-west:
-    - 0.05:PLAINS
-    - 0.8:WARM_OCEAN
-    - 1.5:COLD_OCEAN
-    - 2.0:OCEAN
+    - 2.0:CUSTOM
     south-west:
-    - 0.04:PLAINS
+    - 0.04:CUSTOM
     - 0.05:DARK_FOREST
     - 0.06:BIRCH_FOREST
     - 0.07:FOREST
@@ -34,9 +32,10 @@ distribution:
     - 0.7:TAIGA
     - 1.1:SNOWY_PLAINS
     - 2.1:SNOWY_TAIGA
+    - 2.2:CUSTOM
   nether:
     north-east:
-    - 0.03:NETHER_WASTES
+    - 0.03:CUSTOM
     - 0.14:CRIMSON_FOREST
     - 0.26:NETHER_WASTES
     - 0.51:WARPED_FOREST
@@ -46,7 +45,7 @@ distribution:
     - 1.6:BASALT_DELTAS
     - 2.1:NETHER_WASTES
     south-east:
-    - 0.03:NETHER_WASTES
+    - 0.03:CUSTOM
     - 0.05:CRIMSON_FOREST
     - 0.23:NETHER_WASTES
     - 0.48:WARPED_FOREST
@@ -56,7 +55,7 @@ distribution:
     - 1.9:BASALT_DELTAS
     - 2.0:NETHER_WASTES
     north-west:
-    - 0.03:NETHER_WASTES
+    - 0.03:CUSTOM
     - 0.15:CRIMSON_FOREST
     - 0.20:NETHER_WASTES
     - 0.3:WARPED_FOREST
@@ -66,7 +65,7 @@ distribution:
     - 1.5:BASALT_DELTAS
     - 2.0:NETHER_WASTES
     south-west:
-    - 0.03:NETHER_WASTES
+    - 0.03:CUSTOM
     - 0.11:CRIMSON_FOREST
     - 0.22:NETHER_WASTES
     - 0.51:WARPED_FOREST

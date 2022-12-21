@@ -33,9 +33,8 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
     public Biome getBiome(WorldInfo worldInfo, int x, int y, int z) {
         int chunkX = (int)((double)x/16);
         int chunkZ = (int)((double)z/16);
-        int size = (int)(dist / 16D); // Convert to chunk
-        chunkX = BoxedChunkGenerator.repeatCalc(chunkX, size);
-        chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ, size);
+        chunkX = BoxedChunkGenerator.repeatCalc(chunkX);
+        chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ);
         ChunkSnapshot c = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunk(chunkX, chunkZ);
 
         if (c != null) {

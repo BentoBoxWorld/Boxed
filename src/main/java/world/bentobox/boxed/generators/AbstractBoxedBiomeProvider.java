@@ -83,11 +83,10 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
 
     @Override
     public Biome getBiome(WorldInfo worldInfo, int x, int y, int z) {
-        int chunkX = (int)((double)x/16);
-        int chunkZ = (int)((double)z/16);
-        int size = (int)(dist / 16D); // Convert to chunk
-        chunkX = BoxedChunkGenerator.repeatCalc(chunkX, size);
-        chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ, size);
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
+        chunkX = BoxedChunkGenerator.repeatCalc(chunkX);
+        chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ);
         ChunkSnapshot c = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunk(chunkX, chunkZ);
 
         if (c != null) {

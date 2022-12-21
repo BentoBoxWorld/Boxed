@@ -6,10 +6,8 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Banner;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.Entity;
@@ -20,13 +18,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.util.Vector;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
-import world.bentobox.boxed.generators.BoxedChunkGenerator.ChestData;
-import world.bentobox.boxed.generators.BoxedChunkGenerator.ChunkStore;
+import world.bentobox.boxed.generators.AbstractBoxedChunkGenerator.ChestData;
+import world.bentobox.boxed.generators.AbstractBoxedChunkGenerator.ChunkStore;
 
 /**
  * @author tastybento
@@ -35,14 +32,12 @@ import world.bentobox.boxed.generators.BoxedChunkGenerator.ChunkStore;
 public class BoxedBlockPopulator extends BlockPopulator {
 
     private Boxed addon;
-    private int size;
 
     /**
      * @param addon
      */
     public BoxedBlockPopulator(Boxed addon) {
         this.addon = addon;
-        this.size = (int)(addon.getSettings().getIslandDistance() / 16D); // Size is chunks
 
     }
 
@@ -54,8 +49,8 @@ public class BoxedBlockPopulator extends BlockPopulator {
         World world = Bukkit.getWorld(worldInfo.getUID());
         int height = worldInfo.getMaxHeight();
         int minY = worldInfo.getMinHeight();
-        int xx = BoxedChunkGenerator.repeatCalc(chunkX, size);
-        int zz = BoxedChunkGenerator.repeatCalc(chunkZ, size);
+        int xx = BoxedChunkGenerator.repeatCalc(chunkX);
+        int zz = BoxedChunkGenerator.repeatCalc(chunkZ);
         Pair<Integer, Integer> coords = new Pair<>(xx, zz);
         if (chunks.containsKey(coords)) {
             //// BentoBox.getInstance().logDebug("Populating ");
