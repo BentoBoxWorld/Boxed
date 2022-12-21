@@ -1,4 +1,4 @@
-package world.bentobox.boxed.generators;
+package world.bentobox.boxed.generators.biomes;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
 
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 
 /**
  * Copies biomes from seed world

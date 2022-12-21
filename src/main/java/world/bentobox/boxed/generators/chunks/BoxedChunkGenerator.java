@@ -1,4 +1,4 @@
-package world.bentobox.boxed.generators;
+package world.bentobox.boxed.generators.chunks;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,9 +43,9 @@ import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintEntity;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
-import world.bentobox.boxed.generators.AbstractBoxedChunkGenerator.ChestData;
-import world.bentobox.boxed.generators.AbstractBoxedChunkGenerator.ChunkStore;
-import world.bentobox.boxed.generators.AbstractBoxedChunkGenerator.EntityData;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChestData;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.EntityData;
 
 /**
  * Chunk generator for all environments

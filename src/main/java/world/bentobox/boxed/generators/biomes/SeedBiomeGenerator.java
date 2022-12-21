@@ -1,10 +1,11 @@
-package world.bentobox.boxed.generators;
+package world.bentobox.boxed.generators.biomes;
 
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BiomeProvider;
 
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 
 /**
  * @author tastybento

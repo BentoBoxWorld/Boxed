@@ -1,4 +1,4 @@
-package world.bentobox.boxed.generators;
+package world.bentobox.boxed.generators.biomes;
 
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;

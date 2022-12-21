@@ -22,12 +22,12 @@ import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
-import world.bentobox.boxed.generators.AbstractBoxedChunkGenerator;
-import world.bentobox.boxed.generators.BoxedBiomeGenerator;
-import world.bentobox.boxed.generators.BoxedBlockPopulator;
-import world.bentobox.boxed.generators.BoxedChunkGenerator;
-import world.bentobox.boxed.generators.BoxedSeedChunkGenerator;
-import world.bentobox.boxed.generators.SeedBiomeGenerator;
+import world.bentobox.boxed.generators.biomes.BoxedBiomeGenerator;
+import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
+import world.bentobox.boxed.generators.chunks.BoxedBlockPopulator;
+import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
+import world.bentobox.boxed.generators.chunks.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 

@@ -1,4 +1,4 @@
-package world.bentobox.boxed.generators;
+package world.bentobox.boxed.generators.chunks;
 
 import java.util.List;
 
