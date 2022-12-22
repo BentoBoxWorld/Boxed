@@ -5,7 +5,6 @@ import java.util.List;
 import org.bukkit.Chunk;
 import org.bukkit.World.Environment;
 import org.bukkit.generator.BiomeProvider;
-import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 
 import world.bentobox.boxed.Boxed;

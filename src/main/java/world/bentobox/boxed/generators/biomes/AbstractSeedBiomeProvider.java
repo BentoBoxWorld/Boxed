@@ -25,9 +25,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import com.google.common.base.Enums;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.util.Pair;
-import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;

@@ -10,10 +10,10 @@ import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
  * @author tastybento
  *
  */
-public class SeedBiomeGenerator extends AbstractSeedBiomeProvider {
+public class NetherSeedBiomeGenerator extends AbstractSeedBiomeProvider {
 
-    public SeedBiomeGenerator(Boxed boxed, AbstractBoxedChunkGenerator seedGen) {
-        super(boxed, Environment.NORMAL, Biome.PLAINS, seedGen);
+    public NetherSeedBiomeGenerator(Boxed boxed, AbstractBoxedChunkGenerator seedGen) {
+        super(boxed, Environment.NETHER, Biome.BASALT_DELTAS, seedGen);
     }
 
 }

@@ -37,7 +37,6 @@ import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintEntity;
-import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 
 /**
