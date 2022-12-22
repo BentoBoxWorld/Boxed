@@ -120,8 +120,6 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
 
         Biome b = snapshot.getBiome(xx, yy, zz);
-        if (y > DEPTH )
-            BentoBox.getInstance().logDebug("Returning vanilla biome " + b + " for " + worldInfo.getName() + "  " + x + " " + y + " " + z);
         return Objects.requireNonNull(b);
     }
 
@@ -143,7 +141,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         }
         Vector s = new Vector(x, 0, z);
         Vector l = getClosestIsland(s);
-        BentoBox.getInstance().logDebug("Closest island is " + Util.xyz(l));
+        //BentoBox.getInstance().logDebug("Closest island is " + Util.xyz(l));
         double dis = l.distance(s);
         double d = dis / dist; // Normalize
         Vector direction = s.subtract(l);

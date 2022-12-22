@@ -23,6 +23,7 @@ import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.generators.biomes.BoxedBiomeGenerator;
+import world.bentobox.boxed.generators.biomes.NetherSeedBiomeGenerator;
 import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedBlockPopulator;
@@ -59,6 +60,7 @@ public class Boxed extends GameModeAddon {
     private AdvancementsManager advManager;
     private AbstractBoxedChunkGenerator netherChunkGenerator;
     private World baseWorld;
+    private World baseWorldNether;
     private World seedWorld;
     private World seedWorldNether;
     //private World seedWorldEnd;
@@ -166,16 +168,34 @@ public class Boxed extends GameModeAddon {
     }
 
     private void createNether(String worldName) {
+        // Create vanilla seed nether world
         log("Creating Boxed Seed Nether world ...");
-        seedWorldNether = WorldCreator
-                .name(SEED + NETHER)
-                .generator(new BoxedSeedChunkGenerator(this, Environment.NETHER))
+        // This creates a vanilla base world with biomes
+        AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NETHER);
+        baseWorldNether = WorldCreator
+                .name(SEED+NETHER+BASE)
+                .generator(seedBaseGen)
                 .environment(Environment.NETHER)
                 .seed(getSettings().getSeed())
                 .createWorld();
-        seedWorldNether.setDifficulty(Difficulty.EASY); // No damage wanted in this world.
+        baseWorldNether.setDifficulty(Difficulty.PEACEFUL);
+        baseWorldNether.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
+        copyChunks(baseWorldNether, seedBaseGen);
+        // Create seed world
+        // This copies a base world with custom biomes
+        log("Creating Boxed Biomed Nether world ...");
 
-        copyChunks(seedWorldNether, this.netherChunkGenerator);
+        seedWorldNether = WorldCreator
+                .name(SEED+NETHER)
+                .generator(new BoxedSeedChunkGenerator(this, Environment.NETHER, new NetherSeedBiomeGenerator(this, seedBaseGen)))
+                .environment(Environment.NETHER)
+                .seed(getSettings().getSeed())
+                .createWorld();
+        seedWorldNether.setDifficulty(Difficulty.EASY);
+
+        seedWorldNether.setSpawnLocation(settings.getNetherSeedX(), 64, settings.getNetherSeedZ());
+
+        copyChunks(seedWorldNether, netherChunkGenerator);
 
         if (getServer().getWorld(worldName + NETHER) == null) {
             log("Creating Boxed's Nether...");

@@ -3,17 +3,14 @@ package world.bentobox.boxed.generators.chunks;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Banner;
 import org.bukkit.block.Block;
@@ -30,22 +27,18 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Villager;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.BlockPopulator;
-import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.Attachable;
 import org.bukkit.material.Colorable;
 import org.bukkit.util.Vector;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintEntity;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
-import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChestData;
-import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
-import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.EntityData;
 
 /**
  * Chunk generator for all environments
@@ -194,6 +187,34 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         cs.setRequiredPlayerRange(spawner.getRequiredPlayerRange());
         cs.setSpawnRange(spawner.getSpawnRange());
         return cs;
+    }
+
+    @Override
+    public void generateNoise(WorldInfo worldInfo, Random r, int chunkX, int chunkZ, ChunkData cd) {
+        int height = worldInfo.getMaxHeight();
+        int minY = worldInfo.getMinHeight();
+        int xx = repeatCalc(chunkX);
+        int zz = repeatCalc(chunkZ);
+        ChunkSnapshot chunk = this.getChunk(xx,zz);
+        if (chunk == null) {
+            // This should never be needed because islands should abut each other
+            //cd.setRegion(0, minY, 0, 16, 0, 16, Material.WATER);
+            BentoBox.getInstance().logDebug("No chunks found for " + xx + " " + zz);
+            return;
+        }
+        // Copy the chunk
+        copyChunkVerbatim(cd, chunk, minY, height);
+
+    }
+
+    private void copyChunkVerbatim(ChunkData cd, ChunkSnapshot chunk, int minY, int height) {
+        for (int x = 0; x < 16; x ++) {
+            for (int z = 0; z < 16; z++) {
+                for (int y = minY; y < height; y++) {
+                    cd.setBlock(x, y, z, chunk.getBlockData(x, y, z));
+                }
+            }
+        }
     }
 
 }
