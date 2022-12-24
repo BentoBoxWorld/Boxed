@@ -15,8 +15,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.Statistic;
+import org.bukkit.World.Environment;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,6 +27,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
@@ -46,6 +49,7 @@ public class AdvancementListener implements Listener {
 
     private final Boxed addon;
     private final Advancement netherAdvancement;
+    private final Advancement netherFortressAdvancement;
     private final Advancement endAdvancement;
     private final Advancement netherRoot;
     private final Advancement endRoot;
@@ -57,6 +61,7 @@ public class AdvancementListener implements Listener {
         this.addon = addon;
         this.netherAdvancement = getAdvancement("minecraft:story/enter_the_nether");
         this.endAdvancement = getAdvancement("minecraft:story/enter_the_end");
+        this.netherFortressAdvancement = getAdvancement("minecraft:nether/find_fortress");
         this.netherRoot = getAdvancement("minecraft:nether/root");
         this.endRoot = getAdvancement("minecraft:end/root");
     }
@@ -169,6 +174,16 @@ public class AdvancementListener implements Listener {
         } else if (e.getCause().equals(TeleportCause.END_PORTAL)) {
             giveAdv(e.getPlayer(), endAdvancement);
             giveAdv(e.getPlayer(), endRoot);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onNetherFortress(PlayerMoveEvent e) {
+        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
+            return;
+        }
+        if (e.getTo().getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.NETHER_BRICK)) {
+            giveAdv(e.getPlayer(), netherFortressAdvancement);
         }
     }
 

@@ -75,7 +75,8 @@ public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
 
     @Override
     public boolean shouldGenerateStructures() {
-        return env.equals(Environment.NETHER); // We allow structures in the Nether
+        return true;
+        //return env.equals(Environment.NETHER); // We allow structures in the Nether
     }
 
     @Override

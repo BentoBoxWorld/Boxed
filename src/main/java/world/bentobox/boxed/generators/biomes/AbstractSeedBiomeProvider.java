@@ -31,7 +31,8 @@ import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 
 /**
- * Generates the biomes for the seed world
+ * Generates the biomes for the seed world. A seed world is the template for the chunks that
+ * are used to generate areas for the players to play it.s
  * @author tastybento
  *
  */
@@ -50,11 +51,12 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
 
     private final Boxed addon;
     private final Biome defaultBiome;
+    private Map<Pair<Integer, Integer>, Biome> biomeCache = new HashMap<>();
 
     protected final int dist;
 
-    private final int offsetX;
-    private final int offsetZ;
+    private final int spawnX;
+    private final int spawnZ;
     protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
     private final AbstractBoxedChunkGenerator seedGen;
 
@@ -63,9 +65,15 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         this.addon = boxed;
         this.defaultBiome = defaultBiome;
         this.seedGen = seedGen;
-        dist = addon.getSettings().getIslandDistance();
-        offsetX = addon.getSettings().getIslandXOffset();
-        offsetZ = addon.getSettings().getIslandZOffset();
+        // These fields are used to determine the biomes around the spawn point
+        this.dist = addon.getSettings().getIslandDistance();
+        if (env.equals(Environment.NORMAL)) {
+            spawnX = addon.getSettings().getSeedX();
+            spawnZ = addon.getSettings().getSeedZ();
+        } else {
+            spawnX = addon.getSettings().getNetherSeedX();
+            spawnZ = addon.getSettings().getNetherSeedZ();
+        }
         // Load the config
         File biomeFile = new File(addon.getDataFolder(), "biomes.yml");
         // Check if it exists and if not, save it from the jar
@@ -90,29 +98,34 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         return en == null ? null : en.getValue();
     }
 
+    /**
+     * x, y, and z are block coordinates
+     */
     @Override
     public Biome getBiome(WorldInfo worldInfo, int x, int y, int z) {
-        // Custom biomes are not 3D yet
-        if (y < DEPTH) {
-            Biome result = getVanillaBiome(worldInfo, x, y, z);
-            return Objects.requireNonNull(result);
-        }
-        Biome result = getMappedBiome(x,z);
-        if (result == null || result.equals(Biome.CUSTOM)) {
-            result = getVanillaBiome(worldInfo, x, y, z);
-
-        }
-        return Objects.requireNonNull(result);
+        return this.getMappedBiome(worldInfo, x, y, z);
     }
 
-    private @NonNull Biome getVanillaBiome(WorldInfo worldInfo, int x, int y, int z) {
-        // Vanilla biomes
+    /**
+     * Get the vanilla biome at this coordinate
+     * @param worldInfo world info
+     * @param x x
+     * @param y y
+     * @param z z
+     * @return Biome
+     */
+    @NonNull
+    private Biome getVanillaBiome(WorldInfo worldInfo, int x, int y, int z) {
+        // Get the chunk coordinates
         int chunkX = BoxedChunkGenerator.repeatCalc(x >> 4);
         int chunkZ = BoxedChunkGenerator.repeatCalc(z >> 4);
+        // Get the stored snapshot
         ChunkSnapshot snapshot = this.seedGen.getChunk(chunkX, chunkZ);
         if (snapshot == null) {
+            // This snapshot is not stored...
             return defaultBiome;
         }
+        // Get the in-chunk coordinates
         int xx = Math.floorMod(x, 16);
         int zz = Math.floorMod(z, 16);
         int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
@@ -121,26 +134,40 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         return Objects.requireNonNull(b);
     }
 
-    private Map<Pair<Integer, Integer>, Biome> biomeCache = new HashMap<>();
     /**
      * Get the mapped 2D biome at position x,z
+     * @param worldInfo world info
      * @param x - block coord
+     * @param y - block coord
      * @param z - block coord
      * @return Biome
      */
-    private Biome getMappedBiome(int x, int z) {
+    private Biome getMappedBiome(WorldInfo worldInfo, int x, int y, int z) {
+
+        // Custom biomes are not 3D yet
+        if (y < DEPTH) {
+            Biome result = getVanillaBiome(worldInfo, x, y, z);
+            return Objects.requireNonNull(result);
+        }
+
         /*
          * Biomes go around the island centers
          *
          */
+
+        // Try to get the cached value
         Biome result = biomeCache.get((new Pair<Integer, Integer>(x,z)));
         if (result != null) {
             return result;
         }
         Vector s = new Vector(x, 0, z);
-        Vector l = getClosestIsland(s);
-        //BentoBox.getInstance().logDebug("Closest island is " + Util.xyz(l));
+        Vector l = new Vector(spawnX,0,spawnZ);
         double dis = l.distance(s);
+        if (dis > dist * 2) {
+            // Only customize biomes around the spawn location
+            return getVanillaBiome(worldInfo, x, y, z);
+        }
+        // Provide custom biomes
         double d = dis / dist; // Normalize
         Vector direction = s.subtract(l);
         if (direction.getBlockX() <= 0 && direction.getBlockZ() <= 0) {
@@ -152,6 +179,12 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         } else {
             result = getQuadrantBiome(BlockFace.SOUTH_EAST, d);
         }
+
+        if (result == null || result.equals(Biome.CUSTOM)) {
+            result = getVanillaBiome(worldInfo, x, y, z);
+
+        }
+        // Cache good result
         biomeCache.put(new Pair<Integer, Integer>(x,z), result);
         return result;
 
@@ -164,23 +197,17 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     }
 
     /**
-     * Get the island center closest to this vector
-     * @param v - vector
-     * @return island center vector (no y value)
+     * Loads the custom biomes from the config file
+     * @param config - Yaml configuration object
+     * @param sector - the direction section to load
+     * @return
      */
-    private Vector getClosestIsland(Vector v) {
-        int d = dist * 2;
-        long x = Math.round((double) v.getBlockX() / d) * d + offsetX;
-        long z = Math.round((double) v.getBlockZ() / d) * d + offsetZ;
-        return new Vector(x, 0, z);
-    }
-
-    private SortedMap<Double, Biome> loadQuad(YamlConfiguration config, String string) {
+    private SortedMap<Double, Biome> loadQuad(YamlConfiguration config, String sector) {
         SortedMap<Double, Biome> result = new TreeMap<>();
-        if (!config.contains(string)) {
+        if (!config.contains(sector)) {
             return result;
         }
-        for (String ring : config.getStringList(string)) {
+        for (String ring : config.getStringList(sector)) {
             String[] split = ring.split(":");
             if (split.length == 2) {
                 try {
@@ -194,7 +221,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
                         result.put(d, biome);
                     }
                 } catch(Exception e) {
-                    addon.logError(string + ": " + split[0] + " does not seem to be a double. For integers add a .0 to the end");
+                    addon.logError(sector + ": " + split[0] + " does not seem to be a double. For integers add a .0 to the end");
                 }
             } else {
                 addon.logError(ring + " must be in the format ratio:biome where ratio is a double.");
