@@ -44,16 +44,11 @@ public class BoxedBlockPopulator extends BlockPopulator {
     @Override
     public void populate(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, LimitedRegion limitedRegion) {
         Map<Pair<Integer, Integer>, ChunkStore> chunks = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunks();
-        // TODO: Make this work for the Nether!
-        //// BentoBox.getInstance().logDebug("Populate " + chunkX + " " + chunkZ);
         World world = Bukkit.getWorld(worldInfo.getUID());
-        int height = worldInfo.getMaxHeight();
-        int minY = worldInfo.getMinHeight();
         int xx = BoxedChunkGenerator.repeatCalc(chunkX);
         int zz = BoxedChunkGenerator.repeatCalc(chunkZ);
         Pair<Integer, Integer> coords = new Pair<>(xx, zz);
         if (chunks.containsKey(coords)) {
-            //// BentoBox.getInstance().logDebug("Populating ");
             ChunkStore data = chunks.get(coords);
             // Paste entities
             data.bpEnts().forEach(e -> {
@@ -64,20 +59,15 @@ public class BoxedBlockPopulator extends BlockPopulator {
                     e.entity().configureEntity(ent);
                 }
             });
-            //// BentoBox.getInstance().logDebug("Tile Entities ");
             // Fill chests
             limitedRegion.getTileEntities().forEach(te -> {
-                // BentoBox.getInstance().logDebug("Tile entity = " + te.getType() + " at " + te.getLocation());
                 for (ChestData cd : data.chests()) {
-                    // TODO: HANG HERE
                     Location chestLoc = getLoc(world, cd.relativeLoc().clone(), chunkX, chunkZ);
                     if (limitedRegion.isInRegion(chestLoc) && te.getLocation().equals(chestLoc)) {
-                        // BentoBox.getInstance().logDebug("Expected location " + chestLoc);
                         this.setBlockState(te, cd.chest());
                     }
                 }
             });
-            //// BentoBox.getInstance().logDebug("Done");
         }
     }
 
@@ -93,32 +83,24 @@ public class BoxedBlockPopulator extends BlockPopulator {
      * @param bpBlock - config
      */
     public void setBlockState(BlockState bs, BlueprintBlock bpBlock) {
-        // BentoBox.getInstance().logDebug(bpBlock.getBlockData());
         // Chests, in general
         if (bs instanceof InventoryHolder holder) {
-            // BentoBox.getInstance().logDebug("Type: " + bs.getType());
             Inventory ih = holder.getInventory();
-            // BentoBox.getInstance().logDebug("holder size = " + ih.getSize());
-            // BentoBox.getInstance().logDebug("stored inventory size = " + bpBlock.getInventory().size());
             // This approach is required to avoid an array out of bounds error that shouldn't occur IMO
             for (int i = 0; i < ih.getSize(); i++) {
                 ih.setItem(i, bpBlock.getInventory().get(i));
             }
-            //bpBlock.getInventory().forEach(ih::setItem);
         }
         // Mob spawners
         else if (bs instanceof CreatureSpawner spawner) {
-            // BentoBox.getInstance().logDebug("Spawner");
             setSpawner(spawner, bpBlock.getCreatureSpawner());
         }
         // Banners
         else if (bs instanceof Banner banner && bpBlock.getBannerPatterns() != null) {
-            // BentoBox.getInstance().logDebug("Banner");
             bpBlock.getBannerPatterns().removeIf(Objects::isNull);
             banner.setPatterns(bpBlock.getBannerPatterns());
             banner.update(true, false);
         }
-        // BentoBox.getInstance().logDebug("Block state complete");
     }
 
     /**
@@ -128,7 +110,6 @@ public class BoxedBlockPopulator extends BlockPopulator {
      * @param s       - blueprint spawner
      */
     public void setSpawner(CreatureSpawner spawner, BlueprintCreatureSpawner s) {
-        // BentoBox.getInstance().logDebug("Setting spawner");
         spawner.setSpawnedType(s.getSpawnedType());
         spawner.setMaxNearbyEntities(s.getMaxNearbyEntities());
         spawner.setMaxSpawnDelay(s.getMaxSpawnDelay());
@@ -136,9 +117,7 @@ public class BoxedBlockPopulator extends BlockPopulator {
         spawner.setDelay(s.getDelay());
         spawner.setRequiredPlayerRange(s.getRequiredPlayerRange());
         spawner.setSpawnRange(s.getSpawnRange());
-        // BentoBox.getInstance().logDebug("Now updating...");
         spawner.update(true, false);
-        // BentoBox.getInstance().logDebug("Spawner updated");
     }
 
 }
