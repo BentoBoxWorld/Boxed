@@ -15,7 +15,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.Statistic;
-import org.bukkit.World.Environment;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.BlockFace;
@@ -177,12 +176,16 @@ public class AdvancementListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onNetherFortress(PlayerMoveEvent e) {
+    /**
+     * Looks for certain blocks, and if they are found then awards an advancement
+     * @param e - PlayerMoveEvent
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onMove(PlayerMoveEvent e) {
         if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
             return;
         }
-        if (e.getTo().getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.NETHER_BRICK)) {
+        if (e.getTo().getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.NETHER_BRICKS)) {
             giveAdv(e.getPlayer(), netherFortressAdvancement);
         }
     }
