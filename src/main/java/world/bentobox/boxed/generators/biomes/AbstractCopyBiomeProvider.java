@@ -45,12 +45,10 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
         if (c != null) {
             int xx = Math.floorMod(x, 16);
             int zz = Math.floorMod(z, 16);
-            //int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
             Biome biome = c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
-            BentoBox.getInstance().logDebug(biome);
             return biome;
         } else {
-            BentoBox.getInstance().logDebug("Snapshot at " + chunkX + " " + chunkZ + " is not stored");
+            BentoBox.getInstance().logWarning("Snapshot at " + chunkX + " " + chunkZ + " is not stored");
             return defaultBiome;
         }
     }

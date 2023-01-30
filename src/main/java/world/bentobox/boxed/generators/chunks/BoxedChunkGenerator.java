@@ -198,7 +198,7 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         if (chunk == null) {
             // This should never be needed because islands should abut each other
             //cd.setRegion(0, minY, 0, 16, 0, 16, Material.WATER);
-            BentoBox.getInstance().logDebug("No chunks found for " + xx + " " + zz);
+            BentoBox.getInstance().logError("No chunks found for " + xx + " " + zz);
             return;
         }
         // Copy the chunk
