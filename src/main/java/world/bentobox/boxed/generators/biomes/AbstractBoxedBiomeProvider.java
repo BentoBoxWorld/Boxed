@@ -19,10 +19,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.base.Enums;
 
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
 import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 
 /**
@@ -88,14 +90,14 @@ public abstract class AbstractBoxedBiomeProvider extends BiomeProvider {
         int chunkZ = z >> 4;
         chunkX = BoxedChunkGenerator.repeatCalc(chunkX);
         chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ);
-        ChunkSnapshot c = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunk(chunkX, chunkZ);
+        @Nullable ChunkStore c = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunk(chunkX, chunkZ);
 
         if (c != null) {
             int xx = Math.floorMod(x, 16);
             int zz = Math.floorMod(z, 16);
-            int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
+            //int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
 
-            Biome b = c.getBiome(xx, yy, zz);
+            Biome b = c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
             // Some biomes should stay from the seed world. These are mostly underground biomes.
             if (!b.equals(Biome.CUSTOM) && (b.equals(Biome.DRIPSTONE_CAVES) || b.equals(Biome.LUSH_CAVES)
                     || b.equals(Biome.RIVER) || b.equals(Biome.DEEP_DARK))) {

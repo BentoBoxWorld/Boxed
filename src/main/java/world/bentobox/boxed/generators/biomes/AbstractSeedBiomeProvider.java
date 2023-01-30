@@ -25,9 +25,11 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import com.google.common.base.Enums;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
 import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 
 /**
@@ -120,7 +122,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         int chunkX = BoxedChunkGenerator.repeatCalc(x >> 4);
         int chunkZ = BoxedChunkGenerator.repeatCalc(z >> 4);
         // Get the stored snapshot
-        ChunkSnapshot snapshot = this.seedGen.getChunk(chunkX, chunkZ);
+        ChunkStore snapshot = this.seedGen.getChunk(chunkX, chunkZ);
         if (snapshot == null) {
             // This snapshot is not stored...
             return defaultBiome;
@@ -128,9 +130,10 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         // Get the in-chunk coordinates
         int xx = Math.floorMod(x, 16);
         int zz = Math.floorMod(z, 16);
-        int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
+        //int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
 
-        Biome b = snapshot.getBiome(xx, yy, zz);
+        Biome b = snapshot.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
+  
         return Objects.requireNonNull(b);
     }
 
@@ -143,7 +146,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * @return Biome
      */
     private Biome getMappedBiome(WorldInfo worldInfo, int x, int y, int z) {
-
+    
         // Custom biomes are not 3D yet
         if (y < DEPTH) {
             Biome result = getVanillaBiome(worldInfo, x, y, z);
@@ -156,10 +159,10 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
          */
 
         // Try to get the cached value
-        Biome result = biomeCache.get((new Pair<Integer, Integer>(x,z)));
-        if (result != null) {
-            return result;
-        }
+        //Biome result = biomeCache.get((new Pair<Integer, Integer>(x,z)));
+        //if (result != null) {
+            //return result;
+        //}
         Vector s = new Vector(x, 0, z);
         Vector l = new Vector(spawnX,0,spawnZ);
         double dis = l.distance(s);
@@ -168,6 +171,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             return getVanillaBiome(worldInfo, x, y, z);
         }
         // Provide custom biomes
+        Biome result;
         double d = dis / dist; // Normalize
         Vector direction = s.subtract(l);
         if (direction.getBlockX() <= 0 && direction.getBlockZ() <= 0) {
@@ -185,7 +189,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
 
         }
         // Cache good result
-        biomeCache.put(new Pair<Integer, Integer>(x,z), result);
+        //biomeCache.put(new Pair<Integer, Integer>(x,z), result);
         return result;
 
     }

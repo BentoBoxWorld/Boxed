@@ -34,12 +34,12 @@ world:
     seed-start:
       normal:
         # Area seed center. This is where the areas are copied from.
-        x: 9920
-        z: 9856
+        x: 0
+        z: 0
       nether:
         # Nether area seed center. This is where the areas are copied from.
-        x: 9999
-        z: 10015
+        x: 0
+        z: 0
       end:
         # End area seed center. This is where the areas are copied from.
         x: 0
