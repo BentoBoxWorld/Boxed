@@ -17,7 +17,6 @@ import world.bentobox.boxed.Boxed;
 public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
 
     private final BiomeProvider biomeProvider;
-    private final Environment env;
 
     /**
      * @param boxed - addon
@@ -26,7 +25,6 @@ public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
     public BoxedSeedChunkGenerator(Boxed boxed, Environment env) {
         super(boxed);
         this.biomeProvider = null;
-        this.env = env;
     }
 
     /**
@@ -37,7 +35,6 @@ public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
     public BoxedSeedChunkGenerator(Boxed boxed, Environment env, BiomeProvider bp) {
         super(boxed);
         this.biomeProvider = bp;
-        this.env = env;
     }
 
 

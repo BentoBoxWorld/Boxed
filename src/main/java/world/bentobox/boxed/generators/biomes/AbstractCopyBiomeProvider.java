@@ -41,7 +41,7 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
         if (c != null) {
             int xx = Math.floorMod(x, 16);
             int zz = Math.floorMod(z, 16);
-            int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight()), worldInfo.getMinHeight()); // To handle bug in Spigot
+            int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight() - 1), worldInfo.getMinHeight()); // To handle bug in Spigot
 
             return c.getBiome(xx, yy, zz);
         } else {
