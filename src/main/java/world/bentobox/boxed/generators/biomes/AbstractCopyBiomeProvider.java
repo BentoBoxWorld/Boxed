@@ -3,13 +3,16 @@ package world.bentobox.boxed.generators.biomes;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.ChunkSnapshot;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
+import org.bukkit.util.Vector;
+import org.eclipse.jdt.annotation.Nullable;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
 import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 
 /**
@@ -32,19 +35,19 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
 
     @Override
     public Biome getBiome(WorldInfo worldInfo, int x, int y, int z) {
-        int chunkX = (int)((double)x/16);
-        int chunkZ = (int)((double)z/16);
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
         chunkX = BoxedChunkGenerator.repeatCalc(chunkX);
         chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ);
-        ChunkSnapshot c = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunk(chunkX, chunkZ);
+        @Nullable ChunkStore c = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunk(chunkX, chunkZ);
 
         if (c != null) {
             int xx = Math.floorMod(x, 16);
             int zz = Math.floorMod(z, 16);
-            int yy = Math.max(Math.min(y * 4, worldInfo.getMaxHeight() - 1), worldInfo.getMinHeight()); // To handle bug in Spigot
-
-            return c.getBiome(xx, yy, zz);
+            Biome biome = c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
+            return biome;
         } else {
+            BentoBox.getInstance().logWarning("Snapshot at " + chunkX + " " + chunkZ + " is not stored");
             return defaultBiome;
         }
     }

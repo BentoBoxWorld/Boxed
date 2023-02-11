@@ -7,6 +7,7 @@ import java.util.Map;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
@@ -26,7 +27,7 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
     protected final Boxed addon;
     protected static int size;
     protected Map<Pair<Integer, Integer>, ChunkStore> chunks = new HashMap<>();
-    public record ChunkStore(ChunkSnapshot snapshot, List<EntityData> bpEnts, List<ChestData> chests) {};
+    public record ChunkStore(ChunkSnapshot snapshot, List<EntityData> bpEnts, List<ChestData> chests, Map<Vector, Biome> chunkBiomes) {};
     public record EntityData(Vector relativeLoc, BlueprintEntity entity) {};
     public record ChestData(Vector relativeLoc, BlueprintBlock chest) {};
 
@@ -44,7 +45,15 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
      * @param chunk the chunk to set
      */
     public void setChunk(int x, int z, Chunk chunk) {
-        chunks.put(new Pair<>(x, z), new ChunkStore(chunk.getChunkSnapshot(false, true, false), getEnts(chunk), getChests(chunk)));
+        Map<Vector, Biome> chunkBiomes = new HashMap<>();
+        for (int xx = 0; xx < 16; xx+=4) {
+            for (int zz = 0; zz < 16; zz+=4) {
+                for (int yy = chunk.getWorld().getMinHeight(); yy < chunk.getWorld().getMaxHeight(); yy+=4) { // TODO: every 4th yy?
+                    chunkBiomes.put(new Vector(xx, yy, zz), chunk.getBlock(xx, yy, zz).getBiome());
+                }
+            }
+        }
+        chunks.put(new Pair<>(x, z), new ChunkStore(chunk.getChunkSnapshot(), getEnts(chunk), getChests(chunk), chunkBiomes));
     }
 
     protected abstract List<EntityData> getEnts(Chunk chunk);
@@ -52,14 +61,14 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
     protected abstract List<ChestData> getChests(Chunk chunk);
 
     /**
-     * Get the chunk snapshot for these chunk coords or null if there is none.
+     * Get the chunk store for these chunk coords or null if there is none.
      * @param x chunk x
      * @param z chunk z
-     * @return chunk snapshot or null if there is none
+     * @return chunk store or null if there is none
      */
     @Nullable
-    public ChunkSnapshot getChunk(int x, int z) {
-        return chunks.get(new Pair<>(x, z)).snapshot;
+    public ChunkStore getChunk(int x, int z) {
+        return chunks.get(new Pair<>(x, z));
     }
 
     @Override
