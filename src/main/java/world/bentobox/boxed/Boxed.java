@@ -31,6 +31,7 @@ import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.EnderPearlListener;
+import world.bentobox.boxed.listeners.NewAreaListener;
 
 /**
  * Main Boxed class - provides a survival game inside a box
@@ -121,7 +122,7 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
-        //this.registerListener(new NewAreaListener(this));
+        this.registerListener(new NewAreaListener(this));
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);

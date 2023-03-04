@@ -1,6 +1,6 @@
-structures:
+tructures:
   new:
-    village_plains: "normal, 0 ,64, 80"
-    ruined_portal_mountain: "normal, -38, 63, 20"
-    pillager_outpost: "normal, 3, 63, -60"
+    village/plains/houses/plains_masons_house_1: "normal, 0 ,64, 80"
+    ruined_portal/portal_5: "normal, -38, 66, 20"
+    shipwreck/rightsideup_backhalf: "normal, 3, 59, -60"
 

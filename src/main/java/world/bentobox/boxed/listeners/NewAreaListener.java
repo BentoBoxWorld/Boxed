@@ -6,21 +6,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.block.structure.Mirror;
+import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.structure.Structure;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Pair;
-import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -33,7 +38,7 @@ public class NewAreaListener implements Listener {
     private File structureFile;
     private Queue<Item> itemsToBuild = new LinkedList<>();
     private boolean pasting;
-    private record Item(World w, List<Pair<Integer, Integer>> cs, String cmd) {};
+    private record Item(World w, List<Pair<Integer, Integer>> cs, Structure structure, Location location) {};
     Pair<Integer, Integer> min = new Pair<Integer, Integer>(0,0);
     Pair<Integer, Integer> max = new Pair<Integer, Integer>(0,0);
 
@@ -49,8 +54,8 @@ public class NewAreaListener implements Listener {
         if (!structureFile.exists()) {
             addon.saveResource("structures.yml", true);
         }
-        // Try to build something every 10 seconds
-        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), () -> BuildItem(), 20, 200);
+        // Try to build something every 5 seconds
+        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), () -> BuildItem(), 20, 100);
     }
 
     private void BuildItem() {
@@ -58,7 +63,7 @@ public class NewAreaListener implements Listener {
         if (!pasting && !itemsToBuild.isEmpty()) {
             // Build item
             Item item = itemsToBuild.poll();
-            LoadChunksAsync(item.w, item.cs, 0, item.cmd);
+            LoadChunksAsync(item);
         }
 
     }
@@ -104,12 +109,14 @@ public class NewAreaListener implements Listener {
                         cs.add(new Pair<>(cx, cz));
                     }
                 }
-                // Make command
-                String cmd = "execute in " + world.getName() + " run place "+ string + " minecraft:" + structure + " "
-                        + x + " "
-                        + y + " "
-                        + z + " ";
-                itemsToBuild.add(new Item(world, cs, cmd));
+                // Load Structure
+                Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString("minecraft:" + structure));
+                if (s == null) {
+                    BentoBox.getInstance().logError("Could not load " + structure);
+                    return;
+                }
+                Location l = new Location(world, x, y, z);
+                itemsToBuild.add(new Item(world, cs, s, l));
             } else {
                 addon.logError("Structure file syntax error: " + structure + " " + key);
             }
@@ -117,36 +124,11 @@ public class NewAreaListener implements Listener {
     }
 
 
-    private void LoadChunksAsync(World w, List<Pair<Integer, Integer>> cs, int i, String cmd) {
+    private void LoadChunksAsync(Item item) {
         pasting = true;
-        int total = cs.size();
-
-        //addon.log("Loading chunk async " + i);
-        if (i < total) {
-            if (i == 0) {
-                min = new Pair<>(cs.get(0).x, cs.get(0).z);
-                max = new Pair<>(cs.get(0).x, cs.get(0).z);
-            }
-            if (cs.get(i).x < min.x || cs.get(i).z < min.z) {
-                min = cs.get(i);
-            }
-            if (cs.get(i).x > min.x || cs.get(i).z > min.z) {
-                max = cs.get(i);
-            }
-            Util.getChunkAtAsync(w, cs.get(i).x, cs.get(i).z, true).thenAccept(c -> {
-                LoadChunksAsync(w, cs, i + 1, cmd);
-
-            });
-        } else {
-            addon.log("Complete");
-            addon.log("Loaded chunks in " + w.getName() + " min " + (min.x << 4) + " " + (min.z << 4) + " to " +
-                    (max.x << 4) + " " + (max.z << 4));
-            addon.log("run command " + cmd);
-            Bukkit.getScheduler().runTaskLater(addon.getPlugin(), () -> {
-                addon.log("Comand success = " + addon.getServer().dispatchCommand(Bukkit.getConsoleSender(), cmd));
-                pasting = false;
-            }, 20L);
-        }
+        item.structure().place(item.location(), true, StructureRotation.NONE, Mirror.NONE, -1, 1, new Random());
+        addon.log("Structure placed at " + item.location);
+        pasting = false;
     }
 
 
