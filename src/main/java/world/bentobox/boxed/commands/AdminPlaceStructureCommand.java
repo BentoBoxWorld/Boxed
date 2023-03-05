@@ -20,8 +20,8 @@ import org.bukkit.structure.Structure;
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.util.Util;
-import world.bentobox.boxed.listeners.NewAreaListener;
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.listeners.NewAreaListener;
 
 /**
  * @author tastybento
@@ -83,7 +83,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.valueOf(args.get(3).trim());
         Location spot = new Location(user.getWorld(), x, y, z);
         s.place(spot, true, StructureRotation.NONE, Mirror.NONE, -1, 1, new Random());
-        //NewAreaListener.removeJigsaw(spot, s);
+        NewAreaListener.removeJigsaw(spot, s);
         saveStructure(spot, tag, user);        
         return true;
     }
