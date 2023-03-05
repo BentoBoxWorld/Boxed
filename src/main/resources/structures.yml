@@ -1,6 +1,19 @@
-tructures:
-  new:
-    village/plains/houses/plains_masons_house_1: "normal, 0 ,64, 80"
-    ruined_portal/portal_5: "normal, -38, 66, 20"
-    shipwreck/rightsideup_backhalf: "normal, 3, 59, -60"
-
+normal:
+  0,64,80: village/plains/houses/plains_masons_house_1
+  -38,63,20: ruined_portal/portal_5
+  3,58,-60: shipwreck/rightsideup_backhalf
+  16,67,23: village/plains/houses/plains_cartographer_1
+  -66,63,17: igloo/top
+  -34,52,-35: underwater_ruin/warm_5
+  80,71,113: pillager_outpost/watchtower
+  33,70,-34: village/savanna/town_centers/savanna_meeting_point_1
+  34,70,-29: village/common/iron_golem
+  41,70,-26: village/common/animals/cat_calico
+  35,70,-22: village/common/animals/cat_calico
+nether:
+  62,33,-17: bastion/hoglin_stable/walls/wall_base
+  68,32,-13: bastion/hoglin_stable/large_stables/inner_0
+  79,33,-10: bastion/hoglin_stable/ramparts/ramparts_1
+  75,34,-4: bastion/hoglin_stable/ramparts/ramparts_3
+  66,39,-7: bastion/hoglin_stable/large_stables/inner_3
+  73,24,-8: bastion/hoglin_stable/stairs/stairs_3_3

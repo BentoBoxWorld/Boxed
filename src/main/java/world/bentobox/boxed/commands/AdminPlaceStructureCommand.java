@@ -84,22 +84,26 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         Location spot = new Location(user.getWorld(), x, y, z);
         s.place(spot, true, StructureRotation.NONE, Mirror.NONE, -1, 1, new Random());
         NewAreaListener.removeJigsaw(spot, s);
+        saveStructure(spot, tag, user);        
+        return true;
+    }
+
+    private void saveStructure(Location spot, NamespacedKey tag, User user) {
         getAddon().getIslands().getIslandAt(spot).ifPresent(i -> {
-            int xx = x - i.getCenter().getBlockX();
-            int zz = z - i.getCenter().getBlockZ();
+            int xx = spot.getBlockX() - i.getCenter().getBlockX();
+            int zz = spot.getBlockZ() - i.getCenter().getBlockZ();
             File structures = new File(getAddon().getDataFolder(), "structures.yml");
             YamlConfiguration config = new YamlConfiguration();
             try {
                 config.load(structures);
-                config.set("structures.new." + tag.getKey(), user.getWorld().getEnvironment().name().toLowerCase() + ", " + xx + ", " + y + ", " + zz);
+                config.set(spot.getWorld().getEnvironment().name().toLowerCase(Locale.ENGLISH) + "." + xx + "," + spot.getBlockY() + "," + zz, tag.getKey());
                 config.save(structures);
             } catch (IOException | InvalidConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         });
-        
-        return true;
+
     }
 
     @Override
