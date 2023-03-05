@@ -22,6 +22,7 @@ import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.managers.RanksManager;
+import world.bentobox.boxed.commands.AdminPlaceStructureCommand;
 import world.bentobox.boxed.generators.biomes.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.biomes.NetherSeedBiomeGenerator;
 import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
@@ -78,7 +79,15 @@ public class Boxed extends GameModeAddon {
         // Register commands
         playerCommand = new DefaultPlayerCommand(this) {};
 
-        adminCommand = new DefaultAdminCommand(this) {};
+        adminCommand = new DefaultAdminCommand(this) {
+            @Override
+            public void setup()
+            {
+                super.setup();
+                new AdminPlaceStructureCommand(this);
+            }
+        };
+        
 
     }
 

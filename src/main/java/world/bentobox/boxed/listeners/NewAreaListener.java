@@ -132,19 +132,26 @@ public class NewAreaListener implements Listener {
         item.structure().place(item.location(), true, StructureRotation.NONE, Mirror.NONE, -1, 1, new Random());
         addon.log("Structure placed at " + item.location);
         // Find it
-        BoundingBox bb = BoundingBox.of(item.location(), item.structure().getSize().getX(), item.structure().getSize().getY(), item.structure().getSize().getZ());
-        removeJigsaw(item.location().getWorld(), bb);
+        removeJigsaw(item.location(), item.structure());
         pasting = false;
     }
 
-    private void removeJigsaw(World world, BoundingBox bb) {
+    /**
+     * Removes Jigsaw blocks from a placed structure
+     * @param loc - location where the structure was placed
+     * @param structure - structure that was placed
+     */
+    public static void removeJigsaw(Location loc, Structure structure) {
+        BoundingBox bb = BoundingBox.of(loc, structure.getSize().getX(), structure.getSize().getY(), structure.getSize().getZ());
         for (int x = (int) bb.getMinX(); x < bb.getMaxX(); x++) {
             for (int y = (int) bb.getMinY(); y < bb.getMaxY(); y++) {
                 for (int z = (int) bb.getMinZ(); z < bb.getMaxZ(); z++) {
-                    Block b = world.getBlockAt(x, y, z);
+                    Block b = loc.getWorld().getBlockAt(x, y, z);
                     if (b.getType().equals(Material.JIGSAW)) {
                         b.setType(Material.STRUCTURE_VOID);
-                        BentoBox.getInstance().logDebug("Removing jigsaw at : " + x + " " + y + " " +z);
+                    } else if (b.getType().equals(Material.STRUCTURE_BLOCK)) {
+                        // I would like to read the data from the block an do something with it!
+                        b.setType(Material.STRUCTURE_VOID);
                     }
                 }
             } 
