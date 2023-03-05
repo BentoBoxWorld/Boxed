@@ -10,9 +10,11 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.block.Block;
 import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.structure.Structure;
+import org.bukkit.util.BoundingBox;
 
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent;
@@ -128,8 +131,27 @@ public class NewAreaListener implements Listener {
         pasting = true;
         item.structure().place(item.location(), true, StructureRotation.NONE, Mirror.NONE, -1, 1, new Random());
         addon.log("Structure placed at " + item.location);
+        // Find it
+        BoundingBox bb = BoundingBox.of(item.location(), item.structure().getSize().getX(), item.structure().getSize().getY(), item.structure().getSize().getZ());
+        removeJigsaw(item.location().getWorld(), bb);
         pasting = false;
     }
+
+    private void removeJigsaw(World world, BoundingBox bb) {
+        for (int x = (int) bb.getMinX(); x < bb.getMaxX(); x++) {
+            for (int y = (int) bb.getMinY(); y < bb.getMaxY(); y++) {
+                for (int z = (int) bb.getMinZ(); z < bb.getMaxZ(); z++) {
+                    Block b = world.getBlockAt(x, y, z);
+                    if (b.getType().equals(Material.JIGSAW)) {
+                        b.setType(Material.STRUCTURE_VOID);
+                        BentoBox.getInstance().logDebug("Removing jigsaw at : " + x + " " + y + " " +z);
+                    }
+                }
+            } 
+        }
+        
+    }
+
 
 
 }
