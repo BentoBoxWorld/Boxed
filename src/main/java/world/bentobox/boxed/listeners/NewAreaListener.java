@@ -53,7 +53,7 @@ public class NewAreaListener implements Listener {
     private File structureFile;
     private Queue<Item> itemsToBuild = new LinkedList<>();
     private boolean pasting;
-    private record Item(String name, Structure structure, Location location) {};
+    private record Item(String name, Structure structure, Location location, StructureRotation rot) {};
     Pair<Integer, Integer> min = new Pair<Integer, Integer>(0,0);
     Pair<Integer, Integer> max = new Pair<Integer, Integer>(0,0);
 
@@ -104,6 +104,7 @@ public class NewAreaListener implements Listener {
         World world = env.equals(Environment.NORMAL) ? addon.getOverWorld() : addon.getNetherWorld();
         // Loop through the structures in the file - there could be more than one
         for (String vector : section.getKeys(false)) {
+            StructureRotation rot = StructureRotation.NONE;
             String name = section.getString(vector);
             // Load Structure
             Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString("minecraft:" + name));
@@ -113,12 +114,16 @@ public class NewAreaListener implements Listener {
             }
             // Extract coords
             String[] value = vector.split(",");
-            if (value.length == 3) {                
+            if (value.length > 2) {                
                 int x = Integer.valueOf(value[0].strip()) + center.getBlockX();
                 int y = Integer.valueOf(value[1].strip());
                 int z = Integer.valueOf(value[2].strip()) + center.getBlockZ();                
                 Location l = new Location(world, x, y, z);
-                itemsToBuild.add(new Item(name, s, l));
+                if (value.length > 3) {
+                    // Rotation
+                    rot = Enums.getIfPresent(StructureRotation.class, value[3].strip().toUpperCase(Locale.ENGLISH)).or(StructureRotation.NONE);                    
+                }
+                itemsToBuild.add(new Item(name, s, l, rot));
             } else {
                 addon.logError("Structure file syntax error: " + name + " " + vector);
             }
@@ -128,7 +133,7 @@ public class NewAreaListener implements Listener {
 
     private void LoadChunksAsync(Item item) {
         pasting = true;
-        item.structure().place(item.location(), true, StructureRotation.NONE, Mirror.NONE, -1, 1, new Random());
+        item.structure().place(item.location(), true, item.rot(), Mirror.NONE, -1, 1, new Random());
         addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " " + Util.xyz(item.location().toVector()));
         // Find it
         removeJigsaw(item.location(), item.structure());
