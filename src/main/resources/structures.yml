@@ -1,5 +1,5 @@
 normal:
-  0,64,80: village/plains/houses/plains_masons_house_1
+  0,64,80: village/plains/houses/plains_masons_house_1,CLOCKWISE_90
   -38,63,20: ruined_portal/portal_5
   3,58,-60: shipwreck/rightsideup_backhalf
   16,67,23: village/plains/houses/plains_cartographer_1
@@ -7,6 +7,7 @@ normal:
   -34,52,-35: underwater_ruin/warm_5
   80,71,113: pillager_outpost/watchtower
   33,69,-34: village/savanna/town_centers/savanna_meeting_point_1
+  26,70,-41: village/savanna/houses/savanna_medium_house_2,NONE,NONE
   34,69,-29: village/common/iron_golem
   41,69,-26: village/common/animals/cat_calico
   35,69,-22: village/common/animals/cat_calico
@@ -16,9 +17,9 @@ normal:
   36,72,97: village/plains/villagers/unemployed
   34,72,98: village/plains/villagers/unemployed
   15,70,108: village/desert/houses/desert_butcher_shop_1
-  10,70,112: village/desert/houses/desert_temple_1
+  10,70,112: village/desert/houses/desert_temple_1,COUNTERCLOCKWISE_90
   -71,63,107: igloo/top
-  -25,57,-30: shipwreck/rightsideup_full_degraded
+  -25,57,-30: shipwreck/rightsideup_full_degraded,CLOCKWISE_180
 nether:
   16,32,0: bastion/bridge/starting_pieces/entrance
   62,33,-17: bastion/hoglin_stable/walls/wall_base
