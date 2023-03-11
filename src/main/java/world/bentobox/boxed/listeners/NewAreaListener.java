@@ -30,7 +30,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.loot.LootTables;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.structure.Structure;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
@@ -66,8 +65,6 @@ public class NewAreaListener implements Listener {
     private record Item(String name, Structure structure, Location location, StructureRotation rot, Mirror mirror) {};
     Pair<Integer, Integer> min = new Pair<Integer, Integer>(0,0);
     Pair<Integer, Integer> max = new Pair<Integer, Integer>(0,0);
-    private BukkitTask task;
-    private int i;
 
 
     /**
@@ -93,31 +90,22 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Workaround for https://hub.spigotmc.org/jira/browse/SPIGOT-7288
+     * Build a list of structures
      * @param event event
      */
     @EventHandler()
     public void onBentoBoxReady(BentoBoxReadyEvent event) {
-        World seedBase = Bukkit.getWorld("seed_base");
-        if (seedBase == null) {
-            addon.logError("No seed base world!");
-            return;
-        }
+        addon.saveResource("templates.yml", false);
         File templateFile = new File(addon.getDataFolder(), "templates.yml");
         if (templateFile.exists()) {
             YamlConfiguration loader = YamlConfiguration.loadConfiguration(templateFile);
             List<String> list = loader.getStringList("templates");
-            task = Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), () -> {
-                if (i == list.size()) {
-                    task.cancel();
-                    return;
-                }
-                String struct = list.get(i++);
-                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "execute in " + seedBase.getName() + " run place template " + struct + " 10000 120 10000");
-
-
-
-            }, 0, 10);
+            for (String struct : list) {
+                Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
+                if (s == null) {
+                    BentoBox.getInstance().log("Now loading group from: " + struct);
+                } 
+            }
         }
 
     }
