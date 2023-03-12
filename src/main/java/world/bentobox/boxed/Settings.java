@@ -76,50 +76,10 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.generator.seed", needsReset = true)
     private long seed = 602103456450L;
 
-    @ConfigComment("Area seed center. This is where the areas are copied from.")
-    @ConfigEntry(path = "world.generator.seed-start.normal.x")
-    private int seedX = 0;
-    @ConfigEntry(path = "world.generator.seed-start.normal.z")
-    private int seedZ = 0;
-
-    @ConfigComment("Nether area seed center. This is where the areas are copied from.")
-    @ConfigEntry(path = "world.generator.seed-start.nether.x")
-    private int netherSeedX = 0;
-    @ConfigEntry(path = "world.generator.seed-start.nether.z")
-    private int netherSeedZ = 0;
-
-    @ConfigComment("End area seed center. This is where the areas are copied from.")
-    @ConfigEntry(path = "world.generator.seed-start.end.x")
-    private int endSeedX = 0;
-    @ConfigEntry(path = "world.generator.seed-start.end.z")
-    private int endSeedZ = 0;
-
     @ConfigComment("World difficulty setting - PEACEFUL, EASY, NORMAL, HARD")
     @ConfigComment("Other plugins may override this setting")
     @ConfigEntry(path = "world.difficulty")
     private Difficulty difficulty = Difficulty.NORMAL;
-
-    @ConfigComment("Generate surface")
-    @ConfigEntry(path = "world.generator.generate-surface", needsRestart = true)
-    private boolean generateSurface = true;
-
-    @ConfigComment("Generate caves")
-    @ConfigEntry(path = "world.generator.generate-caves", needsRestart = true)
-    private boolean generateCaves = true;
-
-    @ConfigComment("Generate Decorations")
-    @ConfigEntry(path = "world.generator.generate-decorations", needsRestart = true)
-    private boolean generateDecorations = true;
-
-    @ConfigComment("Generate mobs")
-    @ConfigEntry(path = "world.generator.generate-mobs", needsRestart = true)
-    private boolean generateMobs = true;
-
-    @ConfigComment("Allow surface structures - villages, shipwrecks, broken portals, etc.")
-    @ConfigComment("These will be randomly placed, so may not be available for every player.")
-    @ConfigEntry(path = "world.generator.allow-structures", needsRestart = true)
-    private boolean allowStructures = true;
-
 
     @ConfigComment("Spawn limits. These override the limits set in bukkit.yml")
     @ConfigComment("If set to a negative number, the server defaults will be used")
@@ -161,20 +121,10 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.start-z")
     private int islandStartZ = 0;
 
-    @ConfigComment("Area height - Lowest is 5.")
-    @ConfigComment("It is the y coordinate of the bedrock block in the blueprint.")
-    @ConfigEntry(path = "world.area-height")
-    private int islandHeight = 5;
-
     @ConfigComment("Maximum number of player areas in the world. Set to -1 or 0 for unlimited.")
     @ConfigComment("If the number of areas is greater than this number, it will stop players from joining the world.")
     @ConfigEntry(path = "world.max-areas")
     private int maxIslands = -1;
-
-    @ConfigComment("The default game mode for this world. Players will be set to this mode when they create")
-    @ConfigComment("a new area for example. Options are SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR")
-    @ConfigEntry(path = "world.default-game-mode")
-    private GameMode defaultGameMode = GameMode.SURVIVAL;
 
     @ConfigComment("The maximum number of players a player can ban at any one time in this game mode.")
     @ConfigComment("The permission boxed.ban.maxlimit.X where X is a number can also be used per player")
@@ -191,13 +141,6 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.nether.generate")
     private boolean netherGenerate = true;
 
-    @ConfigComment("Nether spawn protection radius - this is the distance around the nether spawn")
-    @ConfigComment("that will be public from player interaction (breaking blocks, pouring lava etc.)")
-    @ConfigComment("Minimum is 0 (not recommended), maximum is 100. Default is 25.")
-    @ConfigComment("Only applies to vanilla nether")
-    @ConfigEntry(path = "world.nether.spawn-radius")
-    private int netherSpawnRadius = 32;
-
     @ConfigComment("This option indicates if nether portals should be linked via dimensions.")
     @ConfigComment("Option will simulate vanilla portal mechanics that links portals together")
     @ConfigComment("or creates a new portal, if there is not a portal in that dimension.")
@@ -205,7 +148,7 @@ public class Settings implements WorldSettings {
     private boolean makeNetherPortals = false;
 
     // End
-    @ConfigComment("End Nether - if this is false, the end world will not be made and access to")
+    @ConfigComment("End World - if this is false, the end world will not be made and access to")
     @ConfigComment("the end will not occur. Other plugins may still enable portal usage.")
     @ConfigEntry(path = "world.end.generate")
     private boolean endGenerate = true;
@@ -369,7 +312,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("Grant these advancements")
     @ConfigEntry(path = "area.reset.on-leave.grant-advancements")
     private List<String> onLeaveGrantAdvancements = new ArrayList<>();
-
+    
     @ConfigComment("Toggles the automatic area creation upon the player's first login on your server.")
     @ConfigComment("If set to true,")
     @ConfigComment("   * Upon connecting to your server for the first time, the player will be told that")
@@ -411,13 +354,6 @@ public class Settings implements WorldSettings {
     @ConfigComment("If set to false, the player will be told his area is ready but will have to teleport to his area using the command.")
     @ConfigEntry(path = "area.teleport-player-to-area-when-created")
     private boolean teleportPlayerToIslandUponIslandCreation = true;
-
-    @ConfigComment("Create Nether or End areas if they are missing when a player goes through a portal.")
-    @ConfigComment("Nether and End areas are usually pasted when a player makes their area, but if they are")
-    @ConfigComment("missing for some reason, you can switch this on.")
-    @ConfigComment("Note that bedrock removal glitches can exploit this option.")
-    @ConfigEntry(path = "area.create-missing-nether-end-areas")
-    private boolean pasteMissingIslands = false;
 
     // Commands
     @ConfigComment("List of commands to run when a player joins an area or creates one.")
@@ -464,14 +400,14 @@ public class Settings implements WorldSettings {
     private List<String> onRespawnCommands = new ArrayList<>();
 
     // Sethome
-    @ConfigComment("Allow setting home in the nether. Only available on nether areas, not vanilla nether.")
+    @ConfigComment("Allow setting home in the nether.")
     @ConfigEntry(path = "area.sethome.nether.allow")
     private boolean allowSetHomeInNether = true;
 
     @ConfigEntry(path = "area.sethome.nether.require-confirmation")
     private boolean requireConfirmationToSetHomeInNether = true;
 
-    @ConfigComment("Allow setting home in the end. Only available on end areas, not vanilla end.")
+    @ConfigComment("Allow setting home in the end.")
     @ConfigEntry(path = "area.sethome.the-end.allow")
     private boolean allowSetHomeInTheEnd = true;
 
@@ -503,7 +439,7 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "protection.geo-limit-settings")
     private List<String> geoLimitSettings = new ArrayList<>();
 
-    @ConfigComment("Boxed blocked mobs.")
+    @ConfigComment("Blocked mobs.")
     @ConfigComment("List of mobs that should not spawn in Boxed.")
     @ConfigEntry(path = "protection.block-mobs")
     private List<String> mobLimitSettings = new ArrayList<>();
@@ -596,7 +532,7 @@ public class Settings implements WorldSettings {
      */
     @Override
     public int getIslandHeight() {
-        return islandHeight;
+        return 5;
     }
 
     /**
@@ -628,7 +564,7 @@ public class Settings implements WorldSettings {
      */
     @Override
     public GameMode getDefaultGameMode() {
-        return defaultGameMode;
+        return GameMode.SURVIVAL;
     }
 
     /**
@@ -652,7 +588,7 @@ public class Settings implements WorldSettings {
      */
     @Override
     public int getNetherSpawnRadius() {
-        return netherSpawnRadius;
+        return 32;
     }
 
     /**
@@ -991,13 +927,6 @@ public class Settings implements WorldSettings {
     }
 
     /**
-     * @param islandHeight the islandHeight to set
-     */
-    public void setIslandHeight(int islandHeight) {
-        this.islandHeight = islandHeight;
-    }
-
-    /**
      * @param maxIslands the maxIslands to set
      */
     public void setMaxIslands(int maxIslands) {
@@ -1005,24 +934,10 @@ public class Settings implements WorldSettings {
     }
 
     /**
-     * @param defaultGameMode the defaultGameMode to set
-     */
-    public void setDefaultGameMode(GameMode defaultGameMode) {
-        this.defaultGameMode = defaultGameMode;
-    }
-
-    /**
      * @param netherGenerate the netherGenerate to set
      */
     public void setNetherGenerate(boolean netherGenerate) {
         this.netherGenerate = netherGenerate;
-    }
-
-    /**
-     * @param netherSpawnRadius the netherSpawnRadius to set
-     */
-    public void setNetherSpawnRadius(int netherSpawnRadius) {
-        this.netherSpawnRadius = netherSpawnRadius;
     }
 
     /**
@@ -1465,14 +1380,7 @@ public class Settings implements WorldSettings {
      */
     @Override
     public boolean isPasteMissingIslands() {
-        return pasteMissingIslands;
-    }
-
-    /**
-     * @param pasteMissingIslands the pasteMissingIslands to set
-     */
-    public void setPasteMissingIslands(boolean pasteMissingIslands) {
-        this.pasteMissingIslands = pasteMissingIslands;
+        return false;
     }
 
     /**
@@ -1674,20 +1582,6 @@ public class Settings implements WorldSettings {
     }
 
     /**
-     * @return the allowStructures
-     */
-    public boolean isAllowStructures() {
-        return allowStructures;
-    }
-
-    /**
-     * @param allowStructures the allowStructures to set
-     */
-    public void setAllowStructures(boolean allowStructures) {
-        this.allowStructures = allowStructures;
-    }
-
-    /**
      * @return the onJoinResetAdvancements
      */
     public boolean isOnJoinResetAdvancements() {
@@ -1774,62 +1668,6 @@ public class Settings implements WorldSettings {
     }
 
     /**
-     * @return the generateSurface
-     */
-    public boolean isGenerateSurface() {
-        return generateSurface;
-    }
-
-    /**
-     * @param generateSurface the generateSurface to set
-     */
-    public void setGenerateSurface(boolean generateSurface) {
-        this.generateSurface = generateSurface;
-    }
-
-    /**
-     * @return the generateCaves
-     */
-    public boolean isGenerateCaves() {
-        return generateCaves;
-    }
-
-    /**
-     * @param generateCaves the generateCaves to set
-     */
-    public void setGenerateCaves(boolean generateCaves) {
-        this.generateCaves = generateCaves;
-    }
-
-    /**
-     * @return the generateDecorations
-     */
-    public boolean isGenerateDecorations() {
-        return generateDecorations;
-    }
-
-    /**
-     * @param generateDecorations the generateDecorations to set
-     */
-    public void setGenerateDecorations(boolean generateDecorations) {
-        this.generateDecorations = generateDecorations;
-    }
-
-    /**
-     * @return the generateMobs
-     */
-    public boolean isGenerateMobs() {
-        return generateMobs;
-    }
-
-    /**
-     * @param generateMobs the generateMobs to set
-     */
-    public void setGenerateMobs(boolean generateMobs) {
-        this.generateMobs = generateMobs;
-    }
-
-    /**
      * @return the denyVisitorAdvancements
      */
     public boolean isDenyVisitorAdvancements() {
@@ -1847,85 +1685,42 @@ public class Settings implements WorldSettings {
      * @return the seedX
      */
     public int getSeedX() {
-        return seedX;
-    }
-
-    /**
-     * @param seedX the seedX to set
-     */
-    public void setSeedX(int seedX) {
-        this.seedX = seedX;
+        return 0;
     }
 
     /**
      * @return the seedZ
      */
     public int getSeedZ() {
-        return seedZ;
-    }
-
-    /**
-     * @param seedZ the seedZ to set
-     */
-    public void setSeedZ(int seedZ) {
-        this.seedZ = seedZ;
+        return 0;
     }
 
     /**
      * @return the netherSeedX
      */
     public int getNetherSeedX() {
-        return netherSeedX;
-    }
-
-    /**
-     * @param netherSeedX the netherSeedX to set
-     */
-    public void setNetherSeedX(int netherSeedX) {
-        this.netherSeedX = netherSeedX;
+        return 0;
     }
 
     /**
      * @return the netherSeedZ
      */
     public int getNetherSeedZ() {
-        return netherSeedZ;
-    }
-
-    /**
-     * @param netherSeedZ the netherSeedZ to set
-     */
-    public void setNetherSeedZ(int netherSeedZ) {
-        this.netherSeedZ = netherSeedZ;
+        return 0;
     }
 
     /**
      * @return the endSeedX
      */
     public int getEndSeedX() {
-        return endSeedX;
-    }
-
-    /**
-     * @param endSeedX the endSeedX to set
-     */
-    public void setEndSeedX(int endSeedX) {
-        this.endSeedX = endSeedX;
+        return 0;
     }
 
     /**
      * @return the endSeedZ
      */
     public int getEndSeedZ() {
-        return endSeedZ;
+        return 0;
     }
-
-    /**
-     * @param endSeedZ the endSeedZ to set
-     */
-    public void setEndSeedZ(int endSeedZ) {
-        this.endSeedZ = endSeedZ;
-    }
-
 
 }

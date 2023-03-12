@@ -44,6 +44,8 @@ import net.minecraft.world.level.block.entity.TileEntity;
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.BentoBoxReadyEvent;
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent;
+import world.bentobox.bentobox.api.events.island.IslandDeleteEvent;
+import world.bentobox.bentobox.api.events.island.IslandResettedEvent;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.bentobox.util.Util;
@@ -57,6 +59,7 @@ import world.bentobox.boxed.objects.BoxedStructureBlock;
  */
 public class NewAreaListener implements Listener {
 
+    private static final List<BlockFace> CARDINALS = List.of(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
     private final Boxed addon;
     private File structureFile;
     private Queue<Item> itemsToBuild = new LinkedList<>();
@@ -103,7 +106,7 @@ public class NewAreaListener implements Listener {
             for (String struct : list) {
                 Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
                 if (s == null) {
-                    BentoBox.getInstance().log("Now loading group from: " + struct);
+                    //addon.log("Now loading group from: " + struct);
                 } 
             }
         }
@@ -112,7 +115,15 @@ public class NewAreaListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onIslandCreated(IslandCreatedEvent event) {
-        Island island = event.getIsland();
+        setUpIsland(event.getIsland());
+    }
+    
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onIslandReset(IslandResettedEvent event) {
+        setUpIsland(event.getIsland());
+    }
+    
+    private void setUpIsland(Island island) {
         // Check if this island is in this game
         if (!(addon.inWorld(island.getWorld()))) {
             return;
@@ -128,6 +139,7 @@ public class NewAreaListener implements Listener {
                 place("structure",config.getConfigurationSection(env), center, e);  
             }
         }
+        
     }
 
     private void place(String string, ConfigurationSection section, Location center, Environment env) {
@@ -163,7 +175,7 @@ public class NewAreaListener implements Listener {
                 Location l = new Location(world, x, y, z);
                 itemsToBuild.add(new Item(name, s, l, rot, mirror));
             } else {
-                addon.logError("Structure file syntax error: " + name + " " + vector);
+                addon.logError("Structure file syntax error: " + vector + ": " + value);
             }
         }
     }
@@ -204,7 +216,7 @@ public class NewAreaListener implements Listener {
                     Block b = loc.getWorld().getBlockAt(x, y, z);
                     if (b.getType().equals(Material.JIGSAW)) {
                         // I would like to read the data from the block and do something with it!
-                        processJigsaw(b);
+                        processJigsaw(b, structureRotation);
                     } else if (b.getType().equals(Material.STRUCTURE_BLOCK)) {
                         processStructureBlock(b);
                     }
@@ -239,12 +251,15 @@ public class NewAreaListener implements Listener {
     }
 
     private static final Map<Integer, EntityType> BUTCHER_ANIMALS = Map.of(0, EntityType.COW, 1, EntityType.SHEEP, 2, EntityType.PIG);
-    private static void processJigsaw(Block b) {
+    private static void processJigsaw(Block b, StructureRotation structureRotation) {
         String data = nmsData(b);                      
         BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
-        BentoBox.getInstance().logDebug("Jigsaw: " + bjb);
-        BlockData bd = Bukkit.createBlockData(bjb.getFinal_state());
-        b.setType(bd.getMaterial());
+        //BentoBox.getInstance().logDebug("Jigsaw: " + bjb);
+        //BentoBox.getInstance().logDebug("FinalState: " + bjb.getFinal_state());
+        String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
+        //BentoBox.getInstance().logDebug("FinalState after rotation: " + finalState);
+        BlockData bd = Bukkit.createBlockData(finalState);
+        b.setBlockData(bd);
         EntityType type = 
                 switch (bjb.getPool()) {
                 case "minecraft:bastion/mobs/piglin" -> EntityType.PIGLIN;
@@ -257,6 +272,7 @@ public class NewAreaListener implements Listener {
                 case "minecraft:village/common/cows" -> EntityType.COW;
                 case "minecraft:village/common/iron_golem" -> EntityType.IRON_GOLEM;
                 case "minecraft:village/common/butcher_animals" -> BUTCHER_ANIMALS.get(new Random().nextInt(3));
+                case "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(new Random().nextInt(3));
                 default -> null;
                 };
                 if (bjb.getPool().contains("zombie/villagers")) {
@@ -266,9 +282,68 @@ public class NewAreaListener implements Listener {
                 }
                 // Spawn it
                 if (type != null && b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type) != null) {            
-                    BentoBox.getInstance().logDebug("Spawned a " + type + " at " + b.getRelative(BlockFace.UP).getLocation()); 
+                    //BentoBox.getInstance().logDebug("Spawned a " + type + " at " + b.getRelative(BlockFace.UP).getLocation()); 
                 }
 
+    }
+
+    /**
+     * Corrects the direction of a block based on the structure's rotation
+     * @param finalState - the final block state of the block, which may include a facing: direction
+     * @param sr - the structure's rotation
+     * @return a rewritten blockstate with the updated direction, if required
+     */
+    private static String correctDirection(String finalState, StructureRotation sr) {
+        if (sr.equals(StructureRotation.NONE)) {
+            // No change
+            return finalState;
+        }
+        BlockFace oldDirection = getDirection(finalState);
+        BlockFace newDirection = getNewDirection(oldDirection, sr);
+        if (newDirection.equals(BlockFace.SELF)) {
+            // No change - shouldn't happen, but just in case
+            return finalState;
+        }
+        return finalState.replace(oldDirection.name().toLowerCase(Locale.ENGLISH), newDirection.name().toLowerCase(Locale.ENGLISH));
+
+    }
+
+    /**
+     * Adjusts the direction based on the StructureRotation
+     * @param oldDirection the old direction to adjust
+     * @param sr the structure rotation
+     * @return the new direction, or SELF if something weird happens
+     */
+    private static BlockFace getNewDirection(BlockFace oldDirection, StructureRotation sr) {
+        if (sr.equals(StructureRotation.CLOCKWISE_180)) {
+            return oldDirection.getOppositeFace();
+        } else if (sr.equals(StructureRotation.CLOCKWISE_90)) {
+            return switch(oldDirection) {
+            case EAST -> BlockFace.SOUTH;
+            case NORTH -> BlockFace.EAST;
+            case SOUTH -> BlockFace.WEST;
+            case WEST -> BlockFace.NORTH;
+            default -> BlockFace.SELF;            
+            };
+        } else if (sr.equals(StructureRotation.COUNTERCLOCKWISE_90)) {
+            return switch(oldDirection) {
+            case EAST -> BlockFace.NORTH;
+            case NORTH -> BlockFace.WEST;
+            case SOUTH -> BlockFace.EAST;
+            case WEST -> BlockFace.SOUTH;
+            default -> BlockFace.SELF;            
+            };
+        }   
+        return BlockFace.SELF;
+    }
+
+    /**
+     * Looks for north, south, east, west in the blockstate.
+     * @param finalState - the final block state of the block
+     * @return direction, if found, otherwise SELF
+     */
+    private static BlockFace getDirection(String finalState) {
+        return CARDINALS.stream().filter(bf -> finalState.contains(bf.name().toLowerCase(Locale.ENGLISH))).findFirst().orElse(BlockFace.SELF);
     }
 
     private static String nmsData(Block block) {

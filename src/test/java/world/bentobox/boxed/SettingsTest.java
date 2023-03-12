@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Difficulty;
-import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,15 +90,6 @@ public class SettingsTest {
     }
 
     /**
-     * Test method for {@link world.bentobox.boxed.Settings#setIslandHeight(int)}.
-     */
-    @Test
-    public void testSetIslandHeight() {
-        s.setIslandHeight(123);
-        assertEquals(123, s.getIslandHeight());
-    }
-
-    /**
      * Test method for {@link world.bentobox.boxed.Settings#setMaxIslands(int)}.
      */
     @Test
@@ -109,30 +99,12 @@ public class SettingsTest {
     }
 
     /**
-     * Test method for {@link world.bentobox.boxed.Settings#setDefaultGameMode(org.bukkit.GameMode)}.
-     */
-    @Test
-    public void testSetDefaultGameMode() {
-        s.setDefaultGameMode(GameMode.CREATIVE);
-        assertEquals(GameMode.CREATIVE, s.getDefaultGameMode());
-    }
-
-    /**
      * Test method for {@link world.bentobox.boxed.Settings#setNetherGenerate(boolean)}.
      */
     @Test
     public void testSetNetherGenerate() {
         s.setNetherGenerate(true);
         assertTrue(s.isNetherGenerate());
-    }
-
-    /**
-     * Test method for {@link world.bentobox.boxed.Settings#setNetherSpawnRadius(int)}.
-     */
-    @Test
-    public void testSetNetherSpawnRadius() {
-        s.setNetherSpawnRadius(123);
-        assertEquals(123, s.getNetherSpawnRadius());
     }
 
     /**

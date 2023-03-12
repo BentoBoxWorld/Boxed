@@ -125,7 +125,8 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateMobs() {
-        return this.addon.getSettings().isGenerateMobs();
+        return true;
+        //return this.addon.getSettings().isGenerateMobs();
     }
 
     @Override

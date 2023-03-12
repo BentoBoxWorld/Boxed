@@ -87,8 +87,6 @@ public class Boxed extends GameModeAddon {
                 new AdminPlaceStructureCommand(this);
             }
         };
-        
-
     }
 
     private boolean loadSettings() {
@@ -183,7 +181,7 @@ public class Boxed extends GameModeAddon {
         // This creates a vanilla base world with biomes
         AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NETHER);
         baseWorldNether = WorldCreator
-                .name(SEED+NETHER+BASE)
+                .name(worldName + "/" + SEED+NETHER+BASE)
                 .generator(seedBaseGen)
                 .environment(Environment.NETHER)
                 .seed(getSettings().getSeed())
@@ -196,7 +194,7 @@ public class Boxed extends GameModeAddon {
         log("Creating Boxed Biomed Nether world ...");
 
         seedWorldNether = WorldCreator
-                .name(SEED+NETHER)
+                .name(worldName + "/" + SEED+NETHER)
                 .generator(new BoxedSeedChunkGenerator(this, Environment.NETHER, new NetherSeedBiomeGenerator(this, seedBaseGen)))
                 .environment(Environment.NETHER)
                 .seed(getSettings().getSeed())
@@ -219,7 +217,7 @@ public class Boxed extends GameModeAddon {
         // This creates a vanilla base world with biomes
         AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL);
         baseWorld = WorldCreator
-                .name(SEED+BASE)
+                .name(worldName + "/" + SEED+BASE)
                 .generator(seedBaseGen)
                 .environment(Environment.NORMAL)
                 .seed(getSettings().getSeed())
@@ -232,7 +230,7 @@ public class Boxed extends GameModeAddon {
         log("Creating Boxed Biomed world ...");
 
         seedWorld = WorldCreator
-                .name(SEED)
+                .name(worldName + "/" + SEED)
                 .generator(new BoxedSeedChunkGenerator(this, Environment.NORMAL, new SeedBiomeGenerator(this, seedBaseGen)))
                 .environment(Environment.NORMAL)
                 .seed(getSettings().getSeed())
@@ -395,4 +393,8 @@ public class Boxed extends GameModeAddon {
         return boxedBlockPopulator;
     }
 
+    @Override
+    public boolean isUsesNewChunkGeneration() {
+        return true;
+    }
 }
