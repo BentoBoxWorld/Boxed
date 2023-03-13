@@ -125,6 +125,11 @@ public class Settings implements WorldSettings {
     @ConfigComment("If the number of areas is greater than this number, it will stop players from joining the world.")
     @ConfigEntry(path = "world.max-areas")
     private int maxIslands = -1;
+    
+    @ConfigComment("Area height - Lowest is 5.")
+    @ConfigComment("It is the y coordinate of the bedrock block in the blueprint.")
+    @ConfigEntry(path = "world.area-height")
+    private int islandHeight = 8;
 
     @ConfigComment("The maximum number of players a player can ban at any one time in this game mode.")
     @ConfigComment("The permission boxed.ban.maxlimit.X where X is a number can also be used per player")
@@ -532,7 +537,7 @@ public class Settings implements WorldSettings {
      */
     @Override
     public int getIslandHeight() {
-        return 5;
+        return islandHeight;
     }
 
     /**
@@ -1721,6 +1726,13 @@ public class Settings implements WorldSettings {
      */
     public int getEndSeedZ() {
         return 0;
+    }
+
+    /**
+     * @param islandHeight the islandHeight to set
+     */
+    public void setIslandHeight(int islandHeight) {
+        this.islandHeight = islandHeight;
     }
 
 }
