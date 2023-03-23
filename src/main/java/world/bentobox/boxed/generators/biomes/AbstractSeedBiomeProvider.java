@@ -193,7 +193,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     @Override
     public List<Biome> getBiomes(WorldInfo worldInfo) {
         // Return all of them for now!
-        return Arrays.stream(Biome.values()).filter(b -> !b.equals(Biome.CUSTOM)).toList();
+        return Arrays.stream(Biome.values()).filter(b -> !b.equals(Biome.CUSTOM)).filter(b -> !b.equals(Enums.getIfPresent(Biome.class, "CHERRY_GROVE").orNull())).toList();
     }
 
     /**
