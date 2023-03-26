@@ -5,7 +5,8 @@ normal:
   -17,56,0: shipwreck/rightsideup_full_degraded,CLOCKWISE_180
   16,67,13: village/plains/houses/plains_cartographer_1
   -66,63,17: igloo/top
-  -34,52,-35: underwater_ruin/warm_1
+  -34,52,-35: underwater_ruin/warm_2
+  -25,46,-61: underwater_ruin/big_warm_4,COUNTERCLOCKWISE_90,NONE
   33,69,-34: village/savanna/town_centers/savanna_meeting_point_1
   26,70,-41: village/savanna/houses/savanna_medium_house_2,NONE,NONE
   42,69,-21: village/savanna/houses/savanna_large_farm_2,NONE,NONE
@@ -28,6 +29,11 @@ normal:
   -26,70,33: village/snowy/houses/snowy_library_1,CLOCKWISE_180,NONE
   -31,71,30: village/plains/villagers/unemployed,CLOCKWISE_180,NONE
   -3,65,84: village/plains/villagers/unemployed,CLOCKWISE_180,NONE
+  -50,71,50: village/snowy/houses/snowy_medium_house_2,COUNTERCLOCKWISE_90,NONE
+  -52,72,33: village/snowy/houses/snowy_farm_1,COUNTERCLOCKWISE_90,NONE
+  -28,63,47: village/snowy/snowy_lamp_post_01,COUNTERCLOCKWISE_90,NONE
+  -6,64,52: village/snowy/houses/snowy_small_house_3,COUNTERCLOCKWISE_90,NONE
+  40,73,-3: village/savanna/houses/savanna_small_house_1,CLOCKWISE_180
 
 nether:
   16,32,0: bastion/bridge/starting_pieces/entrance

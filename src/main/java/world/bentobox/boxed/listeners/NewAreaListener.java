@@ -179,23 +179,23 @@ public class NewAreaListener implements Listener {
         }
     }
 
-
     private void LoadChunksAsync(Item item) {
         pasting = true;
         item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, new Random());
         addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " " + Util.xyz(item.location().toVector()));
         // Find it
-        removeJigsaw(item.location(), item.structure(), item.rot());
+        removeJigsaw(item.location(), item.structure(), item.rot(), item.name());
         pasting = false;
     }
 
     /**
-     * Removes Jigsaw blocks from a placed structure
+     * Removes Jigsaw blocks from a placed structure. Fills underwater ruins with water.
      * @param loc - location where the structure was placed
      * @param structure - structure that was placed
      * @param structureRotation - rotation of structure
+     * @param key 
      */
-    public static void removeJigsaw(Location loc, Structure structure, StructureRotation structureRotation) {
+    public static void removeJigsaw(Location loc, Structure structure, StructureRotation structureRotation, String key) {
         Location otherCorner = switch (structureRotation) {
 
         case CLOCKWISE_180 -> loc.clone().add(new Vector(-structure.getSize().getX(), structure.getSize().getY(), -structure.getSize().getZ()));
@@ -218,6 +218,10 @@ public class NewAreaListener implements Listener {
                         processJigsaw(b, structureRotation);
                     } else if (b.getType().equals(Material.STRUCTURE_BLOCK)) {
                         processStructureBlock(b);
+                    }
+                    // Set water blocks for underwater ruins
+                    if (key.contains("underwater_ruin") && b.getType().equals(Material.AIR)) {
+                        b.setType(Material.WATER);
                     }
                 }
             } 

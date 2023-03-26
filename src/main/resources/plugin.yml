@@ -1,8 +1,0 @@
-name: Pladdon
-main: world.bentobox.boxed.BoxedPladdon
-version: ${version}
-api-version: 1.17
-description: Minecraft in a box
-author: tastybento
-depend:
-  - BentoBox

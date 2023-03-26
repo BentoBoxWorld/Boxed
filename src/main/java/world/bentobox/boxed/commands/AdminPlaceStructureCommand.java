@@ -51,6 +51,10 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
 
     @Override
     public boolean canExecute(User user, String label, List<String> args) {
+        // Initialize
+        sr = StructureRotation.NONE;
+        mirror = Mirror.NONE;
+        
         // Check world
         if (!((Boxed)getAddon()).inWorld(getWorld())) {
             user.sendMessage("boxed.admin.place.wrong-world");
@@ -119,7 +123,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.valueOf(args.get(3).trim());
         Location spot = new Location(user.getWorld(), x, y, z);
         s.place(spot, true, sr, mirror, -1, 1, new Random());
-        NewAreaListener.removeJigsaw(spot, s, sr);
+        NewAreaListener.removeJigsaw(spot, s, sr, tag.getKey());
         saveStructure(spot, tag, user, sr, mirror);        
         return true;
     }

@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -63,7 +65,18 @@ public class AdvancementsManager {
                 addon.logError("advancements.yml cannot be found! " + e.getLocalizedMessage());
             }
         }
-
+        /*
+        // DEBUG - lists all advancements to console
+        int scoreTotal = 0;
+        Iterator<Advancement> ad = Bukkit.getServer().advancementIterator();
+        while (ad.hasNext()) {
+            Advancement a = ad.next();
+            int score = getScore(a);
+                BentoBox.getInstance().logDebug("  'minecraft:" + a.getKey().getKey() + "': " + score);   
+                scoreTotal += score;
+        }
+        BentoBox.getInstance().logDebug("Sum total = " + scoreTotal);
+        */
     }
 
     /**
@@ -176,7 +189,7 @@ public class AdvancementsManager {
             // Wrong world
             return 0;
         }
-        int score = getScore(advancement.getKey().toString());
+        int score = getScore(advancement);
         if (score == 0) {
             return 0;
         }
@@ -215,24 +228,45 @@ public class AdvancementsManager {
     }
 
     /**
-     * Get the score for this advancement
-     * @param string - advancement key as stored in the config file
-     * @return score of advancement, or default values if the key is not in the file
+     * Get the score for this advancement namespace key
+     * @param key advancement namespace key
+     * @return score or 0 if this key is unknown.
      */
-    public int getScore(String string) {
-        String adv = "advancements." + string;
-        // Check score of advancement
-        if (advConfig.contains(adv)) {
-            return advConfig.getInt(adv, this.unknownAdvChange);
-        }
+    public int getScore(String key) {
+        Advancement a = Bukkit.getAdvancement(NamespacedKey.fromString(key));
+        return a == null ? 0 : getScore(a);
+    }
+
+    /**
+     * Get the score for this advancement
+     * @param a - advancement
+     * @return score of advancement, or 0 if cannot be worked out
+     */
+    public int getScore(Advancement a) {  
+        String adv = "advancements." + a.getKey().getKey();
         // Unknowns
         if (adv.endsWith("/root")) {
             return advConfig.getInt("settings.default-root-increase");
         }
-        if (adv.contains("minecraft:recipes")) {
+        if (adv.contains("recipes")) {
             return this.unknownRecipeChange;
         }
-        return this.unknownAdvChange;
+        if (advConfig.getBoolean("settings.automatic-scoring")) {
+            if (!a.getKey().getKey().contains("recipes") && a.getDisplay() != null) {
+                float x = a.getDisplay().getX();
+                float y = a.getDisplay().getY();
+                int score = (int) Math.round(Math.sqrt(x * x + y * y));
+                return score;
+            } else {
+                return 0;
+            }
+        } else {
+            if (advConfig.contains(adv)) {
+                return advConfig.getInt(adv, this.unknownAdvChange);
+            }
+
+            return this.unknownAdvChange;
+        }
     }
 
 }
