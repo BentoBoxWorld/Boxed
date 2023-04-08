@@ -1,0 +1,10 @@
+
+name: BentoBox-Boxed
+main: world.bentobox.boxed.BoxedPladdon
+version: ${project.version}${build.number}
+api-version: "1.19.4"
+
+authors: [tastybento]
+contributors: ["The BentoBoxWorld Community"]
+website: https://bentobox.world
+description: ${project.description}
