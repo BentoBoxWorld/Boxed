@@ -194,7 +194,7 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         int minY = worldInfo.getMinHeight();
         int xx = repeatCalc(chunkX);
         int zz = repeatCalc(chunkZ);
-        ChunkSnapshot chunk = this.getChunk(xx,zz).snapshot();
+        ChunkStore chunk = this.getChunk(xx,zz);
         if (chunk == null) {
             // This should never be needed because islands should abut each other
             //cd.setRegion(0, minY, 0, 16, 0, 16, Material.WATER);
@@ -202,7 +202,7 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
             return;
         }
         // Copy the chunk
-        copyChunkVerbatim(cd, chunk, minY, height);
+        copyChunkVerbatim(cd, chunk.snapshot(), minY, height);
 
     }
 

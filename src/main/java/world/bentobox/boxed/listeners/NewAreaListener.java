@@ -62,6 +62,7 @@ public class NewAreaListener implements Listener {
     private final Boxed addon;
     private File structureFile;
     private Queue<Item> itemsToBuild = new LinkedList<>();
+    private static Random rand = new Random();
     private boolean pasting;
     private static Gson gson = new Gson();
     private record Item(String name, Structure structure, Location location, StructureRotation rot, Mirror mirror) {};
@@ -106,7 +107,7 @@ public class NewAreaListener implements Listener {
                 Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
                 if (s == null) {
                     //addon.log("Now loading group from: " + struct);
-                } 
+                }
             }
         }
 
@@ -116,12 +117,12 @@ public class NewAreaListener implements Listener {
     public void onIslandCreated(IslandCreatedEvent event) {
         setUpIsland(event.getIsland());
     }
-    
+
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onIslandReset(IslandResettedEvent event) {
         setUpIsland(event.getIsland());
     }
-    
+
     private void setUpIsland(Island island) {
         // Check if this island is in this game
         if (!(addon.inWorld(island.getWorld()))) {
@@ -130,15 +131,15 @@ public class NewAreaListener implements Listener {
         // Load the latest config so that admins can change it on the fly without reloading
         YamlConfiguration config = YamlConfiguration.loadConfiguration(structureFile);
         Location center = island.getProtectionCenter();
-        for (String env : config.getKeys(false)) {            
+        for (String env : config.getKeys(false)) {
             Environment e = Enums.getIfPresent(Environment.class, env.toUpperCase(Locale.ENGLISH)).orNull();
             if (e == null) {
                 addon.logError("Error in structures.yml - unknown environment " + env);
             } else {
-                place("structure",config.getConfigurationSection(env), center, e);  
+                place("structure",config.getConfigurationSection(env), center, e);
             }
         }
-        
+
     }
 
     private void place(String string, ConfigurationSection section, Location center, Environment env) {
@@ -152,12 +153,12 @@ public class NewAreaListener implements Listener {
             String[] split = name.split(",");
             if (split.length > 1) {
                 // Rotation
-                rot = Enums.getIfPresent(StructureRotation.class, split[1].strip().toUpperCase(Locale.ENGLISH)).or(StructureRotation.NONE); 
+                rot = Enums.getIfPresent(StructureRotation.class, split[1].strip().toUpperCase(Locale.ENGLISH)).or(StructureRotation.NONE);
                 name = split[0];
             }
             if (split.length == 3) {
                 // Mirror
-                mirror = Enums.getIfPresent(Mirror.class, split[1].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE); 
+                mirror = Enums.getIfPresent(Mirror.class, split[1].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE);
             }
             // Load Structure
             Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString("minecraft:" + name));
@@ -167,10 +168,10 @@ public class NewAreaListener implements Listener {
             }
             // Extract coords
             String[] value = vector.split(",");
-            if (value.length > 2) {                
+            if (value.length > 2) {
                 int x = Integer.valueOf(value[0].strip()) + center.getBlockX();
                 int y = Integer.valueOf(value[1].strip());
-                int z = Integer.valueOf(value[2].strip()) + center.getBlockZ();                
+                int z = Integer.valueOf(value[2].strip()) + center.getBlockZ();
                 Location l = new Location(world, x, y, z);
                 itemsToBuild.add(new Item(name, s, l, rot, mirror));
             } else {
@@ -181,7 +182,7 @@ public class NewAreaListener implements Listener {
 
     private void LoadChunksAsync(Item item) {
         pasting = true;
-        item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, new Random());
+        item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
         addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " " + Util.xyz(item.location().toVector()));
         // Find it
         removeJigsaw(item.location(), item.structure(), item.rot(), item.name());
@@ -193,7 +194,7 @@ public class NewAreaListener implements Listener {
      * @param loc - location where the structure was placed
      * @param structure - structure that was placed
      * @param structureRotation - rotation of structure
-     * @param key 
+     * @param key
      */
     public static void removeJigsaw(Location loc, Structure structure, StructureRotation structureRotation, String key) {
         Location otherCorner = switch (structureRotation) {
@@ -224,7 +225,7 @@ public class NewAreaListener implements Listener {
                         b.setType(Material.WATER);
                     }
                 }
-            } 
+            }
         }
 
     }
@@ -255,7 +256,7 @@ public class NewAreaListener implements Listener {
 
     private static final Map<Integer, EntityType> BUTCHER_ANIMALS = Map.of(0, EntityType.COW, 1, EntityType.SHEEP, 2, EntityType.PIG);
     private static void processJigsaw(Block b, StructureRotation structureRotation) {
-        String data = nmsData(b);                      
+        String data = nmsData(b);
         BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
         //BentoBox.getInstance().logDebug("Jigsaw: " + bjb);
         //BentoBox.getInstance().logDebug("FinalState: " + bjb.getFinal_state());
@@ -263,7 +264,7 @@ public class NewAreaListener implements Listener {
         //BentoBox.getInstance().logDebug("FinalState after rotation: " + finalState);
         BlockData bd = Bukkit.createBlockData(finalState);
         b.setBlockData(bd);
-        EntityType type = 
+        EntityType type =
                 switch (bjb.getPool()) {
                 case "minecraft:bastion/mobs/piglin" -> EntityType.PIGLIN;
                 case "minecraft:bastion/mobs/hoglin" -> EntityType.HOGLIN;
@@ -274,8 +275,8 @@ public class NewAreaListener implements Listener {
                 case "minecraft:village/common/pigs" -> EntityType.PIG;
                 case "minecraft:village/common/cows" -> EntityType.COW;
                 case "minecraft:village/common/iron_golem" -> EntityType.IRON_GOLEM;
-                case "minecraft:village/common/butcher_animals" -> BUTCHER_ANIMALS.get(new Random().nextInt(3));
-                case "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(new Random().nextInt(3));
+                case "minecraft:village/common/butcher_animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
+                case "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
                 default -> null;
                 };
                 if (bjb.getPool().contains("zombie/villagers")) {
@@ -284,8 +285,8 @@ public class NewAreaListener implements Listener {
                     type = EntityType.VILLAGER;
                 }
                 // Spawn it
-                if (type != null && b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type) != null) {            
-                    //BentoBox.getInstance().logDebug("Spawned a " + type + " at " + b.getRelative(BlockFace.UP).getLocation()); 
+                if (type != null && b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type) != null) {
+                    //BentoBox.getInstance().logDebug("Spawned a " + type + " at " + b.getRelative(BlockFace.UP).getLocation());
                 }
 
     }
@@ -326,7 +327,7 @@ public class NewAreaListener implements Listener {
             case NORTH -> BlockFace.EAST;
             case SOUTH -> BlockFace.WEST;
             case WEST -> BlockFace.NORTH;
-            default -> BlockFace.SELF;            
+            default -> BlockFace.SELF;
             };
         } else if (sr.equals(StructureRotation.COUNTERCLOCKWISE_90)) {
             return switch(oldDirection) {
@@ -334,9 +335,9 @@ public class NewAreaListener implements Listener {
             case NORTH -> BlockFace.WEST;
             case SOUTH -> BlockFace.EAST;
             case WEST -> BlockFace.SOUTH;
-            default -> BlockFace.SELF;            
+            default -> BlockFace.SELF;
             };
-        }   
+        }
         return BlockFace.SELF;
     }
 
