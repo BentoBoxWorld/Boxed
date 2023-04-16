@@ -1,4 +1,3 @@
-
 name: BentoBox-Boxed
 main: world.bentobox.boxed.BoxedPladdon
 version: ${project.version}${build.number}
