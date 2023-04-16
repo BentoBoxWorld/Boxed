@@ -9,6 +9,7 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
@@ -16,6 +17,7 @@ import org.bukkit.Sound;
 import org.bukkit.Statistic;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
@@ -45,6 +48,7 @@ public class AdvancementListener implements Listener {
 
     private final Boxed addon;
     private final Advancement netherAdvancement;
+    private final Advancement netherFortressAdvancement;
     private final Advancement endAdvancement;
     private final Advancement netherRoot;
     private final Advancement endRoot;
@@ -56,6 +60,7 @@ public class AdvancementListener implements Listener {
         this.addon = addon;
         this.netherAdvancement = getAdvancement("minecraft:story/enter_the_nether");
         this.endAdvancement = getAdvancement("minecraft:story/enter_the_end");
+        this.netherFortressAdvancement = getAdvancement("minecraft:nether/find_fortress");
         this.netherRoot = getAdvancement("minecraft:nether/root");
         this.endRoot = getAdvancement("minecraft:end/root");
     }
@@ -71,14 +76,19 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
+        // Ignore if player is not in survival
+        if (!e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
+            return;
+        }
         if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
+
             // Only allow members or higher to get advancements in a box
-            if (!addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
+            if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
                 // Remove advancement from player
                 e.getAdvancement().getCriteria().forEach(c ->
                 e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
                 User u = User.getInstance(e.getPlayer());
-                if (u != null) {
+                if (u != null && addon.getAdvManager().getScore(e.getAdvancement().getKey().getKey()) > 0) {
                     u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
                 }
                 return;
@@ -117,7 +127,7 @@ public class AdvancementListener implements Listener {
 
     /**
      * Synchronize the player's advancements to that of the island.
-     * Player's advancements should be cleared before calling this othewise they will get add the island ones as well.
+     * Player's advancements should be cleared before calling this otherwise they will get add the island ones as well.
      * @param user - user
      */
     public void syncAdvancements(User user) {
@@ -153,7 +163,7 @@ public class AdvancementListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent e) {
-        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
+        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
             return;
         }
         if (e.getCause().equals(TeleportCause.NETHER_PORTAL)) {
@@ -163,6 +173,20 @@ public class AdvancementListener implements Listener {
         } else if (e.getCause().equals(TeleportCause.END_PORTAL)) {
             giveAdv(e.getPlayer(), endAdvancement);
             giveAdv(e.getPlayer(), endRoot);
+        }
+    }
+
+    /**
+     * Looks for certain blocks, and if they are found then awards an advancement
+     * @param e - PlayerMoveEvent
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onMove(PlayerMoveEvent e) {
+        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
+            return;
+        }
+        if (e.getTo().getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.NETHER_BRICKS)) {
+            giveAdv(e.getPlayer(), netherFortressAdvancement);
         }
     }
 

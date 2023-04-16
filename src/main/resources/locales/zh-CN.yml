@@ -1,24 +1,21 @@
-# 
-# This is a YML file. Be careful when editing. Check your edits in a YAML checker like    #
-# the one at http://yaml-online-parser.appspot.com                                        #
 boxed:
-  completed: '&a [name] completed!'
-  size-changed: '&a Box size increased by [number]!'
-  size-decreased: '&c Box size decreased by [number]!'
-  user-completed: '&a [name] completed [description]!'
-  adv-disallowed: "&c You can only complete advancements in your own box. Revoking [description]."
+  completed: '&a [name] 完成!'
+  size-changed: '&a Box 大小扩大到 [number]!'
+  size-decreased: '&c Box 大小缩减到 [number]!'
+  user-completed: '&a [name] 完成了 [description]!'
+  adv-disallowed: "&c 您只能在自己的 box 中完成成就. 撤销 [description]."
   general:
     errors:
-      no-island: '&c You do not have a box!'
-      player-has-island: '&c Player already has a box!'
-      player-has-no-island: '&c That player has no box!'
-      already-have-island: '&c You already have a box!'
-      no-safe-location: '&c No safe location found in box!'
-      not-owner: '&c You are not the owner of your team!'
+      no-island: '&c 您还未拥有一个 box!'
+      player-has-island: '&c 玩家已经拥有了一个 box!'
+      player-has-no-island: '&c 玩家还未拥有一个 box!'
+      already-have-island: '&c 您已经拥有了一个 box!'
+      no-safe-location: '&c 没有在 box 中找到安全的位置!'
+      not-owner: '&c 您不是您队伍的主人!'
   commands:
     boxed:
       help:
-        description: Start a Boxed game or teleport to your Box
+        description: 开始一个 Boxed 游戏或传送到您的 Box
       go:
         parameters: '[home number]'
       sethome:
@@ -26,332 +23,326 @@ boxed:
     island:
       go:
         parameters: '[home number]'
-        description: teleport you to your box
-        teleport: '&a Teleporting you to your box.'
-        teleported: '&a Teleported you to home &e #[number].'
+        description: 传送到您的 box
+        teleport: '&a 正在传送到您的 box.'
+        teleported: '&a 已将您传送到家 &e #[number].'
       help:
-        description: the main box command
+        description: box 的主命令
       create:
-        description: create an box, using optional blueprint (requires permission)
-        parameters: <blueprint>
-        too-many-islands: '&c There are too many boxes in this world: there isn''t
-          enough room for yours to be created.'
-        cannot-create-island: '&c A spot could not be found in time, please try again...'
-        unable-create-island: '&c Your box could not be generated, please contact
-          an administrator.'
-        creating-island: '&a Finding a spot for your box...'
+        description: 通过自定义模板创建一个 box (需拥有相应权限)
+        parameters: <模板>
+        too-many-islands: '&c 此世界中含有过多的 box: 没有
+          足够的空间来创建您的 box.'
+        cannot-create-island: '&c 无法在指定时间内找到空位, 请重试......'
+        unable-create-island: '&c 您的 box 无法创建, 请联系服务器管理员.'
+        creating-island: '&a 正在为您的 box 寻找空位...'
         pasting:
-          estimated-time: '&a Estimated time: &b [number] &a seconds.'
-          blocks: '&a Building it block by block: &b [number] &a blocks in all...'
-          entities: '&a Filling it with entities: &b [number] &a entities in all...'
-          done: '&a Done! Your box is ready and waiting for you!'
-        pick: '&2 Pick an box'
-        unknown-blueprint: '&c That blueprint has not been loaded yet.'
-        on-first-login: '&a Welcome! We will start preparing your box in a few seconds.'
-        you-can-teleport-to-your-island: '&a You can teleport to your box when you
-          want.'
+          estimated-time: '&a 估计需要: &b[number] &a 秒.'
+          blocks: '&a 逐块创建中: &a共 &b[number] &a个方块......'
+          entities: '&a 生成实体中: &a共 &b[number] &a个实体...'
+          done: '&a 成功! 您的 box 已准备好!'
+        pick: '&2 选择一个 box'
+        unknown-blueprint: '&c 该模板暂未被加载.'
+        on-first-login: '&a 欢迎! 我们会在几秒钟内开始准备好您的 box.'
+        you-can-teleport-to-your-island: '&a 您可以在任何时候传送到您的 box 了.'
       info:
-        description: display info about your box or the player's box
-        parameters: <player>
+        description: 显示您的或其他玩家的 box
+        parameters: <玩家>
       near:
-        description: show the name of neighboring boxes around you
+        description: 显示离您较近的几个 box 的名称
         parameters: ''
-        the-following-islands: '&a The following boxes are nearby:'
+        the-following-islands: '&a 离您较近的几个 box 是:'
         syntax: '&6 [direction]: &a [name]'
-        north: North
-        south: South
-        east: East
-        west: West
-        no-neighbors: '&c You have no immediate neighboring boxes!'
+        north: 北
+        south: 南
+        east: 东
+        west: 西
+        no-neighbors: '&c 还没有离您较近的 box!'
       reset:
-        description: restart your box and remove the old one
-        parameters: <blueprint>
-        none-left: '&c You have no more resets left!'
-        resets-left: '&c You have &b [number] &c resets left'
+        description: 重新开始您的 box 并移除以前的那一个
+        parameters: <模板>
+        none-left: '&c 您不能再重新开始了!'
+        resets-left: '&c 您还有 &b [number] &c 次重新开始的机会'
         confirmation: |-
-          &c Are you sure you want to do this?
-          &c All box members will be kicked from the box, you will have to reinvite them afterwards.
-          &c There is no going back: once your current box is deleted, there will be &l no &r &c way to retrieve it later on.
-        kicked-from-island: '&c You are kicked from your box in [gamemode] because
-          the owner is resetting it.'
+          &c 确认要重新开始吗?
+          &c 所有当前 box 的成员将会被移出, 您需要稍后再次邀请他们.
+          &c 无法撤销: 一旦您的 box 被删除, 该 box 将 &l 无法 &r &c 找回.
+        kicked-from-island: '&c 您在 [gamemode] 模式中被您的 box 移出,
+          因为其主人重新开始了它.'
       sethome:
-        description: set your home teleport point
-        must-be-on-your-island: '&c You must be on your box to set home!'
-        num-homes: '&c Homes can be 1 to [number].'
-        home-set: '&6 Your box home has been set to your current location.'
+        description: 设置您 box 的家位置
+        must-be-on-your-island: '&c 您必须在您的 box 中来设置家位置!'
+        num-homes: '&c 可设置 1 到 [number] 个家.'
+        home-set: '&6 您 box 的家位置已被设置到您当前位置.'
         nether:
-          not-allowed: '&c You are not allowed to set your home in the Nether.'
-          confirmation: '&c Are you sure you want to set your home in the Nether?'
+          not-allowed: '&c 您不能在下界中设置您 box 的家位置.'
+          confirmation: '&c 确认将您 box 的家位置设置在下界中吗?'
         the-end:
-          not-allowed: '&c You are not allowed to set your home in the End.'
-          confirmation: '&c Are you sure you want to set your home in the End?'
+          not-allowed: '&c 您不能在末地中设置您 box 的家位置.'
+          confirmation: '&c 确认将您 box 的家位置设置在末地中吗?'
         parameters: '[home number]'
       setname:
-        description: set a name for your box
-        name-too-short: '&c Too short. Minimum size is [number] characters.'
-        name-too-long: '&c Too long. Maximum size is [number] characters.'
-        name-already-exists: '&c There is already an box with that name!'
-        parameters: <name>
-        success: '&a Successfully set your box''s name to &b [name]&a .'
+        description: 为您的 box 设置一个名字
+        name-too-short: '&c 名字过短. 最小字数为 [number] 个.'
+        name-too-long: '&c 名字过长1. 最大字数为 [number] 个.'
+        name-already-exists: '&c 与现有的 box 重名!'
+        parameters: <名字>
+        success: '&a 成功将您的 box 名字设置为 &b [name]&a .'
       resetname:
-        description: reset your box name
-        success: '&a Successfully reset your box name.'
+        description: 重命名您的 box
+        success: '&a 成功重命名您的 box.'
       team:
-        description: manage your team
+        description: 管理您的队伍
         coop:
-          description: make a player coop rank on your box
-          parameters: <player>
-          cannot-coop-yourself: '&c You cannot coop yourself!'
-          already-has-rank: '&c Player already has a rank!'
-          you-are-a-coop-member: '&2 You were cooped by &b[name]&a.'
-          success: '&a You cooped &b [name]&a.'
-          name-has-invited-you: '&a [name] has invited you to join be a coop member
-            of their box.'
+          description: 将一名成员设为 co-op
+          parameters: <玩家>
+          cannot-coop-yourself: '&c 您不能将自己设为 co-op!'
+          already-has-rank: '&c 玩家已是 co-op!'
+          you-are-a-coop-member: '&2 您已被 &b[name] &2设置为 co-op&a.'
+          success: '&a 将 &b[name] &a设置为 co-op.'
+          name-has-invited-you: '&a [name] 邀请您加入他(她)的 box 并成为
+            该 box 的 co-op.'
         uncoop:
-          description: remove a coop rank from player
-          parameters: <player>
-          cannot-uncoop-yourself: '&c You cannot uncoop yourself!'
-          cannot-uncoop-member: '&c You cannot uncoop a team member!'
-          player-not-cooped: '&c Player is not cooped!'
-          you-are-no-longer-a-coop-member: '&c You are no longer a coop member of
-            [name]''s box.'
-          all-members-logged-off: '&c All box members logged off so you are no longer
-            a coop member of [name]''s box.'
-          success: '&b [name] &a is no longer a coop member of your box.'
-          is-full: '&c You cannot coop anyone else.'
+          description: 取消一名成员的 co-op
+          parameters: <玩家>
+          cannot-uncoop-yourself: '&c 您不能取消自己的 co-op!'
+          cannot-uncoop-member: '&c 您不能取消一名成员的 co-op!'
+          player-not-cooped: '&c 玩家不是 co-op!'
+          you-are-no-longer-a-coop-member: '&c 您已不再是 [name] 的 box 的 co-op.'
+          all-members-logged-off: '&c 所有的 box 成员已注销, 因此您不再是
+            [name] 的 box 的 co-op.'
+          success: '&b [name] &a 不再是您 box 的 co-op.'
+          is-full: '&c 已达到最大 co-op 玩家数.'
         trust:
-          description: give a player trusted rank on your box
-          parameters: <player>
-          trust-in-yourself: '&c Trust in yourself!'
-          name-has-invited-you: '&a [name] has invited you to join be a trusted member
-            of their box.'
-          player-already-trusted: '&c Player is already trusted!'
-          you-are-trusted: '&2 You are trusted by &b [name]&a !'
-          success: '&a You trusted &b [name]&a .'
-          is-full: '&c You cannot trust anyone else.'
+          description: 在您的 box 中信任一名玩家
+          parameters: <玩家>
+          trust-in-yourself: '&c 信任自己!'
+          name-has-invited-you: '&a [name] 邀请您成为他 box 的一名信任玩家.'
+          player-already-trusted: '&c 您已信任该玩家!'
+          you-are-trusted: '&2 您已被 &b [name]&2 信任&a!'
+          success: '&a 您信任了 &b [name]&a .'
+          is-full: '&c 已达到最大信任玩家数.'
         invite:
-          description: invite a player to join your box
-          invitation-sent: '&a Invitation sent to &b[name]&a.'
-          removing-invite: '&c Removing invite.'
-          name-has-invited-you: '&a [name] has invited you to join their box.'
-          to-accept-or-reject: '&a Do /[label] team accept to accept, or /[label]
-            team reject to reject'
-          you-will-lose-your-island: '&c WARNING! You will lose your box if you accept!'
+          description: 邀请玩家加入您的 box
+          invitation-sent: '&a 邀请已发送至 &b[name]&a.'
+          removing-invite: '&c 取消邀请.'
+          name-has-invited-you: '&a [name] 邀请您加入他(她)的 box.'
+          to-accept-or-reject: '&a 输入 /[label] team 同意邀请, 或 /[label]
+            team 拒绝邀请'
+          you-will-lose-your-island: '&c 注意! 如果同意邀请, 您将失去您自己的 box!'
           errors:
-            cannot-invite-self: '&c You cannot invite yourself!'
-            cooldown: '&c You cannot invite that person for another [number] seconds.'
-            island-is-full: '&c Your box is full, you can''t invite anyone else.'
-            none-invited-you: '&c No one invited you :c.'
-            you-already-are-in-team: '&c You are already on a team!'
-            already-on-team: '&c That player is already on a team!'
-            invalid-invite: '&c That invite is no longer valid, sorry.'
-            you-have-already-invited: '&c You have already invited that player!'
-          parameters: <player>
-          you-can-invite: '&a You can invite [number] more players.'
+            cannot-invite-self: '&c 您不能邀请自己!'
+            cooldown: '&c 您不能在 [number] 秒内再次邀请该玩家.'
+            island-is-full: '&c 您的 box 人数已满, 无法再邀请玩家.'
+            none-invited-you: '&c 没有人在邀请您 :c.'
+            you-already-are-in-team: '&c 您已经在一个队伍里了!'
+            already-on-team: '&c 该玩家已经在一个队伍里了!'
+            invalid-invite: '&c 抱歉, 邀请已失效.'
+            you-have-already-invited: '&c 您已经邀请过该玩家了!'
+          parameters: <玩家>
+          you-can-invite: '&a 您还可以邀请 [number] 名玩家.'
           accept:
-            description: accept an invitation
-            you-joined-island: '&a You joined an box! Use &b/[label] team &a to see
-              the other members.'
-            name-joined-your-island: '&a [name] joined your box!'
+            description: 同意邀请
+            you-joined-island: '&a 您加入了一个 box! 输入 &b/[label] team &a 来查看
+              其他成员.'
+            name-joined-your-island: '&a [name] 加入了您的 box!'
             confirmation: |-
-              &c Are you sure you want to accept this invite?
-              &c&l You will &n LOSE &r&c&l your current box!
+              &c 确认加入这个 box 吗?
+              &c&l 您将会 &n 失去 &r&c&l 您现在的 box!
           reject:
-            description: reject an invitation
-            you-rejected-invite: '&a You rejected the invitation to join an box.'
-            name-rejected-your-invite: '&c [name] rejected your box invite!'
+            description: 拒绝邀请
+            you-rejected-invite: '&a 您拒绝了加入 box 的邀请.'
+            name-rejected-your-invite: '&c [name] 拒绝了您的邀请!'
           cancel:
-            description: cancel the pending invite to join your box
+            description: 取消了待处理的邀请
         leave:
-          cannot-leave: '&c Owners cannot leave! Become a member first, or kick all
-            members.'
-          description: leave your box
-          left-your-island: '&c [name] &c left your box'
-          success: '&a You left this box.'
+          cannot-leave: '&c 主人无法退出! 请成为一名成员, 或移出
+            所有成员.'
+          description: 退出您的 box
+          left-your-island: '&c [name] &c 退出了您的 box'
+          success: '&a 您退出了此 box.'
         kick:
-          description: remove a member from your box
-          parameters: <player>
-          owner-kicked: '&c The owner kicked you from the box in [gamemode]!'
-          cannot-kick: '&c You cannot kick yourself!'
-          success: '&b [name] &a has been kicked from your box.'
+          description: 从您的 box 中移出一名成员
+          parameters: <玩家>
+          owner-kicked: '&c 您被 box 的主人在 [gamemode] 模式下移出!'
+          cannot-kick: '&c 您不能移出自己!'
+          success: '&b [name] &a 从您的 box 中被移出.'
         demote:
-          description: demote a player on your box down a rank
-          parameters: <player>
+          description: 降级一名 box 中的玩家
+          parameters: <玩家>
           errors:
-            cant-demote-yourself: '&c You can''t demote yourself!'
-          failure: '&c Player cannot be demoted any further!'
-          success: '&a Demoted [name] to [rank]'
+            cant-demote-yourself: '&c 您不能降级自己!'
+          failure: '&c 玩家无法再被降级!'
+          success: '&a 将 [name] 降级至 [rank]'
         promote:
-          description: promote a player on your box up a rank
-          parameters: <player>
-          failure: '&c Player cannot be promoted any further!'
-          success: '&a Promoted [name] to [rank]'
+          description: 升级一名 box 中的玩家
+          parameters: <玩家>
+          failure: '&c 玩家无法再被升级!'
+          success: '&a 将 [name] 升级至 [rank]'
         setowner:
-          description: transfer your box ownership to a member
+          description: 将 box 转让给其他成员
           errors:
-            cant-transfer-to-yourself: '&c You can''t transfer ownership to yourself!
-              &7 (&o Well, in fact, you could... But we don''t want you to. Because
-              it''s useless.&r &7 )'
-            target-is-not-member: '&c That player is not part of your box team!'
-          name-is-the-owner: '&a [name] is now the box owner!'
-          parameters: <player>
-          you-are-the-owner: '&a You are now the box owner!'
+            cant-transfer-to-yourself: '&c 您不能将 box 转让给自己!
+              &7 (&o 事实上, 这是可以的. 但这个操作没什么用.&r &7 )'
+            target-is-not-member: '&c 该玩家不是您 box 中的成员!'
+          name-is-the-owner: '&a [name] 现在是 box 的主人!'
+          parameters: <玩家>
+          you-are-the-owner: '&a 您现在是 box 的主人了!'
       ban:
-        description: ban a player from your box
-        parameters: <player>
-        cannot-ban-yourself: '&c You cannot ban yourself!'
-        cannot-ban: '&c That player cannot be banned.'
-        cannot-ban-member: '&c Kick the team member first, then ban.'
-        cannot-ban-more-players: '&c You reached the ban limit, you cannot ban any
-          more players from your box.'
-        player-already-banned: '&c Player is already banned.'
-        player-banned: '&b [name]&c  is now banned from your box.'
-        owner-banned-you: '&b [name]&c  banned you from their box!'
-        you-are-banned: '&b You are banned from this box!'
+        description: 为您的 box 禁止一名玩家
+        parameters: <玩家>
+        cannot-ban-yourself: '&c 您不能禁止自己!'
+        cannot-ban: '&c 无法禁止该玩家.'
+        cannot-ban-member: '&c 禁止该玩家之前请先将其移出.'
+        cannot-ban-more-players: '&c 达到最大禁止人数, 您不能再禁止
+          一名玩家了.'
+        player-already-banned: '&c 玩家已经被禁止了.'
+        player-banned: '&b [name]&c  现已被禁止.'
+        owner-banned-you: '&b [name]&c 禁止了您!'
+        you-are-banned: '&b 您被此 box 禁止!'
       unban:
-        description: unban a player from your box
-        parameters: <player>
-        cannot-unban-yourself: '&c You cannot unban yourself!'
-        player-not-banned: '&c Player is not banned.'
-        player-unbanned: '&b [name]&a  is now unbanned from your box.'
-        you-are-unbanned: '&b [name]&a  unbanned you from their box!'
+        description: 为您的 box 取消禁止一名玩家
+        parameters: <玩家>
+        cannot-unban-yourself: '&c 您不能取消禁止自己!'
+        player-not-banned: '&c 玩家未被禁止.'
+        player-unbanned: '&b [name]&a  现已被取消禁止.'
+        you-are-unbanned: '&b [name]&a 取消禁止了您!'
       banlist:
-        description: list banned players
-        noone: '&a No one is banned on this box.'
-        the-following: '&b The following players are banned:'
+        description: 列出被禁止的玩家
+        noone: '&a 没有人被此 box 禁止.'
+        the-following: '&b 以下玩家被禁止:'
         names: '&c [line]'
-        you-can-ban: '&b You can ban up to &e [number] &b more players.'
+        you-can-ban: '&b 您最多可以禁止 &e [number] &b 名玩家.'
       settings:
-        description: display box settings
+        description: 显示 box 设置
       language:
-        description: select language
+        description: 选择语言
         parameters: '[language]'
-        not-available: '&c This language is not available.'
-        already-selected: '&c You are already using this language.'
+        not-available: '&c 此语言不可用.'
+        already-selected: '&c 您已经在使用此语言了.'
       expel:
-        description: expel a player from your box
-        parameters: <player>
-        cannot-expel-yourself: '&c You cannot expel yourself!'
-        cannot-expel: '&c That player cannot be expelled.'
-        cannot-expel-member: '&c You cannot expel a team member!'
-        not-on-island: '&c That player is not on your box!'
-        player-expelled-you: '&b [name]&c  expelled you from the box!'
-        success: '&a You expelled &b [name] &a from the box.'
+        description: 从您的 box， 中驱逐一名玩家
+        parameters: <玩家>
+        cannot-expel-yourself: '&c 不能驱逐自己!'
+        cannot-expel: '&c 无法驱逐该玩家.'
+        cannot-expel-member: '&c 您不能驱逐一名成员!'
+        not-on-island: '&c 该玩家不在您的 box 上!'
+        player-expelled-you: '&b [name]&c 驱逐了您!'
+        success: '&a 您驱逐了玩家 &b [name] &a.'
     admin:
       team:
         add:
-          name-has-island: '&c [name] has a box. Unregister or delete them first!'
+          name-has-island: '&c [name] 已经拥有一个 box. 请先反注册或删除它们!'
         setowner:
-          description: transfers box ownership to the player
-          already-owner: '&c Player is already the owner of this box!'
+          description: 将 box 的所有权转让给玩家
+          already-owner: '&c 玩家已经是此 box 的主人了!'
       range:
-        description: Admin box range command
+        description: 管理员 box 边界指令
         display:
-          description: Show/hide box range indicators
+          description: 显示/隐藏 box 边界
           hint: |-
-            &c Red Barrier icons &f show the current protected range limit.
-            &7 Gray Particles &f show the max limit.
-            &a Green Particles &f show the default protected range if the protection range differs from it.
+            &c 红色屏障图标 &f 显示现有被保护的边界.
+            &7 灰色粒子 &f 显示最大边界范围.
+            &a 绿色粒子 &f 显示默认被保护的边界, 如果现在的边界不与其重合的话.
         set:
-          description: Sets the box protected range
+          description: 设置 box 被保护的边界范围
         reset:
-          description: Resets the protected range to the world default
+          description: 重置被保护的边界范围到当前世界的默认值
       register:
-        parameters: <player>
-        description: register player to unowned box you are in
-        registered-island: '&a Registered player to box at [xyz].'
-        already-owned: '&c Area is already owned by another player!'
-        no-island-here: '&c There is no player box here. Confirm to make one.'
-        in-deletion: '&c This space is currently being regenerated. Try later.'
+        parameters: <玩家>
+        description: 将玩家注册到您所在的未被拥有的 box 中
+        registered-island: '&a 在 [xyz] 将玩家注册到 box 中.'
+        already-owned: '&c 此区域已被其他玩家所有!'
+        no-island-here: '&c 这里还没有玩家的 box. 确认以创建一个.'
+        in-deletion: '&c 此区域现正在重新生成. 请稍后重试.'
       unregister:
-        description: unregister owner from a box, but keep box blocks as-is
-        unregistered-island: '&a Unregistered player from box at [xyz].'
+        description: 反注册 box 的主人, 同时保留 box 中的方块
+        unregistered-island: '&a 在 [xyz] 将玩家反注册.'
       info:
-        description: get info on where you are or on player
-        no-island: '&c You are not in a registered box right now...'
-        island-location: 'Area location: [xyz]'
-        island-coords: 'Area coordinates: [xz1] to [xz2]'
-        is-spawn: Area is a spawn island
+        description: 获取您所在区域或相应玩家的信息
+        no-island: '&c 您未在一个已注册的 box 中......'
+        island-location: '区域位置: [xyz]'
+        island-coords: '区域范围: [xz1] to [xz2]'
+        is-spawn: 该区域是主城
       setrange:
-        description: set the range of player's box
-        range-updated: Area range updated to [number]
+        description: 设置玩家的 box 的范围
+        range-updated: 区域范围更新至 [number]
       tp:
-        description: teleport to a player's box
+        description: 传送到一个玩家的 box
       getrank:
-        description: get a player's rank in their box
-        rank-is: '&a Rank is [rank] in their box.'
+        description: 查看玩家在 box 中的地位
+        rank-is: '&a 玩家在 box 中的地位是 [rank].'
       setrank:
-        description: set a player's rank in their box
+        description: 设置玩家在 box 中的地位
       setspawn:
-        description: set a box as spawn for this world
-        already-spawn: '&c This box is already a spawn!'
-        no-island-here: '&c There is no registered box here.'
-        confirmation: '&c Are you sure you want to set this box as the spawn for this
-          world?'
+        description: 设置此 box 为世界的主城
+        already-spawn: '&c 此 box 已经是主城了!'
+        no-island-here: '&c 此处没有已注册的 box.'
+        confirmation: '&c 确认要将此 box 设置为世界的主城吗?'
       delete:
-        description: deletes a player and regenerates their box
-        deleted-island: '&a Area at &e [xyz] &a has been successfully regenerated.'
+        description: 删除一名玩家并重置他(她)的 box
+        deleted-island: '&a &e[xyz] &a区域已重新生成.'
   protection:
     flags:
       ELYTRA:
-        description: Toggle use
+        description: 切换是否可用
       ENDERMAN_GRIEFING:
         description: |-
-          &a Endermen can remove
-          &a blocks
+          &a 末影人可以
+          &a 移动方块
       ENTER_EXIT_MESSAGES:
-        description: Display entry and exit messages
-        island: '[name]''s protected box'
-        name: Enter/Exit messages
-        now-entering: '&a Now entering &b [name]&a .'
-        now-entering-your-island: '&a Now entering your box.'
-        now-leaving: '&a Now leaving &b [name]&a .'
-        now-leaving-your-island: '&a Now leaving your box.'
+        description: 显示进入和离开消息
+        island: '[name] 的 box'
+        name: 进入/离开 消息
+        now-entering: '&a 正在进入 &b [name]&a .'
+        now-entering-your-island: '&a 正在进入您的 box.'
+        now-leaving: '&a 正在离开 &b [name]&a .'
+        now-leaving-your-island: '&a 正在离开您的 box.'
       GEO_LIMIT_MOBS:
         description: |-
-          &a Remove mobs that go
-          &a outside protected
-          &a player space
-        name: '&e Limit mobs to player box'
+          &a 移除在玩家
+          &a 保护区域之外
+          &a 的生物
+        name: '&e 限制生物进入玩家的 box'
       ISLAND_RESPAWN:
         description: |-
-          &a Players respawn
-          &a in their box
-        name: Area respawn
+          &a 玩家在他们的
+          &a box 中重生
+        name: 区域重生
       LOCK:
-        name: Lock player box
+        name: 锁定玩家的 box
       OFFLINE_REDSTONE:
-        description: "&a When disabled, redstone\n&a will not operate in boxes\n&a\
-          \ where all members are offline.\n&a May help reduce lag.   "
+        description: "&a 如果禁用, 当一个 box 的所有成员都离线时,\n\
+          \ &a 红石将无法在 box 中运作\n&a.\n&a 或许可以减少卡顿.   "
       PISTON_PUSH:
         description: |-
-          &a Allow pistons to push
-          &a blocks outside a player's box
+          &a 允许活塞将
+          &a 方块推出玩家的 box
       PVP_OVERWORLD:
         description: |-
-          &c Enable/Disable PVP
-          &c in protected box.
+          &c 允许/禁止 在
+          &c 受保护的 box 中 PVP.
       REMOVE_MOBS:
         description: |-
-          &a Remove monsters when
-          &a teleporting to a box
+          &a 当传送到一个 box 的时候
+          &a 移除所有怪物
       PREVENT_TELEPORT_WHEN_FALLING:
         description: |-
-          &a Prevent players from teleporting
-          &a if they are falling.
-        hint: '&c You cannot teleport while you are falling!'
-    locked: '&c This box is locked!'
-    protected: '&c Area protected: [description]'
+          &a 如果玩家在下落,
+          &a 阻止他们进行传送.
+        hint: '&c 您不能在下落的时候传送!'
+    locked: '&c 该 box 已被锁定!'
+    protected: '&c 区域被保护: [description]'
     panel:
       PROTECTION:
-        title: '&6 Protection'
+        title: '&6 保护'
         description: |-
-          &a Protection settings
-          &a for this box
+          &a 为此 box
+          &a 进行保护设置
       SETTING:
         description: |-
-          &a General settings
-          &a for this box
+          &a 为此 box
+          &a 生成设置
   advancements:
     minecraft:adventure/adventuring_time: ''
     minecraft:adventure/arbalistic: ''
@@ -1283,5 +1274,5 @@ boxed:
 protection:
   flags:
     MOVE_BOX:
-      name: Move Box
-      description: "&b Toggle who can\n&b move the box with\n&b EnderPearls   \n"
+      name: 移动 box
+      description: "&b 切换谁可以\n&b 使用末影珍珠\n&b 移动 box   \n"

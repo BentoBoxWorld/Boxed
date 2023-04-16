@@ -2,56 +2,41 @@
 distribution:
   overworld:
     north-east:
-    - 0.05:PLAINS
+    - 0.05:CUSTOM
     - 0.1:DESERT
     - 0.2:SAVANNA
-    - 0.4:JUNGLE_EDGE
-    - 0.5:JUNGLE
-    - 0.6:JUNGLE_HILLS
-    - 0.75:BAMBOO_JUNGLE_HILLS
+    - 0.5:SPARSE_JUNGLE
+    - 0.65:JUNGLE
     - 0.8:BAMBOO_JUNGLE
-    - 0.9:BADLANDS_PLATEAU
-    - 1.0:BADLANDS
-    - 1.1:LUKEWARM_OCEAN
-    - 20.0:WARM_OCEAN
+    - 1.0:MANGROVE_SWAMP
     south-east:
-    - 0.05:PLAINS
-    - 0.1:SUNFLOWER_PLAINS
+    - 0.05:CUSTOM
+    - 0.8:SUNFLOWER_PLAINS
     - 0.2:FLOWER_FOREST
     - 0.3:SAVANNA
-    - 0.4:DESERT
-    - 0.5:SHATTERED_SAVANNA
-    - 0.65:DESERT_HILLS
-    - 0.7:GRAVELLY_MOUNTAINS
-    - 0.9:BADLANDS_PLATEAU
-    - 1.0:ERODED_BADLANDS
-    - 1.1:MUSHROOM_FIELD_SHORE
-    - 20.0:WARM_OCEAN
+    - 0.4:BEACH
+    - 0.5:COLD_OCEAN
     north-west:
-    - 0.05:PLAINS
-    - 0.25:FOREST
-    - 0.3:FLOWER_FOREST
-    - 0.4:DARK_FOREST
-    - 0.5:SNOWY_TAIGA
-    - 0.65:SNOWY_TAIGA_HILLS
-    - 0.7:SNOWY_MOUNTAINS
-    - 0.9:MOUNTAIN_EDGE
-    - 1.1:BEACH
-    - 20.0:COLD_OCEAN
+    - 0.05:CUSTOM
+    - 0.8:WARM_OCEAN
+    - 1.5:COLD_OCEAN
+    - 2.0:OCEAN
     south-west:
-    - 0.05:PLAINS
-    - 0.25:SWAMP
-    - 0.3:FOREST
-    - 0.4:DARK_FOREST
-    - 0.5:SNOWY_TAIGA
-    - 0.65:SNOWY_TAIGA_HILLS
-    - 0.7:SNOWY_MOUNTAINS
-    - 0.9:MOUNTAIN_EDGE
-    - 1.1:ICE_SPIKES
-    - 20.0:COLD_OCEAN
+    - 0.04:CUSTOM
+    - 0.05:DARK_FOREST
+    - 0.06:BIRCH_FOREST
+    - 0.07:FOREST
+    - 0.09:OLD_GROWTH_PINE_TAIGA
+    - 0.12:TAIGA
+    - 0.25:SNOWY_BEACH
+    - 0.3:FROZEN_OCEAN
+    - 0.5:ICE_SPIKES
+    - 0.7:TAIGA
+    - 1.1:SNOWY_PLAINS
+    - 2.1:SNOWY_TAIGA
   nether:
     north-east:
-    - 0.03:NETHER_WASTES
+    - 0.1:CUSTOM
     - 0.14:CRIMSON_FOREST
     - 0.26:NETHER_WASTES
     - 0.51:WARPED_FOREST
@@ -61,7 +46,7 @@ distribution:
     - 1.6:BASALT_DELTAS
     - 2.1:NETHER_WASTES
     south-east:
-    - 0.03:NETHER_WASTES
+    - 0.03:CUSTOM
     - 0.05:CRIMSON_FOREST
     - 0.23:NETHER_WASTES
     - 0.48:WARPED_FOREST
@@ -71,7 +56,7 @@ distribution:
     - 1.9:BASALT_DELTAS
     - 2.0:NETHER_WASTES
     north-west:
-    - 0.03:NETHER_WASTES
+    - 0.10:CUSTOM
     - 0.15:CRIMSON_FOREST
     - 0.20:NETHER_WASTES
     - 0.3:WARPED_FOREST
@@ -81,7 +66,7 @@ distribution:
     - 1.5:BASALT_DELTAS
     - 2.0:NETHER_WASTES
     south-west:
-    - 0.03:NETHER_WASTES
+    - 0.03:CUSTOM
     - 0.11:CRIMSON_FOREST
     - 0.22:NETHER_WASTES
     - 0.51:WARPED_FOREST
@@ -90,230 +75,3 @@ distribution:
     - 1.26:SOUL_SAND_VALLEY
     - 1.54:BASALT_DELTAS
     - 2.1:NETHER_WASTES
-nether:
-  biomes:
-    NETHER_WASTES:
-      height: 0
-      vscale: 2
-      scale: 8
-    BASALT_DELTAS:
-      height: 0
-      vscale: 1
-      scale: 1
-    CRIMSON_FOREST:
-      height: 10
-      vscale: 10
-      scale: 10
-    SOUL_SAND_VALLEY:
-      height: 8
-      vscale: 16
-      scale: 16
-    WARPED_FOREST:
-      height: 9
-      vscale: 10
-      scale: 10 
-biomes:
-  BADLANDS_PLATEAU: 
-    height: 9
-    scale: 16
-  BADLANDS:
-    height: 8
-    scale: 10
-  BAMBOO_JUNGLE_HILLS: 
-    height: 9
-    scale: 2.5
-  BAMBOO_JUNGLE: 
-    height: 8
-    scale: 10
-  BEACH: 
-    height: 7
-    scale: 16
-  BIRCH_FOREST_HILLS: 
-    height: 9
-    scale: 2.5
-  BIRCH_FOREST: 
-    height: 8
-    scale: 10
-  COLD_OCEAN: 
-    height: 5
-    scale: 3.33
-  DARK_FOREST_HILLS: 
-    height: 9
-    scale: 2.5
-  DARK_FOREST: 
-    height: 8
-    scale: 10
-  DEEP_COLD_OCEAN: 
-    height: 5
-    scale: 3.33
-  DEEP_FROZEN_OCEAN: 
-    height: 5
-    scale: 3.33
-  DEEP_LUKEWARM_OCEAN: 
-    height: 5
-    scale: 3.33
-  DEEP_OCEAN: 
-    height: 5
-    scale: 3.33
-  DEEP_WARM_OCEAN: 
-    height: 5
-    scale: 3.33
-  DESERT_HILLS: 
-    height: 9
-    scale: 2.5
-  DESERT_LAKES: 
-    height: 8
-    scale: 10
-  DESERT: 
-    height: 8
-    scale: 15
-  ERODED_BADLANDS: 
-    height: 8
-    scale: 17
-  FLOWER_FOREST: 
-    height: 8
-    scale: 10
-  FOREST: 
-    height: 8
-    scale: 10
-  FROZEN_OCEAN: 
-    height: 5
-    scale: 3.33
-  FROZEN_RIVER: 
-    height: 5
-    scale: 10
-  GIANT_SPRUCE_TAIGA_HILLS: 
-    height: 9
-    scale: 2.5
-  GIANT_SPRUCE_TAIGA: 
-    height: 8
-    scale: 10
-  GIANT_TREE_TAIGA_HILLS: 
-    height: 9
-    scale: 2.5
-  GIANT_TREE_TAIGA: 
-    height: 8
-    scale: 10
-  GRAVELLY_MOUNTAINS: 
-    height: 10
-    scale: 2.5
-  ICE_SPIKES: 
-    height: 8
-    scale: 20
-  JUNGLE_EDGE: 
-    height: 8
-    scale: 10
-  JUNGLE_HILLS: 
-    height: 9
-    scale: 2.5
-  JUNGLE: 
-    height: 8
-    scale: 10
-  LUKEWARM_OCEAN: 
-    height: 5
-    scale: 3.33
-  MODIFIED_BADLANDS_PLATEAU: 
-    height: 9
-    scale: 16
-  MODIFIED_GRAVELLY_MOUNTAINS: 
-    height: 10
-    scale: 2.5
-  MODIFIED_JUNGLE_EDGE: 
-    height: 8
-    scale: 10
-  MODIFIED_JUNGLE: 
-    height: 8
-    scale: 10
-  MODIFIED_WOODED_BADLANDS_PLATEAU: 
-    height: 9
-    scale: 16
-  MOUNTAIN_EDGE: 
-    height: 10
-    scale: 2.5
-  MOUNTAINS: 
-    height: 10
-    scale: 2.5
-  MUSHROOM_FIELD_SHORE: 
-    height: 5
-    scale: 10
-  MUSHROOM_FIELDS: 
-    height: 8
-    scale: 10
-  OCEAN: 
-    height: 5
-    scale: 3.33
-  PLAINS: 
-    height: 8
-    scale: 10
-  RIVER: 
-    height: 5
-    scale: 10
-  SAVANNA_PLATEAU: 
-    height: 9
-    scale: 16
-  SAVANNA: 
-    height: 8
-    scale: 10
-  SHATTERED_SAVANNA_PLATEAU: 
-    height: 9
-    scale: 16
-  SHATTERED_SAVANNA: 
-    height: 8
-    scale: 10
-  SNOWY_BEACH: 
-    height: 7
-    scale: 16
-  SNOWY_MOUNTAINS: 
-    height: 10
-    scale: 2.5
-  SNOWY_TAIGA_HILLS: 
-    height: 9
-    scale: 2.5
-  SNOWY_TAIGA_MOUNTAINS: 
-    height: 10
-    scale: 2.5
-  SNOWY_TAIGA: 
-    height: 8
-    scale: 10
-  SNOWY_TUNDRA: 
-    height: 8
-    scale: 10
-  STONE_SHORE: 
-    height: 8
-    scale: 10
-  SUNFLOWER_PLAINS: 
-    height: 8
-    scale: 10
-  SWAMP_HILLS: 
-    height: 9
-    scale: 2.5
-  SWAMP: 
-    height: 8
-    scale: 10
-  TAIGA_HILLS: 
-    height: 9
-    scale: 2.5
-  TAIGA_MOUNTAINS: 
-    height: 10
-    scale: 2.5
-  TAIGA: 
-    height: 8
-    scale: 10
-  TALL_BIRCH_FOREST: 
-    height: 8
-    scale: 10
-  TALL_BIRCH_HILLS: 
-    height: 9
-    scale: 2.5
-  WARM_OCEAN: 
-    height: 5
-    scale: 3.33
-  WOODED_BADLANDS_PLATEAU: 
-    height: 9
-    scale: 16
-  WOODED_HILLS: 
-    height: 9
-    scale: 2.5
-  WOODED_MOUNTAINS: 
-    height: 10
-    scale: 2.5

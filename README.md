@@ -81,6 +81,7 @@ Setting ocean biomes to higher height numbers will result in the ocean floor bei
 A lot of these numbers are rough guesses right now and if you come up with better values, please share them!
 
 
-
+## Custom Advancements
+To find out how to add custom advacements to your server, watch the tutorial video [here](https://www.youtube.com/watch?v=zNzQvIbweQs)! 
 
 

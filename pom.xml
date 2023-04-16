@@ -54,18 +54,18 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>16</java.version>
+        <java.version>17</java.version>
         <!-- Non-minecraft related dependencies -->
         <powermock.version>2.0.9</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.17-R0.1-SNAPSHOT</spigot.version>
-        <bentobox.version>1.17.3</bentobox.version>
+        <spigot.version>1.19.4-R0.1-SNAPSHOT</spigot.version>
+        <bentobox.version>1.23.0</bentobox.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- Do not change unless you want different name for local builds. -->
         <build.number>-LOCAL</build.number>
         <!-- This allows to change between versions. -->
-        <build.version>1.2.1</build.version>
+        <build.version>2.0.2</build.version>
 
         <sonar.projectKey>BentoBoxWorld_Boxed</sonar.projectKey>
         <sonar.organization>bentobox-world</sonar.organization>
@@ -127,6 +127,15 @@
             <id>codemc-repo</id>
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>minecraft-repo</id>
+            <url>https://libraries.minecraft.net/</url>
+        </repository>
+        <!-- Spigot NMS required for world regeneration :( -->
+        <repository>
+            <id>nms-repo</id>
+            <url>https://repo.codemc.io/repository/nms/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -141,7 +150,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.11.1</version>
+            <version>4.8.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -162,13 +171,14 @@
             <version>${bentobox.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Spigot NMS. Used for chunk deletion and pasting. -->
         <dependency>
-            <groupId>nl.rutgerkok</groupId>
-            <artifactId>worldgeneratorapi</artifactId>
-            <version>1.2.0</version>
-            <scope>provided</scope> <!-- Important, otherwise WorldGeneratorApi will be placed in your JAR file 
-                if you're using maven-shade-plugin -->
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>${spigot.version}</version>
+            <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <build>

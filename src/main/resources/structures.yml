@@ -1,0 +1,45 @@
+normal:
+  0,64,80: village/plains/houses/plains_masons_house_1,CLOCKWISE_90
+  -38,63,20: ruined_portal/portal_5
+  3,58,-60: shipwreck/rightsideup_backhalf
+  -17,56,0: shipwreck/rightsideup_full_degraded,CLOCKWISE_180
+  16,67,13: village/plains/houses/plains_cartographer_1
+  -66,63,17: igloo/top
+  -34,52,-35: underwater_ruin/warm_2
+  -25,46,-61: underwater_ruin/big_warm_4,COUNTERCLOCKWISE_90,NONE
+  33,69,-34: village/savanna/town_centers/savanna_meeting_point_1
+  26,70,-41: village/savanna/houses/savanna_medium_house_2,NONE,NONE
+  42,69,-21: village/savanna/houses/savanna_large_farm_2,NONE,NONE
+  13,69,-37: village/savanna/houses/savanna_animal_pen_2,CLOCKWISE_180,NONE
+  53,71,-23: village/savanna/houses/savanna_small_house_4,NONE,NONE
+  34,69,-29: village/common/iron_golem
+  41,69,-26: village/common/animals/cat_calico
+  35,69,-22: village/common/animals/cat_calico
+  99,72,118: pillager_outpost/feature_cage1
+  33,72,100: village/desert/houses/desert_farm_1
+  26,72,100: village/desert/houses/desert_medium_house_1
+  36,72,97: village/plains/villagers/unemployed
+  34,72,98: village/plains/villagers/unemployed
+  15,70,108: village/desert/houses/desert_butcher_shop_1
+  10,70,112: village/desert/houses/desert_temple_1,COUNTERCLOCKWISE_90
+  -71,63,107: igloo/top
+  80,71,113: pillager_outpost/watchtower
+  15,67,16: village/plains/villagers/unemployed,NONE,NONE
+  51,76,22: ruined_portal/portal_6,NONE,NONE
+  -26,70,33: village/snowy/houses/snowy_library_1,CLOCKWISE_180,NONE
+  -31,71,30: village/plains/villagers/unemployed,CLOCKWISE_180,NONE
+  -3,65,84: village/plains/villagers/unemployed,CLOCKWISE_180,NONE
+  -50,71,50: village/snowy/houses/snowy_medium_house_2,COUNTERCLOCKWISE_90,NONE
+  -52,72,33: village/snowy/houses/snowy_farm_1,COUNTERCLOCKWISE_90,NONE
+  -28,63,47: village/snowy/snowy_lamp_post_01,COUNTERCLOCKWISE_90,NONE
+  -6,64,52: village/snowy/houses/snowy_small_house_3,COUNTERCLOCKWISE_90,NONE
+  40,73,-3: village/savanna/houses/savanna_small_house_1,CLOCKWISE_180
+
+nether:
+  16,32,0: bastion/bridge/starting_pieces/entrance
+  62,33,-17: bastion/hoglin_stable/walls/wall_base
+  68,32,-13: bastion/hoglin_stable/large_stables/inner_0
+  79,33,-10: bastion/hoglin_stable/ramparts/ramparts_1
+  75,34,-4: bastion/hoglin_stable/ramparts/ramparts_3
+  66,39,-7: bastion/hoglin_stable/large_stables/inner_3
+  73,24,-8: bastion/hoglin_stable/stairs/stairs_3_3
