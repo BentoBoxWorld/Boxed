@@ -72,11 +72,11 @@ public class AdvancementsManager {
         while (ad.hasNext()) {
             Advancement a = ad.next();
             int score = getScore(a);
-                BentoBox.getInstance().logDebug("  'minecraft:" + a.getKey().getKey() + "': " + score);   
+                BentoBox.getInstance().logDebug("  'minecraft:" + a.getKey().getKey() + "': " + score);
                 scoreTotal += score;
         }
         BentoBox.getInstance().logDebug("Sum total = " + scoreTotal);
-        */
+         */
     }
 
     /**
@@ -242,7 +242,7 @@ public class AdvancementsManager {
      * @param a - advancement
      * @return score of advancement, or 0 if cannot be worked out
      */
-    public int getScore(Advancement a) {  
+    public int getScore(Advancement a) {
         String adv = "advancements." + a.getKey().getKey();
         // Unknowns
         if (adv.endsWith("/root")) {
