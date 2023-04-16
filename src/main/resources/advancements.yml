@@ -7,6 +7,8 @@ settings:
   automatic-scoring: true
 advancements:
   'exploration/jungle_in': 0
+  'exploration/write_book': 0
+  'forestry/sapling' : 0
   'adventure/adventuring_time': 13
   'adventure/arbalistic': 11
   'adventure/avoid_vibration': 13
