@@ -2,10 +2,12 @@ package world.bentobox.boxed.listeners;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Random;
 
@@ -26,9 +28,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.loot.LootTables;
 import org.bukkit.structure.Structure;
 import org.bukkit.util.BoundingBox;
@@ -45,12 +49,14 @@ import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.BentoBoxReadyEvent;
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent;
 import world.bentobox.bentobox.api.events.island.IslandResettedEvent;
+import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.objects.BoxedJigsawBlock;
 import world.bentobox.boxed.objects.BoxedStructureBlock;
+import world.bentobox.boxed.objects.IslandStructures;
 
 /**
  * @author tastybento
@@ -59,6 +65,14 @@ import world.bentobox.boxed.objects.BoxedStructureBlock;
 public class NewAreaListener implements Listener {
 
     private static final List<BlockFace> CARDINALS = List.of(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
+    private static final List<String> STRUCTURES = List.of("ancient_city", "bastion_remnant",  "bastion",
+            "buried_treasure", "desert_pyramid", "end_city",
+            "fortress", "igloo", "jungle_pyramid", "mansion", "mineshaft",  "mineshaft_mesa",
+            "monument", "nether_fossil", "ocean_ruin_cold", "ocean_ruin_warm", "pillager_outpost",
+            "ruined_portal_desert", "ruined_portal_jungle", "ruined_portal_mountain", "ruined_portal_nether",
+            "ruined_portal_ocean", "ruined_portal_swamp", "ruined_portal", "shipwreck_beached",
+            "shipwreck", "stronghold", "swamp_hut", "village_desert", "village_plains",
+            "village_savanna", "village_snowy", "village_taiga");
     private final Boxed addon;
     private File structureFile;
     private Queue<Item> itemsToBuild = new LinkedList<>();
@@ -68,6 +82,10 @@ public class NewAreaListener implements Listener {
     private record Item(String name, Structure structure, Location location, StructureRotation rot, Mirror mirror) {};
     Pair<Integer, Integer> min = new Pair<Integer, Integer>(0,0);
     Pair<Integer, Integer> max = new Pair<Integer, Integer>(0,0);
+    // Database handler for structure data
+    private final Database<IslandStructures> handler;
+    private Map<String, IslandStructures> islandStructureCache = new HashMap<>();
+
 
 
     /**
@@ -78,7 +96,8 @@ public class NewAreaListener implements Listener {
         addon.saveResource("structures.yml", false);
         // Load the config
         structureFile = new File(addon.getDataFolder(), "structures.yml");
-
+        // Get database ready
+        handler = new Database<>(addon, IslandStructures.class);
         // Try to build something every second
         Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), () -> BuildItem(), 20, 20);
     }
@@ -96,7 +115,7 @@ public class NewAreaListener implements Listener {
      * Build a list of structures
      * @param event event
      */
-    @EventHandler()
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBentoBoxReady(BentoBoxReadyEvent event) {
         addon.saveResource("templates.yml", false);
         File templateFile = new File(addon.getDataFolder(), "templates.yml");
@@ -111,6 +130,58 @@ public class NewAreaListener implements Listener {
             }
         }
 
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent e) {
+        // Ignore head movements
+        if (!addon.inWorld(e.getFrom().getWorld()) || e.getFrom().toVector().equals(e.getTo().toVector())) {
+            return;
+        }
+        // Check where the player is
+        addon.getIslands().getIslandAt(e.getTo()).ifPresent(island -> {
+            // See if island is in cache
+            final String islandId = island.getUniqueId();
+            IslandStructures is = getIslandStructData(islandId);
+            // Check if player is in any of the structures
+            Map<BoundingBox, String> structures = e.getTo().getWorld().getEnvironment().equals(Environment.NETHER) ?
+                    is.getNetherStructureBoundingBoxMap():is.getStructureBoundingBoxMap();
+            for (Map.Entry<BoundingBox, String> en:structures.entrySet()) {
+                if (en.getKey().contains(e.getTo().toVector())) {
+                    for (String s: STRUCTURES) {
+                        if (en.getValue().startsWith(s)) {
+                            giveAdvFromCriteria(e.getPlayer(), s);
+                        }
+                    }
+                    //STRUCTURES.stream().filter(en.getValue()::startsWith).forEach(s -> giveAdvFromCriteria(e.getPlayer(), s));
+                }
+            }
+        });
+    }
+
+    /**
+     * Gives a player all the advancements that have string as a named criteria
+     * @param player - player
+     * @param string - criteria
+     */
+    private void giveAdvFromCriteria(Player player, String string) {
+        // Give every advancement that requires a bastion
+        Bukkit.advancementIterator().forEachRemaining(ad -> {
+            if (!player.getAdvancementProgress(ad).isDone()) {
+                for (String crit: ad.getCriteria()) {
+                    if (crit.equals(string)) {
+                        // Set the criteria (it may not complete the advancement completely
+                        player.getAdvancementProgress(ad).awardCriteria(crit);
+                        break;
+                    }
+                }
+            }
+        });
+
+    }
+
+    private IslandStructures getIslandStructData(String islandId) {
+        return this.islandStructureCache.computeIfAbsent(islandId, k -> Objects.requireNonNullElse(handler.loadObject(k), new IslandStructures(islandId)));
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -185,7 +256,18 @@ public class NewAreaListener implements Listener {
         item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
         addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " " + Util.xyz(item.location().toVector()));
         // Find it
-        removeJigsaw(item.location(), item.structure(), item.rot(), item.name());
+        BoundingBox bb = removeJigsaw(item.location(), item.structure(), item.rot(), item.name());
+        // Store it
+        addon.getIslands().getIslandAt(item.location()).map(Island::getUniqueId).ifPresent(id -> {
+            addon.log("Saved " + item.name());
+            if (item.location().getWorld().getEnvironment().equals(Environment.NETHER)) {
+                getIslandStructData(id).addNetherStructure(bb, item.name());
+            } else {
+                getIslandStructData(id).addStructure(bb, item.name());
+            }
+            handler.saveObjectAsync(getIslandStructData(id));
+        });
+
         pasting = false;
     }
 
@@ -195,8 +277,9 @@ public class NewAreaListener implements Listener {
      * @param structure - structure that was placed
      * @param structureRotation - rotation of structure
      * @param key
+     * @return the resulting bounding box of the structure
      */
-    public static void removeJigsaw(Location loc, Structure structure, StructureRotation structureRotation, String key) {
+    public static BoundingBox removeJigsaw(Location loc, Structure structure, StructureRotation structureRotation, String key) {
         Location otherCorner = switch (structureRotation) {
 
         case CLOCKWISE_180 -> loc.clone().add(new Vector(-structure.getSize().getX(), structure.getSize().getY(), -structure.getSize().getZ()));
@@ -227,7 +310,7 @@ public class NewAreaListener implements Listener {
                 }
             }
         }
-
+        return bb;
     }
 
 

@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.island.IslandNewIslandEvent;
 import world.bentobox.bentobox.api.events.team.TeamJoinedEvent;
 import world.bentobox.bentobox.api.events.team.TeamLeaveEvent;
@@ -66,7 +67,7 @@ public class AdvancementListener implements Listener {
     }
 
 
-    private Advancement getAdvancement(String string) {
+    public static Advancement getAdvancement(String string) {
         return StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(Bukkit.advancementIterator(), Spliterator.ORDERED), false)
                 .filter(a -> a.getKey().toString().equals(string))
@@ -191,14 +192,28 @@ public class AdvancementListener implements Listener {
     }
 
 
-    private void giveAdv(Player player, Advancement adv) {
+    public static void giveAdv(Player player, Advancement adv) {
+        //BentoBox.getInstance().logDebug("Give Adv " + adv.getKey() + " done status " + player.getAdvancementProgress(adv).isDone());
         if (adv != null && !player.getAdvancementProgress(adv).isDone()) {
+            BentoBox.getInstance().logDebug("Awarding ");
+            //adv.getCriteria().forEach(c -> BentoBox.getInstance().logDebug("Criteria = " + c));
             adv.getCriteria().forEach(player.getAdvancementProgress(adv)::awardCriteria);
         }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent e) {
+        /*
+        StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(Bukkit.advancementIterator(), Spliterator.ORDERED), false).forEach(a-> {
+                    AdvancementProgress progress = e.getPlayer().getAdvancementProgress(a);
+                    BentoBox.getInstance().logDebug(a.getKey() + " " + progress.isDone());
+                    BentoBox.getInstance().logDebug("Awarded");
+                    progress.getAwardedCriteria().forEach(c -> BentoBox.getInstance().logDebug(c));
+                    BentoBox.getInstance().logDebug("Remaining");
+                    progress.getRemainingCriteria().forEach(c -> BentoBox.getInstance().logDebug(c));
+                });
+         */
         User user = User.getInstance(e.getPlayer());
         if (Util.sameWorld(addon.getOverWorld(), e.getPlayer().getWorld())) {
             // Set advancements to same as island
