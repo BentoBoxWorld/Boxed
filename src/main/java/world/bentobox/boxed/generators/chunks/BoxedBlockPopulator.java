@@ -18,6 +18,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.util.Vector;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.util.Pair;
@@ -117,6 +118,7 @@ public class BoxedBlockPopulator extends BlockPopulator {
         spawner.setDelay(s.getDelay());
         spawner.setRequiredPlayerRange(s.getRequiredPlayerRange());
         spawner.setSpawnRange(s.getSpawnRange());
+        BentoBox.getInstance().logDebug("Set spawner at " + spawner.getLocation() + " to " + s.getSpawnedType());
         spawner.update(true, false);
     }
 
