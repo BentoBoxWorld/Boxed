@@ -1,5 +1,5 @@
 # This file is written by the /boxadmin place command
-ormal:
+normal:
   0,64,80: village/plains/houses/plains_masons_house_1,CLOCKWISE_90
   -38,63,20: ruined_portal/portal_5
   3,58,-60: shipwreck/rightsideup_backhalf

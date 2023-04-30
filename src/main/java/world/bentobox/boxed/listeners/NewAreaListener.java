@@ -385,9 +385,9 @@ public class NewAreaListener implements Listener {
                 } else if (bjb.getPool().contains("villagers")) {
                     type = EntityType.VILLAGER;
                 }
-                if (type == null) {
-                    BentoBox.getInstance().logDebug(bjb.getPool());
-                }
+                //if (type == null) {
+                //    BentoBox.getInstance().logDebug(bjb.getPool());
+                //}
                 // Spawn it
                 if (type != null && b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type) != null) {
                     //BentoBox.getInstance().logDebug("Spawned a " + type + " at " + b.getRelative(BlockFace.UP).getLocation());
