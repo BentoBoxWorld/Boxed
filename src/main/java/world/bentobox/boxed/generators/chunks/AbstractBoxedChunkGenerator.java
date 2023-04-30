@@ -53,12 +53,12 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
                 }
             }
         }
-        chunks.put(new Pair<>(x, z), new ChunkStore(chunk.getChunkSnapshot(), getEnts(chunk), getChests(chunk), chunkBiomes));
+        chunks.put(new Pair<>(x, z), new ChunkStore(chunk.getChunkSnapshot(), getEnts(chunk), getTileEnts(chunk), chunkBiomes));
     }
 
     protected abstract List<EntityData> getEnts(Chunk chunk);
 
-    protected abstract List<ChestData> getChests(Chunk chunk);
+    protected abstract List<ChestData> getTileEnts(Chunk chunk);
 
     /**
      * Get the chunk store for these chunk coords or null if there is none.
@@ -84,13 +84,15 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
      * @return mapped chunk coord
      */
     public static int repeatCalc(int chunkCoord) {
+        return Math.floorMod(chunkCoord + size, size*2) - size;
+        /*
         int xx;
         if (chunkCoord > 0) {
             xx = Math.floorMod(chunkCoord + size, size*2) - size;
         } else {
             xx = Math.floorMod(chunkCoord - size, -size*2) + size;
         }
-        return xx;
+        return xx;*/
     }
 
     /**

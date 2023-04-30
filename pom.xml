@@ -150,7 +150,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.8.0</version>
+            <version>3.11.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -217,7 +217,7 @@
                 </includes>
             </resource>
         </resources>
-        <plugins>
+         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -236,7 +236,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <release>${java.version}</release>
                 </configuration>
@@ -247,14 +247,61 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <argLine>
-                        --illegal-access=permit
+                        ${argLine}
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.math=ALL-UNNAMED
+                        --add-opens java.base/java.io=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.util.stream=ALL-UNNAMED
+                        --add-opens java.base/java.text=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.util.regex=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.nio.channels.spi=ALL-UNNAMED
+                        --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+                        --add-opens java.base/java.net=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.util.concurrent=ALL-UNNAMED
+                        --add-opens java.base/sun.nio.fs=ALL-UNNAMED
+                        --add-opens java.base/sun.nio.cs=ALL-UNNAMED
+                        --add-opens java.base/java.nio.file=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.nio.charset=ALL-UNNAMED
+                        --add-opens
+                        java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens
+                        java.logging/java.util.logging=ALL-UNNAMED
+                        --add-opens java.base/java.lang.ref=ALL-UNNAMED
+                        --add-opens java.base/java.util.jar=ALL-UNNAMED
+                        --add-opens java.base/java.util.zip=ALL-UNNAMED
                     </argLine>
                 </configuration>
             </plugin>
-            <plugin>
+           <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.1.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                    <!-- To compile with Java 11, this tag may be required -->
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -282,7 +329,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.3</version>
+                <version>0.8.7</version>
                 <configuration>
                     <append>true</append>
                     <excludes>
@@ -293,16 +340,21 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>pre-unit-test</id>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>post-unit-test</id>
+                        <id>report</id>
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <formats>
+                                <format>XML</format>
+                            </formats>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

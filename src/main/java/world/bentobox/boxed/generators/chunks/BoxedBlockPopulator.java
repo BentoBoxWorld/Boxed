@@ -18,7 +18,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.util.Vector;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.util.Pair;
@@ -53,7 +52,6 @@ public class BoxedBlockPopulator extends BlockPopulator {
             ChunkStore data = chunks.get(coords);
             // Paste entities
             data.bpEnts().forEach(e -> {
-
                 Location l = getLoc(world, e.relativeLoc().clone(), chunkX, chunkZ);
                 if (limitedRegion.isInRegion(l)) {
                     Entity ent = limitedRegion.spawnEntity(l, e.entity().getType());
@@ -62,10 +60,14 @@ public class BoxedBlockPopulator extends BlockPopulator {
             });
             // Fill chests
             limitedRegion.getTileEntities().forEach(te -> {
-                for (ChestData cd : data.chests()) {
-                    Location chestLoc = getLoc(world, cd.relativeLoc().clone(), chunkX, chunkZ);
-                    if (limitedRegion.isInRegion(chestLoc) && te.getLocation().equals(chestLoc)) {
-                        this.setBlockState(te, cd.chest());
+                int teX = BoxedChunkGenerator.repeatCalc(te.getX() >> 4);
+                int teZ = BoxedChunkGenerator.repeatCalc(te.getZ() >> 4);
+                if (teX == xx && teZ == zz) { 
+                    for (ChestData cd : data.chests()) {
+                        Location chestLoc = getLoc(world, cd.relativeLoc().clone(), chunkX, chunkZ);
+                        if (limitedRegion.isInRegion(chestLoc) && te.getLocation().equals(chestLoc)) {
+                            this.setBlockState(te, cd.chest());
+                        }
                     }
                 }
             });
@@ -118,7 +120,6 @@ public class BoxedBlockPopulator extends BlockPopulator {
         spawner.setDelay(s.getDelay());
         spawner.setRequiredPlayerRange(s.getRequiredPlayerRange());
         spawner.setSpawnRange(s.getSpawnRange());
-        BentoBox.getInstance().logDebug("Set spawner at " + spawner.getLocation() + " to " + s.getSpawnedType());
         spawner.update(true, false);
     }
 

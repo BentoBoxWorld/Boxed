@@ -280,7 +280,7 @@ public class Boxed extends GameModeAddon {
                 int p = (int) (count / percent * 100);
                 if (p % 10 == 0 && p != last) {
                     last = p;
-                    this.log("Storing seed chunks for " + world.getEnvironment() + " " + p + "% done");
+                    this.log("Pregenrating seed chunks for " + world.getName() + "'s " + world.getEnvironment() + " " + p + "% done");
                 }
 
             }
@@ -293,10 +293,7 @@ public class Boxed extends GameModeAddon {
      * @return the chunkGenerator for the environment
      */
     public AbstractBoxedChunkGenerator getChunkGenerator(Environment env) {
-        if (env.equals(Environment.NORMAL)) {
-            return chunkGenerator;
-        }
-        return netherChunkGenerator;
+        return env.equals(Environment.NORMAL) ? chunkGenerator : netherChunkGenerator;
     }
 
     /**

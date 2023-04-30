@@ -30,7 +30,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.island.IslandNewIslandEvent;
 import world.bentobox.bentobox.api.events.team.TeamJoinedEvent;
 import world.bentobox.bentobox.api.events.team.TeamLeaveEvent;
@@ -195,8 +194,6 @@ public class AdvancementListener implements Listener {
     public static void giveAdv(Player player, Advancement adv) {
         //BentoBox.getInstance().logDebug("Give Adv " + adv.getKey() + " done status " + player.getAdvancementProgress(adv).isDone());
         if (adv != null && !player.getAdvancementProgress(adv).isDone()) {
-            BentoBox.getInstance().logDebug("Awarding ");
-            //adv.getCriteria().forEach(c -> BentoBox.getInstance().logDebug("Criteria = " + c));
             adv.getCriteria().forEach(player.getAdvancementProgress(adv)::awardCriteria);
         }
     }
