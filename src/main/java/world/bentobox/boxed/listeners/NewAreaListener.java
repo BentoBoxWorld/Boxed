@@ -79,7 +79,7 @@ public class NewAreaListener implements Listener {
     private static Random rand = new Random();
     private boolean pasting;
     private static Gson gson = new Gson();
-    private record Item(String name, Structure structure, Location location, StructureRotation rot, Mirror mirror) {};
+    public record Item(String name, Structure structure, Location location, StructureRotation rot, Mirror mirror, Boolean noMobs) {};
     Pair<Integer, Integer> min = new Pair<Integer, Integer>(0,0);
     Pair<Integer, Integer> max = new Pair<Integer, Integer>(0,0);
     // Database handler for structure data
@@ -181,7 +181,14 @@ public class NewAreaListener implements Listener {
     }
 
     private IslandStructures getIslandStructData(String islandId) {
-        return this.islandStructureCache.computeIfAbsent(islandId, k -> Objects.requireNonNullElse(handler.loadObject(k), new IslandStructures(islandId)));
+        // Return from cache if it exists
+        if (islandStructureCache.containsKey(islandId)) {
+            return islandStructureCache.get(islandId);
+        }
+        // Get from database
+        IslandStructures struct = handler.objectExists(islandId) ? handler.loadObject(islandId) : new IslandStructures(islandId);
+        this.islandStructureCache.put(islandId, struct); 
+        return struct;
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -219,6 +226,7 @@ public class NewAreaListener implements Listener {
         for (String vector : section.getKeys(false)) {
             StructureRotation rot = StructureRotation.NONE;
             Mirror mirror = Mirror.NONE;
+            boolean noMobs = false;
             String name = section.getString(vector);
             // Check for rotation
             String[] split = name.split(",");
@@ -229,7 +237,10 @@ public class NewAreaListener implements Listener {
             }
             if (split.length == 3) {
                 // Mirror
-                mirror = Enums.getIfPresent(Mirror.class, split[1].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE);
+                mirror = Enums.getIfPresent(Mirror.class, split[2].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE);
+            }
+            if (split.length == 4) {
+                noMobs = split[3].strip().toUpperCase(Locale.ENGLISH).equals("NO_MOBS");
             }
             // Load Structure
             Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString("minecraft:" + name));
@@ -244,7 +255,7 @@ public class NewAreaListener implements Listener {
                 int y = Integer.valueOf(value[1].strip());
                 int z = Integer.valueOf(value[2].strip()) + center.getBlockZ();
                 Location l = new Location(world, x, y, z);
-                itemsToBuild.add(new Item(name, s, l, rot, mirror));
+                itemsToBuild.add(new Item(name, s, l, rot, mirror, noMobs));
             } else {
                 addon.logError("Structure file syntax error: " + vector + ": " + value);
             }
@@ -256,7 +267,7 @@ public class NewAreaListener implements Listener {
         item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
         addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " " + Util.xyz(item.location().toVector()));
         // Find it
-        BoundingBox bb = removeJigsaw(item.location(), item.structure(), item.rot(), item.name());
+        BoundingBox bb = removeJigsaw(item);
         // Store it
         addon.getIslands().getIslandAt(item.location()).map(Island::getUniqueId).ifPresent(id -> {
             addon.log("Saved " + item.name());
@@ -273,13 +284,15 @@ public class NewAreaListener implements Listener {
 
     /**
      * Removes Jigsaw blocks from a placed structure. Fills underwater ruins with water.
-     * @param loc - location where the structure was placed
-     * @param structure - structure that was placed
-     * @param structureRotation - rotation of structure
-     * @param key
+     * @param item - record of what's required
      * @return the resulting bounding box of the structure
      */
-    public static BoundingBox removeJigsaw(Location loc, Structure structure, StructureRotation structureRotation, String key) {
+    public static BoundingBox removeJigsaw(Item item) {
+        Location loc = item.location();
+        Structure structure = item.structure();
+        StructureRotation structureRotation = item.rot();
+        String key = item.name();
+
         Location otherCorner = switch (structureRotation) {
 
         case CLOCKWISE_180 -> loc.clone().add(new Vector(-structure.getSize().getX(), structure.getSize().getY(), -structure.getSize().getZ()));
@@ -299,7 +312,7 @@ public class NewAreaListener implements Listener {
                     Block b = loc.getWorld().getBlockAt(x, y, z);
                     if (b.getType().equals(Material.JIGSAW)) {
                         // I would like to read the data from the block and do something with it!
-                        processJigsaw(b, structureRotation);
+                        processJigsaw(b, structureRotation, !item.noMobs());
                     } else if (b.getType().equals(Material.STRUCTURE_BLOCK)) {
                         processStructureBlock(b);
                     }
@@ -338,15 +351,19 @@ public class NewAreaListener implements Listener {
     }
 
     private static final Map<Integer, EntityType> BUTCHER_ANIMALS = Map.of(0, EntityType.COW, 1, EntityType.SHEEP, 2, EntityType.PIG);
-    private static void processJigsaw(Block b, StructureRotation structureRotation) {
+    private static void processJigsaw(Block b, StructureRotation structureRotation, boolean pasteMobs) {
         String data = nmsData(b);
         BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
-        //BentoBox.getInstance().logDebug("Jigsaw: " + bjb);
-        //BentoBox.getInstance().logDebug("FinalState: " + bjb.getFinal_state());
         String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
-        //BentoBox.getInstance().logDebug("FinalState after rotation: " + finalState);
         BlockData bd = Bukkit.createBlockData(finalState);
         b.setBlockData(bd);
+        if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
+            spawnMob(b, bjb);
+        }
+    }
+
+    private static void spawnMob(Block b, BoxedJigsawBlock bjb) {
+        // bjb.getPool contains a lot more than just mobs, so we have to filter it to see if any mobs are in there. This list may need to grow in the future
         EntityType type =
                 switch (bjb.getPool()) {
                 case "minecraft:bastion/mobs/piglin" -> EntityType.PIGLIN;
@@ -362,16 +379,19 @@ public class NewAreaListener implements Listener {
                 case "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
                 default -> null;
                 };
+                // Villagers
                 if (bjb.getPool().contains("zombie/villagers")) {
                     type = EntityType.ZOMBIE_VILLAGER;
                 } else if (bjb.getPool().contains("villagers")) {
                     type = EntityType.VILLAGER;
                 }
+                if (type == null) {
+                    BentoBox.getInstance().logDebug(bjb.getPool());
+                }
                 // Spawn it
                 if (type != null && b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type) != null) {
                     //BentoBox.getInstance().logDebug("Spawned a " + type + " at " + b.getRelative(BlockFace.UP).getLocation());
-                }
-
+                }       
     }
 
     /**
