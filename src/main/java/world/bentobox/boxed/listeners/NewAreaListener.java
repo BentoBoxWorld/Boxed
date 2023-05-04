@@ -1,13 +1,15 @@
 package world.bentobox.boxed.listeners;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Random;
 
@@ -65,6 +67,7 @@ import world.bentobox.boxed.objects.IslandStructures;
 public class NewAreaListener implements Listener {
 
     private static final List<BlockFace> CARDINALS = List.of(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
+    private static final List<String> JAR_STRUCTURES = List.of("bee", "pillager", "polar_bear", "axolotl", "allay", "parrot", "frog");
     private static final List<String> STRUCTURES = List.of("ancient_city", "bastion_remnant",  "bastion",
             "buried_treasure", "desert_pyramid", "end_city",
             "fortress", "igloo", "jungle_pyramid", "mansion", "mineshaft",  "mineshaft_mesa",
@@ -100,6 +103,19 @@ public class NewAreaListener implements Listener {
         handler = new Database<>(addon, IslandStructures.class);
         // Try to build something every second
         Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), () -> BuildItem(), 20, 20);
+        // Experiment: TODO: read all files in from the structure folder including the ones saved from the jar file
+        for (String js : JAR_STRUCTURES) {
+            addon.saveResource("structures/" + js + ".nbt", false);
+            File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");            
+            try {
+                Bukkit.getStructureManager().loadStructure(structureFile);
+                addon.log("Loaded " + js + ".nbt");
+            } catch (IOException e) {
+                addon.logError("Error trying to load " + structureFile.getAbsolutePath());
+                e.printStackTrace();
+            }
+            
+        }
     }
 
     private void BuildItem() {
@@ -123,9 +139,8 @@ public class NewAreaListener implements Listener {
             YamlConfiguration loader = YamlConfiguration.loadConfiguration(templateFile);
             List<String> list = loader.getStringList("templates");
             for (String struct : list) {
-                Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
-                if (s == null) {
-                    //addon.log("Now loading group from: " + struct);
+                if (!struct.endsWith("/")) {
+                    Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
                 }
             }
         }
@@ -379,6 +394,11 @@ public class NewAreaListener implements Listener {
                 case "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
                 default -> null;
                 };
+                // Boxed
+                if (type == null && bjb.getPool().startsWith("minecraft:boxed/")) {
+                    String entString = bjb.getPool().toUpperCase(Locale.ENGLISH).substring(16, bjb.getPool().length());
+                    type = Enums.getIfPresent(EntityType.class, entString).orNull();
+                }
                 // Villagers
                 if (bjb.getPool().contains("zombie/villagers")) {
                     type = EntityType.ZOMBIE_VILLAGER;

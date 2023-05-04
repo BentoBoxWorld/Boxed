@@ -46,6 +46,26 @@ normal:
   67,78,52: village/common/animals/horses_3,NONE,NONE
   57,70,-90: village/common/animals/horses_5,NONE,NONE
   62,70,-88: village/common/animals/horses_5,NONE,NONE
+  -2,66,10: boxed/frog,NONE,NONE
+  87,85,120: boxed/pillager,NONE,NONE
+  85,85,122: boxed/pillager,NONE,NONE
+  87,85,118: boxed/pillager,NONE,NONE
+  87,85,123: boxed/pillager,NONE,NONE
+  89,81,122: boxed/pillager,NONE,NONE
+  87,77,120: boxed/pillager,NONE,NONE
+  94,71,111: boxed/pillager,NONE,NONE
+  90,71,111: boxed/pillager,NONE,NONE
+  100,72,110: pillager_outpost/feature_tent1,NONE,NONE
+  -20,63,-24: boxed/parrot,NONE,NONE
+  -21,65,-21: boxed/parrot,NONE,NONE
+  1,69,-12: boxed/frog,NONE,NONE
+  2,67,10: boxed/parrot,NONE,NONE
+  -58,64,13: boxed/polar_bear,NONE,NONE
+  -90,63,57: boxed/polar_bear,NONE,NONE
+  -87,63,63: boxed/polar_bear,NONE,NONE
+  -33,69,58: boxed/polar_bear,NONE,NONE
+  137,-8,11: boxed/axolotl,NONE,NONE
+  137,-8,9: boxed/axolotl,NONE,NONE
 
 nether:
   16,32,0: bastion/bridge/starting_pieces/entrance

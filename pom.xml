@@ -200,6 +200,14 @@
                 <filtering>true</filtering>
             </resource>
             <resource>
+                <directory>src/main/resources/structures</directory>
+                <targetPath>./structures</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>*.nbt</include>
+                </includes>
+            </resource>
+            <resource>
                 <directory>src/main/resources/locales</directory>
                 <targetPath>./locales</targetPath>
                 <filtering>false</filtering>
@@ -230,6 +238,7 @@
                 <configuration>
                     <nonFilteredFileExtensions>
                         <nonFilteredFileExtension>blu</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>nbt</nonFilteredFileExtension>
                     </nonFilteredFileExtensions>
                 </configuration>
             </plugin>

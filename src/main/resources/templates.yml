@@ -1,4 +1,11 @@
 templates:
+- boxed/frog
+- boxed/allay
+- boxed/bee
+- boxed/axolotl
+- boxed/pillager
+- boxed/polar_bear
+- boxed/parrot
 - ancient_city/city/entrance/entrance_connector
 - ancient_city/city/entrance/entrance_path_1
 - ancient_city/city/entrance/entrance_path_2

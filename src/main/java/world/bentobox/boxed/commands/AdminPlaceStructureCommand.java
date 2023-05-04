@@ -57,10 +57,10 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
 
     @Override
     public void setup() {
-        this.setPermission("boxed.admin.place");
+        this.setPermission("boxed.commands.boxadmin.place");
         this.setOnlyPlayer(false);
-        this.setParametersHelp("boxed.admin.place.parameters");
-        this.setDescription("boxed.admin.place.description");
+        this.setParametersHelp("boxed.commands.boxadmin.place.parameters");
+        this.setDescription("boxed.commands.boxadmin.place.description");
 
 
     }
@@ -73,7 +73,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
 
         // Check world
         if (!((Boxed)getAddon()).inWorld(getWorld())) {
-            user.sendMessage("boxed.admin.place.wrong-world");
+            user.sendMessage("boxed.commands.boxadmin.place.wrong-world");
             return false; 
         }
         /*
@@ -92,7 +92,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         // First arg must always be the structure name
         List<String> options = Bukkit.getStructureManager().getStructures().keySet().stream().map(k -> k.getKey()).toList();
         if (!options.contains(args.get(0).toLowerCase(Locale.ENGLISH))) {
-            user.sendMessage("boxed.admin.place.unknown-structure");
+            user.sendMessage("boxed.commands.boxadmin.place.unknown-structure");
             return false;
         }
         // If that is all we have, we're done
@@ -103,7 +103,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         if ((!args.get(1).equals("~") && !Util.isInteger(args.get(1), true))
                 || (!args.get(2).equals("~") && !Util.isInteger(args.get(2), true)) 
                 || (!args.get(3).equals("~") && !Util.isInteger(args.get(3), true))) {
-            user.sendMessage("boxed.admin.place.use-integers");
+            user.sendMessage("boxed.commands.boxadmin.place.use-integers");
             return false;  
         }
         // If that is all we have, we're done
@@ -113,7 +113,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         // But there is more!
         sr = Enums.getIfPresent(StructureRotation.class, args.get(4).toUpperCase(Locale.ENGLISH)).orNull();
         if (sr == null) {
-            user.sendMessage("boxed.admin.place.unknown-rotation");
+            user.sendMessage("boxed.commands.boxadmin.place.unknown-rotation");
             Arrays.stream(StructureRotation.values()).map(StructureRotation::name).forEach(user::sendRawMessage);
             return false; 
         }
@@ -123,7 +123,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         // But there is more!
         mirror = Enums.getIfPresent(Mirror.class, args.get(5).toUpperCase(Locale.ENGLISH)).orNull();
         if (mirror == null) {
-            user.sendMessage("boxed.admin.place.unknown-mirror");
+            user.sendMessage("boxed.commands.boxadmin.place.unknown-mirror");
             Arrays.stream(Mirror.values()).map(Mirror::name).forEach(user::sendRawMessage);
             return false; 
         }
@@ -131,7 +131,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             if (args.get(6).toUpperCase(Locale.ENGLISH).equals("NO_MOBS")) {
                 noMobs = true; 
             } else {
-                user.sendMessage("boxed.admin.place.unknown", TextVariables.LABEL, args.get(6).toUpperCase(Locale.ENGLISH));
+                user.sendMessage("boxed.commands.boxadmin.place.unknown", TextVariables.LABEL, args.get(6).toUpperCase(Locale.ENGLISH));
                 return false;
             }
         }
@@ -151,9 +151,9 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         NewAreaListener.removeJigsaw(new Item(tag.getKey(), s, spot, sr, mirror, noMobs));
         boolean result = saveStructure(spot, tag, user, sr, mirror); 
         if (result) {
-            user.sendMessage("boxed.admin.place.saved");
+            user.sendMessage("boxed.commands.boxadmin.place.saved");
         } else {
-            user.sendMessage("boxed.admin.place.failed");
+            user.sendMessage("boxed.commands.boxadmin.place.failed");
         }
         return result;
     }
