@@ -1,9 +1,7 @@
 package world.bentobox.boxed.listeners;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -108,7 +106,8 @@ public class NewAreaListener implements Listener {
             addon.saveResource("structures/" + js + ".nbt", false);
             File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");            
             try {
-                Bukkit.getStructureManager().loadStructure(structureFile);
+                Structure s = Bukkit.getStructureManager().loadStructure(structureFile);
+                Bukkit.getStructureManager().registerStructure(NamespacedKey.fromString("minecraft:boxed/" + js), s);
                 addon.log("Loaded " + js + ".nbt");
             } catch (IOException e) {
                 addon.logError("Error trying to load " + structureFile.getAbsolutePath());
