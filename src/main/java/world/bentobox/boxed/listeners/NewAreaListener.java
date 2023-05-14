@@ -27,6 +27,7 @@ import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -104,7 +105,7 @@ public class NewAreaListener implements Listener {
         // Experiment: TODO: read all files in from the structure folder including the ones saved from the jar file
         for (String js : JAR_STRUCTURES) {
             addon.saveResource("structures/" + js + ".nbt", false);
-            File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");            
+            File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");
             try {
                 Structure s = Bukkit.getStructureManager().loadStructure(structureFile);
                 Bukkit.getStructureManager().registerStructure(NamespacedKey.fromString("minecraft:boxed/" + js), s);
@@ -113,7 +114,7 @@ public class NewAreaListener implements Listener {
                 addon.logError("Error trying to load " + structureFile.getAbsolutePath());
                 e.printStackTrace();
             }
-            
+
         }
     }
 
@@ -201,7 +202,7 @@ public class NewAreaListener implements Listener {
         }
         // Get from database
         IslandStructures struct = handler.objectExists(islandId) ? handler.loadObject(islandId) : new IslandStructures(islandId);
-        this.islandStructureCache.put(islandId, struct); 
+        this.islandStructureCache.put(islandId, struct);
         return struct;
     }
 
@@ -408,9 +409,13 @@ public class NewAreaListener implements Listener {
                 //    BentoBox.getInstance().logDebug(bjb.getPool());
                 //}
                 // Spawn it
-                if (type != null && b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type) != null) {
+                if (type != null) {
+                    Entity e = b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type);
+                    if (e != null) {
+                        e.setPersistent(true);
+                    }
                     //BentoBox.getInstance().logDebug("Spawned a " + type + " at " + b.getRelative(BlockFace.UP).getLocation());
-                }       
+                }
     }
 
     /**
