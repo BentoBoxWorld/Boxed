@@ -72,7 +72,7 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
     }
 
     @Override
-    protected List<ChestData> getChests(Chunk chunk) {
+    protected List<ChestData> getTileEnts(Chunk chunk) {
         return Arrays.stream(chunk.getTileEntities()).map(t -> new ChestData(getLocInChunk(t.getLocation()), this.getBluePrintBlock(t.getBlock()))).toList();
     }
 
@@ -120,8 +120,10 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         return bpEnts;
     }
 
+    // Get the location in the chunk
     private Vector getLocInChunk(Location l) {
-        return new Vector(l.getBlockX() % 16, l.getBlockY(), l.getBlockZ() % 16);
+        // Have to use Math function because java % doesn't work correctly IMO with negatives
+        return new Vector(Math.floorMod(l.getBlockX(),16), l.getBlockY(), Math.floorMod(l.getBlockZ(), 16));
 
     }
 

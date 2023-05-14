@@ -1,3 +1,4 @@
+# This file is written by the /boxadmin place command
 normal:
   0,64,80: village/plains/houses/plains_masons_house_1,CLOCKWISE_90
   -38,63,20: ruined_portal/portal_5
@@ -15,6 +16,8 @@ normal:
   34,69,-29: village/common/iron_golem
   41,69,-26: village/common/animals/cat_calico
   35,69,-22: village/common/animals/cat_calico
+  32,70,65: village/savanna/houses/savanna_temple_1,NONE,NONE
+  25,70,72: village/savanna/houses/savanna_small_house_7,COUNTERCLOCKWISE_90,NONE,NO_MOBS
   99,72,118: pillager_outpost/feature_cage1
   33,72,100: village/desert/houses/desert_farm_1
   26,72,100: village/desert/houses/desert_medium_house_1
@@ -33,7 +36,36 @@ normal:
   -52,72,33: village/snowy/houses/snowy_farm_1,COUNTERCLOCKWISE_90,NONE
   -28,63,47: village/snowy/snowy_lamp_post_01,COUNTERCLOCKWISE_90,NONE
   -6,64,52: village/snowy/houses/snowy_small_house_3,COUNTERCLOCKWISE_90,NONE
-  40,73,-3: village/savanna/houses/savanna_small_house_1,CLOCKWISE_180
+  60,81,88: village/desert/camel_spawn,NONE,NONE
+  64,81,93: village/desert/houses/desert_animal_pen_1,NONE,NONE
+  49,81,94: village/desert/houses/desert_large_farm_1,NONE,NONE
+  -106,45,68: underwater_ruin/big_brick_1,NONE,NONE
+  -117,45,88: underwater_ruin/big_brick_2,NONE,NONE
+  64,78,49: village/common/animals/horses_1,NONE,NONE
+  65,78,51: village/common/animals/horses_2,NONE,NONE
+  67,78,52: village/common/animals/horses_3,NONE,NONE
+  57,70,-90: village/common/animals/horses_5,NONE,NONE
+  62,70,-88: village/common/animals/horses_5,NONE,NONE
+  -2,66,10: boxed/frog,NONE,NONE
+  87,85,120: boxed/pillager,NONE,NONE
+  85,85,122: boxed/pillager,NONE,NONE
+  87,85,118: boxed/pillager,NONE,NONE
+  87,85,123: boxed/pillager,NONE,NONE
+  89,81,122: boxed/pillager,NONE,NONE
+  87,77,120: boxed/pillager,NONE,NONE
+  94,71,111: boxed/pillager,NONE,NONE
+  90,71,111: boxed/pillager,NONE,NONE
+  100,72,110: pillager_outpost/feature_tent1,NONE,NONE
+  -20,63,-24: boxed/parrot,NONE,NONE
+  -21,65,-21: boxed/parrot,NONE,NONE
+  1,69,-12: boxed/frog,NONE,NONE
+  2,67,10: boxed/parrot,NONE,NONE
+  -58,64,13: boxed/polar_bear,NONE,NONE
+  -90,63,57: boxed/polar_bear,NONE,NONE
+  -87,63,63: boxed/polar_bear,NONE,NONE
+  -33,69,58: boxed/polar_bear,NONE,NONE
+  137,-8,11: boxed/axolotl,NONE,NONE
+  137,-8,9: boxed/axolotl,NONE,NONE
 
 nether:
   16,32,0: bastion/bridge/starting_pieces/entrance

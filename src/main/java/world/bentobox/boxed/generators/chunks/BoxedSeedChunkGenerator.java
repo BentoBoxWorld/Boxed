@@ -83,7 +83,7 @@ public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
     }
 
     @Override
-    protected List<ChestData> getChests(Chunk chunk) {
+    protected List<ChestData> getTileEnts(Chunk chunk) {
         // These won't be stored
         return null;
     }

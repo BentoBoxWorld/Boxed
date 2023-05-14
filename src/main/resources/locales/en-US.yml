@@ -23,6 +23,18 @@ boxed:
         parameters: '[home number]'
       sethome:
         parameters: '[home number]'
+    boxadmin:
+      place:
+        description: Place an area structure
+        parameters: <x> <y> <z> <rotation> <mirror> <no mobs>
+        use-integers: '&c Coordinated must be integers'
+        wrong-world: '&c This command can only be used in a Boxed world'
+        unknown-structure: '&c Cannot place: Unknown structure'
+        unknown-rotation: '&c Cannot place: Unknown rotation type'
+        unknown-mirror: '&c Cannot place: Unknown mirror type'
+        saved: '&a Placed and saved to structures.yml'
+        failed: '&c Could not be saved to structures.yml. Check console for error'
+        unknown: '&c Unknown parameter: [label]'
     island:
       go:
         parameters: '[home number]'
