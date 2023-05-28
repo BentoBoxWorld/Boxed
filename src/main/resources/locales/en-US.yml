@@ -15,6 +15,7 @@ boxed:
       already-have-island: '&c You already have a box!'
       no-safe-location: '&c No safe location found in box!'
       not-owner: '&c You are not the owner of your team!'
+      no-teleport-outside: "&c You cannot teleport outside of your box"
   commands:
     boxed:
       help:
@@ -305,6 +306,12 @@ boxed:
         deleted-island: '&a Area at &e [xyz] &a has been successfully regenerated.'
   protection:
     flags:
+      ALLOW_MOVE_BOX:
+        name: Box moving
+        description: |-
+          &a Allow players to move
+          &a their box by throwing
+          &a enderpearls
       ELYTRA:
         description: Toggle use
       ENDERMAN_GRIEFING:
