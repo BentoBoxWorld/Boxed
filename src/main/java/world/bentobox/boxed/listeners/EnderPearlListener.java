@@ -38,10 +38,14 @@ public class EnderPearlListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent e) {
-        if (!addon.inWorld(e.getFrom()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
+    public void onPlayerTeleport(PlayerTeleportEvent e) {        
+        if (!addon.inWorld(e.getFrom()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
+                || (e.getTo() != null && !addon.inWorld(e.getTo()))
+                || addon.getIslands().getSpawn(e.getFrom().getWorld()).map(spawn -> spawn.onIsland(e.getTo())).orElse(false)
+                ) {
             return;
         }
+        
         User u = User.getInstance(e.getPlayer());
         // If the to is outside the box, cancel it
         if (e.getTo() != null) {
@@ -54,7 +58,6 @@ public class EnderPearlListener implements Listener {
         }
     }
 
-
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onEnderPearlLand(ProjectileHitEvent e) {
         if (!e.getEntityType().equals(EntityType.ENDER_PEARL)
@@ -63,19 +66,19 @@ public class EnderPearlListener implements Listener {
                 || !Boxed.ALLOW_MOVE_BOX.isSetForWorld(e.getHitBlock().getWorld())
                 ) {
             return;
-        }
+        }  
         // Moving box is allowed
         Location l = e.getHitBlock().getRelative(BlockFace.UP).getLocation();
         World w = e.getHitBlock().getWorld();
-        EnderPearl ep = (EnderPearl)e.getEntity();
-        if (ep.getShooter() instanceof Player player) {
+        if (e.getEntity() instanceof EnderPearl ep && ep.getShooter() instanceof Player player) {
             User u = User.getInstance(player);
             // Check if enderpearl is inside or outside the box
             // Get user's box
             Island is = addon.getIslands().getIsland(w, u);
             if (is == null) {
                 return; // Nothing to do
-            }       
+            }
+            
             // Get the box that the player is in
             addon.getIslands().getIslandAt(u.getLocation()).ifPresent(fromIsland -> {
                 // Check that it is their box
@@ -92,28 +95,18 @@ public class EnderPearlListener implements Listener {
                             return;
                         }
                     } else {
-                        // Different island. This is never allowed. Cancel the throw
+                        // Different box. This is never allowed. Cancel the throw
                         e.setCancelled(true);
                         u.sendMessage("boxed.general.errors.no-teleport-outside");
                         return;            
                     }
                 }, () -> {
-                    // No island. This is never allowed. Cancel the throw
+                    // No box. This is never allowed. Cancel the throw
                     e.setCancelled(true);
                     u.sendMessage("boxed.general.errors.no-teleport-outside");
                     return;     
                 });
 
-            });
-
-
-
-
-            addon.getIslands().getIslandAt(l).ifPresent(i -> {
-                // Check flag
-                if (i.isAllowed(u, Boxed.MOVE_BOX) && addon.getIslands().isSafeLocation(l)) {
-
-                }
             });
         }
     }
