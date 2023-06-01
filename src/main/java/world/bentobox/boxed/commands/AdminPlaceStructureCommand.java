@@ -29,6 +29,7 @@ import world.bentobox.boxed.listeners.NewAreaListener;
 import world.bentobox.boxed.listeners.NewAreaListener.Item;
 
 /**
+ * Enables admins to place templates in a Box and have them recorded for future boxes.
  * @author tastybento
  *
  */
@@ -74,11 +75,11 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         // Check world
         if (!((Boxed)getAddon()).inWorld(getWorld())) {
             user.sendMessage("boxed.commands.boxadmin.place.wrong-world");
-            return false; 
+            return false;
         }
         /*
          * Acceptable syntax with number of args:
-         *   1. place <structure> 
+         *   1. place <structure>
          *   4. place <structure> ~ ~ ~
          *   5. place <structure> ~ ~ ~ ROTATION
          *   6. place <structure> ~ ~ ~ ROTATION MIRROR
@@ -101,10 +102,10 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         }
         // Next come the coordinates - there must be at least 3 of them
         if ((!args.get(1).equals("~") && !Util.isInteger(args.get(1), true))
-                || (!args.get(2).equals("~") && !Util.isInteger(args.get(2), true)) 
+                || (!args.get(2).equals("~") && !Util.isInteger(args.get(2), true))
                 || (!args.get(3).equals("~") && !Util.isInteger(args.get(3), true))) {
             user.sendMessage("boxed.commands.boxadmin.place.use-integers");
-            return false;  
+            return false;
         }
         // If that is all we have, we're done
         if (args.size() == 4) {
@@ -115,7 +116,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         if (sr == null) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-rotation");
             Arrays.stream(StructureRotation.values()).map(StructureRotation::name).forEach(user::sendRawMessage);
-            return false; 
+            return false;
         }
         if (args.size() == 5) {
             return true;
@@ -125,11 +126,11 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         if (mirror == null) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-mirror");
             Arrays.stream(Mirror.values()).map(Mirror::name).forEach(user::sendRawMessage);
-            return false; 
+            return false;
         }
         if (args.size() == 7) {
             if (args.get(6).toUpperCase(Locale.ENGLISH).equals("NO_MOBS")) {
-                noMobs = true; 
+                noMobs = true;
             } else {
                 user.sendMessage("boxed.commands.boxadmin.place.unknown", TextVariables.LABEL, args.get(6).toUpperCase(Locale.ENGLISH));
                 return false;
@@ -149,7 +150,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         Location spot = new Location(user.getWorld(), x, y, z);
         s.place(spot, true, sr, mirror, PALETTE, INTEGRITY, new Random());
         NewAreaListener.removeJigsaw(new Item(tag.getKey(), s, spot, sr, mirror, noMobs));
-        boolean result = saveStructure(spot, tag, user, sr, mirror); 
+        boolean result = saveStructure(spot, tag, user, sr, mirror);
         if (result) {
             user.sendMessage("boxed.commands.boxadmin.place.saved");
         } else {
@@ -174,7 +175,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
                 config.set(spot.getWorld().getEnvironment().name().toLowerCase(Locale.ENGLISH) + "." + xx + "," + spot.getBlockY() + "," + zz, v.toString());
                 config.save(structures);
             } catch (IOException | InvalidConfigurationException e) {
-                // TODO Auto-generated catch block                
+                // TODO Auto-generated catch block
                 e.printStackTrace();
                 return false;
             }

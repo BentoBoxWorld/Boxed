@@ -7,6 +7,7 @@ import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 
 /**
+ * Generator for the seed world
  * @author tastybento
  *
  */

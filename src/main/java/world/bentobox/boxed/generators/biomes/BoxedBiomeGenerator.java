@@ -6,6 +6,7 @@ import org.bukkit.block.Biome;
 import world.bentobox.boxed.Boxed;
 
 /**
+ * Generator for the over world
  * @author tastybento
  *
  */

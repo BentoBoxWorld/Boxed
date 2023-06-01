@@ -2,8 +2,13 @@ package world.bentobox.boxed.objects;
 
 import com.google.gson.annotations.Expose;
 
+/**
+ * This replicates a jigsaw block.
+ * @author tastybento
+ *
+ */
 public class BoxedJigsawBlock {
-// final_state:"minecraft:polished_blackstone_bricks",joint:"aligned",name:"minecraft:empty",pool:"minecraft:bastion/bridge/legs",target:"minecraft:leg_connector"
+    // final_state:"minecraft:polished_blackstone_bricks",joint:"aligned",name:"minecraft:empty",pool:"minecraft:bastion/bridge/legs",target:"minecraft:leg_connector"
     @Expose
     private String final_state;
     @Expose

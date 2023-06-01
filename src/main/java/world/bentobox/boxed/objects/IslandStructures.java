@@ -10,6 +10,13 @@ import com.google.gson.annotations.Expose;
 import world.bentobox.bentobox.database.objects.DataObject;
 import world.bentobox.bentobox.database.objects.Table;
 
+/**
+ * Stores all the structures placed in the box when it is made.
+ * These are used later to identify when a player enters such a structure and
+ * trigger an Advancement
+ * @author tastybento
+ *
+ */
 @Table(name = "IslandStructures")
 public class IslandStructures implements DataObject {
 
