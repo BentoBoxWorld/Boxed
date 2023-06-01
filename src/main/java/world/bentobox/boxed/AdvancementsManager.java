@@ -20,7 +20,6 @@ import world.bentobox.bentobox.api.events.island.IslandEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.managers.RanksManager;
-import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.objects.IslandAdvancements;
 
 /**
@@ -34,7 +33,7 @@ public class AdvancementsManager {
     // Database handler for level data
     private final Database<IslandAdvancements> handler;
     // A cache of island levels.
-    private final Map<String, IslandAdvancements> cache;
+    private final Map<String, IslandAdvancements> cache = new HashMap<>();
     private final YamlConfiguration advConfig;
     private int unknownAdvChange;
     private int unknownRecipeChange;
@@ -48,8 +47,6 @@ public class AdvancementsManager {
         // Set up the database handler to store and retrieve data
         // Note that these are saved by the BentoBox database
         handler = new Database<>(addon, IslandAdvancements.class);
-        // Initialize the cache
-        cache = new HashMap<>();
         // Advancement score sheet
         addon.saveResource("advancements.yml", false);
         advConfig = new YamlConfiguration();
@@ -185,7 +182,7 @@ public class AdvancementsManager {
      * @return score for advancement. 0 if the advancement was not added.
      */
     public int addAdvancement(Player p, Advancement advancement) {
-        if (!addon.getOverWorld().equals(Util.getWorld(p.getWorld()))) {
+        if (!addon.inWorld(p.getWorld())) {
             // Wrong world
             return 0;
         }
@@ -255,8 +252,7 @@ public class AdvancementsManager {
             if (!a.getKey().getKey().contains("recipes") && a.getDisplay() != null) {
                 float x = a.getDisplay().getX();
                 float y = a.getDisplay().getY();
-                int score = (int) Math.round(Math.sqrt(x * x + y * y));
-                return score;
+                return (int) Math.round(Math.sqrt(x * x + y * y));
             } else {
                 return 0;
             }
