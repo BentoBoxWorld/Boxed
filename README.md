@@ -4,14 +4,16 @@ A game mode where you are boxed into a tiny space that only expands by completin
 
 ## BentoBox Requirements
 
-* Requires BentoBox 1.16.0 or later (Snapshots can be downloaded here: [https://ci.bentobox.world](https://ci.bentobox.world))
+* Requires BentoBox 1.23.0 or later (Snapshots can be downloaded here: [https://ci.bentobox.world](https://ci.bentobox.world))
 * InvSwitcher - keeps advancements, inventory, etc. separate between worlds on a server.
 * Border - shows the box
 
-## Required Plugins
-
-* Requires WorldGeneratorAPI plugin. [Download the correct one for your server here.](https://github.com/rutgerkok/WorldGeneratorApi/releases)
-* Border requires WorldBorderAPI by default. [Download it here.](https://github.com/yannicklamprecht/WorldBorderAPI/releases)
+### Warning!!
+Boxed requires **a lot of RAM** and can take up to **10 minutes** to boot up for the first time as it pre-generates the worlds. After the initial start, it will start up much quicker. With 12GB of RAM running on a fast ARM-based system, it takes ~ 8 minutes for the first boot. If you do not have enough RAM then weird things will happen to you server including strange errors about chunks and things like that. To dedicate enough RAM to your JVM, use the correct flags during startup. Here is my `start.sh` for running on Paper 1.19.4:
+```
+#!/bin/sh
+java -Xms12G -Xmx12G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:InitiatingHeapOccupancyPercent=15 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true  -jar paper-1.19.4.jar nogui
+```
 
 ## How to install
 
