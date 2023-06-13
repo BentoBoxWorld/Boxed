@@ -194,7 +194,7 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent e) {
-        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
+        if (!addon.getSettings().isNetherGenerate() || !Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
             return;
         }
         // Nether fortress advancement
