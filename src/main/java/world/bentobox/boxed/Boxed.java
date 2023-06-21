@@ -1,7 +1,11 @@
 package world.bentobox.boxed;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -9,8 +13,8 @@ import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.SpawnCategory;
 import org.bukkit.generator.BiomeProvider;
-import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import world.bentobox.bentobox.api.addons.GameModeAddon;
@@ -21,13 +25,14 @@ import world.bentobox.bentobox.api.configuration.WorldSettings;
 import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
+import world.bentobox.bentobox.api.hooks.Hook;
+import world.bentobox.bentobox.hooks.WorldManagementHook;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.boxed.commands.AdminPlaceStructureCommand;
 import world.bentobox.boxed.generators.biomes.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.biomes.NetherSeedBiomeGenerator;
 import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
-import world.bentobox.boxed.generators.chunks.BoxedBlockPopulator;
 import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.listeners.AdvancementListener;
@@ -65,9 +70,9 @@ public class Boxed extends GameModeAddon {
     private World baseWorldNether;
     private World seedWorld;
     private World seedWorldNether;
+    private Map<World, ChunkGenerator> generatorMap = new HashMap<>();
     //private World seedWorldEnd;
     private BiomeProvider boxedBiomeProvider;
-    private BlockPopulator boxedBlockPopulator;
 
     @Override
     public void onLoad() {
@@ -188,21 +193,24 @@ public class Boxed extends GameModeAddon {
                 .createWorld();
         baseWorldNether.setDifficulty(Difficulty.PEACEFUL);
         baseWorldNether.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
+        generatorMap.put(baseWorldNether, seedBaseGen);
+        getPlugin().getIWM().addWorld(baseWorldNether, this);
         copyChunks(baseWorldNether, seedBaseGen);
         // Create seed world
         // This copies a base world with custom biomes
         log("Creating Boxed Biomed Nether world ...");
-
+        BoxedSeedChunkGenerator seedWorldNetherGenerator = new BoxedSeedChunkGenerator(this, Environment.NETHER, new NetherSeedBiomeGenerator(this, seedBaseGen));
         seedWorldNether = WorldCreator
                 .name(worldName + "/" + SEED+NETHER)
-                .generator(new BoxedSeedChunkGenerator(this, Environment.NETHER, new NetherSeedBiomeGenerator(this, seedBaseGen)))
+                .generator(seedWorldNetherGenerator)
                 .environment(Environment.NETHER)
                 .seed(getSettings().getSeed())
                 .createWorld();
         seedWorldNether.setDifficulty(Difficulty.EASY);
 
         seedWorldNether.setSpawnLocation(settings.getNetherSeedX(), 64, settings.getNetherSeedZ());
-
+        generatorMap.put(seedWorldNether, seedWorldNetherGenerator);
+        getPlugin().getIWM().addWorld(seedWorldNether, this);
         copyChunks(seedWorldNether, netherChunkGenerator);
 
         if (getServer().getWorld(worldName + NETHER) == null) {
@@ -224,14 +232,16 @@ public class Boxed extends GameModeAddon {
                 .createWorld();
         baseWorld.setDifficulty(Difficulty.PEACEFUL);
         baseWorld.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
+        generatorMap.put(baseWorld, seedBaseGen);
+        getPlugin().getIWM().addWorld(baseWorld, this);
         copyChunks(baseWorld, seedBaseGen);
         // Create seed world
         // This copies a base world with custom biomes
         log("Creating Boxed Biomed world ...");
-
+        BoxedSeedChunkGenerator seedWorldGenerator = new BoxedSeedChunkGenerator(this, Environment.NORMAL, new SeedBiomeGenerator(this, seedBaseGen));
         seedWorld = WorldCreator
                 .name(worldName + "/" + SEED)
-                .generator(new BoxedSeedChunkGenerator(this, Environment.NORMAL, new SeedBiomeGenerator(this, seedBaseGen)))
+                .generator(seedWorldGenerator)
                 .environment(Environment.NORMAL)
                 .seed(getSettings().getSeed())
                 .createWorld();
@@ -239,6 +249,8 @@ public class Boxed extends GameModeAddon {
 
         seedWorld.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
 
+        generatorMap.put(seedWorld, seedWorldGenerator);
+        getPlugin().getIWM().addWorld(seedWorld, this);
         copyChunks(seedWorld, chunkGenerator);
 
 
@@ -250,6 +262,26 @@ public class Boxed extends GameModeAddon {
         // Create the world if it does not exist
         islandWorld = getWorld(worldName, World.Environment.NORMAL);
 
+    }
+    
+    /**
+     * Registers a world with world management plugins
+     *
+     * @param world the World to register
+     * @param islandWorld true if this is an island world
+     */
+    private void registerToWorldManagementPlugins(@NonNull World world) {
+        if (getPlugin().getHooks() != null) {
+            for (Hook hook : getPlugin().getHooks().getHooks()) {
+                if (hook instanceof final WorldManagementHook worldManagementHook) {
+                    if (Bukkit.isPrimaryThread()) {
+                        worldManagementHook.registerWorld(world, true);
+                    } else {
+                        Bukkit.getScheduler().runTask(getPlugin(), () -> worldManagementHook.registerWorld(world, true));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -307,10 +339,9 @@ public class Boxed extends GameModeAddon {
         worldName2 = env.equals(World.Environment.NETHER) ? worldName2 + NETHER : worldName2;
         worldName2 = env.equals(World.Environment.THE_END) ? worldName2 + THE_END : worldName2;
         boxedBiomeProvider = new BoxedBiomeGenerator(this);
-        boxedBlockPopulator = new BoxedBlockPopulator(this);
         World w = WorldCreator
                 .name(worldName2)
-                .generator(env.equals(World.Environment.NETHER) ? netherChunkGenerator : chunkGenerator)
+                .generator(getChunkGenerator(env))
                 .environment(env)
                 .seed(seedWorld.getSeed()) // For development
                 .createWorld();
@@ -318,6 +349,8 @@ public class Boxed extends GameModeAddon {
         if (w != null) {
             setSpawnRates(w);
         }
+        // Store main generators
+        generatorMap.put(w, getChunkGenerator(env));
         return w;
 
     }
@@ -357,7 +390,12 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public @Nullable ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        return worldName.endsWith(NETHER) ? netherChunkGenerator : chunkGenerator;
+        for (Entry<World, ChunkGenerator> en : generatorMap.entrySet()) {
+            if (en.getKey().getName().equalsIgnoreCase(worldName)) {
+                return en.getValue();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -374,6 +412,9 @@ public class Boxed extends GameModeAddon {
     public void allLoaded() {
         // Save settings. This will occur after all addons have loaded
         this.saveWorldSettings();
+        // Register generators for worlds with multiverse etc.
+        this.log("Registering Boxed worlds with other plugins (if applicable)...");
+        generatorMap.keySet().forEach(this::registerToWorldManagementPlugins);
     }
 
     /**
@@ -381,13 +422,6 @@ public class Boxed extends GameModeAddon {
      */
     public AdvancementsManager getAdvManager() {
         return advManager;
-    }
-
-    /**
-     * @return the boxedBlockPopulator
-     */
-    public BlockPopulator getBoxedBlockPopulator() {
-        return boxedBlockPopulator;
     }
 
     @Override
