@@ -169,8 +169,8 @@ public class AdvancementListener implements Listener {
 
     /**
      * Special case Advancement awarding
-     * Awards the nether and end advancements when they portal for the first time.
-     * @param e
+     * Awards the nether and end advancements when they use a portal for the first time.
+     * @param e PlayerPortalEvent
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent e) {

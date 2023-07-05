@@ -199,7 +199,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * Loads the custom biomes from the config file
      * @param config - Yaml configuration object
      * @param sector - the direction section to load
-     * @return
+     * @return sorted map of the biomes and their probabilities as keys
      */
     private SortedMap<Double, Biome> loadQuad(YamlConfiguration config, String sector) {
         SortedMap<Double, Biome> result = new TreeMap<>();

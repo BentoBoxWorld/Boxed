@@ -3,13 +3,7 @@ package world.bentobox.boxed.listeners;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -75,7 +69,7 @@ public class NewAreaListener implements Listener {
      * @param mirror - mirror setting
      * @param noMobs - if false, mobs not pasted
      */
-    public record StructureRecord(String name, Structure structure, Location location, StructureRotation rot, Mirror mirror, Boolean noMobs) {};
+    public record StructureRecord(String name, Structure structure, Location location, StructureRotation rot, Mirror mirror, Boolean noMobs) {}
 
     private static final Map<Integer, EntityType> BUTCHER_ANIMALS = Map.of(0, EntityType.COW, 1, EntityType.SHEEP, 2, EntityType.PIG);
     private static final List<BlockFace> CARDINALS = List.of(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
@@ -89,16 +83,16 @@ public class NewAreaListener implements Listener {
             "shipwreck", "stronghold", "swamp_hut", "village_desert", "village_plains",
             "village_savanna", "village_snowy", "village_taiga");
     private final Boxed addon;
-    private File structureFile;
-    private Queue<StructureRecord> itemsToBuild = new LinkedList<>();
-    private static Random rand = new Random();
+    private final File structureFile;
+    private final Queue<StructureRecord> itemsToBuild = new LinkedList<>();
+    private static final Random rand = new Random();
     private boolean pasting;
-    private static Gson gson = new Gson();
-    Pair<Integer, Integer> min = new Pair<Integer, Integer>(0,0);
-    Pair<Integer, Integer> max = new Pair<Integer, Integer>(0,0);
+    private static final Gson gson = new Gson();
+    Pair<Integer, Integer> min = new Pair<>(0, 0);
+    Pair<Integer, Integer> max = new Pair<>(0, 0);
     // Database handler for structure data
     private final Database<IslandStructures> handler;
-    private Map<String, IslandStructures> islandStructureCache = new HashMap<>();
+    private final Map<String, IslandStructures> islandStructureCache = new HashMap<>();
 
 
 
@@ -118,7 +112,7 @@ public class NewAreaListener implements Listener {
     }
 
     private void runStructurePrinter(Boxed addon2) {
-        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), () -> buildStructure(), 20, 20);
+        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructure, 20, 20);
         for (String js : JAR_STRUCTURES) {
             addon.saveResource("structures/" + js + ".nbt", false);
             File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");
@@ -259,13 +253,13 @@ public class NewAreaListener implements Listener {
             if (e == null) {
                 addon.logError("Error in structures.yml - unknown environment " + env);
             } else {
-                place("structure",config.getConfigurationSection(env), center, e);
+                place(config.getConfigurationSection(env), center, e);
             }
         }
 
     }
 
-    private void place(String string, ConfigurationSection section, Location center, Environment env) {
+    private void place(ConfigurationSection section, Location center, Environment env) {
         World world = env.equals(Environment.NORMAL) ? addon.getOverWorld() : addon.getNetherWorld();
         // Loop through the structures in the file - there could be more than one
         for (String vector : section.getKeys(false)) {
@@ -296,13 +290,13 @@ public class NewAreaListener implements Listener {
             // Extract coords
             String[] value = vector.split(",");
             if (value.length > 2) {
-                int x = Integer.valueOf(value[0].strip()) + center.getBlockX();
-                int y = Integer.valueOf(value[1].strip());
-                int z = Integer.valueOf(value[2].strip()) + center.getBlockZ();
+                int x = Integer.parseInt(value[0].strip()) + center.getBlockX();
+                int y = Integer.parseInt(value[1].strip());
+                int z = Integer.parseInt(value[2].strip()) + center.getBlockZ();
                 Location l = new Location(world, x, y, z);
                 itemsToBuild.add(new StructureRecord(name, s, l, rot, mirror, noMobs));
             } else {
-                addon.logError("Structure file syntax error: " + vector + ": " + value);
+                addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(value));
             }
         }
     }
@@ -376,13 +370,13 @@ public class NewAreaListener implements Listener {
 
     /**
      * Process a structure block. Sets it to a structure void at a minimum.
-     * If the structure block has meta data indicating it is a chest, then it will fill
+     * If the structure block has metadata indicating it is a chest, then it will fill
      * the chest with a buried treasure loot. If it is waterlogged, then it will change
      * the void to water.
-     * @param b structure block block
+     * @param b structure block
      */
     private static void processStructureBlock(Block b) {
-        // I would like to read the data from the block an do something with it!
+        // I would like to read the data from the block and do something with it!
         String data = nmsData(b);
         BoxedStructureBlock bsb = gson.fromJson(data, BoxedStructureBlock.class);
         b.setType(Material.STRUCTURE_VOID);
@@ -428,9 +422,8 @@ public class NewAreaListener implements Listener {
                 case "minecraft:village/common/pigs" -> EntityType.PIG;
                 case "minecraft:village/common/cows" -> EntityType.COW;
                 case "minecraft:village/common/iron_golem" -> EntityType.IRON_GOLEM;
-                case "minecraft:village/common/butcher_animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
-                case "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
-                default -> null;
+                case "minecraft:village/common/butcher_animals", "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
+                    default -> null;
                 };
                 // Boxed
                 if (type == null && bjb.getPool().startsWith("minecraft:boxed/")) {

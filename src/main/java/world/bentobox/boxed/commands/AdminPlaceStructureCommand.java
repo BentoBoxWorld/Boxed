@@ -91,7 +91,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             return false;
         }
         // First arg must always be the structure name
-        List<String> options = Bukkit.getStructureManager().getStructures().keySet().stream().map(k -> k.getKey()).toList();
+        List<String> options = Bukkit.getStructureManager().getStructures().keySet().stream().map(NamespacedKey::getKey).toList();
         if (!options.contains(args.get(0).toLowerCase(Locale.ENGLISH))) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-structure");
             return false;
@@ -144,9 +144,9 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     public boolean execute(User user, String label, List<String> args) {
         NamespacedKey tag = NamespacedKey.fromString(args.get(0).toLowerCase(Locale.ENGLISH));
         Structure s = Bukkit.getStructureManager().loadStructure(tag);
-        int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX() : Integer.valueOf(args.get(1).trim());
-        int y = args.size() == 1 || args.get(2).equals("~") ? user.getLocation().getBlockY() : Integer.valueOf(args.get(2).trim());
-        int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.valueOf(args.get(3).trim());
+        int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX() : Integer.parseInt(args.get(1).trim());
+        int y = args.size() == 1 || args.get(2).equals("~") ? user.getLocation().getBlockY() : Integer.parseInt(args.get(2).trim());
+        int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.parseInt(args.get(3).trim());
         Location spot = new Location(user.getWorld(), x, y, z);
         s.place(spot, true, sr, mirror, PALETTE, INTEGRITY, new Random());
         NewAreaListener.removeJigsaw(new StructureRecord(tag.getKey(), s, spot, sr, mirror, noMobs));
@@ -168,7 +168,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             try {
                 config.load(structures);
                 StringBuilder v = new StringBuilder();
-                v.append(tag.getKey() + "," + sr2.name() + "," + mirror2.name());
+                v.append(tag.getKey()).append(",").append(sr2.name()).append(",").append(mirror2.name());
                 if (noMobs) {
                     v.append(" NO_MOBS");
                 }
@@ -189,7 +189,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     {
         String lastArg = !args.isEmpty() ? args.get(args.size() - 1) : "";
         if (args.size() == 2) {
-            return Optional.of(Util.tabLimit(Bukkit.getStructureManager().getStructures().keySet().stream().map(k -> k.getKey()).toList(), lastArg));
+            return Optional.of(Util.tabLimit(Bukkit.getStructureManager().getStructures().keySet().stream().map(NamespacedKey::getKey).toList(), lastArg));
         } else if (args.size() == 3) {
             return Optional.of(List.of(String.valueOf(user.getLocation().getBlockX()), "~"));
         } else if (args.size() == 4) {

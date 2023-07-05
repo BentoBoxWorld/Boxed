@@ -46,8 +46,7 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
         if (c != null) {
             int xx = Math.floorMod(x, 16);
             int zz = Math.floorMod(z, 16);
-            Biome biome = c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
-            return biome;
+            return c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
         } else {
             BentoBox.getInstance().logWarning("Snapshot at " + chunkX + " " + chunkZ + " is not stored");
             return defaultBiome;

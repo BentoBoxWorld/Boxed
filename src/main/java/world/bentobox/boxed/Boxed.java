@@ -66,11 +66,8 @@ public class Boxed extends GameModeAddon {
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
     private AbstractBoxedChunkGenerator netherChunkGenerator;
-    private World baseWorld;
-    private World baseWorldNether;
     private World seedWorld;
-    private World seedWorldNether;
-    private Map<World, ChunkGenerator> generatorMap = new HashMap<>();
+    private final Map<World, ChunkGenerator> generatorMap = new HashMap<>();
     //private World seedWorldEnd;
     private BiomeProvider boxedBiomeProvider;
 
@@ -185,8 +182,8 @@ public class Boxed extends GameModeAddon {
         log("Creating Boxed Seed Nether world ...");
         // This creates a vanilla base world with biomes
         AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NETHER);
-        baseWorldNether = WorldCreator
-                .name(worldName + "/" + SEED+NETHER+BASE)
+        World baseWorldNether = WorldCreator
+                .name(worldName + "/" + SEED + NETHER + BASE)
                 .generator(seedBaseGen)
                 .environment(Environment.NETHER)
                 .seed(getSettings().getSeed())
@@ -200,8 +197,8 @@ public class Boxed extends GameModeAddon {
         // This copies a base world with custom biomes
         log("Creating Boxed Biomed Nether world ...");
         BoxedSeedChunkGenerator seedWorldNetherGenerator = new BoxedSeedChunkGenerator(this, Environment.NETHER, new NetherSeedBiomeGenerator(this, seedBaseGen));
-        seedWorldNether = WorldCreator
-                .name(worldName + "/" + SEED+NETHER)
+        World seedWorldNether = WorldCreator
+                .name(worldName + "/" + SEED + NETHER)
                 .generator(seedWorldNetherGenerator)
                 .environment(Environment.NETHER)
                 .seed(getSettings().getSeed())
@@ -224,8 +221,8 @@ public class Boxed extends GameModeAddon {
         log("Creating Boxed Seed world ...");
         // This creates a vanilla base world with biomes
         AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL);
-        baseWorld = WorldCreator
-                .name(worldName + "/" + SEED+BASE)
+        World baseWorld = WorldCreator
+                .name(worldName + "/" + SEED + BASE)
                 .generator(seedBaseGen)
                 .environment(Environment.NORMAL)
                 .seed(getSettings().getSeed())
@@ -268,7 +265,6 @@ public class Boxed extends GameModeAddon {
      * Registers a world with world management plugins
      *
      * @param world the World to register
-     * @param islandWorld true if this is an island world
      */
     private void registerToWorldManagementPlugins(@NonNull World world) {
         if (getPlugin().getHooks() != null) {
@@ -285,7 +281,7 @@ public class Boxed extends GameModeAddon {
     }
 
     /**
-     * Copies chunks from the seed world so they can be pasted in the game world
+     * Copies chunks from the seed world, so they can be pasted in the game world
      * @param world - source world
      * @param gen - generator to store the chunks
      */

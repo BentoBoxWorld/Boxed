@@ -237,7 +237,7 @@ public class AdvancementsManager {
     /**
      * Get the score for this advancement
      * @param a - advancement
-     * @return score of advancement, or 0 if cannot be worked out
+     * @return score of advancement, or 0 if it cannot be worked out
      */
     public int getScore(Advancement a) {
         String adv = "advancements." + a.getKey().getKey();

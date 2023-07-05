@@ -9,11 +9,11 @@ boxed:
     admin: boxadmin
     # The default action for new player command call.
     # Sub-command of main player command that will be run on first player command call.
-    # By default it is sub-command 'create'.
+    # By default, it is sub-command 'create'.
     new-player-action: create
     # The default action for player command.
     # Sub-command of main player command that will be run on each player command call.
-    # By default it is sub-command 'go'.
+    # By default, it is sub-command 'go'.
     default-action: go
   # Announce advancements. We recommend you set the game rule `/gamerule announceAdvancements false`
   # but that blocks all new advancement announcements. This setting tells Boxed to broadcast new advancements.
