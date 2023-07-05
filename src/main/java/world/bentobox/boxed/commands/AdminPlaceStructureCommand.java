@@ -26,7 +26,7 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.listeners.NewAreaListener;
-import world.bentobox.boxed.listeners.NewAreaListener.Item;
+import world.bentobox.boxed.listeners.NewAreaListener.StructureRecord;
 
 /**
  * Enables admins to place templates in a Box and have them recorded for future boxes.
@@ -149,7 +149,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.valueOf(args.get(3).trim());
         Location spot = new Location(user.getWorld(), x, y, z);
         s.place(spot, true, sr, mirror, PALETTE, INTEGRITY, new Random());
-        NewAreaListener.removeJigsaw(new Item(tag.getKey(), s, spot, sr, mirror, noMobs));
+        NewAreaListener.removeJigsaw(new StructureRecord(tag.getKey(), s, spot, sr, mirror, noMobs));
         boolean result = saveStructure(spot, tag, user, sr, mirror);
         if (result) {
             user.sendMessage("boxed.commands.boxadmin.place.saved");
