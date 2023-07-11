@@ -14,8 +14,8 @@ import com.google.common.base.Enums;
 
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
-import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 
 /**
  * Copies biomes from seed world
@@ -39,15 +39,14 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
     public Biome getBiome(WorldInfo worldInfo, int x, int y, int z) {
         int chunkX = x >> 4;
         int chunkZ = z >> 4;
-        chunkX = BoxedChunkGenerator.repeatCalc(chunkX);
-        chunkZ = BoxedChunkGenerator.repeatCalc(chunkZ);
+        chunkX = AbstractBoxedChunkGenerator.repeatCalc(chunkX);
+        chunkZ = AbstractBoxedChunkGenerator.repeatCalc(chunkZ);
         @Nullable ChunkStore c = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunk(chunkX, chunkZ);
 
         if (c != null) {
             int xx = Math.floorMod(x, 16);
             int zz = Math.floorMod(z, 16);
-            Biome biome = c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
-            return biome;
+            return c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
         } else {
             BentoBox.getInstance().logWarning("Snapshot at " + chunkX + " " + chunkZ + " is not stored");
             return defaultBiome;

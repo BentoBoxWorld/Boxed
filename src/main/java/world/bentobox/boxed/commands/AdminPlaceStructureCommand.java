@@ -26,9 +26,10 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.listeners.NewAreaListener;
-import world.bentobox.boxed.listeners.NewAreaListener.Item;
+import world.bentobox.boxed.listeners.NewAreaListener.StructureRecord;
 
 /**
+ * Enables admins to place templates in a Box and have them recorded for future boxes.
  * @author tastybento
  *
  */
@@ -74,11 +75,11 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         // Check world
         if (!((Boxed)getAddon()).inWorld(getWorld())) {
             user.sendMessage("boxed.commands.boxadmin.place.wrong-world");
-            return false; 
+            return false;
         }
         /*
          * Acceptable syntax with number of args:
-         *   1. place <structure> 
+         *   1. place <structure>
          *   4. place <structure> ~ ~ ~
          *   5. place <structure> ~ ~ ~ ROTATION
          *   6. place <structure> ~ ~ ~ ROTATION MIRROR
@@ -90,7 +91,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             return false;
         }
         // First arg must always be the structure name
-        List<String> options = Bukkit.getStructureManager().getStructures().keySet().stream().map(k -> k.getKey()).toList();
+        List<String> options = Bukkit.getStructureManager().getStructures().keySet().stream().map(NamespacedKey::getKey).toList();
         if (!options.contains(args.get(0).toLowerCase(Locale.ENGLISH))) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-structure");
             return false;
@@ -101,10 +102,10 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         }
         // Next come the coordinates - there must be at least 3 of them
         if ((!args.get(1).equals("~") && !Util.isInteger(args.get(1), true))
-                || (!args.get(2).equals("~") && !Util.isInteger(args.get(2), true)) 
+                || (!args.get(2).equals("~") && !Util.isInteger(args.get(2), true))
                 || (!args.get(3).equals("~") && !Util.isInteger(args.get(3), true))) {
             user.sendMessage("boxed.commands.boxadmin.place.use-integers");
-            return false;  
+            return false;
         }
         // If that is all we have, we're done
         if (args.size() == 4) {
@@ -115,7 +116,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         if (sr == null) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-rotation");
             Arrays.stream(StructureRotation.values()).map(StructureRotation::name).forEach(user::sendRawMessage);
-            return false; 
+            return false;
         }
         if (args.size() == 5) {
             return true;
@@ -125,11 +126,11 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         if (mirror == null) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-mirror");
             Arrays.stream(Mirror.values()).map(Mirror::name).forEach(user::sendRawMessage);
-            return false; 
+            return false;
         }
         if (args.size() == 7) {
             if (args.get(6).toUpperCase(Locale.ENGLISH).equals("NO_MOBS")) {
-                noMobs = true; 
+                noMobs = true;
             } else {
                 user.sendMessage("boxed.commands.boxadmin.place.unknown", TextVariables.LABEL, args.get(6).toUpperCase(Locale.ENGLISH));
                 return false;
@@ -143,13 +144,13 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     public boolean execute(User user, String label, List<String> args) {
         NamespacedKey tag = NamespacedKey.fromString(args.get(0).toLowerCase(Locale.ENGLISH));
         Structure s = Bukkit.getStructureManager().loadStructure(tag);
-        int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX() : Integer.valueOf(args.get(1).trim());
-        int y = args.size() == 1 || args.get(2).equals("~") ? user.getLocation().getBlockY() : Integer.valueOf(args.get(2).trim());
-        int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.valueOf(args.get(3).trim());
+        int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX() : Integer.parseInt(args.get(1).trim());
+        int y = args.size() == 1 || args.get(2).equals("~") ? user.getLocation().getBlockY() : Integer.parseInt(args.get(2).trim());
+        int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.parseInt(args.get(3).trim());
         Location spot = new Location(user.getWorld(), x, y, z);
         s.place(spot, true, sr, mirror, PALETTE, INTEGRITY, new Random());
-        NewAreaListener.removeJigsaw(new Item(tag.getKey(), s, spot, sr, mirror, noMobs));
-        boolean result = saveStructure(spot, tag, user, sr, mirror); 
+        NewAreaListener.removeJigsaw(new StructureRecord(tag.getKey(), s, spot, sr, mirror, noMobs));
+        boolean result = saveStructure(spot, tag, user, sr, mirror);
         if (result) {
             user.sendMessage("boxed.commands.boxadmin.place.saved");
         } else {
@@ -167,14 +168,14 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             try {
                 config.load(structures);
                 StringBuilder v = new StringBuilder();
-                v.append(tag.getKey() + "," + sr2.name() + "," + mirror2.name());
+                v.append(tag.getKey()).append(",").append(sr2.name()).append(",").append(mirror2.name());
                 if (noMobs) {
                     v.append(" NO_MOBS");
                 }
                 config.set(spot.getWorld().getEnvironment().name().toLowerCase(Locale.ENGLISH) + "." + xx + "," + spot.getBlockY() + "," + zz, v.toString());
                 config.save(structures);
             } catch (IOException | InvalidConfigurationException e) {
-                // TODO Auto-generated catch block                
+                // TODO Auto-generated catch block
                 e.printStackTrace();
                 return false;
             }
@@ -188,7 +189,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     {
         String lastArg = !args.isEmpty() ? args.get(args.size() - 1) : "";
         if (args.size() == 2) {
-            return Optional.of(Util.tabLimit(Bukkit.getStructureManager().getStructures().keySet().stream().map(k -> k.getKey()).toList(), lastArg));
+            return Optional.of(Util.tabLimit(Bukkit.getStructureManager().getStructures().keySet().stream().map(NamespacedKey::getKey).toList(), lastArg));
         } else if (args.size() == 3) {
             return Optional.of(List.of(String.valueOf(user.getLocation().getBlockX()), "~"));
         } else if (args.size() == 4) {

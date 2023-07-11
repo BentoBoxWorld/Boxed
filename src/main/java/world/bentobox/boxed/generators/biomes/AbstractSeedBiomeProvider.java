@@ -26,7 +26,6 @@ import com.google.common.base.Enums;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
-import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 
 /**
  * Generates the biomes for the seed world. A seed world is the template for the chunks that
@@ -115,8 +114,8 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     @NonNull
     private Biome getVanillaBiome(WorldInfo worldInfo, int x, int y, int z) {
         // Get the chunk coordinates
-        int chunkX = BoxedChunkGenerator.repeatCalc(x >> 4);
-        int chunkZ = BoxedChunkGenerator.repeatCalc(z >> 4);
+        int chunkX = AbstractBoxedChunkGenerator.repeatCalc(x >> 4);
+        int chunkZ = AbstractBoxedChunkGenerator.repeatCalc(z >> 4);
         // Get the stored snapshot
         ChunkStore snapshot = this.seedGen.getChunk(chunkX, chunkZ);
         if (snapshot == null) {
@@ -200,7 +199,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * Loads the custom biomes from the config file
      * @param config - Yaml configuration object
      * @param sector - the direction section to load
-     * @return
+     * @return sorted map of the biomes and their probabilities as keys
      */
     private SortedMap<Double, Biome> loadQuad(YamlConfiguration config, String sector) {
         SortedMap<Double, Biome> result = new TreeMap<>();

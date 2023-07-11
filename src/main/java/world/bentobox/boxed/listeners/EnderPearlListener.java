@@ -47,13 +47,12 @@ public class EnderPearlListener implements Listener {
         }
         
         User u = User.getInstance(e.getPlayer());
-        // If the to is outside the box, cancel it
+        // If the to-location is outside the box, cancel it
         if (e.getTo() != null) {
             Island i = addon.getIslands().getIsland(e.getFrom().getWorld(), u);
             if (i == null || !i.onIsland(e.getTo())) {
                 u.sendMessage("boxed.general.errors.no-teleport-outside");
                 e.setCancelled(true);
-                return;
             }
         }
     }
@@ -92,19 +91,16 @@ public class EnderPearlListener implements Listener {
                             // Moving is allowed
                             moveBox(u, fromIsland, l);
                             Util.teleportAsync(player, l);
-                            return;
                         }
                     } else {
                         // Different box. This is never allowed. Cancel the throw
                         e.setCancelled(true);
                         u.sendMessage("boxed.general.errors.no-teleport-outside");
-                        return;            
                     }
                 }, () -> {
                     // No box. This is never allowed. Cancel the throw
                     e.setCancelled(true);
                     u.sendMessage("boxed.general.errors.no-teleport-outside");
-                    return;     
                 });
 
             });

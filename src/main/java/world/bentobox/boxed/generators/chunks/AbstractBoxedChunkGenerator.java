@@ -26,10 +26,12 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
 
     protected final Boxed addon;
     protected static int size;
-    protected Map<Pair<Integer, Integer>, ChunkStore> chunks = new HashMap<>();
-    public record ChunkStore(ChunkSnapshot snapshot, List<EntityData> bpEnts, List<ChestData> chests, Map<Vector, Biome> chunkBiomes) {};
-    public record EntityData(Vector relativeLoc, BlueprintEntity entity) {};
-    public record ChestData(Vector relativeLoc, BlueprintBlock chest) {};
+    protected final Map<Pair<Integer, Integer>, ChunkStore> chunks = new HashMap<>();
+    public record ChunkStore(ChunkSnapshot snapshot, List<EntityData> bpEnts, List<ChestData> chests, Map<Vector, Biome> chunkBiomes) {}
+
+    public record EntityData(Vector relativeLoc, BlueprintEntity entity) {}
+
+    public record ChestData(Vector relativeLoc, BlueprintBlock chest) {}
 
     //private final WorldRef wordRefNether;
 

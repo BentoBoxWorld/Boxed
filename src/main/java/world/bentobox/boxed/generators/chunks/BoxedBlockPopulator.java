@@ -31,10 +31,10 @@ import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkS
  */
 public class BoxedBlockPopulator extends BlockPopulator {
 
-    private Boxed addon;
+    private final Boxed addon;
 
     /**
-     * @param addon
+     * @param addon Boxed
      */
     public BoxedBlockPopulator(Boxed addon) {
         this.addon = addon;
@@ -82,7 +82,7 @@ public class BoxedBlockPopulator extends BlockPopulator {
     /**
      * Handles signs, chests and mob spawner blocks
      *
-     * @param block   - block
+     * @param bs   - block state
      * @param bpBlock - config
      */
     public void setBlockState(BlockState bs, BlueprintBlock bpBlock) {

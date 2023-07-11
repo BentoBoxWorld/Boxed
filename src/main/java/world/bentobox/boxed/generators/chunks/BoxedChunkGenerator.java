@@ -45,9 +45,12 @@ import world.bentobox.boxed.Boxed;
  *
  */
 public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
+    
+    private final BlockPopulator boxedBlockPopulator;
 
     public BoxedChunkGenerator(Boxed addon) {
         super(addon);
+        boxedBlockPopulator = new BoxedBlockPopulator(addon);
     }
 
     @Override
@@ -57,7 +60,10 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
 
     @Override
     public List<BlockPopulator> getDefaultPopulators(World world) {
-        world.getPopulators().add(addon.getBoxedBlockPopulator());
+        // Only add it once
+        if (!world.getPopulators().contains(boxedBlockPopulator)) {
+            world.getPopulators().add(boxedBlockPopulator);
+        }
         return world.getPopulators();
     }
 

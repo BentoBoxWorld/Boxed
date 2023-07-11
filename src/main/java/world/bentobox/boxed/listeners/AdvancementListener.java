@@ -36,7 +36,6 @@ import world.bentobox.bentobox.api.events.team.TeamLeaveEvent;
 import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
-import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 
@@ -66,22 +65,31 @@ public class AdvancementListener implements Listener {
     }
 
 
-    public static Advancement getAdvancement(String string) {
+    /**
+     * Get Advancement given the namespaced key for it
+     * @param key namespaced key name for Advancement
+     * @return Advancement or null if none found
+     */
+    public static Advancement getAdvancement(String key) {
         return StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(Bukkit.advancementIterator(), Spliterator.ORDERED), false)
-                .filter(a -> a.getKey().toString().equals(string))
+                .filter(a -> a.getKey().toString().equals(key))
                 .findFirst().orElse(null);
     }
 
 
+    /**
+     * Awards a bigger box when an advancement is done. Removes advancements if they are not valid.
+     * @param e PlayerAdvancementDoneEvent
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
         // Ignore if player is not in survival
         if (!e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
             return;
         }
-        if (Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld())) {
-
+        // Check if player is in the Boxed worlds
+        if (addon.inWorld(e.getPlayer().getWorld())) {
             // Only allow members or higher to get advancements in a box
             if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
                 // Remove advancement from player
@@ -93,13 +101,12 @@ public class AdvancementListener implements Listener {
                 }
                 return;
             }
-
+            // Add the advancement to the island
             int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
+            // Tell other team players one tick after it occurs if it is something that has a score
             if (score != 0) {
                 User user = User.getInstance(e.getPlayer());
-                if (user != null) {
-                    Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
-                }
+                Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
             }
         }
     }
@@ -107,11 +114,10 @@ public class AdvancementListener implements Listener {
     private void tellTeam(User user, NamespacedKey key, int score) {
         Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
         if (island == null) {
+            // Something went wrong here
             return;
         }
-        island.getMemberSet(RanksManager.MEMBER_RANK).stream()
-        .map(User::getInstance)
-        .filter(User::isOnline)
+        island.getMemberSet().stream().map(User::getInstance).filter(User::isOnline)
         .forEach(u -> {
             informPlayer(u, key, score);
             // Sync
@@ -126,15 +132,15 @@ public class AdvancementListener implements Listener {
     }
 
     /**
-     * Synchronize the player's advancements to that of the island.
-     * Player's advancements should be cleared before calling this otherwise they will get add the island ones as well.
+     * Synchronize the player's advancements to that of the box.
+     * Player's advancements should be cleared before calling this otherwise they will get add the box ones as well.
      * @param user - user
      */
     public void syncAdvancements(User user) {
-        Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
-        if (island != null) {
-            grantAdv(user, addon.getAdvManager().getIsland(island).getAdvancements());
-            int diff = addon.getAdvManager().checkIslandSize(island);
+        Island box = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        if (box != null) {
+            grantAdv(user, addon.getAdvManager().getIsland(box).getAdvancements());
+            int diff = addon.getAdvManager().checkIslandSize(box);
             if (diff > 0) {
                 user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(diff));
                 user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_PLAYER_LEVELUP, 1F, 2F);
@@ -161,9 +167,14 @@ public class AdvancementListener implements Listener {
     }
 
 
+    /**
+     * Special case Advancement awarding
+     * Awards the nether and end advancements when they use a portal for the first time.
+     * @param e PlayerPortalEvent
+     */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent e) {
-        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getOverWorld()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
+        if (!addon.inWorld(e.getPlayer().getWorld()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
             return;
         }
         if (e.getCause().equals(TeleportCause.NETHER_PORTAL)) {
@@ -177,47 +188,50 @@ public class AdvancementListener implements Listener {
     }
 
     /**
+     * Special case Advancement awarding
      * Looks for certain blocks, and if they are found then awards an advancement
      * @param e - PlayerMoveEvent
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent e) {
-        if (!Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
+        if (!addon.getSettings().isNetherGenerate() || !Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
             return;
         }
+        // Nether fortress advancement
         if (e.getTo().getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.NETHER_BRICKS)) {
             giveAdv(e.getPlayer(), netherFortressAdvancement);
         }
     }
 
 
+    /**
+     * Give player an advancement
+     * @param player - player
+     * @param adv - Advancement
+     */
     public static void giveAdv(Player player, Advancement adv) {
-        //BentoBox.getInstance().logDebug("Give Adv " + adv.getKey() + " done status " + player.getAdvancementProgress(adv).isDone());
         if (adv != null && !player.getAdvancementProgress(adv).isDone()) {
             adv.getCriteria().forEach(player.getAdvancementProgress(adv)::awardCriteria);
         }
     }
 
+    /**
+     * Sync advancements when player joins server if they are in the Boxed world
+     * @param e PlayerJoinEvent
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent e) {
-        /*
-        StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(Bukkit.advancementIterator(), Spliterator.ORDERED), false).forEach(a-> {
-                    AdvancementProgress progress = e.getPlayer().getAdvancementProgress(a);
-                    BentoBox.getInstance().logDebug(a.getKey() + " " + progress.isDone());
-                    BentoBox.getInstance().logDebug("Awarded");
-                    progress.getAwardedCriteria().forEach(c -> BentoBox.getInstance().logDebug(c));
-                    BentoBox.getInstance().logDebug("Remaining");
-                    progress.getRemainingCriteria().forEach(c -> BentoBox.getInstance().logDebug(c));
-                });
-         */
         User user = User.getInstance(e.getPlayer());
-        if (Util.sameWorld(addon.getOverWorld(), e.getPlayer().getWorld())) {
+        if (addon.inWorld(e.getPlayer().getWorld())) {
             // Set advancements to same as island
             syncAdvancements(user);
         }
     }
 
+    /**
+     * Sync advancements when player enters the Boxed world
+     * @param e PlayerChangedWorldEvent
+     */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerEnterWorld(PlayerChangedWorldEvent e) {
         User user = User.getInstance(e.getPlayer());
@@ -227,6 +241,10 @@ public class AdvancementListener implements Listener {
         }
     }
 
+    /**
+     * Clear and sync advancements for a player when they join a team if the settings require it
+     * @param e TeamJoinedEvent
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamJoinTime(TeamJoinedEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
@@ -239,6 +257,10 @@ public class AdvancementListener implements Listener {
         }
     }
 
+    /**
+     * Clear player's advancements when they leave a team if the setting requires it
+     * @param e TeamLeaveEvent
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamLeaveTime(TeamLeaveEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
@@ -250,6 +272,10 @@ public class AdvancementListener implements Listener {
         }
     }
 
+    /**
+     * Clear player's advancements when they start an island for the first time.
+     * @param e IslandNewIslandEvent
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onFirstTime(IslandNewIslandEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
@@ -259,6 +285,12 @@ public class AdvancementListener implements Listener {
     }
 
 
+    /**
+     * Clear and set advancements for user. Will not do anything if the user is offline
+     * @param user - user
+     * @param clear - whether to clear advacements for this user or not
+     * @param list - list of advacements (namespaced keys) to grant to user
+     */
     private void clearAndSetAdv(User user, boolean clear, List<String> list) {
         if (!user.isOnline()) {
             return;
@@ -288,10 +320,8 @@ public class AdvancementListener implements Listener {
         }
     }
 
-
     private void clearAdv(User user) {
-        // Clear stats
-        // Statistics
+        // Clear Statistics
         Arrays.stream(Statistic.values()).forEach(s -> resetStats(user, s));
         // Clear advancements
         Iterator<Advancement> it = Bukkit.advancementIterator();
@@ -303,36 +333,12 @@ public class AdvancementListener implements Listener {
 
     }
 
-    @SuppressWarnings("deprecation")
     private void resetStats(User user, Statistic s) {
         switch(s.getType()) {
-        case BLOCK:
-            for (Material m: Material.values()) {
-                if (m.isBlock() && !m.isLegacy()) {
-                    user.getPlayer().setStatistic(s, m, 0);
-                }
-            }
-            break;
-        case ITEM:
-            for (Material m: Material.values()) {
-                if (m.isItem() && !m.isLegacy()) {
-                    user.getPlayer().setStatistic(s, m, 0);
-                }
-            }
-            break;
-        case ENTITY:
-            for (EntityType en: EntityType.values()) {
-                if (en.isAlive()) {
-                    user.getPlayer().setStatistic(s, en, 0);
-                }
-            }
-            break;
-        case UNTYPED:
-            user.getPlayer().setStatistic(s, 0);
-            break;
-        default:
-            break;
-
+        case BLOCK -> Arrays.stream(Material.values()).filter(Material::isBlock).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
+        case ITEM -> Arrays.stream(Material.values()).filter(Material::isItem).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
+        case ENTITY -> Arrays.stream(EntityType.values()).filter(EntityType::isAlive).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
+        case UNTYPED -> user.getPlayer().setStatistic(s, 0);
         }
     }
 
