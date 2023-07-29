@@ -261,6 +261,9 @@ public class NewAreaListener implements Listener {
 
     private void place(ConfigurationSection section, Location center, Environment env) {
         World world = env.equals(Environment.NORMAL) ? addon.getOverWorld() : addon.getNetherWorld();
+        if (world == null) {
+            return;
+        }
         // Loop through the structures in the file - there could be more than one
         for (String vector : section.getKeys(false)) {
             StructureRotation rot = StructureRotation.NONE;
@@ -423,7 +426,7 @@ public class NewAreaListener implements Listener {
                 case "minecraft:village/common/cows" -> EntityType.COW;
                 case "minecraft:village/common/iron_golem" -> EntityType.IRON_GOLEM;
                 case "minecraft:village/common/butcher_animals", "minecraft:village/common/animals" -> BUTCHER_ANIMALS.get(rand.nextInt(3));
-                    default -> null;
+                default -> null;
                 };
                 // Boxed
                 if (type == null && bjb.getPool().startsWith("minecraft:boxed/")) {
