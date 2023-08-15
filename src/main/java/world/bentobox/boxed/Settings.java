@@ -52,6 +52,11 @@ public class Settings implements WorldSettings {
     private String defaultPlayerAction = "go";
 
     /* Boxed */
+    @ConfigComment("Ignore advancements.")
+    @ConfigComment("If this is true, advancements will not change the size of the box.")
+    @ConfigEntry(path = "boxed.ignore-advancements")
+    private boolean ignoreAdvancements = false;
+
     @ConfigComment("Announce advancements. We recommend you set the game rule `/gamerule announceAdvancements false`")
     @ConfigComment("but that blocks all new advancement announcements. This setting tells Boxed to broadcast new advancements.")
     @ConfigEntry(path = "boxed.broadcast-advancements")
@@ -125,7 +130,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("If the number of areas is greater than this number, it will stop players from joining the world.")
     @ConfigEntry(path = "world.max-areas")
     private int maxIslands = -1;
-    
+
     @ConfigComment("Area height - Lowest is 5.")
     @ConfigComment("It is the y coordinate of the bedrock block in the blueprint.")
     @ConfigEntry(path = "world.area-height")
@@ -317,7 +322,7 @@ public class Settings implements WorldSettings {
     @ConfigComment("Grant these advancements")
     @ConfigEntry(path = "area.reset.on-leave.grant-advancements")
     private List<String> onLeaveGrantAdvancements = new ArrayList<>();
-    
+
     @ConfigComment("Toggles the automatic area creation upon the player's first login on your server.")
     @ConfigComment("If set to true,")
     @ConfigComment("   * Upon connecting to your server for the first time, the player will be told that")
@@ -1733,6 +1738,20 @@ public class Settings implements WorldSettings {
      */
     public void setIslandHeight(int islandHeight) {
         this.islandHeight = islandHeight;
+    }
+
+    /**
+     * @return the ignoreAdvancements
+     */
+    public boolean isIgnoreAdvancements() {
+        return ignoreAdvancements;
+    }
+
+    /**
+     * @param ignoreAdvancements the ignoreAdvancements to set
+     */
+    public void setIgnoreAdvancements(boolean ignoreAdvancements) {
+        this.ignoreAdvancements = ignoreAdvancements;
     }
 
 }

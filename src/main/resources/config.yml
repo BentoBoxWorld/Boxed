@@ -15,6 +15,9 @@ boxed:
     # Sub-command of main player command that will be run on each player command call.
     # By default, it is sub-command 'go'.
     default-action: go
+  # Ignore advancements
+  # If this is true, advancements will not change the size of the box.
+  ignore-advancements: false
   # Announce advancements. We recommend you set the game rule `/gamerule announceAdvancements false`
   # but that blocks all new advancement announcements. This setting tells Boxed to broadcast new advancements.
   broadcast-advancements: false
