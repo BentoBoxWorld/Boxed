@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.island.IslandEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
@@ -183,10 +184,12 @@ public class AdvancementsManager {
      */
     public int addAdvancement(Player p, Advancement advancement) {
         if (!addon.inWorld(p.getWorld())) {
+            BentoBox.getInstance().logDebug("Wrong world");
             // Wrong world
             return 0;
         }
         int score = getScore(advancement);
+        BentoBox.getInstance().logDebug("score is " + score);
         if (score == 0) {
             return 0;
         }
@@ -197,9 +200,11 @@ public class AdvancementsManager {
                 && addAdvancement(island, advancement.getKey().toString())) {
             int oldSize = island.getProtectionRange();
             int newSize = Math.max(1, oldSize + score);
+            BentoBox.getInstance().logDebug("Changing size old = " + oldSize + " new = " + newSize);
             setProtectionSize(island, newSize, p.getUniqueId());
             return score;
         }
+        BentoBox.getInstance().logDebug("No island");
         return 0;
 
     }
@@ -240,6 +245,7 @@ public class AdvancementsManager {
      * @return score of advancement, or 0 if it cannot be worked out
      */
     public int getScore(Advancement a) {
+        BentoBox.getInstance().logDebug("get score");
         String adv = "advancements." + a.getKey().getKey();
         // Unknowns
         if (adv.endsWith("/root")) {
@@ -257,7 +263,9 @@ public class AdvancementsManager {
                 return 0;
             }
         } else {
+            BentoBox.getInstance().logDebug("Checking yaml for " + adv);
             if (advConfig.contains(adv)) {
+                BentoBox.getInstance().logDebug("It's there");
                 return advConfig.getInt(adv, this.unknownAdvChange);
             }
 

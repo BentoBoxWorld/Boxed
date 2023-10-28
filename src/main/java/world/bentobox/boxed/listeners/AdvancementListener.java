@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.island.IslandNewIslandEvent;
 import world.bentobox.bentobox.api.events.team.TeamJoinedEvent;
 import world.bentobox.bentobox.api.events.team.TeamLeaveEvent;
@@ -84,14 +85,17 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
+        BentoBox.getInstance().logDebug(e.getAdvancement().getKey());
         // Ignore if player is not in survival or if advancements are being ignored
         if (!e.getPlayer().getGameMode().equals(GameMode.SURVIVAL) || addon.getSettings().isIgnoreAdvancements()) {
             return;
         }
         // Check if player is in the Boxed worlds
         if (addon.inWorld(e.getPlayer().getWorld())) {
+            BentoBox.getInstance().logDebug("in world");
             // Only allow members or higher to get advancements in a box
             if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
+                BentoBox.getInstance().logDebug("not on island");
                 // Remove advancement from player
                 e.getAdvancement().getCriteria().forEach(c ->
                 e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
@@ -103,6 +107,7 @@ public class AdvancementListener implements Listener {
             }
             // Add the advancement to the island
             int score = addon.getAdvManager().addAdvancement(e.getPlayer(), e.getAdvancement());
+            BentoBox.getInstance().logDebug("Score for this advancement is " + score);
             // Tell other team players one tick after it occurs if it is something that has a score
             if (score != 0) {
                 User user = User.getInstance(e.getPlayer());
