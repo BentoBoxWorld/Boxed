@@ -84,8 +84,8 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent e) {
-        // Ignore if player is not in survival
-        if (!e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
+        // Ignore if player is not in survival or if advancements are being ignored
+        if (!e.getPlayer().getGameMode().equals(GameMode.SURVIVAL) || addon.getSettings().isIgnoreAdvancements()) {
             return;
         }
         // Check if player is in the Boxed worlds
@@ -137,6 +137,7 @@ public class AdvancementListener implements Listener {
      * @param user - user
      */
     public void syncAdvancements(User user) {
+        if (addon.getSettings().isIgnoreAdvancements()) return;
         Island box = addon.getIslands().getIsland(addon.getOverWorld(), user);
         if (box != null) {
             grantAdv(user, addon.getAdvManager().getIsland(box).getAdvancements());
@@ -174,7 +175,8 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent e) {
-        if (!addon.inWorld(e.getPlayer().getWorld()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
+        if (!addon.inWorld(e.getPlayer().getWorld()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
+                || addon.getSettings().isIgnoreAdvancements()) {
             return;
         }
         if (e.getCause().equals(TeleportCause.NETHER_PORTAL)) {
@@ -194,7 +196,8 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent e) {
-        if (!addon.getSettings().isNetherGenerate() || !Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())) {
+        if (!addon.getSettings().isNetherGenerate() || !Util.sameWorld(e.getPlayer().getWorld(), addon.getNetherWorld())
+                || addon.getSettings().isIgnoreAdvancements()) {
             return;
         }
         // Nether fortress advancement
@@ -263,6 +266,7 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamLeaveTime(TeamLeaveEvent e) {
+        if (addon.getSettings().isIgnoreAdvancements()) return;
         User user = User.getInstance(e.getPlayerUUID());
         if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
@@ -278,6 +282,7 @@ public class AdvancementListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onFirstTime(IslandNewIslandEvent e) {
+        if (addon.getSettings().isIgnoreAdvancements()) return;
         User user = User.getInstance(e.getPlayerUUID());
         if (user != null) {
             clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
