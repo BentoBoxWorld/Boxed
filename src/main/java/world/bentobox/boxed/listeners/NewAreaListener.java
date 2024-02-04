@@ -27,7 +27,7 @@ import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -552,7 +552,7 @@ public class NewAreaListener implements Listener {
 	// for 1.13+ (we have use WorldServer)
 	TileEntity te = cw.getHandle().c_(new BlockPosition(w.getBlockX(), w.getBlockY(), w.getBlockZ()));
 	try {
-	    PacketPlayOutTileEntityData packet = ((PacketPlayOutTileEntityData) te.h()); // get update packet from NMS
+        PacketPlayOutTileEntityData packet = ((PacketPlayOutTileEntityData) te.j()); // get update packet from NMS
 											 // object
 	    // here we should use reflection because "c" field isn't accessible
 	    Field f = packet.getClass().getDeclaredField("c"); // get field
