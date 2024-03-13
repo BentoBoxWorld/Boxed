@@ -17,6 +17,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.commands.admin.DefaultAdminCommand;
 import world.bentobox.bentobox.api.commands.island.DefaultPlayerCommand;
@@ -63,11 +64,18 @@ public class Boxed extends GameModeAddon {
     // Settings
     private Settings settings;
     private AbstractBoxedChunkGenerator chunkGenerator;
+    private AbstractBoxedChunkGenerator seedBaseGen;
+    private BoxedSeedChunkGenerator seedWorldGenerator;
+    private AbstractBoxedChunkGenerator netherChunkGenerator;
+    private AbstractBoxedChunkGenerator seedBaseGenNether;
+    private BoxedSeedChunkGenerator seedWorldNetherGenerator;
+
+
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
-    private AbstractBoxedChunkGenerator netherChunkGenerator;
     private World seedWorld;
     private final Map<World, ChunkGenerator> generatorMap = new HashMap<>();
+    private final Map<String, ChunkGenerator> generatorMaps = new HashMap<>();
     //private World seedWorldEnd;
     private BiomeProvider boxedBiomeProvider;
 
@@ -89,6 +97,7 @@ public class Boxed extends GameModeAddon {
                 new AdminPlaceStructureCommand(this);
             }
         };
+        BentoBox.getInstance().logDebug("On LOAD done!");
     }
 
     private boolean loadSettings() {
@@ -102,12 +111,32 @@ public class Boxed extends GameModeAddon {
         }
         // Initialize the Generator because createWorlds will be run after onLoad
         this.chunkGenerator = new BoxedChunkGenerator(this);
+        generatorMaps.put(settings.getWorldName(), chunkGenerator);
+
+        seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL);
+        generatorMaps.put(settings.getWorldName() + "/" + SEED + BASE, seedBaseGen);
+
+        seedWorldGenerator = new BoxedSeedChunkGenerator(this, Environment.NORMAL,
+                new SeedBiomeGenerator(this, seedBaseGen));
+        generatorMaps.put(settings.getWorldName() + "/" + SEED, seedWorldGenerator);
+
+        // Nether generators
         this.netherChunkGenerator = new BoxedChunkGenerator(this);
+        generatorMaps.put(settings.getWorldName() + "/" + NETHER, netherChunkGenerator);
+
+        seedBaseGenNether = new BoxedSeedChunkGenerator(this, Environment.NETHER);
+        generatorMaps.put(settings.getWorldName() + "/" + NETHER + SEED + BASE, seedBaseGenNether);
+
+        seedWorldNetherGenerator = new BoxedSeedChunkGenerator(this, Environment.NETHER,
+                new NetherSeedBiomeGenerator(this, seedBaseGen));
+        generatorMaps.put(settings.getWorldName() + "/" + NETHER + SEED, seedWorldNetherGenerator);
+
         return true;
     }
 
     @Override
     public void onEnable() {
+        BentoBox.getInstance().logDebug("On Enable started!");
         // Check for recommended addons
         if (this.getPlugin().getAddonsManager().getAddonByName("Border").isEmpty()) {
             this.logWarning("Boxed normally requires the Border addon.");
@@ -162,6 +191,7 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void createWorlds() {
+        BentoBox.getInstance().logDebug("Create Worlds started!");
         String worldName = settings.getWorldName().toLowerCase();
         // Create overworld
         createOverWorld(worldName);
@@ -180,23 +210,20 @@ public class Boxed extends GameModeAddon {
     private void createNether(String worldName) {
         // Create vanilla seed nether world
         log("Creating Boxed Seed Nether world ...");
-        // This creates a vanilla base world with biomes
-        AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NETHER);
         World baseWorldNether = WorldCreator
                 .name(worldName + "/" + SEED + NETHER + BASE)
-                .generator(seedBaseGen)
+                .generator(seedBaseGenNether)
                 .environment(Environment.NETHER)
                 .seed(getSettings().getSeed())
                 .createWorld();
         baseWorldNether.setDifficulty(Difficulty.PEACEFUL);
         baseWorldNether.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
-        generatorMap.put(baseWorldNether, seedBaseGen);
+        generatorMap.put(baseWorldNether, seedBaseGenNether);
         getPlugin().getIWM().addWorld(baseWorldNether, this);
-        copyChunks(baseWorldNether, seedBaseGen);
+        copyChunks(baseWorldNether, seedBaseGenNether);
         // Create seed world
         // This copies a base world with custom biomes
         log("Creating Boxed Biomed Nether world ...");
-        BoxedSeedChunkGenerator seedWorldNetherGenerator = new BoxedSeedChunkGenerator(this, Environment.NETHER, new NetherSeedBiomeGenerator(this, seedBaseGen));
         World seedWorldNether = WorldCreator
                 .name(worldName + "/" + SEED + NETHER)
                 .generator(seedWorldNetherGenerator)
@@ -220,7 +247,6 @@ public class Boxed extends GameModeAddon {
         // Create vanilla seed world
         log("Creating Boxed Seed world ...");
         // This creates a vanilla base world with biomes
-        AbstractBoxedChunkGenerator seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL);
         World baseWorld = WorldCreator
                 .name(worldName + "/" + SEED + BASE)
                 .generator(seedBaseGen)
@@ -235,7 +261,6 @@ public class Boxed extends GameModeAddon {
         // Create seed world
         // This copies a base world with custom biomes
         log("Creating Boxed Biomed world ...");
-        BoxedSeedChunkGenerator seedWorldGenerator = new BoxedSeedChunkGenerator(this, Environment.NORMAL, new SeedBiomeGenerator(this, seedBaseGen));
         seedWorld = WorldCreator
                 .name(worldName + "/" + SEED)
                 .generator(seedWorldGenerator)
@@ -249,8 +274,6 @@ public class Boxed extends GameModeAddon {
         generatorMap.put(seedWorld, seedWorldGenerator);
         getPlugin().getIWM().addWorld(seedWorld, this);
         copyChunks(seedWorld, chunkGenerator);
-
-
 
         if (getServer().getWorld(worldName) == null) {
             log("Creating Boxed world ...");
@@ -386,11 +409,14 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public @Nullable ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-        for (Entry<World, ChunkGenerator> en : generatorMap.entrySet()) {
-            if (en.getKey().getName().equalsIgnoreCase(worldName)) {
+        BentoBox.getInstance().logDebug("Calling default chunk gen in Boxed - request is for " + worldName);
+        for (Entry<String, ChunkGenerator> en : generatorMaps.entrySet()) {
+            if (en.getKey().equalsIgnoreCase(worldName)) {
+                BentoBox.getInstance().logDebug("Found!");
                 return en.getValue();
             }
         }
+        BentoBox.getInstance().logDebug("Not found");
         return null;
     }
 
