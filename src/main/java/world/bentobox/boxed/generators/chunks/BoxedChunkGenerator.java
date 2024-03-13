@@ -33,7 +33,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
 import org.bukkit.util.Vector;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintEntity;
@@ -206,7 +205,7 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         if (chunk == null) {
             // This should never be needed because islands should abut each other
             //cd.setRegion(0, minY, 0, 16, 0, 16, Material.WATER);
-            BentoBox.getInstance().logError("No chunks found for " + xx + " " + zz);
+            //BentoBox.getInstance().logError("No chunks found for " + xx + " " + zz);
             return;
         }
         // Copy the chunk
