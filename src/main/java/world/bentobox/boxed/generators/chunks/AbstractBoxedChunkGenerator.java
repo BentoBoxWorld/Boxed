@@ -38,6 +38,7 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
     public AbstractBoxedChunkGenerator(Boxed addon) {
         this.addon = addon;
         size = (int)(addon.getSettings().getIslandDistance() / 16D); // Size is chunks
+
     }
 
     /**
