@@ -58,15 +58,12 @@ public class Boxed extends GameModeAddon {
     private static final String SEED = "seed";
     private static final String NETHER = "_nether";
     private static final String THE_END = "_the_end";
-    private static final String BASE = "_base";
 
     // Settings
     private Settings settings;
     private AbstractBoxedChunkGenerator worldGen;
-    private AbstractBoxedChunkGenerator seedBaseGen;
     private BoxedSeedChunkGenerator seedGen;
     private AbstractBoxedChunkGenerator netherGen;
-    private AbstractBoxedChunkGenerator netherSeedBaseGen;
     private BoxedSeedChunkGenerator netherSeedGen;
 
 
@@ -75,7 +72,6 @@ public class Boxed extends GameModeAddon {
     private World seedWorld;
     private final Map<World, ChunkGenerator> generatorMap = new HashMap<>();
     private final Map<String, ChunkGenerator> generatorMaps = new HashMap<>();
-    //private World seedWorldEnd;
     private BiomeProvider boxedBiomeProvider;
 
     @Override
@@ -111,22 +107,16 @@ public class Boxed extends GameModeAddon {
         this.worldGen = new BoxedChunkGenerator(this);
         generatorMaps.put(settings.getWorldName(), worldGen);
 
-        seedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL);
-        generatorMaps.put(settings.getWorldName() + "/" + SEED + BASE, seedBaseGen);
-
         seedGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL,
-                new SeedBiomeGenerator(this, seedBaseGen));
+                new SeedBiomeGenerator(this));
         generatorMaps.put(settings.getWorldName() + "/" + SEED, seedGen);
 
         // Nether generators
         this.netherGen = new BoxedChunkGenerator(this);
         generatorMaps.put(settings.getWorldName() + NETHER, netherGen);
 
-        netherSeedBaseGen = new BoxedSeedChunkGenerator(this, Environment.NETHER);
-        generatorMaps.put(settings.getWorldName() + "/" + SEED + NETHER + BASE, netherSeedBaseGen); // + SEED + NETHER + BASE)
-
         netherSeedGen = new BoxedSeedChunkGenerator(this, Environment.NETHER,
-                new NetherSeedBiomeGenerator(this, seedBaseGen));
+                new NetherSeedBiomeGenerator(this));
         generatorMaps.put(settings.getWorldName() + "/" + SEED + NETHER, netherSeedGen);
 
         return true;
@@ -206,20 +196,6 @@ public class Boxed extends GameModeAddon {
     private void createNether(String worldName) {
         // Create vanilla seed nether world
         log("Creating Boxed Seed Nether world ...");
-        World baseWorldNether = WorldCreator
-                .name(worldName + "/" + SEED + NETHER + BASE)
-                .generator(netherSeedBaseGen)
-                .environment(Environment.NETHER)
-                .seed(getSettings().getSeed())
-                .createWorld();
-        baseWorldNether.setDifficulty(Difficulty.PEACEFUL);
-        baseWorldNether.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
-        generatorMap.put(baseWorldNether, netherSeedBaseGen);
-        getPlugin().getIWM().addWorld(baseWorldNether, this);
-        copyChunks(baseWorldNether, netherSeedBaseGen);
-        // Create seed world
-        // This copies a base world with custom biomes
-        log("Creating Boxed Biomed Nether world ...");
         World seedWorldNether = WorldCreator
                 .name(worldName + "/" + SEED + NETHER)
                 .generator(netherSeedGen)
@@ -242,21 +218,6 @@ public class Boxed extends GameModeAddon {
     private void createOverWorld(String worldName) {
         // Create vanilla seed world
         log("Creating Boxed Seed world ...");
-        // This creates a vanilla base world with biomes
-        World baseWorld = WorldCreator
-                .name(worldName + "/" + SEED + BASE)
-                .generator(seedBaseGen)
-                .environment(Environment.NORMAL)
-                .seed(getSettings().getSeed())
-                .createWorld();
-        baseWorld.setDifficulty(Difficulty.PEACEFUL);
-        baseWorld.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
-        generatorMap.put(baseWorld, seedBaseGen);
-        getPlugin().getIWM().addWorld(baseWorld, this);
-        copyChunks(baseWorld, seedBaseGen);
-        // Create seed world
-        // This copies a base world with custom biomes
-        log("Creating Boxed Biomed world ...");
         seedWorld = WorldCreator
                 .name(worldName + "/" + SEED)
                 .generator(seedGen)
