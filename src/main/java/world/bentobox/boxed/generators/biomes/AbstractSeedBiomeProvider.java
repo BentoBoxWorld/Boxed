@@ -338,13 +338,15 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     }
 
     private @NonNull Biome getNetherBiome(BiomeParameterPoint bpb) {
-        if (bpb.getTemperature() == -0.5D && bpb.getHumidity() == 0.0D) {
+        double temp = Math.round(bpb.getTemperature() * 10.0) / 10.0;
+        double humidity = Math.round(bpb.getHumidity() * 10.0) / 10.0;
+        if (temp == -0.5D && humidity == 0.0D) {
             return Biome.BASALT_DELTAS;
-        } else if (bpb.getTemperature() == 0.4D && bpb.getHumidity() == 0.0D) {
+        } else if (temp == 0.4D && humidity == 0.0D) {
             return Biome.CRIMSON_FOREST;
-        } else if (bpb.getTemperature() == 0.0D && bpb.getHumidity() == -0.5D) {
+        } else if (temp == 0.0D && humidity == -0.5D) {
             return Biome.SOUL_SAND_VALLEY;
-        } else if (bpb.getTemperature() == -0.5D && bpb.getHumidity() == 0.5D) {
+        } else if (temp == -0.5D && humidity == 0.5D) {
             return Biome.WARPED_FOREST;
         }
 
