@@ -531,6 +531,10 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         return Biome.MANGROVE_SWAMP;
     }
 
+    private @NonNull Biome getValleysNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
+        return getFarInlandValleysBiome(humidity, temperature, erosion, weirdness);
+    }
+
     private @NonNull Biome getFarInlandPeaksBiome(int humidity, int temperature, int erosion, double weirdness) {
         if (erosion == 0) {
             if (temperature >= 0 && temperature <= 2) {
@@ -671,25 +675,6 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         case PEAKS -> getPeaksNearInlandBiome(humidity, temperature, erosion, weirdness);
         default -> getValleysNearInlandBiome(humidity, temperature, erosion, weirdness);
         };
-    }
-
-    private @NonNull Biome getValleysNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        //case VALLEYS:
-        if (erosion >= 0 && erosion < 6) {
-            if (temperature > 0D) {
-                return Biome.RIVER;
-            } else {
-                return Biome.FROZEN_RIVER;
-            }
-        }
-        // e == 6
-        if (temperature == 0) {
-            return Biome.FROZEN_RIVER;
-        }
-        if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
     }
 
     private @NonNull Biome getPeaksNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
