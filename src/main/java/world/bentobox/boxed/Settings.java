@@ -131,7 +131,7 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.max-areas")
     private int maxIslands = -1;
 
-    @ConfigComment("Area height - Lowest is 5.")
+    @ConfigComment("Area height")
     @ConfigComment("It is the y coordinate of the bedrock block in the blueprint.")
     @ConfigEntry(path = "world.area-height")
     private int islandHeight = 8;
