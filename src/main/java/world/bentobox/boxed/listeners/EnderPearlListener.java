@@ -45,15 +45,16 @@ public class EnderPearlListener implements Listener {
                 ) {
             return;
         }
-        
+
         User u = User.getInstance(e.getPlayer());
         // If the to-location is outside the box, cancel it
         if (e.getTo() != null) {
-            Island i = addon.getIslands().getIsland(e.getFrom().getWorld(), u);
-            if (i == null || !i.onIsland(e.getTo())) {
-                u.sendMessage("boxed.general.errors.no-teleport-outside");
-                e.setCancelled(true);
-            }
+            addon.getIslands().getIslandAt(e.getTo()).ifPresent(i -> {
+                if (!i.onIsland(e.getTo())) {
+                    u.sendMessage("boxed.general.errors.no-teleport-outside");
+                    e.setCancelled(true);
+                }
+            });
         }
     }
 
@@ -77,7 +78,7 @@ public class EnderPearlListener implements Listener {
             if (is == null) {
                 return; // Nothing to do
             }
-            
+
             // Get the box that the player is in
             addon.getIslands().getIslandAt(u.getLocation()).ifPresent(fromIsland -> {
                 // Check that it is their box
