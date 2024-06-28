@@ -178,7 +178,36 @@
             <version>${spigot.version}</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+             <groupId>org.spigotmc.....</groupId>
+             <artifactId>spigot</artifactId>
+             <version>1.21-R0.1-SNAPSHOT</version>
+             <scope>provided</scope>
+        </dependency>
+        <dependency>
+             <groupId>org.spigotmc....</groupId>
+             <artifactId>spigot</artifactId>
+             <version>1.20.6-R0.1-SNAPSHOT</version>
+             <scope>provided</scope>
+        </dependency>
+        <dependency>
+             <groupId>org.spigotmc.</groupId>
+             <artifactId>spigot</artifactId>
+             <version>1.20.3-R0.1-SNAPSHOT</version>
+             <scope>provided</scope>
+        </dependency>
+        <dependency>
+             <groupId>org.spigotmc..</groupId>
+             <artifactId>spigot</artifactId>
+             <version>1.20.2-R0.1-SNAPSHOT</version>
+             <scope>provided</scope>
+        </dependency> 
+        <dependency>
+             <groupId>org.spigotmc...</groupId>
+             <artifactId>spigot</artifactId>
+             <version>1.20.1-R0.1-SNAPSHOT</version>
+             <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
