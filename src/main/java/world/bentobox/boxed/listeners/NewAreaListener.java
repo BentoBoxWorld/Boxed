@@ -2,8 +2,10 @@ package world.bentobox.boxed.listeners;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +14,7 @@ import java.util.Queue;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -33,6 +36,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.loot.LootTables;
 import org.bukkit.structure.Structure;
 import org.bukkit.util.BoundingBox;
@@ -93,19 +97,23 @@ public class NewAreaListener implements Listener {
     private final File structureFile;
     private final Queue<StructureRecord> itemsToBuild = new LinkedList<>();
     private static final Random rand = new Random();
-    private boolean pasting;
+    private boolean pasting = true;
     private static final Gson gson = new Gson();
     Pair<Integer, Integer> min = new Pair<>(0, 0);
     Pair<Integer, Integer> max = new Pair<>(0, 0);
     // Database handler for structure data
     private final Database<IslandStructures> handler;
     private final Map<String, IslandStructures> islandStructureCache = new HashMap<>();
+    private Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = new HashMap<>();
+    private static String bukkitVersion = "v" + Bukkit.getBukkitVersion().replace('.', '_').replace('-', '_');
+    private static String pluginPackageName;
 
     /**
      * @param addon addon
      */
     public NewAreaListener(Boxed addon) {
         this.addon = addon;
+        pluginPackageName = addon.getClass().getPackage().getName();
         // Save the default structures file from the jar
         addon.saveResource("structures.yml", false);
         // Load the config
@@ -113,11 +121,11 @@ public class NewAreaListener implements Listener {
         // Get database ready
         handler = new Database<>(addon, IslandStructures.class);
         // Try to build something every second
-        runStructurePrinter(addon);
+        runStructurePrinter();
     }
 
-    private void runStructurePrinter(Boxed addon2) {
-        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructure, 20, 20);
+    private void runStructurePrinter() {
+        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructure, 100, 60);
         for (String js : JAR_STRUCTURES) {
             addon.saveResource("structures/" + js + ".nbt", false);
             File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");
@@ -146,6 +154,29 @@ public class NewAreaListener implements Listener {
         }
     }
 
+    private void placeStructure(StructureRecord item) {
+        // Set the semaphore - only paste one at a time
+        pasting = true;
+        // Place the structure - this cannot be done async
+        item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
+        addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " "
+                + Util.xyz(item.location().toVector()));
+        // Remove any jigsaw artifacts
+        BoundingBox bb = removeJigsaw(item);
+        // Store it for future reference
+        addon.getIslands().getIslandAt(item.location()).map(Island::getUniqueId).ifPresent(id -> {
+            //.log("Saved " + item.name());
+            if (item.location().getWorld().getEnvironment().equals(Environment.NETHER)) {
+                getIslandStructData(id).addNetherStructure(bb, item.name());
+            } else {
+                getIslandStructData(id).addStructure(bb, item.name());
+            }
+            handler.saveObjectAsync(getIslandStructData(id));
+        });
+        // Clear the semaphore
+        pasting = false;
+    }
+
     /**
      * Load known structures from the templates file. This makes them available for
      * admins to use in the boxed place file. If this is not done, then no
@@ -155,22 +186,49 @@ public class NewAreaListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBentoBoxReady(BentoBoxReadyEvent event) {
-        addon.saveResource("templates.yml", false);
-        File templateFile = new File(addon.getDataFolder(), "templates.yml");
-        if (templateFile.exists()) {
-            YamlConfiguration loader = YamlConfiguration.loadConfiguration(templateFile);
-            List<String> list = loader.getStringList("templates");
-            for (String struct : list) {
-                if (!struct.endsWith("/")) {
-                    Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
+        Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> {
+            addon.saveResource("templates.yml", false);
+            File templateFile = new File(addon.getDataFolder(), "templates.yml");
+            if (templateFile.exists()) {
+                YamlConfiguration loader = YamlConfiguration.loadConfiguration(templateFile);
+                List<String> list = loader.getStringList("templates");
+                for (String struct : list) {
+                    if (!struct.endsWith("/")) {
+                        Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
+                    }
                 }
             }
-        }
-
+            pasting = false; // Allow pasting
+        });
     }
 
     /**
-     * Track if a place has entered a structure.
+     * Add items to the queue when they are needed due to chunk loading
+     * @param e ChunkLoadEvent
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onChunkLoad(ChunkLoadEvent e) {
+        Chunk chunk = e.getChunk();
+        // Check if this island is in this game
+        if (!(addon.inWorld(chunk.getWorld()))) {
+            return;
+        }
+        Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
+        if (this.readyToBuild.containsKey(chunkCoords)) {
+            Iterator<StructureRecord> it = this.readyToBuild.get(chunkCoords).iterator();
+            while (it.hasNext()) {
+                StructureRecord item = it.next();
+                if (item.location().getWorld().equals(e.getWorld())) {
+                    this.itemsToBuild.add(item);
+                    it.remove();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Track if a player has entered a structure.
      * 
      * @param e PlayerMoveEvent
      */
@@ -312,34 +370,12 @@ public class NewAreaListener implements Listener {
                 int y = Integer.parseInt(value[1].strip());
                 int z = Integer.parseInt(value[2].strip()) + center.getBlockZ();
                 Location l = new Location(world, x, y, z);
-                itemsToBuild.add(new StructureRecord(name, s, l, rot, mirror, noMobs));
+                readyToBuild.computeIfAbsent(new Pair<Integer, Integer>(x >> 4, z >> 4), k -> new ArrayList<>())
+                        .add(new StructureRecord(name, s, l, rot, mirror, noMobs));
             } else {
                 addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(value));
             }
         }
-    }
-
-    private void placeStructure(StructureRecord item) {
-        // Set the semaphore - only paste one at a time
-        pasting = true;
-        // Place the structure
-        item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
-        addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " "
-                + Util.xyz(item.location().toVector()));
-        // Remove any jigsaw artifacts
-        BoundingBox bb = removeJigsaw(item);
-        // Store it for future reference
-        addon.getIslands().getIslandAt(item.location()).map(Island::getUniqueId).ifPresent(id -> {
-            addon.log("Saved " + item.name());
-            if (item.location().getWorld().getEnvironment().equals(Environment.NETHER)) {
-                getIslandStructData(id).addNetherStructure(bb, item.name());
-            } else {
-                getIslandStructData(id).addStructure(bb, item.name());
-            }
-            handler.saveObjectAsync(getIslandStructData(id));
-        });
-        // Clear the semaphore
-        pasting = false;
     }
 
     /**
@@ -403,6 +439,9 @@ public class NewAreaListener implements Listener {
     private static void processStructureBlock(Block b) {
         // I would like to read the data from the block and do something with it!
         String data = nmsData(b);
+        if (data.isEmpty()) {
+            return;
+        }
         BoxedStructureBlock bsb = gson.fromJson(data, BoxedStructureBlock.class);
         b.setType(Material.STRUCTURE_VOID);
         Enums.getIfPresent(EntityType.class, bsb.getMetadata().toUpperCase(Locale.ENGLISH)).toJavaUtil()
@@ -425,6 +464,9 @@ public class NewAreaListener implements Listener {
 
     private static void processJigsaw(Block b, StructureRotation structureRotation, boolean pasteMobs) {
         String data = nmsData(b);
+        if (data.isEmpty()) {
+            return;
+        }
         BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
         String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
         BlockData bd = Bukkit.createBlockData(finalState);
@@ -542,10 +584,6 @@ public class NewAreaListener implements Listener {
     }
 
     private static String nmsData(Block block) {
-        // Bukkit method that was added in 2011
-        // Example value: 1.20.4-R0.1-SNAPSHOT
-        String bukkitVersion = "v" + Bukkit.getBukkitVersion().replace('.', '_').replace('-', '_');
-        String pluginPackageName = BentoBox.getInstance().getClass().getPackage().getName();
         AbstractMetaData handler;
         try {
             Class<?> clazz = Class.forName(pluginPackageName + ".nms." + bukkitVersion + ".GetMetaData");
@@ -555,6 +593,7 @@ public class NewAreaListener implements Listener {
                 throw new IllegalStateException("Class " + clazz.getName() + " does not implement AbstractGetMetaData");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             BentoBox.getInstance().logWarning("No metadata handler found for " + bukkitVersion + " in Boxed.");
             handler = new world.bentobox.boxed.nms.fallback.GetMetaData();
         }

@@ -11,6 +11,7 @@ import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.configuration.ConfigComment;
 import world.bentobox.bentobox.api.configuration.ConfigEntry;
 import world.bentobox.bentobox.api.configuration.StoreAt;
@@ -106,6 +107,7 @@ public class Settings implements WorldSettings {
     private int ticksPerMonsterSpawns = -1;
 
     @ConfigComment("Radius of player area. (So distance between player starting spots is twice this)")
+    @ConfigComment("MUST BE A FACTOR OF 16. If not, it will be rounded to be one.")
     @ConfigComment("It is the same for every dimension : Overworld, Nether and End.")
     @ConfigEntry(path = "world.area-radius", needsReset = true)
     private int islandDistance = 320;
@@ -494,6 +496,11 @@ public class Settings implements WorldSettings {
      */
     @Override
     public int getIslandDistance() {
+        if (islandDistance % 16 != 0) {
+            islandDistance = islandDistance - (islandDistance % 16);
+            BentoBox.getInstance()
+                    .logWarning("Boxed: Area radius is not a factor of 16. Rounding to " + islandDistance);
+        }
         return islandDistance;
     }
 
