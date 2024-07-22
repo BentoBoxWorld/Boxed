@@ -17,6 +17,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.commands.admin.DefaultAdminCommand;
 import world.bentobox.bentobox.api.commands.island.DefaultPlayerCommand;
@@ -158,6 +159,7 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void onDisable() {
+        BentoBox.getInstance().logDebug("Disabling!");
         // Save the advancements cache
         getAdvManager().save();
     }

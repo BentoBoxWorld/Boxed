@@ -58,27 +58,13 @@ import world.bentobox.boxed.nms.AbstractMetaData;
 import world.bentobox.boxed.objects.BoxedJigsawBlock;
 import world.bentobox.boxed.objects.BoxedStructureBlock;
 import world.bentobox.boxed.objects.IslandStructures;
+import world.bentobox.boxed.objects.ToBePlacedStructures;
+import world.bentobox.boxed.objects.ToBePlacedStructures.StructureRecord;
 
 /**
  * @author tastybento Place structures in areas after they are created
  */
 public class NewAreaListener implements Listener {
-
-    /**
-     * Structure record contains the name of the structure, the structure itself,
-     * where it was placed and enums for rotation, mirror, and a flag to paste mobs
-     * or not.
-     * 
-     * @param name      - name of structure
-     * @param structure - Structure object
-     * @param location  - location where it has been placed
-     * @param rot       - rotation
-     * @param mirror    - mirror setting
-     * @param noMobs    - if false, mobs not pasted
-     */
-    public record StructureRecord(String name, Structure structure, Location location, StructureRotation rot,
-            Mirror mirror, Boolean noMobs) {
-    }
 
     private static final Map<Integer, EntityType> BUTCHER_ANIMALS = Map.of(0, EntityType.COW, 1, EntityType.SHEEP, 2,
             EntityType.PIG);
@@ -95,16 +81,29 @@ public class NewAreaListener implements Listener {
             "village_snowy", "village_taiga");
     private final Boxed addon;
     private final File structureFile;
+    /**
+     * Queue for structures that have been determined to be built now
+     */
     private final Queue<StructureRecord> itemsToBuild = new LinkedList<>();
+
+    /**
+     * Store for structures that are pending being built, e.g., waiting until the chunk they are is in loaded
+     */
+    private final Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild;
+
+    /**
+     * A cache of all structures that have been placed. Used to determine if players have entered them
+     */
+    private final Map<String, IslandStructures> islandStructureCache = new HashMap<>();
+
     private static final Random rand = new Random();
     private boolean pasting = true;
     private static final Gson gson = new Gson();
-    Pair<Integer, Integer> min = new Pair<>(0, 0);
-    Pair<Integer, Integer> max = new Pair<>(0, 0);
+    private static final String TODO = "ToDo";
     // Database handler for structure data
     private final Database<IslandStructures> handler;
-    private final Map<String, IslandStructures> islandStructureCache = new HashMap<>();
-    private Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = new HashMap<>();
+    private final Database<ToBePlacedStructures> todo;
+
     private static String bukkitVersion = "v" + Bukkit.getBukkitVersion().replace('.', '_').replace('-', '_');
     private static String pluginPackageName;
 
@@ -120,12 +119,20 @@ public class NewAreaListener implements Listener {
         structureFile = new File(addon.getDataFolder(), "structures.yml");
         // Get database ready
         handler = new Database<>(addon, IslandStructures.class);
-        // Try to build something every second
+        // Load the pending structures
+        todo = new Database<ToBePlacedStructures>(addon, ToBePlacedStructures.class);
+        readyToBuild = this.loadToDos().getReadyToBuild();
+        // Try to build something
         runStructurePrinter();
     }
 
+    /**
+     * Runs a recurring task to build structures in the queue and register Jar structures.
+     */
     private void runStructurePrinter() {
+        // Set up recurring task
         Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructure, 100, 60);
+        // Run through all the structures in the Jar and register them with the server
         for (String js : JAR_STRUCTURES) {
             addon.saveResource("structures/" + js + ".nbt", false);
             File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");
@@ -142,7 +149,7 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Build something in the queue
+     * Build something in the queue. Structures are built one by one
      */
     private void buildStructure() {
         // Only kick off a build if there is something to build and something isn't
@@ -158,7 +165,12 @@ public class NewAreaListener implements Listener {
         // Set the semaphore - only paste one at a time
         pasting = true;
         // Place the structure - this cannot be done async
-        item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
+        Structure structure = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(item.structure()));
+        if (structure == null) {
+            BentoBox.getInstance().logError("Could not load " + item.structure());
+            return;
+        }
+        structure.place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
         addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " "
                 + Util.xyz(item.location().toVector()));
         // Remove any jigsaw artifacts
@@ -173,6 +185,7 @@ public class NewAreaListener implements Listener {
             }
             handler.saveObjectAsync(getIslandStructData(id));
         });
+        // Remove from the todo list
         // Clear the semaphore
         pasting = false;
     }
@@ -214,8 +227,8 @@ public class NewAreaListener implements Listener {
             return;
         }
         Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
-        if (this.readyToBuild.containsKey(chunkCoords)) {
-            Iterator<StructureRecord> it = this.readyToBuild.get(chunkCoords).iterator();
+        if (readyToBuild.containsKey(chunkCoords)) {
+            Iterator<StructureRecord> it = readyToBuild.get(chunkCoords).iterator();
             while (it.hasNext()) {
                 StructureRecord item = it.next();
                 if (item.location().getWorld().equals(e.getWorld())) {
@@ -223,6 +236,10 @@ public class NewAreaListener implements Listener {
                     it.remove();
                 }
             }
+            // Save to latest to the database
+            ToBePlacedStructures tbd = new ToBePlacedStructures();
+            tbd.setReadyToBuild(readyToBuild);
+            todo.saveObjectAsync(tbd);
         }
     }
 
@@ -336,46 +353,53 @@ public class NewAreaListener implements Listener {
         if (world == null) {
             return;
         }
-        // Loop through the structures in the file - there could be more than one
+
+        Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = new HashMap<>();
+
         for (String vector : section.getKeys(false)) {
-            StructureRotation rot = StructureRotation.NONE;
-            Mirror mirror = Mirror.NONE;
-            boolean noMobs = false;
-            String name = section.getString(vector);
-            // Check for rotation
-            String[] split = name.split(",");
-            if (split.length > 1) {
-                // Rotation
-                rot = Enums.getIfPresent(StructureRotation.class, split[1].strip().toUpperCase(Locale.ENGLISH))
-                        .or(StructureRotation.NONE);
-                name = split[0];
-            }
-            if (split.length == 3) {
-                // Mirror
-                mirror = Enums.getIfPresent(Mirror.class, split[2].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE);
-            }
-            if (split.length == 4) {
-                noMobs = split[3].strip().toUpperCase(Locale.ENGLISH).equals("NO_MOBS");
-            }
-            // Load Structure
-            Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString("minecraft:" + name));
-            if (s == null) {
+            String[] nameParts = section.getString(vector).split(",");
+            String name = nameParts[0].strip();
+            StructureRotation rotation = nameParts.length > 1
+                    ? Enums.getIfPresent(StructureRotation.class, nameParts[1].strip().toUpperCase(Locale.ENGLISH)).or(
+                            StructureRotation.NONE)
+                    : StructureRotation.NONE;
+            Mirror mirror = nameParts.length > 2
+                    ? Enums.getIfPresent(Mirror.class, nameParts[2].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE)
+                    : Mirror.NONE;
+            boolean noMobs = nameParts.length > 3 && "NO_MOBS".equalsIgnoreCase(nameParts[3].strip());
+
+            // Check the structure exists
+            Structure structure = Bukkit.getStructureManager()
+                    .loadStructure(NamespacedKey.fromString("minecraft:" + name));
+            if (structure == null) {
                 BentoBox.getInstance().logError("Could not load " + name);
                 return;
             }
-            // Extract coords
-            String[] value = vector.split(",");
-            if (value.length > 2) {
-                int x = Integer.parseInt(value[0].strip()) + center.getBlockX();
-                int y = Integer.parseInt(value[1].strip());
-                int z = Integer.parseInt(value[2].strip()) + center.getBlockZ();
-                Location l = new Location(world, x, y, z);
-                readyToBuild.computeIfAbsent(new Pair<Integer, Integer>(x >> 4, z >> 4), k -> new ArrayList<>())
-                        .add(new StructureRecord(name, s, l, rot, mirror, noMobs));
+
+            String[] coords = vector.split(",");
+            if (coords.length > 2) {
+                int x = Integer.parseInt(coords[0].strip()) + center.getBlockX();
+                int y = Integer.parseInt(coords[1].strip());
+                int z = Integer.parseInt(coords[2].strip()) + center.getBlockZ();
+                Location location = new Location(world, x, y, z);
+
+                readyToBuild.computeIfAbsent(new Pair<>(x >> 4, z >> 4), k -> new ArrayList<>())
+                        .add(new StructureRecord(name, "minecraft:" + name, location,
+                                rotation, mirror, noMobs));
             } else {
-                addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(value));
+                addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(coords));
             }
         }
+
+        ToBePlacedStructures tbd = this.loadToDos();
+        Map<Pair<Integer, Integer>, List<StructureRecord>> mergedMap = tbd.getReadyToBuild();
+        readyToBuild.forEach((key, value) -> mergedMap.merge(key, value, (list1, list2) -> {
+            list1.addAll(list2);
+            return list1;
+        }));
+
+        tbd.setReadyToBuild(readyToBuild);
+        todo.saveObjectAsync(tbd);
     }
 
     /**
@@ -387,7 +411,11 @@ public class NewAreaListener implements Listener {
      */
     public static BoundingBox removeJigsaw(StructureRecord item) {
         Location loc = item.location();
-        Structure structure = item.structure();
+        Structure structure = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(item.structure()));
+        if (structure == null) {
+            BentoBox.getInstance().logError("Could not load " + item.structure());
+            return new BoundingBox();
+        }
         StructureRotation structureRotation = item.rot();
         String key = item.name();
 
@@ -598,6 +626,20 @@ public class NewAreaListener implements Listener {
             handler = new world.bentobox.boxed.nms.fallback.GetMetaData();
         }
         return handler.nmsData(block);
+    }
+
+    private ToBePlacedStructures loadToDos() {
+        if (!todo.objectExists(TODO)) {
+            return new ToBePlacedStructures();
+        }
+        ToBePlacedStructures list = todo.loadObject(TODO);
+        if (list == null) {
+            return new ToBePlacedStructures();
+        }
+        if (!list.getReadyToBuild().isEmpty()) {
+            addon.log("Loaded " + list.getReadyToBuild().size() + " structure todos.");
+        }
+        return list;
     }
 
 }
