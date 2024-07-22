@@ -3,6 +3,7 @@ package world.bentobox.boxed;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,17 +14,30 @@ import org.bukkit.Difficulty;
 import org.bukkit.entity.EntityType;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+
+import world.bentobox.bentobox.BentoBox;
 
 /**
  * @author tastybento
  *
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ BentoBox.class })
 public class SettingsTest {
 
+    @Mock
+    private BentoBox plugin;
     Settings s;
 
     @Before
     public void setUp() {
+        // Set up plugin
+        Whitebox.setInternalState(BentoBox.class, "instance", plugin);
         s = new Settings();
     }
     /**
@@ -59,7 +73,8 @@ public class SettingsTest {
     @Test
     public void testSetIslandDistance() {
         s.setIslandDistance(123);
-        assertEquals(123, s.getIslandDistance());
+        assertEquals(112, s.getIslandDistance());
+        verify(plugin).logWarning("Boxed: Area radius is not a factor of 16. Rounding to 112");
     }
 
     /**

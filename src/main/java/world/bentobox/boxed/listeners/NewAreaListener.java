@@ -2,9 +2,10 @@ package world.bentobox.boxed.listeners;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +14,7 @@ import java.util.Queue;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -27,7 +29,6 @@ import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -35,6 +36,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.loot.LootTables;
 import org.bukkit.structure.Structure;
 import org.bukkit.util.BoundingBox;
@@ -43,10 +45,6 @@ import org.bukkit.util.Vector;
 import com.google.common.base.Enums;
 import com.google.gson.Gson;
 
-import net.minecraft.core.BlockPosition;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.protocol.game.PacketPlayOutTileEntityData;
-import net.minecraft.world.level.block.entity.TileEntity;
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.BentoBoxReadyEvent;
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent;
@@ -56,6 +54,7 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.nms.AbstractMetaData;
 import world.bentobox.boxed.objects.BoxedJigsawBlock;
 import world.bentobox.boxed.objects.BoxedStructureBlock;
 import world.bentobox.boxed.objects.IslandStructures;
@@ -78,63 +77,67 @@ public class NewAreaListener implements Listener {
      * @param noMobs    - if false, mobs not pasted
      */
     public record StructureRecord(String name, Structure structure, Location location, StructureRotation rot,
-	    Mirror mirror, Boolean noMobs) {
+            Mirror mirror, Boolean noMobs) {
     }
 
     private static final Map<Integer, EntityType> BUTCHER_ANIMALS = Map.of(0, EntityType.COW, 1, EntityType.SHEEP, 2,
-	    EntityType.PIG);
+            EntityType.PIG);
     private static final List<BlockFace> CARDINALS = List.of(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST,
-	    BlockFace.WEST);
+            BlockFace.WEST);
     private static final List<String> JAR_STRUCTURES = List.of("bee", "pillager", "polar_bear", "axolotl", "allay",
-	    "parrot", "frog");
+            "parrot", "frog");
     private static final List<String> STRUCTURES = List.of("ancient_city", "bastion_remnant", "bastion",
-	    "buried_treasure", "desert_pyramid", "end_city", "fortress", "igloo", "jungle_pyramid", "mansion",
-	    "mineshaft", "mineshaft_mesa", "monument", "nether_fossil", "ocean_ruin_cold", "ocean_ruin_warm",
-	    "pillager_outpost", "ruined_portal_desert", "ruined_portal_jungle", "ruined_portal_mountain",
-	    "ruined_portal_nether", "ruined_portal_ocean", "ruined_portal_swamp", "ruined_portal", "shipwreck_beached",
-	    "shipwreck", "stronghold", "swamp_hut", "village_desert", "village_plains", "village_savanna",
-	    "village_snowy", "village_taiga");
+            "buried_treasure", "desert_pyramid", "end_city", "fortress", "igloo", "jungle_pyramid", "mansion",
+            "mineshaft", "mineshaft_mesa", "monument", "nether_fossil", "ocean_ruin_cold", "ocean_ruin_warm",
+            "pillager_outpost", "ruined_portal_desert", "ruined_portal_jungle", "ruined_portal_mountain",
+            "ruined_portal_nether", "ruined_portal_ocean", "ruined_portal_swamp", "ruined_portal", "shipwreck_beached",
+            "shipwreck", "stronghold", "swamp_hut", "village_desert", "village_plains", "village_savanna",
+            "village_snowy", "village_taiga");
     private final Boxed addon;
     private final File structureFile;
     private final Queue<StructureRecord> itemsToBuild = new LinkedList<>();
     private static final Random rand = new Random();
-    private boolean pasting;
+    private boolean pasting = true;
     private static final Gson gson = new Gson();
     Pair<Integer, Integer> min = new Pair<>(0, 0);
     Pair<Integer, Integer> max = new Pair<>(0, 0);
     // Database handler for structure data
     private final Database<IslandStructures> handler;
     private final Map<String, IslandStructures> islandStructureCache = new HashMap<>();
+    private Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = new HashMap<>();
+    private static String bukkitVersion = "v" + Bukkit.getBukkitVersion().replace('.', '_').replace('-', '_');
+    private static String pluginPackageName;
 
     /**
      * @param addon addon
      */
     public NewAreaListener(Boxed addon) {
-	this.addon = addon;
-	// Save the default structures file from the jar
-	addon.saveResource("structures.yml", false);
-	// Load the config
-	structureFile = new File(addon.getDataFolder(), "structures.yml");
-	// Get database ready
-	handler = new Database<>(addon, IslandStructures.class);
-	// Try to build something every second
-	runStructurePrinter(addon);
+        this.addon = addon;
+        pluginPackageName = addon.getClass().getPackage().getName();
+        // Save the default structures file from the jar
+        addon.saveResource("structures.yml", false);
+        // Load the config
+        structureFile = new File(addon.getDataFolder(), "structures.yml");
+        // Get database ready
+        handler = new Database<>(addon, IslandStructures.class);
+        // Try to build something every second
+        runStructurePrinter();
     }
 
-    private void runStructurePrinter(Boxed addon2) {
-	Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructure, 20, 20);
-	for (String js : JAR_STRUCTURES) {
-	    addon.saveResource("structures/" + js + ".nbt", false);
-	    File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");
-	    try {
-		Structure s = Bukkit.getStructureManager().loadStructure(structureFile);
-		Bukkit.getStructureManager().registerStructure(NamespacedKey.fromString("minecraft:boxed/" + js), s);
-		addon.log("Loaded " + js + ".nbt");
-	    } catch (IOException e) {
-		addon.logError("Error trying to load " + structureFile.getAbsolutePath());
-		addon.getPlugin().logStacktrace(e);
-	    }
-	}
+    private void runStructurePrinter() {
+        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructure, 100, 60);
+        for (String js : JAR_STRUCTURES) {
+            addon.saveResource("structures/" + js + ".nbt", false);
+            File structureFile = new File(addon.getDataFolder(), "structures/" + js + ".nbt");
+            try {
+                Structure s = Bukkit.getStructureManager().loadStructure(structureFile);
+                Bukkit.getStructureManager().registerStructure(NamespacedKey.fromString("minecraft:boxed/" + js), s);
+                addon.log("Loaded " + js + ".nbt");
+            } catch (IOException e) {
+                addon.logError("Error trying to load " + structureFile.getAbsolutePath());
+                addon.getPlugin().logStacktrace(e);
+            }
+        }
 
     }
 
@@ -142,13 +145,36 @@ public class NewAreaListener implements Listener {
      * Build something in the queue
      */
     private void buildStructure() {
-	// Only kick off a build if there is something to build and something isn't
-	// already being built
-	if (!pasting && !itemsToBuild.isEmpty()) {
-	    // Build item
-	    StructureRecord item = itemsToBuild.poll();
-	    placeStructure(item);
-	}
+        // Only kick off a build if there is something to build and something isn't
+        // already being built
+        if (!pasting && !itemsToBuild.isEmpty()) {
+            // Build item
+            StructureRecord item = itemsToBuild.poll();
+            placeStructure(item);
+        }
+    }
+
+    private void placeStructure(StructureRecord item) {
+        // Set the semaphore - only paste one at a time
+        pasting = true;
+        // Place the structure - this cannot be done async
+        item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
+        addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " "
+                + Util.xyz(item.location().toVector()));
+        // Remove any jigsaw artifacts
+        BoundingBox bb = removeJigsaw(item);
+        // Store it for future reference
+        addon.getIslands().getIslandAt(item.location()).map(Island::getUniqueId).ifPresent(id -> {
+            //.log("Saved " + item.name());
+            if (item.location().getWorld().getEnvironment().equals(Environment.NETHER)) {
+                getIslandStructData(id).addNetherStructure(bb, item.name());
+            } else {
+                getIslandStructData(id).addStructure(bb, item.name());
+            }
+            handler.saveObjectAsync(getIslandStructData(id));
+        });
+        // Clear the semaphore
+        pasting = false;
     }
 
     /**
@@ -160,52 +186,79 @@ public class NewAreaListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBentoBoxReady(BentoBoxReadyEvent event) {
-	addon.saveResource("templates.yml", false);
-	File templateFile = new File(addon.getDataFolder(), "templates.yml");
-	if (templateFile.exists()) {
-	    YamlConfiguration loader = YamlConfiguration.loadConfiguration(templateFile);
-	    List<String> list = loader.getStringList("templates");
-	    for (String struct : list) {
-		if (!struct.endsWith("/")) {
-		    Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
-		}
-	    }
-	}
-
+        Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> {
+            addon.saveResource("templates.yml", false);
+            File templateFile = new File(addon.getDataFolder(), "templates.yml");
+            if (templateFile.exists()) {
+                YamlConfiguration loader = YamlConfiguration.loadConfiguration(templateFile);
+                List<String> list = loader.getStringList("templates");
+                for (String struct : list) {
+                    if (!struct.endsWith("/")) {
+                        Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(struct));
+                    }
+                }
+            }
+            pasting = false; // Allow pasting
+        });
     }
 
     /**
-     * Track if a place has entered a structure.
+     * Add items to the queue when they are needed due to chunk loading
+     * @param e ChunkLoadEvent
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onChunkLoad(ChunkLoadEvent e) {
+        Chunk chunk = e.getChunk();
+        // Check if this island is in this game
+        if (!(addon.inWorld(chunk.getWorld()))) {
+            return;
+        }
+        Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
+        if (this.readyToBuild.containsKey(chunkCoords)) {
+            Iterator<StructureRecord> it = this.readyToBuild.get(chunkCoords).iterator();
+            while (it.hasNext()) {
+                StructureRecord item = it.next();
+                if (item.location().getWorld().equals(e.getWorld())) {
+                    this.itemsToBuild.add(item);
+                    it.remove();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Track if a player has entered a structure.
      * 
      * @param e PlayerMoveEvent
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent e) {
-	// Ignore head movements
-	if (!addon.inWorld(e.getFrom().getWorld()) || e.getFrom().toVector().equals(e.getTo().toVector())) {
-	    return;
-	}
-	// Check where the player is
-	addon.getIslands().getIslandAt(e.getTo()).ifPresent(island -> {
-	    // See if island is in cache
-	    final String islandId = island.getUniqueId();
-	    IslandStructures is = getIslandStructData(islandId);
-	    // Check if player is in any of the structures
-	    Map<BoundingBox, String> structures = e.getTo().getWorld().getEnvironment().equals(Environment.NETHER)
-		    ? is.getNetherStructureBoundingBoxMap()
-		    : is.getStructureBoundingBoxMap();
-	    for (Map.Entry<BoundingBox, String> en : structures.entrySet()) {
-		if (en.getKey().contains(e.getTo().toVector())) {
-		    for (String s : STRUCTURES) {
-			if (en.getValue().startsWith(s)) {
-			    giveAdvFromCriteria(e.getPlayer(), s);
-			}
-		    }
-		    // STRUCTURES.stream().filter(en.getValue()::startsWith).forEach(s ->
-		    // giveAdvFromCriteria(e.getPlayer(), s));
-		}
-	    }
-	});
+        // Ignore head movements
+        if (!addon.inWorld(e.getFrom().getWorld()) || e.getFrom().toVector().equals(e.getTo().toVector())) {
+            return;
+        }
+        // Check where the player is
+        addon.getIslands().getIslandAt(e.getTo()).ifPresent(island -> {
+            // See if island is in cache
+            final String islandId = island.getUniqueId();
+            IslandStructures is = getIslandStructData(islandId);
+            // Check if player is in any of the structures
+            Map<BoundingBox, String> structures = e.getTo().getWorld().getEnvironment().equals(Environment.NETHER)
+                    ? is.getNetherStructureBoundingBoxMap()
+                    : is.getStructureBoundingBoxMap();
+            for (Map.Entry<BoundingBox, String> en : structures.entrySet()) {
+                if (en.getKey().contains(e.getTo().toVector())) {
+                    for (String s : STRUCTURES) {
+                        if (en.getValue().startsWith(s)) {
+                            giveAdvFromCriteria(e.getPlayer(), s);
+                        }
+                    }
+                    // STRUCTURES.stream().filter(en.getValue()::startsWith).forEach(s ->
+                    // giveAdvFromCriteria(e.getPlayer(), s));
+                }
+            }
+        });
     }
 
     /**
@@ -215,18 +268,18 @@ public class NewAreaListener implements Listener {
      * @param string - criteria
      */
     private void giveAdvFromCriteria(Player player, String string) {
-	// Give every advancement that requires a bastion
-	Bukkit.advancementIterator().forEachRemaining(ad -> {
-	    if (!player.getAdvancementProgress(ad).isDone()) {
-		for (String crit : ad.getCriteria()) {
-		    if (crit.equals(string)) {
-			// Set the criteria (it may not complete the advancement completely
-			player.getAdvancementProgress(ad).awardCriteria(crit);
-			break;
-		    }
-		}
-	    }
-	});
+        // Give every advancement that requires a bastion
+        Bukkit.advancementIterator().forEachRemaining(ad -> {
+            if (!player.getAdvancementProgress(ad).isDone()) {
+                for (String crit : ad.getCriteria()) {
+                    if (crit.equals(string)) {
+                        // Set the criteria (it may not complete the advancement completely
+                        player.getAdvancementProgress(ad).awardCriteria(crit);
+                        break;
+                    }
+                }
+            }
+        });
 
     }
 
@@ -237,114 +290,92 @@ public class NewAreaListener implements Listener {
      * @return IslandStructures
      */
     private IslandStructures getIslandStructData(String islandId) {
-	// Return from cache if it exists
-	if (islandStructureCache.containsKey(islandId)) {
-	    return islandStructureCache.get(islandId);
-	}
-	// Get from database
-	IslandStructures struct = handler.objectExists(islandId) ? handler.loadObject(islandId)
-		: new IslandStructures(islandId);
-	this.islandStructureCache.put(islandId, struct);
-	return struct;
+        // Return from cache if it exists
+        if (islandStructureCache.containsKey(islandId)) {
+            return islandStructureCache.get(islandId);
+        }
+        // Get from database
+        IslandStructures struct = handler.objectExists(islandId) ? handler.loadObject(islandId)
+                : new IslandStructures(islandId);
+        this.islandStructureCache.put(islandId, struct);
+        return struct;
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onIslandCreated(IslandCreatedEvent event) {
-	setUpIsland(event.getIsland());
+        setUpIsland(event.getIsland());
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onIslandReset(IslandResettedEvent event) {
-	setUpIsland(event.getIsland());
+        setUpIsland(event.getIsland());
     }
 
     private void setUpIsland(Island island) {
-	// Check if this island is in this game
-	if (!(addon.inWorld(island.getWorld()))) {
-	    return;
-	}
-	// Load the latest config so that admins can change it on the fly without
-	// reloading
-	YamlConfiguration config = YamlConfiguration.loadConfiguration(structureFile);
-	Location center = island.getProtectionCenter();
-	for (String env : config.getKeys(false)) {
-	    Environment e = Enums.getIfPresent(Environment.class, env.toUpperCase(Locale.ENGLISH)).orNull();
-	    if (e == null) {
-		addon.logError("Error in structures.yml - unknown environment " + env);
-	    } else {
-		place(config.getConfigurationSection(env), center, e);
-	    }
-	}
+        // Check if this island is in this game
+        if (!(addon.inWorld(island.getWorld()))) {
+            return;
+        }
+        // Load the latest config so that admins can change it on the fly without
+        // reloading
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(structureFile);
+        Location center = island.getProtectionCenter();
+        for (String env : config.getKeys(false)) {
+            Environment e = Enums.getIfPresent(Environment.class, env.toUpperCase(Locale.ENGLISH)).orNull();
+            if (e == null) {
+                addon.logError("Error in structures.yml - unknown environment " + env);
+            } else {
+                place(config.getConfigurationSection(env), center, e);
+            }
+        }
 
     }
 
     private void place(ConfigurationSection section, Location center, Environment env) {
-	World world = env.equals(Environment.NORMAL) ? addon.getOverWorld() : addon.getNetherWorld();
-	if (world == null) {
-	    return;
-	}
-	// Loop through the structures in the file - there could be more than one
-	for (String vector : section.getKeys(false)) {
-	    StructureRotation rot = StructureRotation.NONE;
-	    Mirror mirror = Mirror.NONE;
-	    boolean noMobs = false;
-	    String name = section.getString(vector);
-	    // Check for rotation
-	    String[] split = name.split(",");
-	    if (split.length > 1) {
-		// Rotation
-		rot = Enums.getIfPresent(StructureRotation.class, split[1].strip().toUpperCase(Locale.ENGLISH))
-			.or(StructureRotation.NONE);
-		name = split[0];
-	    }
-	    if (split.length == 3) {
-		// Mirror
-		mirror = Enums.getIfPresent(Mirror.class, split[2].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE);
-	    }
-	    if (split.length == 4) {
-		noMobs = split[3].strip().toUpperCase(Locale.ENGLISH).equals("NO_MOBS");
-	    }
-	    // Load Structure
-	    Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString("minecraft:" + name));
-	    if (s == null) {
-		BentoBox.getInstance().logError("Could not load " + name);
-		return;
-	    }
-	    // Extract coords
-	    String[] value = vector.split(",");
-	    if (value.length > 2) {
-		int x = Integer.parseInt(value[0].strip()) + center.getBlockX();
-		int y = Integer.parseInt(value[1].strip());
-		int z = Integer.parseInt(value[2].strip()) + center.getBlockZ();
-		Location l = new Location(world, x, y, z);
-		itemsToBuild.add(new StructureRecord(name, s, l, rot, mirror, noMobs));
-	    } else {
-		addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(value));
-	    }
-	}
-    }
-
-    private void placeStructure(StructureRecord item) {
-	// Set the semaphore - only paste one at a time
-	pasting = true;
-	// Place the structure
-	item.structure().place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
-	addon.log(item.name() + " placed at " + item.location().getWorld().getName() + " "
-		+ Util.xyz(item.location().toVector()));
-	// Remove any jigsaw artifacts
-	BoundingBox bb = removeJigsaw(item);
-	// Store it for future reference
-	addon.getIslands().getIslandAt(item.location()).map(Island::getUniqueId).ifPresent(id -> {
-	    addon.log("Saved " + item.name());
-	    if (item.location().getWorld().getEnvironment().equals(Environment.NETHER)) {
-		getIslandStructData(id).addNetherStructure(bb, item.name());
-	    } else {
-		getIslandStructData(id).addStructure(bb, item.name());
-	    }
-	    handler.saveObjectAsync(getIslandStructData(id));
-	});
-	// Clear the semaphore
-	pasting = false;
+        World world = env.equals(Environment.NORMAL) ? addon.getOverWorld() : addon.getNetherWorld();
+        if (world == null) {
+            return;
+        }
+        // Loop through the structures in the file - there could be more than one
+        for (String vector : section.getKeys(false)) {
+            StructureRotation rot = StructureRotation.NONE;
+            Mirror mirror = Mirror.NONE;
+            boolean noMobs = false;
+            String name = section.getString(vector);
+            // Check for rotation
+            String[] split = name.split(",");
+            if (split.length > 1) {
+                // Rotation
+                rot = Enums.getIfPresent(StructureRotation.class, split[1].strip().toUpperCase(Locale.ENGLISH))
+                        .or(StructureRotation.NONE);
+                name = split[0];
+            }
+            if (split.length == 3) {
+                // Mirror
+                mirror = Enums.getIfPresent(Mirror.class, split[2].strip().toUpperCase(Locale.ENGLISH)).or(Mirror.NONE);
+            }
+            if (split.length == 4) {
+                noMobs = split[3].strip().toUpperCase(Locale.ENGLISH).equals("NO_MOBS");
+            }
+            // Load Structure
+            Structure s = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString("minecraft:" + name));
+            if (s == null) {
+                BentoBox.getInstance().logError("Could not load " + name);
+                return;
+            }
+            // Extract coords
+            String[] value = vector.split(",");
+            if (value.length > 2) {
+                int x = Integer.parseInt(value[0].strip()) + center.getBlockX();
+                int y = Integer.parseInt(value[1].strip());
+                int z = Integer.parseInt(value[2].strip()) + center.getBlockZ();
+                Location l = new Location(world, x, y, z);
+                readyToBuild.computeIfAbsent(new Pair<Integer, Integer>(x >> 4, z >> 4), k -> new ArrayList<>())
+                        .add(new StructureRecord(name, s, l, rot, mirror, noMobs));
+            } else {
+                addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(value));
+            }
+        }
     }
 
     /**
@@ -355,46 +386,46 @@ public class NewAreaListener implements Listener {
      * @return the resulting bounding box of the structure
      */
     public static BoundingBox removeJigsaw(StructureRecord item) {
-	Location loc = item.location();
-	Structure structure = item.structure();
-	StructureRotation structureRotation = item.rot();
-	String key = item.name();
+        Location loc = item.location();
+        Structure structure = item.structure();
+        StructureRotation structureRotation = item.rot();
+        String key = item.name();
 
-	Location otherCorner = switch (structureRotation) {
+        Location otherCorner = switch (structureRotation) {
 
-	case CLOCKWISE_180 -> loc.clone()
-		.add(new Vector(-structure.getSize().getX(), structure.getSize().getY(), -structure.getSize().getZ()));
+        case CLOCKWISE_180 -> loc.clone()
+                .add(new Vector(-structure.getSize().getX(), structure.getSize().getY(), -structure.getSize().getZ()));
 
-	case CLOCKWISE_90 -> loc.clone()
-		.add(new Vector(-structure.getSize().getZ(), structure.getSize().getY(), structure.getSize().getX()));
+        case CLOCKWISE_90 -> loc.clone()
+                .add(new Vector(-structure.getSize().getZ(), structure.getSize().getY(), structure.getSize().getX()));
 
-	case COUNTERCLOCKWISE_90 -> loc.clone()
-		.add(new Vector(structure.getSize().getZ(), structure.getSize().getY(), -structure.getSize().getX()));
+        case COUNTERCLOCKWISE_90 -> loc.clone()
+                .add(new Vector(structure.getSize().getZ(), structure.getSize().getY(), -structure.getSize().getX()));
 
-	case NONE -> loc.clone()
-		.add(new Vector(structure.getSize().getX(), structure.getSize().getY(), structure.getSize().getZ()));
+        case NONE -> loc.clone()
+                .add(new Vector(structure.getSize().getX(), structure.getSize().getY(), structure.getSize().getZ()));
 
-	};
+        };
 
-	BoundingBox bb = BoundingBox.of(loc, otherCorner);
-	for (int x = (int) bb.getMinX(); x <= bb.getMaxX(); x++) {
-	    for (int y = (int) bb.getMinY(); y <= bb.getMaxY(); y++) {
-		for (int z = (int) bb.getMinZ(); z <= bb.getMaxZ(); z++) {
-		    Block b = loc.getWorld().getBlockAt(x, y, z);
-		    if (b.getType().equals(Material.JIGSAW)) {
-			// I would like to read the data from the block and do something with it!
-			processJigsaw(b, structureRotation, !item.noMobs());
-		    } else if (b.getType().equals(Material.STRUCTURE_BLOCK)) {
-			processStructureBlock(b);
-		    }
-		    // Set water blocks for underwater ruins
-		    if (key.contains("underwater_ruin") && b.getType().equals(Material.AIR)) {
-			b.setType(Material.WATER);
-		    }
-		}
-	    }
-	}
-	return bb;
+        BoundingBox bb = BoundingBox.of(loc, otherCorner);
+        for (int x = (int) bb.getMinX(); x <= bb.getMaxX(); x++) {
+            for (int y = (int) bb.getMinY(); y <= bb.getMaxY(); y++) {
+                for (int z = (int) bb.getMinZ(); z <= bb.getMaxZ(); z++) {
+                    Block b = loc.getWorld().getBlockAt(x, y, z);
+                    if (b.getType().equals(Material.JIGSAW)) {
+                        // I would like to read the data from the block and do something with it!
+                        processJigsaw(b, structureRotation, !item.noMobs());
+                    } else if (b.getType().equals(Material.STRUCTURE_BLOCK)) {
+                        processStructureBlock(b);
+                    }
+                    // Set water blocks for underwater ruins
+                    if (key.contains("underwater_ruin") && b.getType().equals(Material.AIR)) {
+                        b.setType(Material.WATER);
+                    }
+                }
+            }
+        }
+        return bb;
     }
 
     /**
@@ -406,79 +437,85 @@ public class NewAreaListener implements Listener {
      * @param b structure block
      */
     private static void processStructureBlock(Block b) {
-	// I would like to read the data from the block and do something with it!
-	String data = nmsData(b);
-	BoxedStructureBlock bsb = gson.fromJson(data, BoxedStructureBlock.class);
-	b.setType(Material.STRUCTURE_VOID);
-	Enums.getIfPresent(EntityType.class, bsb.getMetadata().toUpperCase(Locale.ENGLISH)).toJavaUtil()
-		.ifPresent(type -> b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type));
-	if (bsb.getMetadata().contains("chest")) {
-	    Block downBlock = b.getRelative(BlockFace.DOWN);
-	    if (downBlock.getType().equals(Material.CHEST)) {
-		Chest chest = (Chest) downBlock.getState();
-		// TODO: for now just give treasure
-		chest.setLootTable(LootTables.BURIED_TREASURE.getLootTable());
-		chest.update();
-		if (chest.getBlockData() instanceof Waterlogged wl) {
-		    if (wl.isWaterlogged()) {
-			b.setType(Material.WATER);
-		    }
-		}
-	    }
-	}
+        // I would like to read the data from the block and do something with it!
+        String data = nmsData(b);
+        if (data.isEmpty()) {
+            return;
+        }
+        BoxedStructureBlock bsb = gson.fromJson(data, BoxedStructureBlock.class);
+        b.setType(Material.STRUCTURE_VOID);
+        Enums.getIfPresent(EntityType.class, bsb.getMetadata().toUpperCase(Locale.ENGLISH)).toJavaUtil()
+                .ifPresent(type -> b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type));
+        if (bsb.getMetadata().contains("chest")) {
+            Block downBlock = b.getRelative(BlockFace.DOWN);
+            if (downBlock.getType().equals(Material.CHEST)) {
+                Chest chest = (Chest) downBlock.getState();
+                // TODO: for now just give treasure
+                chest.setLootTable(LootTables.BURIED_TREASURE.getLootTable());
+                chest.update();
+                if (chest.getBlockData() instanceof Waterlogged wl) {
+                    if (wl.isWaterlogged()) {
+                        b.setType(Material.WATER);
+                    }
+                }
+            }
+        }
     }
 
     private static void processJigsaw(Block b, StructureRotation structureRotation, boolean pasteMobs) {
-	String data = nmsData(b);
-	BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
-	String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
-	BlockData bd = Bukkit.createBlockData(finalState);
-	b.setBlockData(bd);
-	if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
-	    spawnMob(b, bjb);
-	}
+        String data = nmsData(b);
+        if (data.isEmpty()) {
+            return;
+        }
+        BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
+        String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
+        BlockData bd = Bukkit.createBlockData(finalState);
+        b.setBlockData(bd);
+        if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
+            spawnMob(b, bjb);
+        }
     }
 
     private static void spawnMob(Block b, BoxedJigsawBlock bjb) {
-	// bjb.getPool contains a lot more than just mobs, so we have to filter it to
-	// see if any mobs are in there. This list may need to grow in the future
-	EntityType type = switch (bjb.getPool()) {
-	case "minecraft:bastion/mobs/piglin" -> EntityType.PIGLIN;
-	case "minecraft:bastion/mobs/hoglin" -> EntityType.HOGLIN;
-	case "minecraft:bastion/mobs/piglin_melee" -> EntityType.PIGLIN_BRUTE;
-	case "minecraft:village/common/cats" -> EntityType.CAT;
-	case "minecraft:village/common/horses" -> EntityType.HORSE;
-	case "minecraft:village/common/sheep" -> EntityType.SHEEP;
-	case "minecraft:village/common/pigs" -> EntityType.PIG;
-	case "minecraft:village/common/cows" -> EntityType.COW;
-	case "minecraft:village/common/iron_golem" -> EntityType.IRON_GOLEM;
-	case "minecraft:village/common/butcher_animals", "minecraft:village/common/animals" ->
-	    BUTCHER_ANIMALS.get(rand.nextInt(3));
-	default -> null;
-	};
-	// Boxed
-	if (type == null && bjb.getPool().startsWith("minecraft:boxed/")) {
-	    String entString = bjb.getPool().toUpperCase(Locale.ENGLISH).substring(16, bjb.getPool().length());
-	    type = Enums.getIfPresent(EntityType.class, entString).orNull();
-	}
-	// Villagers
-	if (bjb.getPool().contains("zombie/villagers")) {
-	    type = EntityType.ZOMBIE_VILLAGER;
-	} else if (bjb.getPool().contains("villagers")) {
-	    type = EntityType.VILLAGER;
-	}
-	// if (type == null) {
-	// BentoBox.getInstance().logDebug(bjb.getPool());
-	// }
-	// Spawn it
-	if (type != null) {
-	    Entity e = b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type);
-	    if (e != null) {
-		e.setPersistent(true);
-	    }
-	    // BentoBox.getInstance().logDebug("Spawned a " + type + " at " +
-	    // b.getRelative(BlockFace.UP).getLocation());
-	}
+        // bjb.getPool contains a lot more than just mobs, so we have to filter it to
+        // see if any mobs are in there. This list may need to grow in the future
+        EntityType type = switch (bjb.getPool()) {
+        case "minecraft:bastion/mobs/piglin" -> EntityType.PIGLIN;
+        case "minecraft:bastion/mobs/hoglin" -> EntityType.HOGLIN;
+        case "minecraft:bastion/mobs/piglin_melee" -> EntityType.PIGLIN_BRUTE;
+        case "minecraft:village/common/cats" -> EntityType.CAT;
+        case "minecraft:village/common/horses" -> EntityType.HORSE;
+        case "minecraft:village/common/sheep" -> EntityType.SHEEP;
+        case "minecraft:village/common/pigs" -> EntityType.PIG;
+        case "minecraft:village/common/cows" -> EntityType.COW;
+        case "minecraft:village/common/iron_golem" -> EntityType.IRON_GOLEM;
+        case "minecraft:village/common/butcher_animals", "minecraft:village/common/animals" ->
+            BUTCHER_ANIMALS.get(rand.nextInt(3));
+        default -> null;
+        };
+        // Boxed
+        if (type == null && bjb.getPool().startsWith("minecraft:boxed/")) {
+            String entString = bjb.getPool().toUpperCase(Locale.ENGLISH).substring(16, bjb.getPool().length());
+            type = Enums.getIfPresent(EntityType.class, entString).orNull();
+        }
+        // Villagers
+        if (bjb.getPool().contains("zombie/villagers")) {
+            type = EntityType.ZOMBIE_VILLAGER;
+        } else if (bjb.getPool().contains("villagers")) {
+            type = EntityType.VILLAGER;
+        }
+        // if (type == null) {
+        // BentoBox.getInstance().logDebug(bjb.getPool());
+        // }
+        // Spawn it
+        if (type != null) {
+            Entity e = b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type);
+            if (e != null) {
+                e.setPersistent(true);
+            }
+            // BentoBox.getInstance().logDebug("Spawned a " + type + " at " +
+            // b.getRelative(BlockFace.UP).getLocation());
+        }
     }
 
     /**
@@ -490,18 +527,18 @@ public class NewAreaListener implements Listener {
      * @return a rewritten blockstate with the updated direction, if required
      */
     private static String correctDirection(String finalState, StructureRotation sr) {
-	if (sr.equals(StructureRotation.NONE)) {
-	    // No change
-	    return finalState;
-	}
-	BlockFace oldDirection = getDirection(finalState);
-	BlockFace newDirection = getNewDirection(oldDirection, sr);
-	if (newDirection.equals(BlockFace.SELF)) {
-	    // No change - shouldn't happen, but just in case
-	    return finalState;
-	}
-	return finalState.replace(oldDirection.name().toLowerCase(Locale.ENGLISH),
-		newDirection.name().toLowerCase(Locale.ENGLISH));
+        if (sr.equals(StructureRotation.NONE)) {
+            // No change
+            return finalState;
+        }
+        BlockFace oldDirection = getDirection(finalState);
+        BlockFace newDirection = getNewDirection(oldDirection, sr);
+        if (newDirection.equals(BlockFace.SELF)) {
+            // No change - shouldn't happen, but just in case
+            return finalState;
+        }
+        return finalState.replace(oldDirection.name().toLowerCase(Locale.ENGLISH),
+                newDirection.name().toLowerCase(Locale.ENGLISH));
 
     }
 
@@ -513,26 +550,26 @@ public class NewAreaListener implements Listener {
      * @return the new direction, or SELF if something weird happens
      */
     private static BlockFace getNewDirection(BlockFace oldDirection, StructureRotation sr) {
-	if (sr.equals(StructureRotation.CLOCKWISE_180)) {
-	    return oldDirection.getOppositeFace();
-	} else if (sr.equals(StructureRotation.CLOCKWISE_90)) {
-	    return switch (oldDirection) {
-	    case EAST -> BlockFace.SOUTH;
-	    case NORTH -> BlockFace.EAST;
-	    case SOUTH -> BlockFace.WEST;
-	    case WEST -> BlockFace.NORTH;
-	    default -> BlockFace.SELF;
-	    };
-	} else if (sr.equals(StructureRotation.COUNTERCLOCKWISE_90)) {
-	    return switch (oldDirection) {
-	    case EAST -> BlockFace.NORTH;
-	    case NORTH -> BlockFace.WEST;
-	    case SOUTH -> BlockFace.EAST;
-	    case WEST -> BlockFace.SOUTH;
-	    default -> BlockFace.SELF;
-	    };
-	}
-	return BlockFace.SELF;
+        if (sr.equals(StructureRotation.CLOCKWISE_180)) {
+            return oldDirection.getOppositeFace();
+        } else if (sr.equals(StructureRotation.CLOCKWISE_90)) {
+            return switch (oldDirection) {
+            case EAST -> BlockFace.SOUTH;
+            case NORTH -> BlockFace.EAST;
+            case SOUTH -> BlockFace.WEST;
+            case WEST -> BlockFace.NORTH;
+            default -> BlockFace.SELF;
+            };
+        } else if (sr.equals(StructureRotation.COUNTERCLOCKWISE_90)) {
+            return switch (oldDirection) {
+            case EAST -> BlockFace.NORTH;
+            case NORTH -> BlockFace.WEST;
+            case SOUTH -> BlockFace.EAST;
+            case WEST -> BlockFace.SOUTH;
+            default -> BlockFace.SELF;
+            };
+        }
+        return BlockFace.SELF;
     }
 
     /**
@@ -542,27 +579,25 @@ public class NewAreaListener implements Listener {
      * @return direction, if found, otherwise SELF
      */
     private static BlockFace getDirection(String finalState) {
-	return CARDINALS.stream().filter(bf -> finalState.contains(bf.name().toLowerCase(Locale.ENGLISH))).findFirst()
-		.orElse(BlockFace.SELF);
+        return CARDINALS.stream().filter(bf -> finalState.contains(bf.name().toLowerCase(Locale.ENGLISH))).findFirst()
+                .orElse(BlockFace.SELF);
     }
 
     private static String nmsData(Block block) {
-	Location w = block.getLocation();
-	CraftWorld cw = (CraftWorld) w.getWorld(); // CraftWorld is NMS one
-	// for 1.13+ (we have use WorldServer)
-	TileEntity te = cw.getHandle().c_(new BlockPosition(w.getBlockX(), w.getBlockY(), w.getBlockZ()));
-	try {
-        PacketPlayOutTileEntityData packet = ((PacketPlayOutTileEntityData) te.j()); // get update packet from NMS
-											 // object
-	    // here we should use reflection because "c" field isn't accessible
-	    Field f = packet.getClass().getDeclaredField("c"); // get field
-	    f.setAccessible(true); // make it available
-	    NBTTagCompound nbtTag = (NBTTagCompound) f.get(packet);
-	    return nbtTag.toString(); // this will show what you want
-	} catch (Exception exc) {
-	    exc.printStackTrace();
-	}
-	return "Nothing";
+        AbstractMetaData handler;
+        try {
+            Class<?> clazz = Class.forName(pluginPackageName + ".nms." + bukkitVersion + ".GetMetaData");
+            if (AbstractMetaData.class.isAssignableFrom(clazz)) {
+                handler = (AbstractMetaData) clazz.getConstructor().newInstance();
+            } else {
+                throw new IllegalStateException("Class " + clazz.getName() + " does not implement AbstractGetMetaData");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            BentoBox.getInstance().logWarning("No metadata handler found for " + bukkitVersion + " in Boxed.");
+            handler = new world.bentobox.boxed.nms.fallback.GetMetaData();
+        }
+        return handler.nmsData(block);
     }
 
 }
