@@ -15,7 +15,6 @@ public class GetMetaData extends AbstractMetaData {
         Location w = block.getLocation();
         CraftWorld cw = (CraftWorld) w.getWorld(); // CraftWorld is NMS one
         TileEntity te = cw.getHandle().c_(new BlockPosition(w.getBlockX(), w.getBlockY(), w.getBlockZ()));
-
-        return getData(te, "j", "c");
+        return getData(te, "au_", "tag");
     }
 }
