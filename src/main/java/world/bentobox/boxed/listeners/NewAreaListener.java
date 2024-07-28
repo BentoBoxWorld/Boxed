@@ -89,7 +89,7 @@ public class NewAreaListener implements Listener {
     /**
      * Store for structures that are pending being built, e.g., waiting until the chunk they are is in loaded
      */
-    private final Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild;
+    private final Map<Pair<Integer, Integer>, List<StructureRecord>> pending;
 
     /**
      * A cache of all structures that have been placed. Used to determine if players have entered them
@@ -100,9 +100,10 @@ public class NewAreaListener implements Listener {
     private boolean pasting = true;
     private static final Gson gson = new Gson();
     private static final String TODO = "ToDo";
+    private static final String COULD_NOT_LOAD = "Could not load ";
     // Database handler for structure data
     private final Database<IslandStructures> handler;
-    private final Database<ToBePlacedStructures> todo;
+    private final Database<ToBePlacedStructures> toPlace;
 
     private static String bukkitVersion = "v" + Bukkit.getBukkitVersion().replace('.', '_').replace('-', '_');
     private static String pluginPackageName;
@@ -120,8 +121,8 @@ public class NewAreaListener implements Listener {
         // Get database ready
         handler = new Database<>(addon, IslandStructures.class);
         // Load the pending structures
-        todo = new Database<ToBePlacedStructures>(addon, ToBePlacedStructures.class);
-        readyToBuild = this.loadToDos().getReadyToBuild();
+        toPlace = new Database<>(addon, ToBePlacedStructures.class);
+        pending = this.loadToDos().getReadyToBuild();
         // Try to build something
         runStructurePrinter();
     }
@@ -167,7 +168,7 @@ public class NewAreaListener implements Listener {
         // Place the structure - this cannot be done async
         Structure structure = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(item.structure()));
         if (structure == null) {
-            BentoBox.getInstance().logError("Could not load " + item.structure());
+            BentoBox.getInstance().logError(COULD_NOT_LOAD + item.structure());
             return;
         }
         structure.place(item.location(), true, item.rot(), item.mirror(), -1, 1, rand);
@@ -185,7 +186,6 @@ public class NewAreaListener implements Listener {
             }
             handler.saveObjectAsync(getIslandStructData(id));
         });
-        // Remove from the todo list
         // Clear the semaphore
         pasting = false;
     }
@@ -227,8 +227,8 @@ public class NewAreaListener implements Listener {
             return;
         }
         Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
-        if (readyToBuild.containsKey(chunkCoords)) {
-            Iterator<StructureRecord> it = readyToBuild.get(chunkCoords).iterator();
+        if (pending.containsKey(chunkCoords)) {
+            Iterator<StructureRecord> it = pending.get(chunkCoords).iterator();
             while (it.hasNext()) {
                 StructureRecord item = it.next();
                 if (item.location().getWorld().equals(e.getWorld())) {
@@ -238,8 +238,8 @@ public class NewAreaListener implements Listener {
             }
             // Save to latest to the database
             ToBePlacedStructures tbd = new ToBePlacedStructures();
-            tbd.setReadyToBuild(readyToBuild);
-            todo.saveObjectAsync(tbd);
+            tbd.setReadyToBuild(pending);
+            toPlace.saveObjectAsync(tbd);
         }
     }
 
@@ -372,7 +372,7 @@ public class NewAreaListener implements Listener {
             Structure structure = Bukkit.getStructureManager()
                     .loadStructure(NamespacedKey.fromString("minecraft:" + name));
             if (structure == null) {
-                BentoBox.getInstance().logError("Could not load " + name);
+                BentoBox.getInstance().logError(COULD_NOT_LOAD + name);
                 return;
             }
 
@@ -399,7 +399,7 @@ public class NewAreaListener implements Listener {
         }));
 
         tbd.setReadyToBuild(readyToBuild);
-        todo.saveObjectAsync(tbd);
+        toPlace.saveObjectAsync(tbd);
     }
 
     /**
@@ -413,7 +413,7 @@ public class NewAreaListener implements Listener {
         Location loc = item.location();
         Structure structure = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(item.structure()));
         if (structure == null) {
-            BentoBox.getInstance().logError("Could not load " + item.structure());
+            BentoBox.getInstance().logError(COULD_NOT_LOAD + item.structure());
             return new BoundingBox();
         }
         StructureRotation structureRotation = item.rot();
@@ -629,10 +629,10 @@ public class NewAreaListener implements Listener {
     }
 
     private ToBePlacedStructures loadToDos() {
-        if (!todo.objectExists(TODO)) {
+        if (!toPlace.objectExists(TODO)) {
             return new ToBePlacedStructures();
         }
-        ToBePlacedStructures list = todo.loadObject(TODO);
+        ToBePlacedStructures list = toPlace.loadObject(TODO);
         if (list == null) {
             return new ToBePlacedStructures();
         }

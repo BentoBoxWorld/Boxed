@@ -16,7 +16,7 @@ import world.bentobox.bentobox.util.Pair;
 
 /**
  * Stores all the structures to be placed in the world. This is a queue that is done over
- * time to avoid lag and if the server is stopped then the todo list is saved here
+ * time to avoid lag and if the server is stopped then the pending list is saved here
  * @author tastybento
  *
  */
