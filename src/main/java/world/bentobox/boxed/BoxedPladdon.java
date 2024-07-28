@@ -7,9 +7,14 @@ import world.bentobox.bentobox.api.addons.Pladdon;
 
 public class BoxedPladdon extends Pladdon {
 
+    private Boxed addon;
+
     @Override
     public Addon getAddon() {
-        return new Boxed();
+        if (addon == null) {
+            addon = new Boxed();
+        }
+        return addon;
     }
 
 }
