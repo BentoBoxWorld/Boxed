@@ -153,16 +153,21 @@ public class NewAreaListener implements Listener {
      * Build something in the queue. Structures are built one by one
      */
     private void buildStructure() {
+        //BentoBox.getInstance().logDebug("buildStructure");
         // Only kick off a build if there is something to build and something isn't
         // already being built
         if (!pasting && !itemsToBuild.isEmpty()) {
             // Build item
+            //BentoBox.getInstance().logDebug("Build item");
             StructureRecord item = itemsToBuild.poll();
             placeStructure(item);
+        } else {
+            //BentoBox.getInstance().logDebug("Nothing to do");
         }
     }
 
     private void placeStructure(StructureRecord item) {
+        //BentoBox.getInstance().logDebug("Placing structure");
         // Set the semaphore - only paste one at a time
         pasting = true;
         // Place the structure - this cannot be done async
@@ -226,12 +231,14 @@ public class NewAreaListener implements Listener {
         if (!(addon.inWorld(chunk.getWorld()))) {
             return;
         }
+        //BentoBox.getInstance().logDebug(e.getEventName());
         Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
         if (pending.containsKey(chunkCoords)) {
             Iterator<StructureRecord> it = pending.get(chunkCoords).iterator();
             while (it.hasNext()) {
                 StructureRecord item = it.next();
                 if (item.location().getWorld().equals(e.getWorld())) {
+                    //BentoBox.getInstance().logDebug("Placing structure in itemsToBuild " + item);
                     this.itemsToBuild.add(item);
                     it.remove();
                 }
@@ -240,6 +247,8 @@ public class NewAreaListener implements Listener {
             ToBePlacedStructures tbd = new ToBePlacedStructures();
             tbd.setReadyToBuild(pending);
             toPlace.saveObjectAsync(tbd);
+        } else {
+            //BentoBox.getInstance().logDebug("Nothing to build in this chunk");
         }
     }
 
@@ -382,15 +391,17 @@ public class NewAreaListener implements Listener {
                 int y = Integer.parseInt(coords[1].strip());
                 int z = Integer.parseInt(coords[2].strip()) + center.getBlockZ();
                 Location location = new Location(world, x, y, z);
-
+                //BentoBox.getInstance().logDebug("Structure " + name + " will be placed at " + location);
                 readyToBuild.computeIfAbsent(new Pair<>(x >> 4, z >> 4), k -> new ArrayList<>())
                         .add(new StructureRecord(name, "minecraft:" + name, location,
                                 rotation, mirror, noMobs));
+                this.itemsToBuild
+                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
             } else {
                 addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(coords));
             }
         }
-
+        // Load any todo's and add the ones from this new island to the list
         ToBePlacedStructures tbd = this.loadToDos();
         Map<Pair<Integer, Integer>, List<StructureRecord>> mergedMap = tbd.getReadyToBuild();
         readyToBuild.forEach((key, value) -> mergedMap.merge(key, value, (list1, list2) -> {
@@ -398,7 +409,10 @@ public class NewAreaListener implements Listener {
             return list1;
         }));
 
-        tbd.setReadyToBuild(readyToBuild);
+        //BentoBox.getInstance().logDebug("mergedMap size = " + mergedMap.size());
+        //BentoBox.getInstance().logDebug("readyToBuild size = " + readyToBuild.size());
+        // Save the list
+        tbd.setReadyToBuild(mergedMap);
         toPlace.saveObjectAsync(tbd);
     }
 
@@ -630,10 +644,12 @@ public class NewAreaListener implements Listener {
 
     private ToBePlacedStructures loadToDos() {
         if (!toPlace.objectExists(TODO)) {
+            //BentoBox.getInstance().logDebug("No TODO list");
             return new ToBePlacedStructures();
         }
         ToBePlacedStructures list = toPlace.loadObject(TODO);
         if (list == null) {
+            //BentoBox.getInstance().logDebug("TODO list is null");
             return new ToBePlacedStructures();
         }
         if (!list.getReadyToBuild().isEmpty()) {
