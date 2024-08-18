@@ -133,6 +133,15 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.max-areas")
     private int maxIslands = -1;
 
+    @ConfigComment("The number of concurrent areas a player can have")
+    @ConfigComment("A value of 0 will use the BentoBox config.yml default")
+    @ConfigEntry(path = "world.concurrent-area")
+    private int concurrentIslands = 0;
+
+    @ConfigComment("Disallow team members from having their own area.")
+    @ConfigEntry(path = "world.disallow-team-member-areas")
+    private boolean disallowTeamMemberIslands = true;
+
     @ConfigComment("Area height")
     @ConfigComment("It is the y coordinate of the bedrock block in the blueprint.")
     @ConfigEntry(path = "world.area-height")
@@ -1759,6 +1768,34 @@ public class Settings implements WorldSettings {
      */
     public void setIgnoreAdvancements(boolean ignoreAdvancements) {
         this.ignoreAdvancements = ignoreAdvancements;
+    }
+
+    /**
+     * @return the concurrentIslands
+     */
+    public int getConcurrentIslands() {
+        return concurrentIslands;
+    }
+
+    /**
+     * @param concurrentIslands the concurrentIslands to set
+     */
+    public void setConcurrentIslands(int concurrentIslands) {
+        this.concurrentIslands = concurrentIslands;
+    }
+
+    /**
+     * @return the disallowTeamMemberIslands
+     */
+    public boolean isDisallowTeamMemberIslands() {
+        return disallowTeamMemberIslands;
+    }
+
+    /**
+     * @param disallowTeamMemberIslands the disallowTeamMemberIslands to set
+     */
+    public void setDisallowTeamMemberIslands(boolean disallowTeamMemberIslands) {
+        this.disallowTeamMemberIslands = disallowTeamMemberIslands;
     }
 
 }
