@@ -635,8 +635,7 @@ public class NewAreaListener implements Listener {
                 throw new IllegalStateException("Class " + clazz.getName() + " does not implement AbstractGetMetaData");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            BentoBox.getInstance().logWarning("No metadata handler found for " + bukkitVersion + " in Boxed.");
+            BentoBox.getInstance().logError("No metadata handler found for " + bukkitVersion + " in Boxed (yet).");
             handler = new world.bentobox.boxed.nms.fallback.GetMetaData();
         }
         return handler.nmsData(block);

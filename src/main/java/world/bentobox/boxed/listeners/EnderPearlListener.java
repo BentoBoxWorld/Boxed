@@ -1,6 +1,8 @@
 package world.bentobox.boxed.listeners;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -15,6 +17,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
@@ -29,6 +32,7 @@ import world.bentobox.boxed.Boxed;
 public class EnderPearlListener implements Listener {
 
     private final Boxed addon;
+    private Set<Player> movingPlayer = new HashSet<>();
 
     /**
      * @param addon addon
@@ -38,7 +42,11 @@ public class EnderPearlListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent e) {        
+    public void onPlayerTeleport(PlayerTeleportEvent e) {
+        if (e.getCause() == TeleportCause.ENDER_PEARL && movingPlayer.contains(e.getPlayer())) {
+            movingPlayer.remove(e.getPlayer());
+            return; // Allow the teleport this one time
+        }
         if (!addon.inWorld(e.getFrom()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
                 || (e.getTo() != null && !addon.inWorld(e.getTo()))
                 || addon.getIslands().getSpawn(e.getFrom().getWorld()).map(spawn -> spawn.onIsland(e.getTo())).orElse(false)
@@ -91,7 +99,7 @@ public class EnderPearlListener implements Listener {
                         if (!toIsland.onIsland(l)) {
                             // Moving is allowed
                             moveBox(u, fromIsland, l);
-                            Util.teleportAsync(player, l);
+                            Util.teleportAsync(player, l, TeleportCause.ENDER_PEARL);
                         }
                     } else {
                         // Different box. This is never allowed. Cancel the throw
@@ -117,6 +125,7 @@ public class EnderPearlListener implements Listener {
             fromIsland.setProtectionCenter(l);
             fromIsland.setSpawnPoint(l.getWorld().getEnvironment(), l);
             u.getPlayer().playSound(l, Sound.ENTITY_GENERIC_EXPLODE, 2F, 2F);
+            movingPlayer.add(u.getPlayer());
         } catch (IOException e1) {
             addon.logError("Could not move box " + e1.getMessage());
         }
