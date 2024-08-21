@@ -45,6 +45,8 @@ import world.bentobox.boxed.Boxed;
  */
 public class AdvancementListener implements Listener {
 
+    private static final Material[] MATS = Material.values();
+
     private final Boxed addon;
     private final Advancement netherAdvancement;
     private final Advancement netherFortressAdvancement;
@@ -327,7 +329,8 @@ public class AdvancementListener implements Listener {
 
     private void clearAdv(User user) {
         // Clear Statistics
-        Arrays.stream(Statistic.values()).forEach(s -> resetStats(user, s));
+        Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(),
+                () -> Arrays.stream(Statistic.values()).forEach(s -> resetStats(user, s)));
         // Clear advancements
         Iterator<Advancement> it = Bukkit.advancementIterator();
         while (it.hasNext()) {
@@ -340,8 +343,9 @@ public class AdvancementListener implements Listener {
 
     private void resetStats(User user, Statistic s) {
         switch(s.getType()) {
-        case BLOCK -> Arrays.stream(Material.values()).filter(Material::isBlock).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
-        case ITEM -> Arrays.stream(Material.values()).filter(Material::isItem).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
+        case BLOCK ->
+            Arrays.stream(MATS).filter(Material::isBlock).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
+        case ITEM -> Arrays.stream(MATS).filter(Material::isItem).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
         case ENTITY -> Arrays.stream(EntityType.values()).filter(EntityType::isAlive).forEach(m -> user.getPlayer().setStatistic(s, m, 0));
         case UNTYPED -> user.getPlayer().setStatistic(s, 0);
         }
