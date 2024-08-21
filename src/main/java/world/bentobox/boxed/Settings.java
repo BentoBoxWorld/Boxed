@@ -1774,7 +1774,10 @@ public class Settings implements WorldSettings {
      * @return the concurrentIslands
      */
     public int getConcurrentIslands() {
-        return concurrentIslands;
+        if (concurrentIslands <= 0) {
+            return BentoBox.getInstance().getSettings().getIslandNumber();
+        }
+        return this.concurrentIslands;
     }
 
     /**
