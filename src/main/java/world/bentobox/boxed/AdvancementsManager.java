@@ -245,7 +245,7 @@ public class AdvancementsManager {
         if (adv.endsWith("/root")) {
             return advConfig.getInt("settings.default-root-increase");
         }
-        if (adv.contains("recipes")) {
+        if (adv.contains("recipes") && !advConfig.contains(adv)) {
             return this.unknownRecipeChange;
         }
         if (advConfig.getBoolean("settings.automatic-scoring")) {
