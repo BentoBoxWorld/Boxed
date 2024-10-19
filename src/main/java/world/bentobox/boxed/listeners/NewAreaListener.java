@@ -358,6 +358,9 @@ public class NewAreaListener implements Listener {
     }
 
     private void place(ConfigurationSection section, Location center, Environment env) {
+        if (section == null) {
+            return;
+        }
         World world = env.equals(Environment.NORMAL) ? addon.getOverWorld() : addon.getNetherWorld();
         if (world == null) {
             return;
