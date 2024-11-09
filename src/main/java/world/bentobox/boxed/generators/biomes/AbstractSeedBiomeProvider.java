@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.bukkit.Registry;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockFace;
@@ -20,8 +21,6 @@ import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.NonNull;
-
-import com.google.common.base.Enums;
 
 import world.bentobox.boxed.Boxed;
 
@@ -1129,7 +1128,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     }
 
     public static double convertToY(double x) {
-        x = Math.max(-1, Math.min(1, x)); // Clamp value
+        x = Math.clamp(x, -1, 1);
         if (x >= -1 && x < -0.5) {
             return 2 * x + 1;
         } else if (x >= -0.5 && x < 0) {
@@ -1196,7 +1195,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     @Override
     public List<Biome> getBiomes(WorldInfo worldInfo) {
         // Return all of them for now!
-        return Arrays.stream(Biome.values()).filter(b -> !b.equals(Biome.CUSTOM)).toList();
+        return Registry.BIOME.stream().filter(b -> !b.equals(Biome.CUSTOM)).toList();
     }
 
     /**
@@ -1215,7 +1214,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             if (split.length == 2) {
                 try {
                     double d = Double.parseDouble(split[0]);
-                    Biome biome = Enums.getIfPresent(Biome.class, split[1].toUpperCase(Locale.ENGLISH)).orNull();
+                    Biome biome = Biome.valueOf(split[1].toUpperCase(Locale.ENGLISH));
                     if (biome == null) {
                         addon.logError(split[1].toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
                         result.put(d, Biome.CUSTOM);

@@ -1,16 +1,14 @@
 package world.bentobox.boxed.generators.biomes;
 
-import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Registry;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
-
-import com.google.common.base.Enums;
 
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.boxed.Boxed;
@@ -56,7 +54,7 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
     @Override
     public List<Biome> getBiomes(WorldInfo worldInfo) {
         // Return all of them for now!
-        return Arrays.stream(Biome.values()).filter(b -> !b.equals(Biome.CUSTOM)).filter(b -> !b.equals(Enums.getIfPresent(Biome.class, "CHERRY_GROVE").orNull())).toList();
+        return Registry.BIOME.stream().filter(b -> !b.equals(Biome.CUSTOM)).toList();
     }
 
 }
