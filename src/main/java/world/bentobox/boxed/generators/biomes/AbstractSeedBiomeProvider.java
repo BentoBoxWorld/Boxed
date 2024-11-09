@@ -1215,7 +1215,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             if (split.length == 2) {
                 try {
                     double d = Double.parseDouble(split[0]);
-                    Biome biome = Enums.getIfPresent(Biome.class, split[1].toUpperCase(Locale.ENGLISH)).orNull();
+                    Biome biome = Biome.valueOf(split[1].toUpperCase(Locale.ENGLISH));
                     if (biome == null) {
                         addon.logError(split[1].toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
                         result.put(d, Biome.CUSTOM);

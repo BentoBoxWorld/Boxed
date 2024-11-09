@@ -35,6 +35,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,7 @@ import world.bentobox.bentobox.managers.IslandsManager;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.Settings;
+import world.bentobox.boxed.mocks.ServerMocks;
 
 /**
  * @author tastybento
@@ -102,7 +104,7 @@ public class EnderPearlListenerTest {
      */
     @Before
     public void setUp() throws Exception {
-        
+        ServerMocks.newServer();
         // Set up plugin
         plugin = mock(BentoBox.class);
         Whitebox.setInternalState(BentoBox.class, "instance", plugin);
@@ -168,6 +170,13 @@ public class EnderPearlListenerTest {
         Boxed.ALLOW_MOVE_BOX.setSetting(world, true);
         
         epl = new EnderPearlListener(addon);
+    }
+
+    @After
+    public void tearDown() {
+        ServerMocks.unsetBukkitServer();
+        User.clearUsers();
+        Mockito.framework().clearInlineMocks();
     }
 
     /**
