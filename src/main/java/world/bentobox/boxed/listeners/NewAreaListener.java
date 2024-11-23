@@ -153,21 +153,16 @@ public class NewAreaListener implements Listener {
      * Build something in the queue. Structures are built one by one
      */
     private void buildStructure() {
-        //BentoBox.getInstance().logDebug("buildStructure");
         // Only kick off a build if there is something to build and something isn't
         // already being built
         if (!pasting && !itemsToBuild.isEmpty()) {
             // Build item
-            //BentoBox.getInstance().logDebug("Build item");
             StructureRecord item = itemsToBuild.poll();
             placeStructure(item);
-        } else {
-            //BentoBox.getInstance().logDebug("Nothing to do");
         }
     }
 
     private void placeStructure(StructureRecord item) {
-        //BentoBox.getInstance().logDebug("Placing structure");
         // Set the semaphore - only paste one at a time
         pasting = true;
         // Place the structure - this cannot be done async
@@ -231,14 +226,13 @@ public class NewAreaListener implements Listener {
         if (!(addon.inWorld(chunk.getWorld()))) {
             return;
         }
-        //BentoBox.getInstance().logDebug(e.getEventName());
         Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
         if (pending.containsKey(chunkCoords)) {
             Iterator<StructureRecord> it = pending.get(chunkCoords).iterator();
             while (it.hasNext()) {
                 StructureRecord item = it.next();
                 if (item.location().getWorld().equals(e.getWorld())) {
-                    //BentoBox.getInstance().logDebug("Placing structure in itemsToBuild " + item);
+                    // Placing structure in itemsToBuild
                     this.itemsToBuild.add(item);
                     it.remove();
                 }
@@ -247,8 +241,6 @@ public class NewAreaListener implements Listener {
             ToBePlacedStructures tbd = new ToBePlacedStructures();
             tbd.setReadyToBuild(pending);
             toPlace.saveObjectAsync(tbd);
-        } else {
-            //BentoBox.getInstance().logDebug("Nothing to build in this chunk");
         }
     }
 
@@ -394,10 +386,9 @@ public class NewAreaListener implements Listener {
                 int y = Integer.parseInt(coords[1].strip());
                 int z = Integer.parseInt(coords[2].strip()) + center.getBlockZ();
                 Location location = new Location(world, x, y, z);
-                //BentoBox.getInstance().logDebug("Structure " + name + " will be placed at " + location);
+                // Structure will be placed at location
                 readyToBuild.computeIfAbsent(new Pair<>(x >> 4, z >> 4), k -> new ArrayList<>())
-                        .add(new StructureRecord(name, "minecraft:" + name, location,
-                                rotation, mirror, noMobs));
+                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
                 this.itemsToBuild
                         .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
             } else {
@@ -412,8 +403,6 @@ public class NewAreaListener implements Listener {
             return list1;
         }));
 
-        //BentoBox.getInstance().logDebug("mergedMap size = " + mergedMap.size());
-        //BentoBox.getInstance().logDebug("readyToBuild size = " + readyToBuild.size());
         // Save the list
         tbd.setReadyToBuild(mergedMap);
         toPlace.saveObjectAsync(tbd);
@@ -508,16 +497,20 @@ public class NewAreaListener implements Listener {
     }
 
     private static void processJigsaw(Block b, StructureRotation structureRotation, boolean pasteMobs) {
-        String data = nmsData(b);
-        if (data.isEmpty()) {
-            return;
-        }
-        BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
-        String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
-        BlockData bd = Bukkit.createBlockData(finalState);
-        b.setBlockData(bd);
-        if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
-            spawnMob(b, bjb);
+        try {
+            String data = nmsData(b);
+            if (data.isEmpty()) {
+                return;
+            }
+            BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
+            String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
+            BlockData bd = Bukkit.createBlockData(finalState);
+            b.setBlockData(bd);
+            if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
+                spawnMob(b, bjb);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -549,17 +542,12 @@ public class NewAreaListener implements Listener {
         } else if (bjb.getPool().contains("villagers")) {
             type = EntityType.VILLAGER;
         }
-        // if (type == null) {
-        // BentoBox.getInstance().logDebug(bjb.getPool());
-        // }
         // Spawn it
         if (type != null) {
             Entity e = b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type);
             if (e != null) {
                 e.setPersistent(true);
             }
-            // BentoBox.getInstance().logDebug("Spawned a " + type + " at " +
-            // b.getRelative(BlockFace.UP).getLocation());
         }
     }
 
@@ -646,12 +634,10 @@ public class NewAreaListener implements Listener {
 
     private ToBePlacedStructures loadToDos() {
         if (!toPlace.objectExists(TODO)) {
-            //BentoBox.getInstance().logDebug("No TODO list");
             return new ToBePlacedStructures();
         }
         ToBePlacedStructures list = toPlace.loadObject(TODO);
         if (list == null) {
-            //BentoBox.getInstance().logDebug("TODO list is null");
             return new ToBePlacedStructures();
         }
         if (!list.getReadyToBuild().isEmpty()) {

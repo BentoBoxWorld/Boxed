@@ -8,10 +8,8 @@ import org.bukkit.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.game.PacketPlayOutTileEntityData;
 import net.minecraft.world.level.block.entity.TileEntity;
+import world.bentobox.bentobox.BentoBox;
 
-/**
- * 
- */
 public abstract class AbstractMetaData {
 
     public abstract String nmsData(Block block);
@@ -30,7 +28,7 @@ public abstract class AbstractMetaData {
                     Field fieldC = packet.getClass().getDeclaredField(field);
                     fieldC.setAccessible(true);
                     NBTTagCompound nbtTag = (NBTTagCompound) fieldC.get(packet);
-
+        
                     return nbtTag.toString(); // This will show what you want
                     //} else {
                     //    throw new ClassNotFoundException(
