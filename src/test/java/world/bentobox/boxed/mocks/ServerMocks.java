@@ -24,6 +24,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 public final class ServerMocks {
 
+    @SuppressWarnings({ "deprecation", "unchecked" })
     public static @NonNull Server newServer() {
         Server mock = mock(Server.class);
 
@@ -66,7 +67,7 @@ public final class ServerMocks {
                     doReturn(key).when(keyed).getKey();
                     return keyed;
                 });
-            }).when(registry).get(notNull());
+            }).when(registry).get((NamespacedKey) notNull());
             return registry;
         })).when(mock).getRegistry(notNull());
 

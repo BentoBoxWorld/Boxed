@@ -250,11 +250,9 @@ public class AdvancementsManager {
         }
         if (advConfig.getBoolean("settings.automatic-scoring")) {
             if (!a.getKey().getKey().contains("recipes") && a.getDisplay() != null) {
-                int score = 1;
-                while (a.getParent() != null) {
-                    score++;
-                }
-                return score;
+                float x = a.getDisplay().getX();
+                float y = a.getDisplay().getY();
+                return (int) Math.round(Math.sqrt(x * x + y * y));
             } else {
                 return 0;
             }
