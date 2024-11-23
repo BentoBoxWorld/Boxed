@@ -1,4 +1,4 @@
-# 
+#
 # This is a YML file. Be careful when editing. Check your edits in a YAML checker like    #
 # the one at http://yaml-online-parser.appspot.com                                        #
 boxed:
@@ -6,17 +6,879 @@ boxed:
   size-changed: '&a Box size increased by [number]!'
   size-decreased: '&c Box size decreased by [number]!'
   user-completed: '&a [name] completed [description]!'
-  adv-disallowed: "&c You can only complete advancements in your own box. Revoking [description]."
+  adv-disallowed: '&c You can only complete advancements in your own box. Revoking
+    [description].'
   general:
     errors:
+      no-box: '&c You do not have an box!'
+      player-has-box: '&c Player already has an box!'
+      player-has-no-box: '&c That player has no box!'
+      already-have-box: '&c You already have an box!'
+      no-safe-location-found: '&c Could not find a safe spot to teleport you to on
+        the box.'
+      not-owner: '&c You are not the owner of the box!'
+      player-is-not-owner: '&b [name] &c is not the owner of an box!'
+      not-on-box: '&c You are not in a box!'
       no-island: '&c You do not have a box!'
       player-has-island: '&c Player already has a box!'
       player-has-no-island: '&c That player has no box!'
       already-have-island: '&c You already have a box!'
       no-safe-location: '&c No safe location found in box!'
-      not-owner: '&c You are not the owner of your team!'
-      no-teleport-outside: "&c You cannot teleport outside of your box"
+      no-teleport-outside: '&c You cannot teleport outside of your box'
+  
   commands:
+    admin:
+      maxhomes:
+        description: change the number of homes allowed on this box or player's box
+        parameters: <number / player> <number> [box name]
+        max-homes-set: '&a [name] - Set box max homes to [number]'
+        errors:
+          unknown-box: Unknown box! [name]
+      resethome:
+        description: Reset the player's home to default
+        parameters: <player> [box name]
+        cleared: '&b Home reset. [name]'
+      resets:
+        description: edit player reset values
+        set:
+          description: sets how many times this player has reset his box
+          parameters: <player> <resets>
+          success: '&b [name]&a ''s box reset count is now &b [number]&a .'
+        reset:
+          description: sets the player's box reset count to 0
+          parameters: <player>
+          success-everyone: '&a Successfully reset &b everyone&a ''s reset count to
+            &b 0&a .'
+          success: '&a Successfully reset &b [name]&a ''s reset count to &b 0&a .'
+        add:
+          description: adds this player's box reset count
+          parameters: <player> <resets>
+          success: '&a Successfully added &b [number] &a resets to &b [name], increasing
+            the total to &b [total]&a  resets.'
+        remove:
+          description: reduces the player's box reset count
+          parameters: <player> <resets>
+          success: '&a Successfully removed &b [number] &a resets from &b [name]''s
+            box&a, decreasing the total to &b[total]&a resets.'
+      purge:
+        parameters: '[days]'
+        description: purge boxes abandoned for more than [days]
+        days-one-or-more: Must be at least 1 day or more
+        purgable-boxes: '&a Found &b [number] &a purgable boxes.'
+        too-many: |
+          &b This is a lot and could take a very long time to delete.
+          &b Consider using Regionerator plugin for deleting world chunks
+          &b and setting keep-previous-box-on-reset: true in BentoBox's config.yml.
+          &b Then run a purge.
+        purge-in-progress: '&c Purging in progress. Use &b /[label] purge stop &c
+          to cancel.'
+        scanning: '&a Scanning boxes in the database. This may take a while depending
+          on how many you have...'
+        scanning-in-progress: '&c Scanning in progress, please wait'
+        none-found: '&c No boxes found to purge.'
+        total-boxes: '&a You have [number] boxes in your database in all worlds.'
+        number-error: '&c Argument must be a number of days'
+        confirm: '&d Type &b /[label] purge confirm &d to start purging'
+        completed: '&a Purging stopped.'
+        see-console-for-status: '&a Purge started. See console for status or use &b
+          /[label] purge status&a.'
+        no-purge-in-progress: '&c There is currently no purge in progress.'
+        protect:
+          description: toggle box purge protection
+          move-to-box: '&c Move to an box first!'
+          protecting: '&a Protecting box from purge.'
+          unprotecting: '&a Removing purge protection.'
+        stop:
+          description: stop a purge in progress
+          stopping: Stopping the purge
+        unowned:
+          description: purge unowned boxes
+          unowned-boxes: '&a Found &b [number] &a unowned boxes.'
+        status:
+          description: displays the status of the purge
+          status: '&b [purged] &a boxes purged out of &b [purgeable] &7(&b[percentage]
+            %&7)&a.'
+      team:
+        description: manage teams
+        add:
+          parameters: <owner> <player>
+          description: add player to owner's team
+          name-not-owner: '&c [name] is not the owner.'
+          name-has-box: '&c [name] has an box. Unregister or delete them first!'
+          success: '&b [name]&a  has been added to &b [owner]&a ''s box.'
+          name-has-island: '&c [name] has a box. Unregister or delete them first!'
+        disband:
+          parameters: <owner>
+          description: disband owner's team
+          use-disband-owner: '&c Not owner! Use disband [owner].'
+          disbanded: '&c Admin disbanded your team!'
+          success: '&b [name]&a ''s team has been disbanded.'
+        fix:
+          description: scans and fixes cross box membership in database
+          scanning: Scanning database...
+          duplicate-owner: '&c Player owns more than one box in the database: [name]'
+          player-has: '&c Player [name] has [number] boxes'
+          duplicate-member: '&c Player [name] is a member of more than one box in
+            the database'
+          rank-on-box: '&c [rank] on box at [xyz]'
+          fixed: '&a Fixed'
+          done: '&a Scan'
+        kick:
+          parameters: <team player>
+          description: kick a player from a team
+          cannot-kick-owner: '&c You cannot kick the owner. Kick members first.'
+          not-in-team: '&c This player is not in a team.'
+          admin-kicked: '&c The admin kicked you from the team.'
+          success: '&b [name] &a has been kicked from &b [owner]&a ''s box.'
+        setowner:
+          parameters: <player>
+          description: transfers box ownership to the player
+          already-owner: '&c [name] is already the owner of this box!'
+          must-be-on-box: '&c You must be on the box to set the owner'
+          confirmation: '&a Are you sure you want to set [name] to be the owner of
+            the box at [xyz]?'
+          success: '&b [name]&a  is now the owner of this box.'
+          extra-boxes: '&c Warning: this player now owns [number] boxes. This is more
+            than allowed by settings or perms: [max].'
+      range:
+        description: admin box range command
+        invalid-value:
+          too-low: '&c The protection range must be greater than &b 1&c !'
+          too-high: '&c The protection range should be equal or less than &b [number]&c
+            !'
+          same-as-before: '&c The protection range is already set to &b [number]&c
+            !'
+        display:
+          already-off: '&c Indicators are already off'
+          already-on: '&c Indicators are already on'
+          description: show/hide box range indicators
+          hiding: '&2 Hiding range indicators'
+          hint: |-
+            &c Red Barrier icons &f show the current box protected range limit.
+            &7 Gray Particles &f show the max box limit.
+            &a Green Particles &f show the default protected range if the box protection range differs from it.
+          showing: '&2 Showing range indicators'
+        set:
+          parameters: <player> <range> [box location]
+          description: sets the box protected range
+          success: '&a Set box protection range to &b [number]&a .'
+        reset:
+          parameters: <player>
+          description: resets the box protected range to the world default
+          success: '&a Reset box protection range to &b [number]&a .'
+        add:
+          description: increases the box protected range
+          parameters: <player> <range> [box location]
+          success: '&a Successfully increased &b [name]&a ''s box protected range
+            to &b [total] &7 (&b +[number]&7 )&a .'
+        remove:
+          description: decreases the box protected range
+          parameters: <player> <range> [box location]
+          success: '&a Successfully decreased &b [name]&a ''s box protected range
+            to &b [total] &7 (&b -[number]&7 )&a .'
+      register:
+        parameters: <player>
+        description: register player to unowned box you are on
+        registered-box: '&a Registered [name] to box at [xyz].'
+        reserved-box: '&a Reserved box at [xyz] for [name].'
+        already-owned: '&c box is already owned by another player!'
+        no-box-here: '&c There is no box here. Confirm to make one.'
+        in-deletion: '&c This box space is currently being deleted. Try later.'
+        cannot-make-box: '&c An box cannot be placed here, sorry. See console for
+          possible errors.'
+        box-is-spawn: '&6 box is spawn. Are you sure? Enter command again to confirm.'
+        registered-island: '&a Registered player to box at [xyz].'
+        no-island-here: '&c There is no player box here. Confirm to make one.'
+      unregister:
+        parameters: <owner> [x,y,z]
+        description: unregister owner from box, but keep box blocks
+        unregistered-box: '&a Unregistered [name] from box at [xyz].'
+        errors:
+          unknown-box-location: '&c Unknown box location'
+          specify-box-location: '&c Specify box location in x,y,z format'
+          player-has-more-than-one-box: '&c Player has more than one box. Specify
+            which one.'
+        unregistered-island: '&a Unregistered player from box at [xyz].'
+      info:
+        parameters: <player>
+        description: get info on where you are or player's box
+        no-box: '&c You are not on an box right now...'
+        title: ========== box Info ============
+        box-uuid: 'UUID: [uuid]'
+        owner: 'Owner: [owner] ([uuid])'
+        last-login: 'Last login: [date]'
+        last-login-date-time-format: EEE MMM dd HH:mm:ss zzz yyyy
+        deaths: 'Deaths: [number]'
+        resets-left: 'Resets: [number] (Max: [total])'
+        max-homes: 'Max homes: [number]'
+        team-members-title: 'Team members:'
+        team-owner-format: '&a [name] [rank]'
+        team-member-format: '&b [name] [rank]'
+        box-protection-center: 'Protection area center: [xyz]'
+        box-center: 'box center: [xyz]'
+        box-coords: 'box coordinates: [xz1] to [xz2]'
+        boxes-in-trash: '&d Player has boxes in trash.'
+        protection-range: 'Protection range: [range]'
+        protection-range-bonus-title: '&b Includes these bonues:'
+        protection-range-bonus: 'Bonus: [number]'
+        purge-protected: box is purge protected
+        max-protection-range: 'Largest historical protection range: [range]'
+        protection-coords: 'Protection coordinates: [xz1] to [xz2]'
+        is-spawn: box is a spawn box
+        banned-players: 'Banned players:'
+        banned-format: '&c [name]'
+        unowned: '&c Unowned'
+        bundle: '&a Blueprint Bundle used to create box: &b [name]'
+        no-island: '&c You are not in a registered box right now...'
+        island-location: 'Area location: [xyz]'
+        island-coords: 'Area coordinates: [xz1] to [xz2]'
+      switch:
+        description: switch on/off protection bypass
+        op: '&c Ops can always bypass protection. Deop to use command.'
+        removing: '&a Removing protection bypass...'
+        adding: '&a Adding protection bypass...'
+      switchto:
+        parameters: <player> <number>
+        description: switch player's box to the numbered one in trash
+        out-of-range: '&c Number must be between 1 and [number]. Use &l [label] trash
+          [player] &r &c to see box numbers'
+        cannot-switch: '&c Switch failed. See console log for error.'
+        success: '&a Successfully switched the player''s box to the specified one.'
+      trash:
+        no-unowned-in-trash: '&c No unowned boxes in trash'
+        no-boxes-in-trash: '&c Player has no boxes in trash'
+        parameters: '[player]'
+        description: show unowned boxes or player's boxes in trash
+        title: '&d =========== boxes in Trash ==========='
+        count: '&l &d box [number]:'
+        use-switch: '&a Use &l [label] switchto <player> <number>&r &a  to switch
+          player to box in trash'
+        use-emptytrash: '&a Use &l [label] emptytrash [player]&r &a  to permanently
+          remove trash items'
+      emptytrash:
+        parameters: '[player]'
+        description: Clear trash for player, or all unowned boxes in trash
+        success: '&a Trash successfully emptied.'
+      version:
+        description: display BentoBox and addons versions
+      setrange:
+        parameters: <player> <range>
+        description: set the range of player's box
+        range-updated: '&a box range updated to &b [number]&a .'
+      reload:
+        description: reload
+      tp:
+        parameters: <player> [player's box]
+        description: teleport to a player's box
+        manual: '&c No safe warp found! Manually tp near to &b [location] &c and check
+          it out'
+      tpuser:
+        parameters: <teleporting player> <box's player> [player's box]
+        description: teleport a player to another player's box
+      getrank:
+        parameters: <player> [box owner]
+        description: get a player's rank on their box or the box of the owner
+        rank-is: '&a Rank is &b [rank] &a on &b [name]&a ''s box.'
+      setrank:
+        parameters: <player> <rank> [box owner]
+        description: set a player's rank on their box or the box of the owner
+        unknown-rank: '&c Unknown rank!'
+        not-possible: '&c Rank must be higher than visitor.'
+        rank-set: '&a Rank set from &b [from] &a to &b [to] &a on &b [name]&a ''s
+          box.'
+      setprotectionlocation:
+        parameters: '[x y z coords]'
+        description: set current location or [x y z] as center of box's protection
+          area
+        box: '&c This will affect the box at [xyz] owned by ''[name]''.'
+        confirmation: '&c Are you sure you want to set [xyz] as the protection center?'
+        success: '&a Successfully set [xyz] as the protection center.'
+        fail: '&c Failed to set [xyz] as the protection center.'
+        box-location-changed: '&a [user] changed box''s protection center to [xyz].'
+        xyz-error: '&c Specify three integer coordinates: e.g, 100 120 100'
+      setspawn:
+        description: set an box as spawn for this gamemode
+        already-spawn: '&c This box is already a spawn!'
+        no-box-here: '&c There is no box here.'
+        confirmation: '&c Are you sure you want to set this box as the spawn for this
+          world?'
+        success: '&a Successfully set this box as the spawn for this world.'
+        no-island-here: '&c There is no registered box here.'
+      setspawnpoint:
+        description: set current location as spawn point for this box
+        no-box-here: '&c There is no box here.'
+        confirmation: '&c Are you sure you want to set this location as the spawn
+          point for this box?'
+        success: '&a Successfully set this location as the spawn point for this box.'
+        box-spawnpoint-changed: '&a [user] changed the box spawn point.'
+      settings:
+        parameters: '[player]/[world flag]/spawn-box [flag/active/disable] [rank/active/disable]'
+        description: open settings GUI or set settings
+        unknown-setting: '&c Unknown setting'
+      blueprint:
+        parameters: <load/copy/paste/pos1/pos2/save>
+        description: manipulate blueprints
+        bedrock-required: '&c At least one bedrock block must be in a blueprint!'
+        copy-first: '&c Copy first!'
+        file-exists: '&c File already exists, overwrite?'
+        no-such-file: '&c No such file!'
+        could-not-load: '&c Could not load that file!'
+        could-not-save: '&c Hmm, something went wrong saving that file: [message]'
+        set-pos1: '&a Position 1 set at [vector]'
+        set-pos2: '&a Position 2 set at [vector]'
+        set-different-pos: '&c Set a different location - this pos is already set!'
+        need-pos1-pos2: '&c Set pos1 and pos2 first!'
+        copying: '&b Copying blocks...'
+        copied-blocks: '&b Copied [number] blocks to clipboard'
+        look-at-a-block: '&c Look at block within 20 blocks to set'
+        mid-copy: '&c You are mid-copy. Wait until the copy is done.'
+        copied-percent: '&6 Copied [number]%'
+        copy:
+          parameters: '[air]'
+          description: copy the clipboard set by pos1 and pos2 and optionally the
+            air blocks
+        delete:
+          parameters: <name>
+          description: delete the blueprint
+          no-blueprint: '&b [name] &c does not exist.'
+          confirmation: |
+            &c Are you sure you want to delete this blueprint?
+            &c Once deleted, there is no way to recover it.
+          success: '&a Successfully deleted blueprint &b [name]&a .'
+        load:
+          parameters: <name>
+          description: load blueprint into the clipboard
+        list:
+          description: list available blueprints
+          no-blueprints: '&c No blueprints in blueprints folder!'
+          available-blueprints: '&a These blueprints are available for loading:'
+        origin:
+          description: set the blueprint's origin to your position
+        paste:
+          description: paste the clipboard to your location
+          pasting: '&a Pasting...'
+        pos1:
+          description: set 1st corner of cuboid clipboard
+        pos2:
+          description: set 2nd corner of cuboid clipboard
+        save:
+          parameters: <blueprint name>
+          description: save the copied clipboard
+        rename:
+          parameters: <blueprint name> <new name>
+          description: rename a blueprint
+          success: '&a Blueprint &b [old] &a has been successfully renamed to &b [display]&a.
+            Filename now is &b [name]&a.'
+          pick-different-name: '&c Please specify a name that is different from the
+            blueprint''s current name.'
+        management:
+          back: Back
+          instruction: Click on blueprint then click here
+          title: Blueprint Bundle Manager
+          edit: Click to edit
+          rename: Right-click to rename
+          edit-description: Click to edit description
+          world-name-syntax: '[name] world'
+          world-instructions: |
+            Place blueprint
+            to right to set
+          trash: Trash
+          no-trash: Cannot Trash
+          trash-instructions: Right click here to delete
+          no-trash-instructions: Cannot trash default bundle
+          permission: Permission
+          no-permission: No Permission
+          perm-required: Required
+          no-perm-required: Cannot set perm for default bundle
+          perm-not-required: Not Required
+          perm-format: '&e '
+          remove: Right click to remove
+          blueprint-instruction: |
+            Click to select,
+            then add to bundle.
+            Right-click to rename.
+          select-first: Select Blueprint first
+          new-bundle: New Bundle
+          new-bundle-instructions: Click to make a new bundle
+          name:
+            quit: quit
+            prompt: Enter a name, or 'quit' to quit
+            too-long: '&c Too long name. Only 32 chars are allowed.'
+            pick-a-unique-name: Please pick a more unique name
+            stripped-char-in-unique-name: '&c Some chars were removed because they
+              are not allowed. &a New ID will be &b [name]&a.'
+            success: Success!
+            conversation-prefix: '>'
+          description:
+            quit: quit
+            instructions: |
+              Enter a multi line description for [name]
+              and 'quit' on a line by itself to finish.
+            default-color: ''
+            success: Success!
+            cancelling: Cancelling
+          slot: '&f Preferred Slot [number]'
+          slot-instructions: |
+            &a Left click to increment
+            &a Right click to decrement
+          times: |
+            &a Max concurrent uses by player
+            &a Left click to increment
+            &a Right click to decrement
+          unlimited-times: Unlimited
+          maximum-times: Max [number] times
+      resetflags:
+        parameters: '[flag]'
+        description: Reset all boxes to default flag settings in config.yml
+        confirm: '&4 This will reset the flag(s) to default for all boxes!'
+        success: '&a Successfully reset all boxes'' flags to the default settings.'
+        success-one: '&a [name] flag set to default for all boxes.'
+      world:
+        description: Manage world settings
+      delete:
+        parameters: <player>
+        description: deletes a player's box
+        cannot-delete-owner: '&c All box members have to be kicked from the box before
+          deleting it.'
+        deleted-box: '&a box at &e [xyz] &a has been successfully deleted.'
+        deleted-island: '&a Area at &e [xyz] &a has been successfully regenerated.'
+      deletehomes:
+        parameters: <player>
+        description: deletes all named homes from an box
+        warning: '&c All named homes will be deleted from the box!'
+      why:
+        parameters: <player>
+        description: toggle console protection debug reporting
+        turning-on: '&a Turning on console debug for &b [name].'
+        turning-off: '&a Turning off console debug for &b [name].'
+      deaths:
+        description: edit deaths of players
+        reset:
+          description: resets deaths of the player
+          parameters: <player>
+          success: '&a Successfully reset &b [name]&a ''s deaths to &b 0&a .'
+        set:
+          description: sets deaths of the player
+          parameters: <player> <deaths>
+          success: '&a Successfully set &b [name]&a ''s deaths to &b [number]&a .'
+        add:
+          description: adds deaths to the player
+          parameters: <player> <deaths>
+          success: '&a Successfully added &b [number] &a deaths to &b [name], increasing
+            the total to &b [total]&a  deaths.'
+        remove:
+          description: removes deaths to the player
+          parameters: <player> <deaths>
+          success: '&a Successfully removed &b [number] &a deaths to &b [name], decreasing
+            the total to &b [total]&a  deaths.'
+      resetname:
+        description: reset player box name
+        success: '&a Successfully reset [name]''s box name.'
+    bentobox:
+      description: BentoBox admin command
+      perms:
+        description: displays the effective perms for BentoBox and Addons in a YAML
+          format
+      about:
+        description: displays copyright and license information
+      reload:
+        description: reloads BentoBox and all addons, settings and locales
+        locales-reloaded: '[prefix_bentobox]&2 Languages reloaded.'
+        addons-reloaded: '[prefix_bentobox]&2 Addons reloaded.'
+        settings-reloaded: '[prefix_bentobox]&2 Settings reloaded.'
+        addon: '[prefix_bentobox]&6 Reloading &b [name]&2 .'
+        addon-reloaded: '[prefix_bentobox]&b [name] &2 reloaded.'
+        warning: '[prefix_bentobox]&c Warning: Reloading may cause instability, so
+          if you see errors afterwards, restart the server.'
+        unknown-addon: '[prefix_bentobox]&c Unknown addon!'
+        locales:
+          description: reloads locales
+      version:
+        plugin-version: '&2 BentoBox version: &3 [version]'
+        description: displays BentoBox and addons versions
+        loaded-addons: 'Loaded Addons:'
+        loaded-game-worlds: 'Loaded Game Worlds:'
+        addon-syntax: '&2 [name] &3 [version] &7 (&3 [state]&7 )'
+        game-world: '&2 [name] &7 (&3 [addon]&7 ): &3 [worlds]'
+        server: '&2 Running &3 [name] [version]&2 .'
+        database: '&2 Database: &3 [database]'
+      manage:
+        description: displays the Management Panel
+      catalog:
+        description: displays the Catalog
+      locale:
+        description: performs localization files analysis
+        see-console: |-
+          [prefix_bentobox]&a Check the console to see the feedback.
+          [prefix_bentobox]&a This command is so spammy that the feedback cannot be read from chat...
+      migrate:
+        description: migrates data from one database to another
+        players: '[prefix_bentobox]&6 Migrating players'
+        names: '[prefix_bentobox]&6 Migrating names'
+        addons: '[prefix_bentobox]&6 Migrating addons'
+        class: '[prefix_bentobox]&6 Migrating [description]'
+        migrated: '[prefix_bentobox]&a Migrated'
+        completed: '[prefix_bentobox]&a Completed'
+      rank:
+        description: list, add, or remove ranks
+        parameters: '&a [list | add | remove] [rank reference] [rank value]'
+        add:
+          success: '&a Added [rank] with value [number]'
+          failure: '&c Failed to add [rank] with value [number]. Maybe a duplicate?'
+        remove:
+          success: '&a Removed [rank]'
+          failure: '&c Failed to remove [rank]. Unknown rank.'
+        list: '&a Registered ranks are as follows:'
+    confirmation:
+      confirm: '&c Type command again within &b [seconds]s&c  to confirm.'
+      previous-request-cancelled: '&6 Previous confirmation request cancelled.'
+      request-cancelled: '&c Confirmation timeout - &b request cancelled.'
+    delay:
+      previous-command-cancelled: '&c Previous command cancelled'
+      stand-still: '&6 Do not move! Teleporting in [seconds] seconds'
+      moved-so-command-cancelled: '&c You moved. Teleport cancelled!'
+    box:
+      about:
+        description: display licence details
+      go:
+        parameters: '[home name]'
+        description: teleport you to your box
+        teleport: '&a Teleporting you to your box.'
+        in-progress: '&a Teleporting in progress, please wait...'
+        teleported: '&a Teleported you to home &e [number].'
+        failure: '&c Teleporting failed for some reason. Please try again later.'
+        unknown-home: '&c Unknown home name!'
+      help:
+        description: the main box command
+      spawn:
+        description: teleport you to the spawn
+        teleporting: '&a Teleporting you to the spawn.'
+        no-spawn: '&c There is no spawn in this gamemode.'
+      create:
+        description: create an box, using optional blueprint (requires permission)
+        parameters: <blueprint>
+        too-many-boxes: '&c There are too many boxes in this world: there isn''t enough
+          room for yours to be created.'
+        cannot-create-box: '&c A spot could not be found in time, please try again...'
+        unable-create-box: '&c Your box could not be generated, please contact an
+          administrator.'
+        creating-box: '&a Finding a spot for your box...'
+        you-cannot-make: '&c You cannot make any more boxes!'
+        max-uses: '&c You cannot make any more of that type of box!'
+        you-cannot-make-team: '&c Team members cannot make boxes in the same world
+          as their team box.'
+        pasting:
+          estimated-time: '&a Estimated time: &b [number] &a seconds.'
+          blocks: '&a Building it block by block: &b [number] &a blocks in all...'
+          entities: '&a Filling it with entities: &b [number] &a entities in all...'
+          dimension-done: '&a box in [world] is constructed.'
+          done: '&a Done! Your box is ready and waiting for you!'
+        pick: '&2 Pick an box'
+        unknown-blueprint: '&c That blueprint has not been loaded yet.'
+        on-first-login: '&a Welcome! We will start preparing your box in a few seconds.'
+        you-can-teleport-to-your-box: '&a You can teleport to your box when you want.'
+      deletehome:
+        description: delete a home location
+        parameters: '[home name]'
+      homes:
+        description: list your homes
+      info:
+        description: display info about your box or the player's box
+        parameters: <player>
+      near:
+        description: show the name of neighboring boxes around you
+        parameters: ''
+        the-following-boxes: '&a The following boxes are nearby:'
+        syntax: '&6 [direction]: &a [name]'
+        north: North
+        south: South
+        east: East
+        west: West
+        no-neighbors: '&c You have no immediate neighboring boxes!'
+      reset:
+        description: restart your box and remove the old one
+        parameters: <blueprint>
+        none-left: '&c You have no more resets left!'
+        resets-left: '&c You have &b [number] &c resets left'
+        confirmation: |-
+          &c Are you sure you want to do this?
+          &c All box members will be kicked from the box, you will have to reinvite them afterwards.
+          &c There is no going back: once your current box is deleted, there will be &l no &r &c way to retrieve it later on.
+        kicked-from-box: '&c You are kicked from your box in [gamemode] because the
+          owner is resetting it.'
+      sethome:
+        description: set your home teleport point
+        must-be-on-your-box: '&c You must be on your box to set home!'
+        too-many-homes: '&c Cannot set - your box is at the maximum of [number] homes.'
+        home-set: '&6 Your box home has been set to your current location.'
+        homes-are: '&6 box homes are:'
+        home-list-syntax: '&6 [name]'
+        nether:
+          not-allowed: '&c You are not allowed to set your home in the Nether.'
+          confirmation: '&c Are you sure you want to set your home in the Nether?'
+        the-end:
+          not-allowed: '&c You are not allowed to set your home in the End.'
+          confirmation: '&c Are you sure you want to set your home in the End?'
+        parameters: '[home name]'
+      setname:
+        description: set a name for your box
+        name-too-short: '&c Too short. Minimum size is [number] characters.'
+        name-too-long: '&c Too long. Maximum size is [number] characters.'
+        name-already-exists: '&c There is already an box with that name in this gamemode.'
+        parameters: <name>
+        success: '&a Successfully set your box''s name to &b [name]&a .'
+      renamehome:
+        description: rename a home location
+        parameters: '[home name]'
+        enter-new-name: '&6 Enter the new name'
+        already-exists: '&c That name already exists, try another name.'
+      resetname:
+        description: reset your box name
+        success: '&a Successfully reset your box name.'
+      team:
+        description: manage your team
+        gui:
+          titles:
+            team-panel: Team Management
+          buttons:
+            status:
+              name: Status
+              description: The status of the team
+            rank-filter:
+              name: Rank Filter
+              description: '&a Click to cycle ranks'
+            invitation: Invitation
+            invite:
+              name: Invite player
+              description: |
+                &a Players must be in the
+                &a same world as you to be
+                &a shown in the list.
+          tips:
+            LEFT:
+              name: '&b Left Click'
+              invite: '&a to invite a player'
+            RIGHT:
+              name: '&b Right Click'
+            SHIFT_RIGHT:
+              name: '&b Shift Right Click'
+              reject: '&a to reject'
+              kick: '&a to kick player'
+              leave: '&a to leave team'
+            SHIFT_LEFT:
+              name: '&b Shift Left Click'
+              accept: '&a to accept '
+              setowner: |
+                &a to set owner
+                &a to this player
+        info:
+          description: display detailed info about your team
+          member-layout:
+            online: '&a &l  o &r &f [name]'
+            offline: '&c &l  o &r &f [name] &7 ([last_seen])'
+            offline-not-last-seen: '&c &l  o &r &f [name]'
+          last-seen:
+            layout: '&b [number] &7 [unit] ago'
+            days: days
+            hours: hours
+            minutes: minutes
+          header: |
+            &f --- &a Team details &f ---
+            &a Members: &b [total]&7 /&b [max]
+            &a Online members: &b [online]
+          rank-layout:
+            owner: '&6 [rank]:'
+            generic: '&6 [rank] &7 (&b [number]&7 )&6 :'
+        coop:
+          description: make a player coop rank on your box
+          parameters: <player>
+          cannot-coop-yourself: '&c You cannot coop yourself!'
+          already-has-rank: '&c Player already has a rank!'
+          you-are-a-coop-member: '&2 You were cooped by &b[name]&a.'
+          success: '&a You cooped &b [name]&a.'
+          name-has-invited-you: |
+            &a [name] has invited you
+            &a to join as a coop member
+            &a of their box.
+        uncoop:
+          description: remove a coop rank from player
+          parameters: <player>
+          cannot-uncoop-yourself: '&c You cannot uncoop yourself!'
+          cannot-uncoop-member: '&c You cannot uncoop a team member!'
+          player-not-cooped: '&c Player is not cooped!'
+          you-are-no-longer-a-coop-member: '&c You are no longer a coop member of
+            [name]''s box.'
+          all-members-logged-off: '&c All box members logged off so you are no longer
+            a coop member of [name]''s box.'
+          success: '&b [name] &a is no longer a coop member of your box.'
+          is-full: '&c You cannot coop anyone else.'
+        trust:
+          description: give a player trusted rank on your box
+          parameters: <player>
+          trust-in-yourself: '&c Trust in yourself!'
+          name-has-invited-you: |
+            &a [name] has invited you
+            &a to join as a trusted member
+            &a of their box.
+          player-already-trusted: '&c Player is already trusted!'
+          you-are-trusted: '&2 You are trusted by &b [name]&a !'
+          success: '&a You trusted &b [name]&a .'
+          is-full: '&c You cannot trust anyone else. Watch your back!'
+        untrust:
+          description: remove trusted player rank from player
+          parameters: <player>
+          cannot-untrust-yourself: '&c You cannot untrust yourself!'
+          cannot-untrust-member: '&c You cannot untrust a team member!'
+          player-not-trusted: '&c Player is not trusted!'
+          you-are-no-longer-trusted: '&c You are no longer trusted by &b [name]&a
+            !'
+          success: '&b [name] &a is no longer trusted on your box.'
+        invite:
+          description: invite a player to join your box
+          invitation-sent: '&a Invitation sent to &b[name]&a.'
+          removing-invite: '&c Removing invite.'
+          name-has-invited-you: |
+            &a [name] has invited you
+            &a to join their box.
+          to-accept-or-reject: '&a Do /[label] team accept to accept, or /[label]
+            team reject to reject'
+          you-will-lose-your-box: |
+            &c WARNING! You will lose all
+            &c your boxes if you accept!
+          gui:
+            titles:
+              team-invite-panel: Invite Players
+            button:
+              already-invited: '&c Invited already'
+              search: '&a Search for a player'
+              searching: |
+                &b Searching for
+                &c [name]
+            enter-name: '&a Enter name:'
+            tips:
+              LEFT:
+                name: '&b Left Click'
+                search: '&a Enter the player''s name'
+                back: '&a Back'
+                invite: |
+                  &a to invite a player
+                  &a to join your team
+              RIGHT:
+                name: '&b Right Click'
+                coop: '&a to coop player'
+              SHIFT_LEFT:
+                name: '&b Shift Left Click'
+                trust: '&a to trust a player'
+          errors:
+            cannot-invite-self: '&c You cannot invite yourself!'
+            cooldown: '&c You cannot invite that person for another [number] seconds.'
+            box-is-full: '&c Your box is full, you can''t invite anyone else.'
+            none-invited-you: '&c No one invited you :c.'
+            you-already-are-in-team: '&c You are already on a team!'
+            already-on-team: '&c That player is already on a team!'
+            invalid-invite: '&c That invite is no longer valid, sorry.'
+            you-have-already-invited: '&c You have already invited that player!'
+          parameters: <player>
+          you-can-invite: '&a You can invite [number] more players.'
+          accept:
+            description: accept an invitation
+            you-joined-box: '&a You joined an box! Use &b/[label] team &a to see the
+              other members.'
+            name-joined-your-box: '&a [name] joined your box!'
+            confirmation: |
+              &c Are you sure you
+              &c want to accept this
+              &c invite?
+          reject:
+            description: reject an invitation
+            you-rejected-invite: '&a You rejected the invitation to join an box.'
+            name-rejected-your-invite: '&c [name] rejected your box invite!'
+          cancel:
+            description: cancel the pending invite to join your box
+        leave:
+          cannot-leave: '&c Owners cannot leave! Become a member first, or kick all
+            members.'
+          description: leave your box
+          left-your-box: '&c [name] &c left your box'
+          success: '&a You left this box.'
+        kick:
+          description: remove a member from your box
+          parameters: <player>
+          player-kicked: '&c The [name] kicked you from the box in [gamemode]!'
+          cannot-kick: '&c You cannot kick yourself!'
+          cannot-kick-rank: '&c Your rank does not allow to kick [name]!'
+          success: '&b [name] &a has been kicked from your box.'
+        demote:
+          description: demote a player on your box down a rank
+          parameters: <player>
+          errors:
+            cant-demote-yourself: '&c You can''t demote yourself!'
+            cant-demote: '&c You can''t demote higher ranks!'
+            must-be-member: '&c Player must be an box member!'
+          failure: '&c Player cannot be demoted any further!'
+          success: '&a Demoted [name] to [rank]'
+        promote:
+          description: promote a player on your box up a rank
+          parameters: <player>
+          errors:
+            cant-promote-yourself: '&c You can''t promote yourself!'
+            cant-promote: '&c You can''t promote above your rank!'
+            must-be-member: '&c Player must be an box member!'
+          failure: '&c Player cannot be promoted any further!'
+          success: '&a Promoted [name] to [rank]'
+        setowner:
+          description: transfer your box ownership to a member
+          errors:
+            cant-transfer-to-yourself: '&c You can''t transfer ownership to yourself!
+              &7 (&o Well, in fact, you could... But we don''t want you to. Because
+              it''s useless.&r &7 )'
+            target-is-not-member: '&c That player is not part of your box team!'
+            at-max: '&c That player already has the maximum number of boxes they are
+              allowed!'
+          name-is-the-owner: '&a [name] is now the box owner!'
+          parameters: <player>
+          you-are-the-owner: '&a You are now the box owner!'
+      ban:
+        description: ban a player from your box
+        parameters: <player>
+        cannot-ban-yourself: '&c You cannot ban yourself!'
+        cannot-ban: '&c That player cannot be banned.'
+        cannot-ban-member: '&c Kick the team member first, then ban.'
+        cannot-ban-more-players: '&c You reached the ban limit, you cannot ban any
+          more players from your box.'
+        player-already-banned: '&c Player is already banned.'
+        player-banned: '&b [name]&c  is now banned from your box.'
+        owner-banned-you: '&b [name]&c  banned you from their box!'
+        you-are-banned: '&b You are banned from this box!'
+      unban:
+        description: unban a player from your box
+        parameters: <player>
+        cannot-unban-yourself: '&c You cannot unban yourself!'
+        player-not-banned: '&c Player is not banned.'
+        player-unbanned: '&b [name]&a  is now unbanned from your box.'
+        you-are-unbanned: '&b [name]&a  unbanned you from their box!'
+      banlist:
+        description: list banned players
+        noone: '&a No one is banned on this box.'
+        the-following: '&b The following players are banned:'
+        names: '&c [line]'
+        you-can-ban: '&b You can ban up to &e [number] &b more players.'
+      settings:
+        description: display box settings
+      language:
+        description: select language
+        parameters: '[language]'
+        not-available: '&c This language is not available.'
+        already-selected: '&c You are already using this language.'
+      expel:
+        description: expel a player from your box
+        parameters: <player>
+        cannot-expel-yourself: '&c You cannot expel yourself!'
+        cannot-expel: '&c That player cannot be expelled.'
+        cannot-expel-member: '&c You cannot expel a team member!'
+        not-on-box: '&c That player is not on your box!'
+        player-expelled-you: '&b [name]&c  expelled you from the box!'
+        success: '&a You expelled &b [name] &a from the box.'
     boxed:
       help:
         description: Start a Boxed game or teleport to your Box
@@ -87,6 +949,18 @@ boxed:
           &c There is no going back: once your current box is deleted, there will be &l no &r &c way to retrieve it later on.
         kicked-from-island: '&c You are kicked from your box in [gamemode] because
           the owner is resetting it.'
+      sethome:
+        description: set your home teleport point
+        must-be-on-your-island: '&c You must be on your box to set home!'
+        num-homes: '&c Homes can be 1 to [number].'
+        home-set: '&6 Your box home has been set to your current location.'
+        nether:
+          not-allowed: '&c You are not allowed to set your home in the Nether.'
+          confirmation: '&c Are you sure you want to set your home in the Nether?'
+        the-end:
+          not-allowed: '&c You are not allowed to set your home in the End.'
+          confirmation: '&c Are you sure you want to set your home in the End?'
+        parameters: '[home number]'
       setname:
         description: set a name for your box
         name-too-short: '&c Too short. Minimum size is [number] characters.'
@@ -238,127 +1112,7 @@ boxed:
         not-on-island: '&c That player is not on your box!'
         player-expelled-you: '&b [name]&c  expelled you from the box!'
         success: '&a You expelled &b [name] &a from the box.'
-    admin:
-      team:
-        add:
-          name-has-island: '&c [name] has a box. Unregister or delete them first!'
-        setowner:
-          description: transfers box ownership to the player
-          already-owner: '&c Player is already the owner of this box!'
-      range:
-        description: Admin box range command
-        display:
-          description: Show/hide box range indicators
-          hint: |-
-            &c Red Barrier icons &f show the current protected range limit.
-            &7 Gray Particles &f show the max limit.
-            &a Green Particles &f show the default protected range if the protection range differs from it.
-        set:
-          description: Sets the box protected range
-        reset:
-          description: Resets the protected range to the world default
-      register:
-        parameters: <player>
-        description: register player to unowned box you are in
-        registered-island: '&a Registered player to box at [xyz].'
-        already-owned: '&c Area is already owned by another player!'
-        no-island-here: '&c There is no player box here. Confirm to make one.'
-        in-deletion: '&c This space is currently being regenerated. Try later.'
-      unregister:
-        description: unregister owner from a box, but keep box blocks as-is
-        unregistered-island: '&a Unregistered player from box at [xyz].'
-      info:
-        description: get info on where you are or on player
-        no-island: '&c You are not in a registered box right now...'
-        island-location: 'Area location: [xyz]'
-        island-coords: 'Area coordinates: [xz1] to [xz2]'
-        is-spawn: Area is a spawn island
-      setrange:
-        description: set the range of player's box
-        range-updated: Area range updated to [number]
-      tp:
-        description: teleport to a player's box
-      getrank:
-        description: get a player's rank in their box
-        rank-is: '&a Rank is [rank] in their box.'
-      setrank:
-        description: set a player's rank in their box
-      setspawn:
-        description: set a box as spawn for this world
-        already-spawn: '&c This box is already a spawn!'
-        no-island-here: '&c There is no registered box here.'
-        confirmation: '&c Are you sure you want to set this box as the spawn for this
-          world?'
-      delete:
-        description: deletes a player and regenerates their box
-        deleted-island: '&a Area at &e [xyz] &a has been successfully regenerated.'
-  protection:
-    flags:
-      ALLOW_MOVE_BOX:
-        name: Box moving
-        description: |-
-          &a Allow players to move
-          &a their box by throwing
-          &a enderpearls
-      ELYTRA:
-        description: Toggle use
-      ENDERMAN_GRIEFING:
-        description: |-
-          &a Endermen can remove
-          &a blocks
-      ENTER_EXIT_MESSAGES:
-        description: Display entry and exit messages
-        island: '[name]''s protected box'
-        name: Enter/Exit messages
-        now-entering: '&a Now entering &b [name]&a .'
-        now-entering-your-island: '&a Now entering your box.'
-        now-leaving: '&a Now leaving &b [name]&a .'
-        now-leaving-your-island: '&a Now leaving your box.'
-      GEO_LIMIT_MOBS:
-        description: |-
-          &a Remove mobs that go
-          &a outside protected
-          &a player space
-        name: '&e Limit mobs to player box'
-      ISLAND_RESPAWN:
-        description: |-
-          &a Players respawn
-          &a in their box
-        name: Area respawn
-      LOCK:
-        name: Lock player box
-      OFFLINE_REDSTONE:
-        description: "&a When disabled, redstone\n&a will not operate in boxes\n&a\
-          \ where all members are offline.\n&a May help reduce lag.   "
-      PISTON_PUSH:
-        description: |-
-          &a Allow pistons to push
-          &a blocks outside a player's box
-      PVP_OVERWORLD:
-        description: |-
-          &c Enable/Disable PVP
-          &c in protected box.
-      REMOVE_MOBS:
-        description: |-
-          &a Remove monsters when
-          &a teleporting to a box
-      PREVENT_TELEPORT_WHEN_FALLING:
-        description: |-
-          &a Prevent players from teleporting
-          &a if they are falling.
-        hint: '&c You cannot teleport while you are falling!'
-    locked: '&c This box is locked!'
-    protected: '&c Area protected: [description]'
-    panel:
-      PROTECTION:
-        title: '&6 Protection'
-        description: |-
-          &a Protection settings
-          &a for this box
-      SETTING:
-        description: |-
-          &a General settings
-          &a for this box
+  
   advancements:
     minecraft:adventure/adventuring_time: ''
     minecraft:adventure/arbalistic: ''
@@ -396,7 +1150,7 @@ boxed:
     minecraft:husbandry/fishy_business: ''
     minecraft:husbandry/obtain_netherite_hoe: ''
     minecraft:husbandry/plant_seed: ''
-    minecraft:husbandry/root: 'The birds and the bees'
+    minecraft:husbandry/root: The birds and the bees
     minecraft:husbandry/safely_harvest_honey: ''
     minecraft:husbandry/silk_touch_nest: ''
     minecraft:husbandry/tactical_fishing: ''
@@ -1223,7 +1977,7 @@ boxed:
     minecraft:recipes/redstone/warped_fence_gate: ''
     minecraft:recipes/redstone/warped_pressure_plate: ''
     minecraft:recipes/redstone/warped_trapdoor: ''
-    minecraft:recipes/root: 'Recipes'
+    minecraft:recipes/root: Recipes
     minecraft:recipes/tools/clock: ''
     minecraft:recipes/tools/compass: ''
     minecraft:recipes/tools/diamond_axe: ''
@@ -1287,6 +2041,77 @@ boxed:
     minecraft:story/shiny_gear: ''
     minecraft:story/smelt_iron: ''
     minecraft:story/upgrade_tools: ''
+  flags:
+    MOVE_BOX:
+      name: Move Box
+      description: "&b Toggle who can\n&b move the box with\n&b EnderPearls   \n"
+  protection:
+    flags:
+      ALLOW_MOVE_BOX:
+        name: Box moving
+        description: |-
+          &a Allow players to move
+          &a their box by throwing
+          &a enderpearls
+      ELYTRA:
+        description: Toggle use
+      ENDERMAN_GRIEFING:
+        description: |-
+          &a Endermen can remove
+          &a blocks
+      ENTER_EXIT_MESSAGES:
+        description: Display entry and exit messages
+        island: '[name]''s protected box'
+        name: Enter/Exit messages
+        now-entering: '&a Now entering &b [name]&a .'
+        now-entering-your-island: '&a Now entering your box.'
+        now-leaving: '&a Now leaving &b [name]&a .'
+        now-leaving-your-island: '&a Now leaving your box.'
+      GEO_LIMIT_MOBS:
+        description: |-
+          &a Remove mobs that go
+          &a outside protected
+          &a player space
+        name: '&e Limit mobs to player box'
+      ISLAND_RESPAWN:
+        description: |-
+          &a Players respawn
+          &a in their box
+        name: Area respawn
+      LOCK:
+        name: Lock player box
+      OFFLINE_REDSTONE:
+        description: "&a When disabled, redstone\n&a will not operate in boxes\n&a\
+          \ where all members are offline.\n&a May help reduce lag.   "
+      PISTON_PUSH:
+        description: |-
+          &a Allow pistons to push
+          &a blocks outside a player's box
+      PVP_OVERWORLD:
+        description: |-
+          &c Enable/Disable PVP
+          &c in protected box.
+      REMOVE_MOBS:
+        description: |-
+          &a Remove monsters when
+          &a teleporting to a box
+      PREVENT_TELEPORT_WHEN_FALLING:
+        description: |-
+          &a Prevent players from teleporting
+          &a if they are falling.
+        hint: '&c You cannot teleport while you are falling!'
+    locked: '&c This box is locked!'
+    protected: '&c Area protected: [description]'
+    panel:
+      PROTECTION:
+        title: '&6 Protection'
+        description: |-
+          &a Protection settings
+          &a for this box
+      SETTING:
+        description: |-
+          &a General settings
+          &a for this box
 protection:
   flags:
     MOVE_BOX:
