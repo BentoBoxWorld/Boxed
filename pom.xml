@@ -55,6 +55,7 @@
         <powermock.version>2.0.9</powermock.version>
         <!-- More visible way how to change dependency versions -->
         <spigot.version>1.21.3-R0.1-SNAPSHOT</spigot.version>
+        <paper.version>1.21.3-R0.1-SNAPSHOT</paper.version>
         <bentobox.version>2.7.1-SNAPSHOT</bentobox.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
@@ -112,6 +113,10 @@
 
     <repositories>
         <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots</url>
         </repository>
@@ -139,6 +144,20 @@
     </repositories>
 
     <dependencies>
+        <!-- Paper API -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>${paper.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- PaperLib -->
+        <dependency>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+            <version>1.0.6</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- Spigot API -->
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -172,14 +191,7 @@
             <scope>provided</scope>
         </dependency>
         <!-- Spigot NMS. Used for chunk deletion and pasting. -->
-
-        <dependency>
-             <groupId>org.spigotmc....</groupId>
-             <artifactId>spigot</artifactId>
-             <version>1.20.6-R0.1-SNAPSHOT</version>
-             <scope>provided</scope>
-        </dependency>
-        <dependency>
+       <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
             <version>${spigot.version}</version>
@@ -189,24 +201,6 @@
              <groupId>org.spigotmc......</groupId>
              <artifactId>spigot</artifactId>
              <version>1.21.1-R0.1-SNAPSHOT</version>
-             <scope>provided</scope>
-        </dependency>
-        <dependency>
-             <groupId>org.spigotmc.</groupId>
-             <artifactId>spigot</artifactId>
-             <version>1.20.4-R0.1-SNAPSHOT</version>
-             <scope>provided</scope>
-        </dependency>
-        <dependency>
-             <groupId>org.spigotmc..</groupId>
-             <artifactId>spigot</artifactId>
-             <version>1.20.2-R0.1-SNAPSHOT</version>
-             <scope>provided</scope>
-        </dependency> 
-        <dependency>
-             <groupId>org.spigotmc...</groupId>
-             <artifactId>spigot</artifactId>
-             <version>1.20.1-R0.1-SNAPSHOT</version>
              <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -318,10 +312,17 @@
                     </argLine>
                 </configuration>
             </plugin>
-           <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jar-plugin</artifactId>
+              <version>3.4.1</version>
+              <configuration>
+                <archive>
+                  <manifestEntries>
+                    <paperweight-mappings-namespace>spigot</paperweight-mappings-namespace>
+                  </manifestEntries>
+                </archive>
+              </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

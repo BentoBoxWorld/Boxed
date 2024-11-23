@@ -396,8 +396,7 @@ public class NewAreaListener implements Listener {
                 Location location = new Location(world, x, y, z);
                 //BentoBox.getInstance().logDebug("Structure " + name + " will be placed at " + location);
                 readyToBuild.computeIfAbsent(new Pair<>(x >> 4, z >> 4), k -> new ArrayList<>())
-                        .add(new StructureRecord(name, "minecraft:" + name, location,
-                                rotation, mirror, noMobs));
+                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
                 this.itemsToBuild
                         .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
             } else {
@@ -508,16 +507,21 @@ public class NewAreaListener implements Listener {
     }
 
     private static void processJigsaw(Block b, StructureRotation structureRotation, boolean pasteMobs) {
-        String data = nmsData(b);
-        if (data.isEmpty()) {
-            return;
-        }
-        BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
-        String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
-        BlockData bd = Bukkit.createBlockData(finalState);
-        b.setBlockData(bd);
-        if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
-            spawnMob(b, bjb);
+        try {
+            String data = nmsData(b);
+            if (data.isEmpty()) {
+                return;
+            }
+            BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
+            String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
+            BlockData bd = Bukkit.createBlockData(finalState);
+            b.setBlockData(bd);
+            if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
+                spawnMob(b, bjb);
+            }
+        } catch (Exception e) {
+            BentoBox.getInstance().logDebug("We have an error");
+            e.printStackTrace();
         }
     }
 
