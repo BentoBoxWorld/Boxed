@@ -15,13 +15,6 @@ public abstract class AbstractMetaData {
     public abstract String nmsData(Block block);
 
     protected String getData(TileEntity te, String method, String field) {
-        /*
-        for (Method m : te.getClass().getMethods()) {
-            BentoBox.getInstance().logDebug(m.getName() + " returns " + m.getReturnType() + " and has these parameters "
-                    + m.getParameterTypes());
-        }
-        te.getUpdateTag();
-        */
         try {
             // Check if the method 'j' exists
             Method updatePacketMethod = te.getClass().getDeclaredMethod(method);
