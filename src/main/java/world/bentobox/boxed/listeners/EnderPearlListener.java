@@ -60,6 +60,8 @@ public class EnderPearlListener implements Listener {
             addon.getIslands().getIslandAt(e.getTo()).ifPresent(i -> {
                 if (!i.onIsland(e.getTo())) {
                     u.sendMessage("boxed.general.errors.no-teleport-outside");
+                    addon.logWarning(e.getPlayer().getName() + " tried to teleport outside of their box from "
+                            + e.getFrom() + " to " + e.getTo());
                     e.setCancelled(true);
                 }
             });
@@ -105,11 +107,15 @@ public class EnderPearlListener implements Listener {
                         // Different box. This is never allowed. Cancel the throw
                         e.setCancelled(true);
                         u.sendMessage("boxed.general.errors.no-teleport-outside");
+                        addon.logWarning("Enderpearl: " + player.getName() + " tried to teleport between boxes from "
+                                + fromIsland.getCenter() + " to " + toIsland.getCenter());
                     }
                 }, () -> {
                     // No box. This is never allowed. Cancel the throw
                     e.setCancelled(true);
                     u.sendMessage("boxed.general.errors.no-teleport-outside");
+                    addon.logWarning("Enderpearl: " + player.getName() + " tried to teleport between boxes from "
+                            + fromIsland.getCenter() + " to some place outside");
                 });
 
             });
