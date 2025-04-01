@@ -54,7 +54,7 @@
         <!-- Non-minecraft related dependencies -->
         <powermock.version>2.0.9</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.21.3-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.21.4-R0.1-SNAPSHOT</spigot.version>
         <paper.version>1.21.3-R0.1-SNAPSHOT</paper.version>
         <bentobox.version>2.7.1-SNAPSHOT</bentobox.version>
         <!-- Revision variable removes warning about dynamic version -->
@@ -62,7 +62,7 @@
         <!-- Do not change unless you want different name for local builds. -->
         <build.number>-LOCAL</build.number>
         <!-- This allows to change between versions. -->
-        <build.version>2.8.0</build.version>
+        <build.version>2.8.1</build.version>
 
         <sonar.projectKey>BentoBoxWorld_Boxed</sonar.projectKey>
         <sonar.organization>bentobox-world</sonar.organization>
@@ -182,7 +182,13 @@
             <artifactId>spigot</artifactId>
             <version>${spigot.version}</version>
             <scope>provided</scope>
-                </dependency>
+        </dependency>
+       <dependency>
+            <groupId>org.spigotmc..</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.21.3-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
              <groupId>org.spigotmc......</groupId>
              <artifactId>spigot</artifactId>
