@@ -54,8 +54,8 @@
         <!-- Non-minecraft related dependencies -->
         <powermock.version>2.0.9</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.21.4-R0.1-SNAPSHOT</spigot.version>
-        <paper.version>1.21.3-R0.1-SNAPSHOT</paper.version>
+        <spigot.version>1.21.5-R0.1-SNAPSHOT</spigot.version>
+        <paper.version>1.21.5-R0.1-SNAPSHOT</paper.version>
         <bentobox.version>2.7.1-SNAPSHOT</bentobox.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
@@ -181,6 +181,12 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
             <version>${spigot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc...</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.21.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
        <dependency>
