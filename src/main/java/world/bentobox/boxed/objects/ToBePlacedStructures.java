@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
+import org.bukkit.util.Vector;
 
 import com.google.gson.annotations.Expose;
 
@@ -36,7 +38,8 @@ public class ToBePlacedStructures implements DataObject {
      * @param noMobs    - if false, mobs not pasted
      */
     public record StructureRecord(@Expose String name, @Expose String structure, @Expose Location location,
-            @Expose StructureRotation rot, @Expose Mirror mirror, @Expose Boolean noMobs) {
+            @Expose StructureRotation rot, @Expose Mirror mirror, @Expose Boolean noMobs,
+            Map<Vector, BlockData> removedBlocks) {
     }
 
     @Expose
