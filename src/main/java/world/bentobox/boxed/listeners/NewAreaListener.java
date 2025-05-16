@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -388,9 +389,11 @@ public class NewAreaListener implements Listener {
                 Location location = new Location(world, x, y, z);
                 // Structure will be placed at location
                 readyToBuild.computeIfAbsent(new Pair<>(x >> 4, z >> 4), k -> new ArrayList<>())
-                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
+                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs,
+                                Collections.emptyMap()));
                 this.itemsToBuild
-                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
+                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs,
+                                Collections.emptyMap()));
             } else {
                 addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(coords));
             }
