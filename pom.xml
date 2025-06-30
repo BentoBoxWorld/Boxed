@@ -56,7 +56,7 @@
         <!-- More visible way how to change dependency versions -->
         <spigot.version>1.21.6-R0.1-SNAPSHOT</spigot.version>
         <paper.version>1.21.6-R0.1-SNAPSHOT</paper.version>
-        <bentobox.version>3.5.0</bentobox.version>
+        <bentobox.version>3.3.0</bentobox.version> <!-- Errors with later versions regarding kyori-->
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- Do not change unless you want different name for local builds. -->
