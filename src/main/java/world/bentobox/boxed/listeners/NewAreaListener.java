@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,6 +49,7 @@ import com.google.gson.Gson;
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.events.BentoBoxReadyEvent;
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent;
+import world.bentobox.bentobox.api.events.island.IslandDeleteEvent;
 import world.bentobox.bentobox.api.events.island.IslandResettedEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
@@ -109,7 +111,10 @@ public class NewAreaListener implements Listener {
     private static String pluginPackageName;
 
     /**
-     * @param addon addon
+     * Constructor for NewAreaListener.
+     * Initializes structure files, databases, and starts the structure printer.
+     * 
+     * @param addon The Boxed addon instance.
      */
     public NewAreaListener(Boxed addon) {
         this.addon = addon;
@@ -150,7 +155,8 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Build something in the queue. Structures are built one by one
+     * Builds a structure from the queue if not already pasting.
+     * Only one structure is built at a time.
      */
     private void buildStructure() {
         // Only kick off a build if there is something to build and something isn't
@@ -162,6 +168,11 @@ public class NewAreaListener implements Listener {
         }
     }
 
+    /**
+     * Places a structure at the specified location and updates the island structure cache.
+     * 
+     * @param item The structure record to place.
+     */
     private void placeStructure(StructureRecord item) {
         // Set the semaphore - only paste one at a time
         pasting = true;
@@ -191,9 +202,7 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Load known structures from the templates file. This makes them available for
-     * admins to use in the boxed place file. If this is not done, then no
-     * structures (templates) will be available.
+     * Loads known structures from the templates file and registers them with the server.
      * 
      * @param event BentoBoxReadyEvent
      */
@@ -216,7 +225,8 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Add items to the queue when they are needed due to chunk loading
+     * Adds items to the build queue when their chunk is loaded.
+     * 
      * @param e ChunkLoadEvent
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -280,10 +290,10 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Gives a player all the advancements that have string as a named criteria
+     * Gives a player all advancements that have the specified string as a named criteria.
      * 
-     * @param player - player
-     * @param string - criteria
+     * @param player The player to award.
+     * @param string The advancement criteria string.
      */
     private void giveAdvFromCriteria(Player player, String string) {
         // Give every advancement that requires a bastion
@@ -302,10 +312,10 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Get all the known island structures for this island
+     * Gets all known island structures for the specified island.
      * 
-     * @param islandId - island ID
-     * @return IslandStructures
+     * @param islandId The island ID.
+     * @return IslandStructures for the island.
      */
     private IslandStructures getIslandStructData(String islandId) {
         // Return from cache if it exists
@@ -319,16 +329,66 @@ public class NewAreaListener implements Listener {
         return struct;
     }
 
+    /**
+     * Handles island creation event and sets up structures for the new island.
+     * 
+     * @param event IslandCreatedEvent
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onIslandCreated(IslandCreatedEvent event) {
         setUpIsland(event.getIsland());
     }
 
+    /**
+     * Handles island reset event and sets up structures for the reset island.
+     * 
+     * @param event IslandResettedEvent
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onIslandReset(IslandResettedEvent event) {
         setUpIsland(event.getIsland());
     }
 
+        /**
+     * Handles island deletion event and removes all pending structures for the deleted island.
+     *
+     * @param event IslandDeletedEvent
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onIslandDeleted(IslandDeleteEvent event) {
+        String deletedIslandId = event.getIsland().getUniqueId();
+
+        // Remove from in-memory cache
+        islandStructureCache.remove(deletedIslandId);
+
+        // Remove from in-memory pending structures
+        for (List<StructureRecord> records : pending.values()) {
+            records.removeIf(record -> event.getIsland().inIslandSpace(record.location()));
+        }
+        pending.values().removeIf(list -> list.isEmpty());
+
+        // Remove from pending structures in database
+        Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = loadToDos().getReadyToBuild();
+        boolean dbChanged = false;
+        for (List<StructureRecord> records : readyToBuild.values()) {
+            if (records.removeIf(record -> event.getIsland().inIslandSpace(record.location()))) {
+                dbChanged = true;
+            }
+        }
+
+        // Save updated pending structures if any were removed
+        if (dbChanged) {
+            ToBePlacedStructures tbd = new ToBePlacedStructures();
+            tbd.setReadyToBuild(readyToBuild);
+            toPlace.saveObjectAsync(tbd);
+        }
+    }
+
+    /**
+     * Sets up structures for the given island based on the configuration.
+     * 
+     * @param island The island to set up.
+     */
     private void setUpIsland(Island island) {
         // Check if this island is in this game
         if (!(addon.inWorld(island.getWorld()))) {
@@ -349,6 +409,13 @@ public class NewAreaListener implements Listener {
 
     }
 
+    /**
+     * Places structures defined in the configuration section at the specified center location.
+     * 
+     * @param section The configuration section.
+     * @param center The center location.
+     * @param env The world environment.
+     */
     private void place(ConfigurationSection section, Location center, Environment env) {
         if (section == null) {
             return;
@@ -388,9 +455,11 @@ public class NewAreaListener implements Listener {
                 Location location = new Location(world, x, y, z);
                 // Structure will be placed at location
                 readyToBuild.computeIfAbsent(new Pair<>(x >> 4, z >> 4), k -> new ArrayList<>())
-                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
+                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs,
+                                Collections.emptyMap()));
                 this.itemsToBuild
-                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs));
+                        .add(new StructureRecord(name, "minecraft:" + name, location, rotation, mirror, noMobs,
+                                Collections.emptyMap()));
             } else {
                 addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(coords));
             }
@@ -409,11 +478,10 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Removes Jigsaw blocks from a placed structure. Fills underwater ruins with
-     * water.
+     * Removes Jigsaw blocks from a placed structure and fills underwater ruins with water.
      * 
-     * @param item - record of what's required
-     * @return the resulting bounding box of the structure
+     * @param item The structure record.
+     * @return The resulting bounding box of the structure.
      */
     public static BoundingBox removeJigsaw(StructureRecord item) {
         Location loc = item.location();
@@ -463,12 +531,9 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Process a structure block. Sets it to a structure void at a minimum. If the
-     * structure block has metadata indicating it is a chest, then it will fill the
-     * chest with a buried treasure loot. If it is waterlogged, then it will change
-     * the void to water.
+     * Processes a structure block, possibly spawning entities or filling chests with loot.
      * 
-     * @param b structure block
+     * @param b The structure block.
      */
     private static void processStructureBlock(Block b) {
         // I would like to read the data from the block and do something with it!
@@ -496,6 +561,13 @@ public class NewAreaListener implements Listener {
         }
     }
 
+    /**
+     * Processes a jigsaw block, setting its final state and spawning mobs if needed.
+     * 
+     * @param b The jigsaw block.
+     * @param structureRotation The structure's rotation.
+     * @param pasteMobs Whether to spawn mobs.
+     */
     private static void processJigsaw(Block b, StructureRotation structureRotation, boolean pasteMobs) {
         try {
             String data = nmsData(b);
@@ -514,6 +586,12 @@ public class NewAreaListener implements Listener {
         }
     }
 
+    /**
+     * Spawns a mob at the specified block based on the jigsaw block's pool.
+     * 
+     * @param b The block.
+     * @param bjb The BoxedJigsawBlock data.
+     */
     private static void spawnMob(Block b, BoxedJigsawBlock bjb) {
         // bjb.getPool contains a lot more than just mobs, so we have to filter it to
         // see if any mobs are in there. This list may need to grow in the future
@@ -552,12 +630,11 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Corrects the direction of a block based on the structure's rotation
+     * Corrects the direction of a block based on the structure's rotation.
      * 
-     * @param finalState - the final block state of the block, which may include a
-     *                   facing: direction
-     * @param sr         - the structure's rotation
-     * @return a rewritten blockstate with the updated direction, if required
+     * @param finalState The final block state.
+     * @param sr The structure's rotation.
+     * @return The corrected block state string.
      */
     private static String correctDirection(String finalState, StructureRotation sr) {
         if (sr.equals(StructureRotation.NONE)) {
@@ -576,11 +653,11 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Adjusts the direction based on the StructureRotation
+     * Adjusts the direction based on the StructureRotation.
      * 
-     * @param oldDirection the old direction to adjust
-     * @param sr           the structure rotation
-     * @return the new direction, or SELF if something weird happens
+     * @param oldDirection The old direction.
+     * @param sr The structure rotation.
+     * @return The new direction, or SELF if not applicable.
      */
     private static BlockFace getNewDirection(BlockFace oldDirection, StructureRotation sr) {
         if (sr.equals(StructureRotation.CLOCKWISE_180)) {
@@ -606,16 +683,22 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Looks for north, south, east, west in the blockstate.
+     * Looks for north, south, east, or west in the blockstate string.
      * 
-     * @param finalState - the final block state of the block
-     * @return direction, if found, otherwise SELF
+     * @param finalState The final block state string.
+     * @return The detected direction, or SELF if not found.
      */
     private static BlockFace getDirection(String finalState) {
         return CARDINALS.stream().filter(bf -> finalState.contains(bf.name().toLowerCase(Locale.ENGLISH))).findFirst()
                 .orElse(BlockFace.SELF);
     }
 
+    /**
+     * Gets NMS data from a block using the appropriate handler.
+     * 
+     * @param block The block.
+     * @return The NMS data string.
+     */
     private static String nmsData(Block block) {
         AbstractMetaData handler;
         try {
@@ -632,6 +715,11 @@ public class NewAreaListener implements Listener {
         return handler.nmsData(block);
     }
 
+    /**
+     * Loads the list of structures to be placed from the database.
+     * 
+     * @return ToBePlacedStructures instance.
+     */
     private ToBePlacedStructures loadToDos() {
         if (!toPlace.objectExists(TODO)) {
             return new ToBePlacedStructures();

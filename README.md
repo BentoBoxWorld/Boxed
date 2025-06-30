@@ -20,9 +20,8 @@ java -Xms12G -Xmx12G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMill
 ### Quick Start
 
 1. Place Boxed addon into the BentoBox addons folder along with InvSwitcher and Border (use the latest versions!).
-2. Place the WorldGeneratorAPI and WorldBorderAPI plugins into your plugins folder.
-3. Make sure you are using BentoBox 1.16.0-SNAPSHOT or later.
-4. Restart the server - new worlds will be created. There may be a delay.
+2. (Optional) Installed the Datapack for custom advancements - https://github.com/BentoBoxWorld/BoxedDataPack/
+4. Restart the server - new worlds will be created. This will take a while!
 5. Login
 6. Type `/boxed` to start.
 7. Turn off advancement announcements `/gamerule announceAdvancements false` otherwise there is a lot of spam from the server when players get advancements.

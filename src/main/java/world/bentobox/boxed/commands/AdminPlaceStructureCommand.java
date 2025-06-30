@@ -4,19 +4,27 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Stack;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.structure.Structure;
+import org.bukkit.util.BlockTransformer;
+import org.bukkit.util.Vector;
 
 import com.google.common.base.Enums;
 
@@ -52,6 +60,8 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     private Mirror mirror = Mirror.NONE;
     private boolean noMobs;
 
+    private final Stack<StructureRecord> placedStructures = new Stack<>();
+
     public AdminPlaceStructureCommand(CompositeCommand parent) {
         super(parent, "place");
     }
@@ -68,15 +78,20 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
 
     @Override
     public boolean canExecute(User user, String label, List<String> args) {
+        if (args.size() == 1 && args.get(0).equalsIgnoreCase("undo")) {
+            return true; // Allow "undo" command without additional checks
+        }
+
         // Initialize
         sr = StructureRotation.NONE;
         mirror = Mirror.NONE;
 
         // Check world
-        if (!((Boxed)getAddon()).inWorld(getWorld())) {
+        if (!((Boxed) getAddon()).inWorld(getWorld())) {
             user.sendMessage("boxed.commands.boxadmin.place.wrong-world");
             return false;
         }
+
         /*
          * Acceptable syntax with number of args:
          *   1. place <structure>
@@ -85,21 +100,23 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
          *   6. place <structure> ~ ~ ~ ROTATION MIRROR
          *   7. place <structure> ~ ~ ~ ROTATION MIRROR NO_MOBS
          */
-        // Format is place <structure> ~ ~ ~ or coords
         if (args.isEmpty() || args.size() == 2 || args.size() == 3 || args.size() > 6) {
             this.showHelp(this, user);
             return false;
         }
+
         // First arg must always be the structure name
         List<String> options = Bukkit.getStructureManager().getStructures().keySet().stream().map(NamespacedKey::getKey).toList();
         if (!options.contains(args.get(0).toLowerCase(Locale.ENGLISH))) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-structure");
             return false;
         }
+
         // If that is all we have, we're done
         if (args.size() == 1) {
             return true;
         }
+
         // Next come the coordinates - there must be at least 3 of them
         if ((!args.get(1).equals("~") && !Util.isInteger(args.get(1), true))
                 || (!args.get(2).equals("~") && !Util.isInteger(args.get(2), true))
@@ -107,27 +124,32 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             user.sendMessage("boxed.commands.boxadmin.place.use-integers");
             return false;
         }
+
         // If that is all we have, we're done
         if (args.size() == 4) {
             return true;
         }
-        // But there is more!
+
+        // Handle rotation
         sr = Enums.getIfPresent(StructureRotation.class, args.get(4).toUpperCase(Locale.ENGLISH)).orNull();
         if (sr == null) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-rotation");
             Arrays.stream(StructureRotation.values()).map(StructureRotation::name).forEach(user::sendRawMessage);
             return false;
         }
+
         if (args.size() == 5) {
             return true;
         }
-        // But there is more!
+
+        // Handle mirror
         mirror = Enums.getIfPresent(Mirror.class, args.get(5).toUpperCase(Locale.ENGLISH)).orNull();
         if (mirror == null) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-mirror");
             Arrays.stream(Mirror.values()).map(Mirror::name).forEach(user::sendRawMessage);
             return false;
         }
+
         if (args.size() == 7) {
             if (args.get(6).toUpperCase(Locale.ENGLISH).equals("NO_MOBS")) {
                 noMobs = true;
@@ -136,20 +158,40 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
                 return false;
             }
         }
+
         // Syntax is okay
         return true;
     }
 
     @Override
     public boolean execute(User user, String label, List<String> args) {
+        if (args.size() == 1 && args.get(0).equalsIgnoreCase("undo")) {
+            return undoLastPlacement(user);
+        }
+
         NamespacedKey tag = NamespacedKey.fromString(args.get(0).toLowerCase(Locale.ENGLISH));
         Structure s = Bukkit.getStructureManager().loadStructure(tag);
-        int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX() : Integer.parseInt(args.get(1).trim());
-        int y = args.size() == 1 || args.get(2).equals("~") ? user.getLocation().getBlockY() : Integer.parseInt(args.get(2).trim());
-        int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ() : Integer.parseInt(args.get(3).trim());
+        int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX()
+                : Integer.parseInt(args.get(1).trim());
+        int y = args.size() == 1 || args.get(2).equals("~") ? user.getLocation().getBlockY()
+                : Integer.parseInt(args.get(2).trim());
+        int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ()
+                : Integer.parseInt(args.get(3).trim());
         Location spot = new Location(user.getWorld(), x, y, z);
-        s.place(spot, true, sr, mirror, PALETTE, INTEGRITY, new Random());
-        NewAreaListener.removeJigsaw(new StructureRecord(tag.getKey(), tag.getKey(), spot, sr, mirror, noMobs));
+        Map<Vector, BlockData> removedBlocks = new HashMap<>();
+        BlockTransformer store = (region, xx, yy, zz, current, state) -> {
+            // Store the state
+            removedBlocks.put(new Vector(xx, yy, zz), region.getBlockData(xx, yy, zz));
+            return state.getOriginal();
+        };
+
+        s.place(spot, true, sr, mirror, PALETTE, INTEGRITY, new Random(), Collections.singleton(store), // Transformer to store blocks
+                Collections.emptyList() // No entity transformers
+        );
+        NewAreaListener
+                .removeJigsaw(new StructureRecord(tag.getKey(), tag.getKey(), spot, sr, mirror, noMobs, removedBlocks));
+        placedStructures.push(new StructureRecord(tag.getKey(), tag.getKey(), spot, sr, mirror, noMobs, removedBlocks)); // Track the placement
+
         boolean result = saveStructure(spot, tag, user, sr, mirror);
         if (result) {
             user.sendMessage("boxed.commands.boxadmin.place.saved");
@@ -184,9 +226,74 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
 
     }
 
+    private boolean undoLastPlacement(User user) {
+        if (placedStructures.isEmpty()) {
+            user.sendMessage("boxed.commands.boxadmin.place.no-undo");
+            return false;
+        }
+
+        StructureRecord lastRecord = placedStructures.pop();
+        NamespacedKey tag = NamespacedKey.fromString(lastRecord.name());
+        Structure s = Bukkit.getStructureManager().loadStructure(tag);
+
+        if (s == null) {
+            user.sendMessage("boxed.commands.boxadmin.place.undo-failed");
+            return false;
+        }
+
+        BlockTransformer erase = (region, x, y, z, current, state) -> {
+            Vector v = new Vector(x, y, z);
+            if (lastRecord.removedBlocks().containsKey(v)) {
+                return lastRecord.removedBlocks().get(v).createBlockState();
+            }
+            BlockState airState = Material.AIR.createBlockData().createBlockState();
+            return airState;
+        };
+
+        s.place(
+                lastRecord.location(),
+            false, // Don't respawn entities
+                lastRecord.rot(), lastRecord.mirror(),
+            PALETTE,
+            1.0f, // Integrity = 1 means "place everything"
+            new Random(),
+            Collections.singleton(erase), // Transformer to erase blocks
+            Collections.emptyList() // No entity transformers
+        );
+        lastRecord.removedBlocks().clear();
+        removeStructure(lastRecord.location(), tag, user); // Remove from config
+
+        user.sendMessage("boxed.commands.boxadmin.place.undo-success");
+        return true;
+    }
+
+    private boolean removeStructure(Location spot, NamespacedKey tag, User user) {
+        return getAddon().getIslands().getIslandAt(spot).map(i -> {
+            int xx = spot.getBlockX() - i.getCenter().getBlockX();
+            int zz = spot.getBlockZ() - i.getCenter().getBlockZ();
+            File structures = new File(getAddon().getDataFolder(), STRUCTURE_FILE);
+            YamlConfiguration config = new YamlConfiguration();
+            try {
+                config.load(structures);
+                String key = spot.getWorld().getEnvironment().name().toLowerCase(Locale.ENGLISH) + "." + xx + "," + spot.getBlockY() + "," + zz;
+                if (config.contains(key)) {
+                    config.set(key, null); // Remove the entry
+                    config.save(structures);
+                    return true;
+                }
+            } catch (IOException | InvalidConfigurationException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }).orElse(false);
+    }
+
     @Override
     public Optional<List<String>> tabComplete(User user, String alias, List<String> args)
     {
+        if (args.size() == 1) {
+            return Optional.of(Util.tabLimit(Arrays.asList("undo"), args.get(0)));
+        }
         String lastArg = !args.isEmpty() ? args.get(args.size() - 1) : "";
         if (args.size() == 2) {
             return Optional.of(Util.tabLimit(Bukkit.getStructureManager().getStructures().keySet().stream().map(NamespacedKey::getKey).toList(), lastArg));
@@ -205,4 +312,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         }
         return Optional.of(Collections.emptyList());
     }
+
+
+
 }
