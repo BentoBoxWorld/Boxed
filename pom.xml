@@ -54,15 +54,15 @@
         <!-- Non-minecraft related dependencies -->
         <powermock.version>2.0.9</powermock.version>
         <!-- More visible way how to change dependency versions -->
-        <spigot.version>1.21.6-R0.1-SNAPSHOT</spigot.version>
-        <paper.version>1.21.6-R0.1-SNAPSHOT</paper.version>
+        <spigot.version>1.21.7-R0.1-SNAPSHOT</spigot.version>
+        <paper.version>1.21.7-R0.1-SNAPSHOT</paper.version>
         <bentobox.version>3.3.0</bentobox.version> <!-- Errors with later versions regarding kyori-->
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- Do not change unless you want different name for local builds. -->
         <build.number>-LOCAL</build.number>
         <!-- This allows to change between versions. -->
-        <build.version>3.0.0</build.version>
+        <build.version>3.0.1</build.version>
 
         <sonar.projectKey>BentoBoxWorld_Boxed</sonar.projectKey>
         <sonar.organization>bentobox-world</sonar.organization>
@@ -181,6 +181,12 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
             <version>${spigot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc.....</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.21.6-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
