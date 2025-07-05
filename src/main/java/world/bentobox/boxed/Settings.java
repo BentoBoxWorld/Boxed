@@ -86,6 +86,10 @@ public class Settings implements WorldSettings {
     @ConfigComment("Other plugins may override this setting")
     @ConfigEntry(path = "world.difficulty")
     private Difficulty difficulty = Difficulty.NORMAL;
+    
+    @ConfigComment("Allow structures to generate in the seed world")
+    @ConfigEntry(path = "world.allow-structures")
+    private boolean allowStructures;
 
     @ConfigComment("Spawn limits. These override the limits set in bukkit.yml")
     @ConfigComment("If set to a negative number, the server defaults will be used")
@@ -1799,6 +1803,17 @@ public class Settings implements WorldSettings {
      */
     public void setDisallowTeamMemberIslands(boolean disallowTeamMemberIslands) {
         this.disallowTeamMemberIslands = disallowTeamMemberIslands;
+    }
+
+    public boolean isAllowStructures() {
+       return allowStructures;
+    }
+
+    /**
+     * @param allowStructures the allowStructures to set
+     */
+    public void setAllowStructures(boolean allowStructures) {
+        this.allowStructures = allowStructures;
     }
 
 }
