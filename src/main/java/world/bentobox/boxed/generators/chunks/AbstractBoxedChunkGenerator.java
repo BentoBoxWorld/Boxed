@@ -136,8 +136,7 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
 
     @Override
     public boolean shouldGenerateStructures() {
-        return false;
-        //return this.addon.getSettings().isAllowStructures();
+        return this.addon.getSettings().isAllowStructures();
     }
 
 }

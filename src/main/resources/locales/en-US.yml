@@ -898,7 +898,7 @@ boxed:
         saved: '&a Placed and saved to structures.yml'
         failed: '&c Could not be saved to structures.yml. Check console for error'
         unknown: '&c Unknown parameter: [label]'
-        undo-success: '&a Undone. Some changes cannot be undone.''
+        undo-success: '&a Undone. Some changes cannot be undone.'
     island:
       go:
         parameters: '[home number]'
