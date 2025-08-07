@@ -115,10 +115,16 @@ public class BoxedBlockPopulator extends BlockPopulator {
     public void setSpawner(CreatureSpawner spawner, BlueprintCreatureSpawner s) {
         spawner.setSpawnedType(s.getSpawnedType());
         spawner.setMaxNearbyEntities(s.getMaxNearbyEntities());
-        spawner.setMaxSpawnDelay(s.getMaxSpawnDelay());
-        spawner.setMinSpawnDelay(s.getMinSpawnDelay());
+        int delay = Math.max(s.getMinSpawnDelay(), s.getMaxSpawnDelay());
+        if (delay < 1) {
+            delay = 120; // Set the default 2 minutes
+        }
+        spawner.setMaxSpawnDelay(delay);
+        delay = Math.max(s.getMinSpawnDelay(), 1);
+        spawner.setMinSpawnDelay(delay);
         spawner.setDelay(s.getDelay());
-        spawner.setRequiredPlayerRange(s.getRequiredPlayerRange());
+        int range = Math.max(s.getRequiredPlayerRange(), 0);
+        spawner.setRequiredPlayerRange(range);
         spawner.setSpawnRange(s.getSpawnRange());
         spawner.update(true, false);
     }
