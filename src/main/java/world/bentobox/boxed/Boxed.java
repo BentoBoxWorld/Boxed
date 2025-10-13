@@ -131,11 +131,6 @@ public class Boxed extends GameModeAddon {
         if (this.getPlugin().getAddonsManager().getAddonByName("InvSwitcher").isEmpty()) {
             this.logWarning("Boxed normally requires the InvSwitcher addon for per-world Advancements.");
         }
-        if (Bukkit.getPluginManager().isPluginEnabled("MultiverseCore")) {
-            this.logError("Boxed is not compatible with Multiverse! Disabling!");
-            this.setState(State.DISABLED);
-            return;
-        }
         // Advancements manager
         advManager = new AdvancementsManager(this);
         // Make flags only applicable to this game mode
