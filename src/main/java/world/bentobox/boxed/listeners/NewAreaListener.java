@@ -53,10 +53,10 @@ import world.bentobox.bentobox.api.events.island.IslandDeleteEvent;
 import world.bentobox.bentobox.api.events.island.IslandResettedEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
+import world.bentobox.bentobox.nms.AbstractMetaData;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
-import world.bentobox.boxed.nms.AbstractMetaData;
 import world.bentobox.boxed.objects.BoxedJigsawBlock;
 import world.bentobox.boxed.objects.BoxedStructureBlock;
 import world.bentobox.boxed.objects.IslandStructures;
@@ -537,7 +537,7 @@ public class NewAreaListener implements Listener {
      */
     private static void processStructureBlock(Block b) {
         // I would like to read the data from the block and do something with it!
-        String data = nmsData(b);
+        String data = Util.getMetaData().nmsData(b);
         if (data.isEmpty()) {
             return;
         }
@@ -570,7 +570,7 @@ public class NewAreaListener implements Listener {
      */
     private static void processJigsaw(Block b, StructureRotation structureRotation, boolean pasteMobs) {
         try {
-            String data = nmsData(b);
+            String data = Util.getMetaData().nmsData(b);
             if (data.isEmpty()) {
                 return;
             }
@@ -691,28 +691,6 @@ public class NewAreaListener implements Listener {
     private static BlockFace getDirection(String finalState) {
         return CARDINALS.stream().filter(bf -> finalState.contains(bf.name().toLowerCase(Locale.ENGLISH))).findFirst()
                 .orElse(BlockFace.SELF);
-    }
-
-    /**
-     * Gets NMS data from a block using the appropriate handler.
-     * 
-     * @param block The block.
-     * @return The NMS data string.
-     */
-    private static String nmsData(Block block) {
-        AbstractMetaData handler;
-        try {
-            Class<?> clazz = Class.forName(pluginPackageName + ".nms." + bukkitVersion + ".GetMetaData");
-            if (AbstractMetaData.class.isAssignableFrom(clazz)) {
-                handler = (AbstractMetaData) clazz.getConstructor().newInstance();
-            } else {
-                throw new IllegalStateException("Class " + clazz.getName() + " does not implement AbstractGetMetaData");
-            }
-        } catch (Exception e) {
-            BentoBox.getInstance().logError("No metadata handler found for " + bukkitVersion + " in Boxed (yet).");
-            handler = new world.bentobox.boxed.nms.fallback.GetMetaData();
-        }
-        return handler.nmsData(block);
     }
 
     /**
