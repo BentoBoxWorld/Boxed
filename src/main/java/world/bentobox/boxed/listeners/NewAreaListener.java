@@ -361,6 +361,9 @@ public class NewAreaListener implements Listener {
         // Remove from in-memory cache
         islandStructureCache.remove(deletedIslandId);
 
+        // Remove from active build queue so we don't paste into a deleted island
+        itemsToBuild.removeIf(record -> event.getIsland().inIslandSpace(record.location()));
+
         // Remove from in-memory pending structures
         for (List<StructureRecord> records : pending.values()) {
             records.removeIf(record -> event.getIsland().inIslandSpace(record.location()));
