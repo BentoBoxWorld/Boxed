@@ -1,10 +1,9 @@
 package world.bentobox.boxed;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -18,95 +17,64 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.World;
 import org.bukkit.advancement.Advancement;
-import org.bukkit.advancement.AdvancementDisplay;
 import org.bukkit.entity.Player;
 import org.eclipse.jdt.annotation.NonNull;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
-import world.bentobox.bentobox.BentoBox;
-import world.bentobox.bentobox.Settings;
-import world.bentobox.bentobox.api.user.User;
+import io.papermc.paper.advancement.AdvancementDisplay;
 import world.bentobox.bentobox.database.AbstractDatabaseHandler;
 import world.bentobox.bentobox.database.DatabaseSetup;
 import world.bentobox.bentobox.database.DatabaseSetup.DatabaseType;
-import world.bentobox.bentobox.database.objects.Island;
-import world.bentobox.bentobox.managers.IslandsManager;
 import world.bentobox.bentobox.managers.RanksManager;
-import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.objects.IslandAdvancements;
 
 /**
  * @author tastybento
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Bukkit.class, BentoBox.class, DatabaseSetup.class, Util.class})
-public class AdvancementsManagerTest {
+public class AdvancementsManagerTest extends CommonTestSetup {
 
-    private static AbstractDatabaseHandler<Object> h;
     @Mock
-    private BentoBox plugin;
-    @Mock
-    private Settings pluginSettings;
-
-
+    private world.bentobox.bentobox.Settings pluginSettings;
     @Mock
     private Boxed addon;
     private AdvancementsManager am;
     private File dataFolder;
     @Mock
-    private Island island;
-    @Mock
     private Player player;
     @Mock
     private Advancement advancement;
     @Mock
-    private World world;
-    @Mock
-    private IslandsManager im;
-    @Mock
     private AdvancementDisplay display;
 
+    private MockedStatic<DatabaseSetup> mockedDatabaseSetup;
+    private AbstractDatabaseHandler<Object> h;
+
     @SuppressWarnings("unchecked")
-    @BeforeClass
-    public static void beforeClass() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
-        // This has to be done beforeClass otherwise the tests will interfere with each other
+    @Override
+    @BeforeEach
+    public void setUp() throws Exception {
+        super.setUp();
+
+        // Database static mock (local — CommonTestSetup does not handle this one)
         h = mock(AbstractDatabaseHandler.class);
-        // Database
-        PowerMockito.mockStatic(DatabaseSetup.class);
+        mockedDatabaseSetup = Mockito.mockStatic(DatabaseSetup.class);
         DatabaseSetup dbSetup = mock(DatabaseSetup.class);
-        when(DatabaseSetup.getDatabase()).thenReturn(dbSetup);
+        mockedDatabaseSetup.when(DatabaseSetup::getDatabase).thenReturn(dbSetup);
         when(dbSetup.getHandler(any())).thenReturn(h);
         when(h.saveObject(any())).thenReturn(CompletableFuture.completedFuture(true));
-    }
 
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
         when(addon.getPlugin()).thenReturn(plugin);
-        // Set up plugin
-        Whitebox.setInternalState(BentoBox.class, "instance", plugin);
 
         // The database type has to be created one line before the thenReturn() to work!
         DatabaseType value = DatabaseType.JSON;
@@ -128,17 +96,13 @@ public class AdvancementsManagerTest {
         UUID uuid = UUID.randomUUID();
         when(player.getUniqueId()).thenReturn(uuid);
 
-
         NamespacedKey key = NamespacedKey.fromString("adventure/honey_block_slide");
         // Advancement
         when(advancement.getKey()).thenReturn(key);
-        when(display.getX()).thenReturn(9F);
-        when(display.getY()).thenReturn(0F);
         when(advancement.getDisplay()).thenReturn(display);
 
         // Bukkit
-        PowerMockito.mockStatic(Bukkit.class, Mockito.RETURNS_MOCKS);
-        when(Bukkit.getAdvancement(any(NamespacedKey.class))).thenReturn(advancement);
+        mockedBukkit.when(() -> org.bukkit.Bukkit.getAdvancement(any(NamespacedKey.class))).thenReturn(advancement);
 
         // Island
         when(addon.getIslands()).thenReturn(im);
@@ -146,28 +110,18 @@ public class AdvancementsManagerTest {
         when(island.getRank(uuid)).thenReturn(RanksManager.MEMBER_RANK);
         when(island.getProtectionRange()).thenReturn(5);
 
-
         am = new AdvancementsManager(addon);
     }
 
     /**
      * @throws java.lang.Exception - exception
      */
-    @After
+    @Override
+    @AfterEach
     public void tearDown() throws Exception {
-        deleteAll(new File("database"));
+        mockedDatabaseSetup.closeOnDemand();
         deleteAll(dataFolder);
-        User.clearUsers();
-        Mockito.framework().clearInlineMocks();
-    }
-
-    private static void deleteAll(File file) throws IOException {
-        if (file.exists()) {
-            Files.walk(file.toPath())
-            .sorted(Comparator.reverseOrder())
-            .map(Path::toFile)
-            .forEach(File::delete);
-        }
+        super.tearDown();
     }
 
     /**
@@ -176,7 +130,9 @@ public class AdvancementsManagerTest {
      */
     @Test
     public void testAdvancementsManagerNoFile() throws Exception {
-        tearDown();
+        // Delete the advancements.yml file so the constructor logs an error. Do NOT tear
+        // down the full mock infrastructure — we still need it for the second manager.
+        deleteAll(dataFolder);
         am = new AdvancementsManager(addon);
         verify(addon).logError("advancements.yml cannot be found!");
     }
@@ -312,12 +268,13 @@ public class AdvancementsManagerTest {
 
     /**
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#addAdvancement(org.bukkit.entity.Player, org.bukkit.advancement.Advancement)}.
+     * A null display means the advancement cannot be scored automatically.
      */
     @Test
     public void testAddAdvancementPlayerAdvancementZeroScore() {
-        when(display.getX()).thenReturn(0F);
+        when(advancement.getDisplay()).thenReturn(null);
         assertEquals(0, am.addAdvancement(player, advancement));
-        verify(island, never()).setProtectionRange(anyInt());
+        verify(island, never()).setProtectionRange(org.mockito.ArgumentMatchers.anyInt());
     }
 
     /**

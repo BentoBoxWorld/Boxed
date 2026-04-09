@@ -1,8 +1,8 @@
 package world.bentobox.boxed.listeners;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -35,39 +34,27 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
 import com.google.common.collect.ImmutableSet;
 
-import world.bentobox.bentobox.BentoBox;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.database.objects.Island;
-import world.bentobox.bentobox.managers.IslandWorldManager;
-import world.bentobox.bentobox.managers.IslandsManager;
-import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.CommonTestSetup;
 import world.bentobox.boxed.Settings;
-import world.bentobox.boxed.mocks.ServerMocks;
 
 /**
  * @author tastybento
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Bukkit.class, BentoBox.class, User.class, Util.class })
-public class EnderPearlListenerTest {
+public class EnderPearlListenerTest extends CommonTestSetup {
 
-    @Mock
-    private BentoBox plugin;
     @Mock
     private Boxed addon;
     @Mock
@@ -76,12 +63,6 @@ public class EnderPearlListenerTest {
     private Location from;
     @Mock
     private Location to;
-    @Mock
-    private World world;
-    @Mock
-    private IslandsManager im;
-    @Mock
-    private Island island;
     @Mock
     private Island anotherIsland;
     @Mock
@@ -92,56 +73,49 @@ public class EnderPearlListenerTest {
     private EnderPearl projectile;
     @Mock
     private Block hitBlock;
-    
+
     private Settings settings;
     private EnderPearlListener epl;
-    @Mock
-    private IslandWorldManager iwm;
 
+    private MockedStatic<User> mockedUser;
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
+    @Override
+    @BeforeEach
     public void setUp() throws Exception {
-        ServerMocks.newServer();
-        // Set up plugin
-        plugin = mock(BentoBox.class);
-        Whitebox.setInternalState(BentoBox.class, "instance", plugin);
-        
-        when(plugin.getIWM()).thenReturn(iwm);
-        
+        super.setUp();
 
-        
-        PowerMockito.mockStatic(Bukkit.class, Mockito.RETURNS_MOCKS);
-        
-        PowerMockito.mockStatic(User.class, Mockito.RETURNS_MOCKS);
-        when(User.getInstance(any(Player.class))).thenReturn(user);
+        // Local static mock for User (parent already wired User.setPlugin + one cached mockPlayer)
+        mockedUser = Mockito.mockStatic(User.class, Mockito.CALLS_REAL_METHODS);
+        mockedUser.when(() -> User.getInstance(any(Player.class))).thenReturn(user);
+
+        when(plugin.getIWM()).thenReturn(iwm);
+        when(plugin.getFlagsManager()).thenReturn(fm);
+
         // Settings
         settings = new Settings();
         when(addon.getSettings()).thenReturn(settings);
         when(iwm.getWorldSettings(world)).thenReturn(settings);
         when(iwm.inWorld(world)).thenReturn(true);
-        
+
         // Locations
         when(to.getWorld()).thenReturn(world);
         when(from.getWorld()).thenReturn(world);
-        when(from.toVector()).thenReturn(new Vector(1,2,3));
-        when(to.toVector()).thenReturn(new Vector(6,7,8));
+        when(from.toVector()).thenReturn(new Vector(1, 2, 3));
+        when(to.toVector()).thenReturn(new Vector(6, 7, 8));
         when(world.getEnvironment()).thenReturn(Environment.NORMAL);
-        
+
         // In game world
         when(addon.inWorld(any(World.class))).thenReturn(true);
         when(addon.inWorld(any(Location.class))).thenReturn(true);
-        
+
         // User
         when(user.getPlayer()).thenReturn(player);
         when(player.getGameMode()).thenReturn(GameMode.SURVIVAL);
         when(player.getWorld()).thenReturn(world);
-        when(user.getMetaData(anyString())).thenReturn(Optional.empty()); // No meta data
+        when(user.getMetaData(anyString())).thenReturn(Optional.empty());
         when(player.getLocation()).thenReturn(from);
         when(user.getLocation()).thenReturn(from);
-        
+
         // Islands
         when(island.onIsland(any())).thenReturn(true); // Default on island
         when(im.getIsland(world, user)).thenReturn(island);
@@ -150,7 +124,8 @@ public class EnderPearlListenerTest {
         when(im.getProtectedIslandAt(any())).thenReturn(Optional.of(island));
         when(island.getUniqueId()).thenReturn("uniqueID");
         when(island.getProtectionCenter()).thenReturn(from);
-        when(island.getProtectionBoundingBox()).thenReturn(BoundingBox.of(new Vector(0,0,0), new Vector(50,50,50)));
+        when(island.getProtectionBoundingBox())
+                .thenReturn(BoundingBox.of(new Vector(0, 0, 0), new Vector(50, 50, 50)));
         when(island.getRange()).thenReturn(3);
         when(im.isSafeLocation(any())).thenReturn(true); // safe for now
         when(island.getPlayersOnIsland()).thenReturn(List.of(player));
@@ -160,7 +135,7 @@ public class EnderPearlListenerTest {
         when(island.getMemberSet()).thenReturn(ImmutableSet.of(UUID.randomUUID()));
         // Another island
         when(anotherIsland.getUniqueId()).thenReturn("another_uniqueID");
-        
+
         // Projectiles
         when(projectile.getType()).thenReturn(EntityType.ENDER_PEARL);
         when(projectile.getShooter()).thenReturn(player);
@@ -168,15 +143,15 @@ public class EnderPearlListenerTest {
         when(hitBlock.getWorld()).thenReturn(world);
         when(hitBlock.getRelative(BlockFace.UP)).thenReturn(hitBlock);
         Boxed.ALLOW_MOVE_BOX.setSetting(world, true);
-        
+
         epl = new EnderPearlListener(addon);
     }
 
-    @After
-    public void tearDown() {
-        ServerMocks.unsetBukkitServer();
-        User.clearUsers();
-        Mockito.framework().clearInlineMocks();
+    @Override
+    @AfterEach
+    public void tearDown() throws Exception {
+        mockedUser.closeOnDemand();
+        super.tearDown();
     }
 
     /**
@@ -197,7 +172,7 @@ public class EnderPearlListenerTest {
         assertTrue(e.isCancelled());
         verify(user).sendMessage("boxed.general.errors.no-teleport-outside");
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
@@ -209,7 +184,7 @@ public class EnderPearlListenerTest {
         assertFalse(e.isCancelled());
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
@@ -221,7 +196,7 @@ public class EnderPearlListenerTest {
         assertFalse(e.isCancelled());
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
@@ -233,7 +208,7 @@ public class EnderPearlListenerTest {
         assertFalse(e.isCancelled());
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
@@ -249,7 +224,7 @@ public class EnderPearlListenerTest {
 
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlLandNotEnderPearl() throws IOException {
@@ -260,10 +235,10 @@ public class EnderPearlListenerTest {
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
         verifyFailure();
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlLandNullHitBlock() throws IOException {
@@ -273,10 +248,10 @@ public class EnderPearlListenerTest {
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
         verifyFailure();
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlLandNotInWorld() throws IOException {
@@ -290,7 +265,7 @@ public class EnderPearlListenerTest {
 
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlLandNotMovingBox() throws IOException {
@@ -301,10 +276,10 @@ public class EnderPearlListenerTest {
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
         verifyFailure();
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlLandNonHuman() throws IOException {
@@ -316,10 +291,10 @@ public class EnderPearlListenerTest {
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
         verifyFailure();
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlLandUserHasNoIsland() throws IOException {
@@ -330,10 +305,10 @@ public class EnderPearlListenerTest {
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
         verifyFailure();
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlNotOnIslandWhenThrowing() throws IOException {
@@ -343,7 +318,7 @@ public class EnderPearlListenerTest {
         assertFalse(e.isCancelled());
         verifyFailure();
     }
-    
+
     private void verifyFailure() throws IOException {
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
         verify(im, never()).setHomeLocation(any(UUID.class), any());
@@ -351,10 +326,10 @@ public class EnderPearlListenerTest {
         verify(island, never()).setSpawnPoint(any(), any());
         verify(player, never()).playSound(any(Location.class), any(Sound.class), anyFloat(), anyFloat());
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlLandHuman() throws IOException {
@@ -367,10 +342,10 @@ public class EnderPearlListenerTest {
         verify(island).setSpawnPoint(Environment.NORMAL, to);
         verify(player).playSound(to, Sound.ENTITY_GENERIC_EXPLODE, 2F, 2F);
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlThrewToDifferentIsland() throws IOException {
@@ -380,10 +355,10 @@ public class EnderPearlListenerTest {
         assertTrue(e.isCancelled());
         verify(user).sendMessage("boxed.general.errors.no-teleport-outside");
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlThrewToNonIsland() throws IOException {
@@ -393,10 +368,10 @@ public class EnderPearlListenerTest {
         assertTrue(e.isCancelled());
         verify(user).sendMessage("boxed.general.errors.no-teleport-outside");
     }
-    
+
     /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onEnderPearlLand(org.bukkit.event.entity.ProjectileHitEvent)}.
-     * @throws IOException 
+     * @throws IOException
      */
     @Test
     public void testOnEnderPearlCannotSetProtectionCenter() throws IOException {

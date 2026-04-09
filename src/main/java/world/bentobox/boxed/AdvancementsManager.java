@@ -250,9 +250,13 @@ public class AdvancementsManager {
         }
         if (advConfig.getBoolean("settings.automatic-scoring")) {
             if (!a.getKey().getKey().contains("recipes") && a.getDisplay() != null) {
-                float x = a.getDisplay().getX();
-                float y = a.getDisplay().getY();
-                return (int) Math.round(Math.sqrt(x * x + y * y));
+                // Paper 1.21.11 removed getX()/getY() from AdvancementDisplay, so we can no
+                // longer compute the distance-based score. Fall back to the hard-coded value
+                // from advancements.yml when present, otherwise the unknown default.
+                if (advConfig.contains(adv)) {
+                    return advConfig.getInt(adv, this.unknownAdvChange);
+                }
+                return this.unknownAdvChange;
             } else {
                 return 0;
             }
