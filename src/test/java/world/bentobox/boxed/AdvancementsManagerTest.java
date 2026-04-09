@@ -293,4 +293,69 @@ public class AdvancementsManagerTest extends CommonTestSetup {
         assertEquals(9, am.getScore(advancement));
     }
 
+    /**
+     * Test method for {@link world.bentobox.boxed.AdvancementsManager#getScore(org.bukkit.advancement.Advancement)}.
+     * Root advancements fall back to settings.default-root-increase (0 in the shipped config).
+     */
+    @Test
+    public void testGetScoreAdvancementRoot() {
+        when(advancement.getKey()).thenReturn(NamespacedKey.fromString("story/root"));
+        assertEquals(0, am.getScore(advancement));
+    }
+
+    /**
+     * Test method for {@link world.bentobox.boxed.AdvancementsManager#getScore(org.bukkit.advancement.Advancement)}.
+     * Recipe advancements always score settings.unknown-recipe-increase (0 in the shipped config).
+     */
+    @Test
+    public void testGetScoreAdvancementRecipe() {
+        when(advancement.getKey()).thenReturn(NamespacedKey.fromString("recipes/brewing/blaze_powder"));
+        assertEquals(0, am.getScore(advancement));
+    }
+
+    /**
+     * Test method for {@link world.bentobox.boxed.AdvancementsManager#addAdvancement(org.bukkit.entity.Player, org.bukkit.advancement.Advancement)}.
+     * No island for this player means no expansion and a zero score.
+     */
+    @Test
+    public void testAddAdvancementPlayerAdvancementNullIsland() {
+        when(im.getIsland(world, player.getUniqueId())).thenReturn(null);
+        assertEquals(0, am.addAdvancement(player, advancement));
+        verify(island, never()).setProtectionRange(org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    /**
+     * Test method for {@link world.bentobox.boxed.AdvancementsManager#addAdvancement(org.bukkit.entity.Player, org.bukkit.advancement.Advancement)}.
+     * Visitors (rank below MEMBER_RANK) cannot expand the island.
+     */
+    @Test
+    public void testAddAdvancementPlayerAdvancementVisitorRank() {
+        when(island.getRank(player.getUniqueId())).thenReturn(RanksManager.VISITOR_RANK);
+        assertEquals(0, am.addAdvancement(player, advancement));
+        verify(island, never()).setProtectionRange(org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    /**
+     * Test method for {@link world.bentobox.boxed.AdvancementsManager#addAdvancement(org.bukkit.entity.Player, org.bukkit.advancement.Advancement)}.
+     * An advancement that's already been recorded on the island cannot grant a second expansion.
+     */
+    @Test
+    public void testAddAdvancementPlayerAdvancementAlreadyHas() {
+        // Seed the island with the exact same namespaced key the manager will try to record.
+        am.addAdvancement(island, advancement.getKey().toString());
+        assertEquals(0, am.addAdvancement(player, advancement));
+    }
+
+    /**
+     * Test method for {@link world.bentobox.boxed.AdvancementsManager#checkIslandSize(world.bentobox.bentobox.database.objects.Island)}.
+     * Positive diff case: one scoring advancement grows a size-1 island to size 10.
+     */
+    @Test
+    public void testCheckIslandSizePositiveDiff() {
+        when(island.getProtectionRange()).thenReturn(1);
+        am.addAdvancement(island, "adventure/honey_block_slide");
+        assertEquals(9, am.checkIslandSize(island));
+        verify(island).setProtectionRange(10);
+    }
+
 }
