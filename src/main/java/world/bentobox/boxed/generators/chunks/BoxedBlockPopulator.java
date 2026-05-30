@@ -148,6 +148,5 @@ public class BoxedBlockPopulator extends BlockPopulator {
         trialSpawner.setOminous(ominous);
         trialSpawner.update(true, false);
     }
-    }
 
 }

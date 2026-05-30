@@ -266,7 +266,6 @@ public abstract class CommonTestSetup {
         }
 
     }
-    }
 
     /**
      * Check that spigot sent the message
