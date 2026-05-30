@@ -332,6 +332,18 @@ public class AdvancementListenerTest extends CommonTestSetup {
         verify(e, never()).getPlayerUUID();
     }
 
+    @Test
+    public void testOnFirstTimeNotInBoxedWorld() {
+        IslandNewIslandEvent e = mock(IslandNewIslandEvent.class);
+        when(e.getIsland()).thenReturn(island);
+        when(island.getWorld()).thenReturn(world);
+        when(addon.inWorld(world)).thenReturn(false);
+
+        listener.onFirstTime(e);
+
+        verify(e, never()).getPlayerUUID();
+    }
+
     // ---------- static helpers ----------
 
     @Test

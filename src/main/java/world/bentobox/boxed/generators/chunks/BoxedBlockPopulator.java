@@ -143,9 +143,11 @@ public class BoxedBlockPopulator extends BlockPopulator {
      * @param bts          - blueprint trial spawner
      */
     public void setTrialSpawner(TrialSpawner trialSpawner, BlueprintTrialSpawner bts) {
-        TrialSpawnerConfiguration config = trialSpawner.getNormalConfiguration();
-        trialSpawner.setOminous(bts.configTrialSpawner(config));
+        boolean ominous = bts.configTrialSpawner(trialSpawner.getNormalConfiguration());
+        bts.configTrialSpawner(trialSpawner.getOminousConfiguration());
+        trialSpawner.setOminous(ominous);
         trialSpawner.update(true, false);
+    }
     }
 
 }
