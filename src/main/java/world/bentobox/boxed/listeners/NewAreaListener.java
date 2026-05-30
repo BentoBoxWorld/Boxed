@@ -79,7 +79,7 @@ public class NewAreaListener implements Listener {
             "mineshaft", "mineshaft_mesa", "monument", "nether_fossil", "ocean_ruin_cold", "ocean_ruin_warm",
             "pillager_outpost", "ruined_portal_desert", "ruined_portal_jungle", "ruined_portal_mountain",
             "ruined_portal_nether", "ruined_portal_ocean", "ruined_portal_swamp", "ruined_portal", "shipwreck_beached",
-            "shipwreck", "stronghold", "swamp_hut", "village_desert", "village_plains", "village_savanna",
+            "shipwreck", "stronghold", "swamp_hut", "trial_chambers", "village_desert", "village_plains", "village_savanna",
             "village_snowy", "village_taiga");
     private final Boxed addon;
     private final File structureFile;
@@ -360,6 +360,9 @@ public class NewAreaListener implements Listener {
 
         // Remove from in-memory cache
         islandStructureCache.remove(deletedIslandId);
+
+        // Remove from active build queue so we don't paste into a deleted island
+        itemsToBuild.removeIf(record -> event.getIsland().inIslandSpace(record.location()));
 
         // Remove from in-memory pending structures
         for (List<StructureRecord> records : pending.values()) {

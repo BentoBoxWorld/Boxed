@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Sign;
+import org.bukkit.block.TrialSpawner;
 import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.ChestedHorse;
@@ -36,6 +37,7 @@ import org.bukkit.util.Vector;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintEntity;
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintTrialSpawner;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -173,6 +175,12 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         // Spawner type
         if (blockState instanceof CreatureSpawner spawner) {
             b.setCreatureSpawner(getSpawner(spawner));
+        }
+
+        // Trial spawner
+        if (blockState instanceof TrialSpawner trialSpawner) {
+            b.setTrialSpawner(new BlueprintTrialSpawner(trialSpawner.isOminous(),
+                    trialSpawner.isOminous() ? trialSpawner.getOminousConfiguration() : trialSpawner.getNormalConfiguration()));
         }
 
         // Banners

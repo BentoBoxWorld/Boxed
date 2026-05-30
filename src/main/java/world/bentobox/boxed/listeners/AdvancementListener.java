@@ -285,10 +285,11 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onFirstTime(IslandNewIslandEvent e) {
         if (addon.getSettings().isIgnoreAdvancements()) return;
-        User user = User.getInstance(e.getPlayerUUID());
-        if (user != null) {
-            clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
+        if (!addon.inWorld(e.getIsland().getWorld())) {
+            return;
         }
+        User user = User.getInstance(e.getPlayerUUID());
+        clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
     }
 
 

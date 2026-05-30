@@ -10,6 +10,8 @@ import org.bukkit.World;
 import org.bukkit.block.Banner;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.TrialSpawner;
+import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.LimitedRegion;
@@ -20,6 +22,7 @@ import org.bukkit.util.Vector;
 
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintTrialSpawner;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChestData;
@@ -98,6 +101,10 @@ public class BoxedBlockPopulator extends BlockPopulator {
         else if (bs instanceof CreatureSpawner spawner) {
             setSpawner(spawner, bpBlock.getCreatureSpawner());
         }
+        // Trial spawners
+        else if (bs instanceof TrialSpawner trialSpawner && bpBlock.getTrialSpawner() != null) {
+            setTrialSpawner(trialSpawner, bpBlock.getTrialSpawner());
+        }
         // Banners
         else if (bs instanceof Banner banner && bpBlock.getBannerPatterns() != null) {
             bpBlock.getBannerPatterns().removeIf(Objects::isNull);
@@ -127,6 +134,19 @@ public class BoxedBlockPopulator extends BlockPopulator {
         spawner.setRequiredPlayerRange(range);
         spawner.setSpawnRange(s.getSpawnRange());
         spawner.update(true, false);
+    }
+
+    /**
+     * Set the trial spawner configuration from the blueprint
+     *
+     * @param trialSpawner - trial spawner
+     * @param bts          - blueprint trial spawner
+     */
+    public void setTrialSpawner(TrialSpawner trialSpawner, BlueprintTrialSpawner bts) {
+        boolean ominous = bts.configTrialSpawner(trialSpawner.getNormalConfiguration());
+        bts.configTrialSpawner(trialSpawner.getOminousConfiguration());
+        trialSpawner.setOminous(ominous);
+        trialSpawner.update(true, false);
     }
 
 }

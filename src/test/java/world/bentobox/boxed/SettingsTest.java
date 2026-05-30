@@ -1,8 +1,8 @@
 package world.bentobox.boxed;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
@@ -12,33 +12,29 @@ import java.util.Set;
 
 import org.bukkit.Difficulty;
 import org.bukkit.entity.EntityType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-
-import world.bentobox.bentobox.BentoBox;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author tastybento
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ BentoBox.class })
-public class SettingsTest {
+public class SettingsTest extends CommonTestSetup {
 
-    @Mock
-    private BentoBox plugin;
     Settings s;
 
-    @Before
-    public void setUp() {
-        // Set up plugin
-        Whitebox.setInternalState(BentoBox.class, "instance", plugin);
+    @Override
+    @BeforeEach
+    public void setUp() throws Exception {
+        super.setUp();
         s = new Settings();
+    }
+
+    @Override
+    @AfterEach
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
     /**
      * Test method for {@link world.bentobox.boxed.Settings#setFriendlyName(java.lang.String)}.
