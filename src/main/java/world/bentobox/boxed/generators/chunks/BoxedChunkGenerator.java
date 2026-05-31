@@ -98,14 +98,14 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
                     bpe.setColor(c.getColor());
                 }
             }
-            if (entity instanceof Tameable) {
-                bpe.setTamed(((Tameable)entity).isTamed());
+            if (entity instanceof Tameable tameable) {
+                bpe.setTamed(tameable.isTamed());
             }
-            if (entity instanceof ChestedHorse) {
-                bpe.setChest(((ChestedHorse)entity).isCarryingChest());
+            if (entity instanceof ChestedHorse chestedHorse) {
+                bpe.setChest(chestedHorse.isCarryingChest());
             }
             // Only set if child. Most animals are adults
-            if (entity instanceof Ageable && !((Ageable)entity).isAdult()) {
+            if (entity instanceof Ageable ageable && !ageable.isAdult()) {
                 bpe.setAdult(false);
             }
             if (entity instanceof AbstractHorse horse) {
