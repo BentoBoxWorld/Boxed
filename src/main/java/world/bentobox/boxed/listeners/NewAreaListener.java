@@ -53,7 +53,6 @@ import world.bentobox.bentobox.api.events.island.IslandDeleteEvent;
 import world.bentobox.bentobox.api.events.island.IslandResettedEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
-import world.bentobox.bentobox.nms.AbstractMetaData;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;

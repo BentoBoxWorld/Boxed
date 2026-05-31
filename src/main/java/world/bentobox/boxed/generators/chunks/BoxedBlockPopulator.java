@@ -11,7 +11,6 @@ import org.bukkit.block.Banner;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.TrialSpawner;
-import org.bukkit.spawner.TrialSpawnerConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.LimitedRegion;
