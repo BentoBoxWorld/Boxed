@@ -196,7 +196,7 @@ class AdvancementListenerTest extends CommonTestSetup {
     @Test
     void testOnAdvancementMemberGrantsAndSchedulesTellTeam() {
         listener.onAdvancement(advancementDoneEvent());
-        verify(advManager).addAdvancement(eq(player), eq(advancement));
+        verify(advManager).addAdvancement(player, advancement);
         // tellTeam is scheduled one tick later
         verify(sch).runTask(eq(plugin), any(Runnable.class));
     }
