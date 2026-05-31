@@ -142,7 +142,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testAdvancementsManager() throws IOException {
+    public void testAdvancementsManager() {
         verify(addon).saveResource("advancements.yml", false);
         verify(addon, never()).logError(anyString());
     }
@@ -165,7 +165,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSaveIslandNotInCache() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    public void testSaveIslandNotInCache() {
         am.removeFromCache(island);
         am.saveIsland(island);
         verify(island, times(2)).getUniqueId(); // 2x
@@ -178,7 +178,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSaveIslandInCache() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    public void testSaveIslandInCache() {
         testGetIsland();
         am.saveIsland(island);
         verify(island, times(3)).getUniqueId(); // 3x
@@ -191,7 +191,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSaveNothingToSave() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    public void testSaveNothingToSave() {
         am.removeFromCache(island);
         am.save();
         verify(island).getUniqueId();
@@ -204,7 +204,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSave() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    public void testSave() {
         testGetIsland();
         am.save();
         verify(island).getUniqueId();

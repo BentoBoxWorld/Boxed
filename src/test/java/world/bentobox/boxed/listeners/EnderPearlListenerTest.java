@@ -348,7 +348,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlThrewToDifferentIsland() throws IOException {
+    public void testOnEnderPearlThrewToDifferentIsland() {
         when(im.getIslandAt(eq(to))).thenReturn(Optional.of(anotherIsland));
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -361,7 +361,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlThrewToNonIsland() throws IOException {
+    public void testOnEnderPearlThrewToNonIsland() {
         when(im.getIslandAt(eq(to))).thenReturn(Optional.empty());
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
