@@ -50,7 +50,7 @@ import world.bentobox.boxed.Settings;
 /**
  * @author tastybento
  */
-public class AdvancementListenerTest extends CommonTestSetup {
+class AdvancementListenerTest extends CommonTestSetup {
 
     @Mock
     private Boxed addon;
@@ -144,7 +144,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     // ---------- constructor ----------
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         assertNotNull(listener);
     }
 
@@ -158,28 +158,28 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnAdvancementNotSurvival() {
+    void testOnAdvancementNotSurvival() {
         when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
         listener.onAdvancement(advancementDoneEvent());
         verify(advManager, never()).addAdvancement(any(Player.class), any(Advancement.class));
     }
 
     @Test
-    public void testOnAdvancementIgnoreSetting() {
+    void testOnAdvancementIgnoreSetting() {
         settings.setIgnoreAdvancements(true);
         listener.onAdvancement(advancementDoneEvent());
         verify(advManager, never()).addAdvancement(any(Player.class), any(Advancement.class));
     }
 
     @Test
-    public void testOnAdvancementNotInWorld() {
+    void testOnAdvancementNotInWorld() {
         when(addon.inWorld(world)).thenReturn(false);
         listener.onAdvancement(advancementDoneEvent());
         verify(advManager, never()).addAdvancement(any(Player.class), any(Advancement.class));
     }
 
     @Test
-    public void testOnAdvancementVisitorDenied() {
+    void testOnAdvancementVisitorDenied() {
         settings.setDenyVisitorAdvancements(true);
         // player is NOT in the member set
         when(island.getMemberSet()).thenReturn(com.google.common.collect.ImmutableSet.of(UUID.randomUUID()));
@@ -194,7 +194,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnAdvancementMemberGrantsAndSchedulesTellTeam() {
+    void testOnAdvancementMemberGrantsAndSchedulesTellTeam() {
         listener.onAdvancement(advancementDoneEvent());
         verify(advManager).addAdvancement(eq(player), eq(advancement));
         // tellTeam is scheduled one tick later
@@ -202,7 +202,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnAdvancementZeroScoreDoesNotSchedule() {
+    void testOnAdvancementZeroScoreDoesNotSchedule() {
         when(advManager.addAdvancement(any(Player.class), any(Advancement.class))).thenReturn(0);
         listener.onAdvancement(advancementDoneEvent());
         verify(sch, never()).runTask(eq(plugin), any(Runnable.class));
@@ -218,25 +218,25 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnPortalNetherNoException() {
+    void testOnPortalNetherNoException() {
         // With null netherAdvancement fields, giveAdv short-circuits — we just assert no throw.
         listener.onPortal(portalEvent(TeleportCause.NETHER_PORTAL));
     }
 
     @Test
-    public void testOnPortalEndNoException() {
+    void testOnPortalEndNoException() {
         listener.onPortal(portalEvent(TeleportCause.END_PORTAL));
     }
 
     @Test
-    public void testOnPortalNotSurvival() {
+    void testOnPortalNotSurvival() {
         when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
         // should early return — no NPE even though we don't stub the cause
         listener.onPortal(portalEvent(TeleportCause.NETHER_PORTAL));
     }
 
     @Test
-    public void testOnPortalNotInWorld() {
+    void testOnPortalNotInWorld() {
         when(addon.inWorld(world)).thenReturn(false);
         listener.onPortal(portalEvent(TeleportCause.NETHER_PORTAL));
     }
@@ -244,21 +244,21 @@ public class AdvancementListenerTest extends CommonTestSetup {
     // ---------- syncAdvancements ----------
 
     @Test
-    public void testSyncAdvancementsIgnoreSetting() {
+    void testSyncAdvancementsIgnoreSetting() {
         settings.setIgnoreAdvancements(true);
         listener.syncAdvancements(user);
         verify(user, never()).sendMessage(anyString(), any());
     }
 
     @Test
-    public void testSyncAdvancementsNoIsland() {
+    void testSyncAdvancementsNoIsland() {
         when(im.getIsland(world, user)).thenReturn(null);
         listener.syncAdvancements(user);
         verify(user, never()).sendMessage(anyString(), any());
     }
 
     @Test
-    public void testSyncAdvancementsSizeIncreased() {
+    void testSyncAdvancementsSizeIncreased() {
         when(advManager.checkIslandSize(island)).thenReturn(3);
         // Return a non-null IslandAdvancements stub for grantAdv's iteration
         when(advManager.getIsland(island))
@@ -269,7 +269,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testSyncAdvancementsSizeDecreased() {
+    void testSyncAdvancementsSizeDecreased() {
         when(advManager.checkIslandSize(island)).thenReturn(-2);
         when(advManager.getIsland(island))
                 .thenReturn(mock(world.bentobox.boxed.objects.IslandAdvancements.class));
@@ -280,7 +280,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     // ---------- onPlayerJoin / onPlayerEnterWorld ----------
 
     @Test
-    public void testOnPlayerJoinNotInWorld() {
+    void testOnPlayerJoinNotInWorld() {
         when(addon.inWorld(world)).thenReturn(false);
         PlayerJoinEvent e = mock(PlayerJoinEvent.class);
         when(e.getPlayer()).thenReturn(player);
@@ -290,7 +290,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnPlayerEnterWorldDifferentWorld() {
+    void testOnPlayerEnterWorldDifferentWorld() {
         World otherWorld = mock(World.class);
         when(otherWorld.getName()).thenReturn("other_world");
         when(world.getName()).thenReturn("boxed_world");
@@ -306,7 +306,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     // ---------- onTeamJoinTime / onTeamLeaveTime / onFirstTime ----------
 
     @Test
-    public void testOnTeamJoinTimeSettingDisabled() {
+    void testOnTeamJoinTimeSettingDisabled() {
         // isOnJoinResetAdvancements defaults to false
         TeamJoinedEvent e = mock(TeamJoinedEvent.class);
         when(e.getPlayerUUID()).thenReturn(playerUuid);
@@ -315,7 +315,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnTeamLeaveTimeIgnoreAdvancements() {
+    void testOnTeamLeaveTimeIgnoreAdvancements() {
         settings.setIgnoreAdvancements(true);
         TeamLeaveEvent e = mock(TeamLeaveEvent.class);
         listener.onTeamLeaveTime(e);
@@ -324,7 +324,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnFirstTimeIgnoreAdvancements() {
+    void testOnFirstTimeIgnoreAdvancements() {
         settings.setIgnoreAdvancements(true);
         IslandNewIslandEvent e = mock(IslandNewIslandEvent.class);
         listener.onFirstTime(e);
@@ -332,7 +332,7 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testOnFirstTimeNotInBoxedWorld() {
+    void testOnFirstTimeNotInBoxedWorld() {
         IslandNewIslandEvent e = mock(IslandNewIslandEvent.class);
         when(e.getIsland()).thenReturn(island);
         when(island.getWorld()).thenReturn(world);
@@ -346,12 +346,12 @@ public class AdvancementListenerTest extends CommonTestSetup {
     // ---------- static helpers ----------
 
     @Test
-    public void testGetAdvancementNotFound() {
+    void testGetAdvancementNotFound() {
         assertNull(AdvancementListener.getAdvancement("minecraft:story/nonexistent"));
     }
 
     @Test
-    public void testGetAdvancementFound() {
+    void testGetAdvancementFound() {
         Advancement a = mock(Advancement.class);
         when(a.getKey()).thenReturn(NamespacedKey.fromString("minecraft:story/root"));
         mockedBukkit.when(Bukkit::advancementIterator).thenAnswer(inv -> List.of(a).iterator());
@@ -359,21 +359,21 @@ public class AdvancementListenerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testGiveAdvNullAdvancement() {
+    void testGiveAdvNullAdvancement() {
         // No throw, no interaction
         AdvancementListener.giveAdv(player, null);
         verify(player, never()).getAdvancementProgress(any(Advancement.class));
     }
 
     @Test
-    public void testGiveAdvNotDoneAwardsCriteria() {
+    void testGiveAdvNotDoneAwardsCriteria() {
         AdvancementListener.giveAdv(player, advancement);
         verify(progress).awardCriteria("crit1");
         verify(progress).awardCriteria("crit2");
     }
 
     @Test
-    public void testGiveAdvAlreadyDoneNoOp() {
+    void testGiveAdvAlreadyDoneNoOp() {
         when(progress.isDone()).thenReturn(true);
         AdvancementListener.giveAdv(player, advancement);
         verify(progress, never()).awardCriteria(anyString());

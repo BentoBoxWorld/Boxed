@@ -53,7 +53,7 @@ import world.bentobox.boxed.Settings;
  * @author tastybento
  *
  */
-public class EnderPearlListenerTest extends CommonTestSetup {
+class EnderPearlListenerTest extends CommonTestSetup {
 
     @Mock
     private Boxed addon;
@@ -158,7 +158,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#EnderPearlListener(world.bentobox.boxed.Boxed)}.
      */
     @Test
-    public void testEnderPearlListener() {
+    void testEnderPearlListener() {
         assertNotNull(epl);
     }
 
@@ -166,7 +166,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
     @Test
-    public void testOnPlayerTeleportNotAllowed() {
+    void testOnPlayerTeleportNotAllowed() {
         PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
         epl.onPlayerTeleport(e);
         assertTrue(e.isCancelled());
@@ -177,7 +177,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
     @Test
-    public void testOnPlayerTeleportNotSurvival() {
+    void testOnPlayerTeleportNotSurvival() {
         when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
         PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
         epl.onPlayerTeleport(e);
@@ -189,7 +189,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
     @Test
-    public void testOnPlayerTeleportNullTo() {
+    void testOnPlayerTeleportNullTo() {
         when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
         PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, null, TeleportCause.CHORUS_FRUIT);
         epl.onPlayerTeleport(e);
@@ -201,7 +201,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
     @Test
-    public void testOnPlayerTeleportToSpawn() {
+    void testOnPlayerTeleportToSpawn() {
         when(spawn.onIsland(any())).thenReturn(true);
         PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
         epl.onPlayerTeleport(e);
@@ -213,7 +213,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
     @Test
-    public void testOnPlayerTeleportNotInWorldAllowed() {
+    void testOnPlayerTeleportNotInWorldAllowed() {
         when(addon.inWorld(any(World.class))).thenReturn(false);
         when(addon.inWorld(any(Location.class))).thenReturn(false);
         PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
@@ -227,7 +227,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlLandNotEnderPearl() throws IOException {
+    void testOnEnderPearlLandNotEnderPearl() throws IOException {
         when(projectile.getType()).thenReturn(EntityType.ARROW);
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -241,7 +241,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlLandNullHitBlock() throws IOException {
+    void testOnEnderPearlLandNullHitBlock() throws IOException {
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, null, BlockFace.UP);
         epl.onEnderPearlLand(e);
         assertFalse(e.isCancelled());
@@ -254,7 +254,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlLandNotInWorld() throws IOException {
+    void testOnEnderPearlLandNotInWorld() throws IOException {
         when(addon.inWorld(to)).thenReturn(false);
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -268,7 +268,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlLandNotMovingBox() throws IOException {
+    void testOnEnderPearlLandNotMovingBox() throws IOException {
         Boxed.ALLOW_MOVE_BOX.setSetting(world, false);
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -282,7 +282,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlLandNonHuman() throws IOException {
+    void testOnEnderPearlLandNonHuman() throws IOException {
         Creeper creeper = mock(Creeper.class);
         when(projectile.getShooter()).thenReturn(creeper);
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
@@ -297,7 +297,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlLandUserHasNoIsland() throws IOException {
+    void testOnEnderPearlLandUserHasNoIsland() throws IOException {
         when(im.getIsland(world, user)).thenReturn(null);
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -311,7 +311,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlNotOnIslandWhenThrowing() throws IOException {
+    void testOnEnderPearlNotOnIslandWhenThrowing() throws IOException {
         when(im.getIslandAt(any())).thenReturn(Optional.empty());
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -332,7 +332,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlLandHuman() throws IOException {
+    void testOnEnderPearlLandHuman() throws IOException {
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
         assertFalse(e.isCancelled());
@@ -348,7 +348,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlThrewToDifferentIsland() {
+    void testOnEnderPearlThrewToDifferentIsland() {
         when(im.getIslandAt(eq(to))).thenReturn(Optional.of(anotherIsland));
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -361,7 +361,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlThrewToNonIsland() {
+    void testOnEnderPearlThrewToNonIsland() {
         when(im.getIslandAt(eq(to))).thenReturn(Optional.empty());
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);
@@ -374,7 +374,7 @@ public class EnderPearlListenerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testOnEnderPearlCannotSetProtectionCenter() throws IOException {
+    void testOnEnderPearlCannotSetProtectionCenter() throws IOException {
         doThrow(IOException.class).when(island).setProtectionCenter(to);
         ProjectileHitEvent e = new ProjectileHitEvent(projectile, null, hitBlock, BlockFace.UP);
         epl.onEnderPearlLand(e);

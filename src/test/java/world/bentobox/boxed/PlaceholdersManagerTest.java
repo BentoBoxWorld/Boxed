@@ -19,7 +19,7 @@ import world.bentobox.boxed.objects.IslandAdvancements;
 /**
  * @author tastybento
  */
-public class PlaceholdersManagerTest extends CommonTestSetup {
+class PlaceholdersManagerTest extends CommonTestSetup {
 
     @Mock
     private Boxed addon;
@@ -61,47 +61,47 @@ public class PlaceholdersManagerTest extends CommonTestSetup {
     }
 
     @Test
-    public void testGetCountNullUser() {
+    void testGetCountNullUser() {
         assertEquals("", phm.getCount(null));
     }
 
     @Test
-    public void testGetCountNullUuid() {
+    void testGetCountNullUuid() {
         when(user.getUniqueId()).thenReturn(null);
         assertEquals("", phm.getCount(user));
     }
 
     @Test
-    public void testGetCountNoIsland() {
+    void testGetCountNoIsland() {
         when(im.getIsland(world, user)).thenReturn(null);
         assertEquals("", phm.getCount(user));
     }
 
     @Test
-    public void testGetCountReturnsAdvancementCount() {
+    void testGetCountReturnsAdvancementCount() {
         when(im.getIsland(world, user)).thenReturn(island);
         assertEquals("3", phm.getCount(user));
     }
 
     @Test
-    public void testGetCountByLocationNullUser() {
+    void testGetCountByLocationNullUser() {
         assertEquals("", phm.getCountByLocation(null));
     }
 
     @Test
-    public void testGetCountByLocationNullLocation() {
+    void testGetCountByLocationNullLocation() {
         when(user.getLocation()).thenReturn(null);
         assertEquals("", phm.getCountByLocation(user));
     }
 
     @Test
-    public void testGetCountByLocationNoIslandAtLocation() {
+    void testGetCountByLocationNoIslandAtLocation() {
         when(im.getIslandAt(userLocation)).thenReturn(Optional.empty());
         assertEquals("", phm.getCountByLocation(user));
     }
 
     @Test
-    public void testGetCountByLocationReturnsAdvancementCount() {
+    void testGetCountByLocationReturnsAdvancementCount() {
         when(im.getIslandAt(userLocation)).thenReturn(Optional.of(island));
         assertEquals("3", phm.getCountByLocation(user));
     }
