@@ -367,7 +367,7 @@ public class NewAreaListener implements Listener {
         for (List<StructureRecord> records : pending.values()) {
             records.removeIf(record -> event.getIsland().inIslandSpace(record.location()));
         }
-        pending.values().removeIf(list -> list.isEmpty());
+        pending.values().removeIf(List::isEmpty);
 
         // Remove from pending structures in database
         Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = loadToDos().getReadyToBuild();

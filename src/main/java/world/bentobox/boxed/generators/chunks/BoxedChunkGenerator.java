@@ -73,7 +73,7 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         return this.setEntities(Arrays.stream(chunk.getEntities())
                 .filter(Objects::nonNull)
                 .filter(e -> !(e instanceof Player))
-                .filter(e -> e instanceof LivingEntity)
+                .filter(LivingEntity.class::isInstance)
                 .map(LivingEntity.class::cast)
                 .toList());
     }
