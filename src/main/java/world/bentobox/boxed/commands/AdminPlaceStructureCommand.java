@@ -246,8 +246,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             if (lastRecord.removedBlocks().containsKey(v)) {
                 return lastRecord.removedBlocks().get(v).createBlockState();
             }
-            BlockState airState = Material.AIR.createBlockData().createBlockState();
-            return airState;
+            return Material.AIR.createBlockData().createBlockState();
         };
 
         s.place(

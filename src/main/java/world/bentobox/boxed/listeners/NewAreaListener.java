@@ -235,7 +235,7 @@ public class NewAreaListener implements Listener {
         if (!(addon.inWorld(chunk.getWorld()))) {
             return;
         }
-        Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
+        Pair<Integer, Integer> chunkCoords = new Pair<>(chunk.getX(), chunk.getZ());
         if (pending.containsKey(chunkCoords)) {
             Iterator<StructureRecord> it = pending.get(chunkCoords).iterator();
             while (it.hasNext()) {
@@ -577,7 +577,7 @@ public class NewAreaListener implements Listener {
                 return;
             }
             BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
-            String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
+            String finalState = correctDirection(bjb.getFinalState(), structureRotation);
             BlockData bd = Bukkit.createBlockData(finalState);
             b.setBlockData(bd);
             if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {
