@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -131,9 +132,21 @@ class AdminPlaceStructureCommandTest extends CommonTestSetup {
     }
 
     @Test
+    void testValidNoMobs() {
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo", "~", "~", "~", "NONE", "LEFT_RIGHT", "NO_MOBS")));
+    }
+
+    @Test
+    void testUnknownTrailingArg() {
+        assertFalse(cmd.canExecute(user, "place", List.of("igloo", "~", "~", "~", "NONE", "LEFT_RIGHT", "MAYBE")));
+        verify(user).sendMessage(eq("boxed.commands.boxadmin.place.unknown"), anyString(), anyString());
+    }
+
+    @Test
     void testTooManyArgsRejected() {
-        // The size > 6 guard rejects a 7th argument (the NO_MOBS form is unreachable).
-        assertFalse(cmd.canExecute(user, "place", List.of("igloo", "~", "~", "~", "NONE", "LEFT_RIGHT", "NO_MOBS")));
+        // The size > 7 guard rejects an 8th argument.
+        assertFalse(cmd.canExecute(user, "place",
+                List.of("igloo", "~", "~", "~", "NONE", "LEFT_RIGHT", "NO_MOBS", "EXTRA")));
     }
 
     @Test

@@ -85,6 +85,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         // Initialize
         sr = StructureRotation.NONE;
         mirror = Mirror.NONE;
+        noMobs = false;
 
         // Check world
         if (!((Boxed) getAddon()).inWorld(getWorld())) {
@@ -100,7 +101,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
          *   6. place <structure> ~ ~ ~ ROTATION MIRROR
          *   7. place <structure> ~ ~ ~ ROTATION MIRROR NO_MOBS
          */
-        if (args.isEmpty() || args.size() == 2 || args.size() == 3 || args.size() > 6) {
+        if (args.isEmpty() || args.size() == 2 || args.size() == 3 || args.size() > 7) {
             this.showHelp(this, user);
             return false;
         }
