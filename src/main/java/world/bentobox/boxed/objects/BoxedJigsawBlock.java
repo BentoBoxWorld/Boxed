@@ -1,6 +1,7 @@
 package world.bentobox.boxed.objects;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * This replicates a jigsaw block.
@@ -10,7 +11,8 @@ import com.google.gson.annotations.Expose;
 public class BoxedJigsawBlock {
     // final_state:"minecraft:polished_blackstone_bricks",joint:"aligned",name:"minecraft:empty",pool:"minecraft:bastion/bridge/legs",target:"minecraft:leg_connector"
     @Expose
-    private String final_state;
+    @SerializedName("final_state")
+    private String finalState;
     @Expose
     private String joint;
     @Expose
@@ -20,10 +22,10 @@ public class BoxedJigsawBlock {
     @Expose
     private String target;
     /**
-     * @return the final_state
+     * @return the finalState
      */
-    public String getFinal_state() {
-        return final_state;
+    public String getFinalState() {
+        return finalState;
     }
     /**
      * @return the joint
@@ -51,7 +53,7 @@ public class BoxedJigsawBlock {
     }
     @Override
     public String toString() {
-        return "BoxedJigsawBlock [" + (final_state != null ? "final_state=" + final_state + ", " : "")
+        return "BoxedJigsawBlock [" + (finalState != null ? "finalState=" + finalState + ", " : "")
                 + (joint != null ? "joint=" + joint + ", " : "") + (name != null ? "name=" + name + ", " : "")
                 + (pool != null ? "pool=" + pool + ", " : "") + (target != null ? "target=" + target : "") + "]";
     }

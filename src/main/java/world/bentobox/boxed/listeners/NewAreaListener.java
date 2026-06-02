@@ -53,7 +53,6 @@ import world.bentobox.bentobox.api.events.island.IslandDeleteEvent;
 import world.bentobox.bentobox.api.events.island.IslandResettedEvent;
 import world.bentobox.bentobox.database.Database;
 import world.bentobox.bentobox.database.objects.Island;
-import world.bentobox.bentobox.nms.AbstractMetaData;
 import world.bentobox.bentobox.util.Pair;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
@@ -236,7 +235,7 @@ public class NewAreaListener implements Listener {
         if (!(addon.inWorld(chunk.getWorld()))) {
             return;
         }
-        Pair<Integer, Integer> chunkCoords = new Pair<Integer, Integer>(chunk.getX(), chunk.getZ());
+        Pair<Integer, Integer> chunkCoords = new Pair<>(chunk.getX(), chunk.getZ());
         if (pending.containsKey(chunkCoords)) {
             Iterator<StructureRecord> it = pending.get(chunkCoords).iterator();
             while (it.hasNext()) {
@@ -368,7 +367,7 @@ public class NewAreaListener implements Listener {
         for (List<StructureRecord> records : pending.values()) {
             records.removeIf(record -> event.getIsland().inIslandSpace(record.location()));
         }
-        pending.values().removeIf(list -> list.isEmpty());
+        pending.values().removeIf(List::isEmpty);
 
         // Remove from pending structures in database
         Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = loadToDos().getReadyToBuild();
@@ -578,7 +577,7 @@ public class NewAreaListener implements Listener {
                 return;
             }
             BoxedJigsawBlock bjb = gson.fromJson(data, BoxedJigsawBlock.class);
-            String finalState = correctDirection(bjb.getFinal_state(), structureRotation);
+            String finalState = correctDirection(bjb.getFinalState(), structureRotation);
             BlockData bd = Bukkit.createBlockData(finalState);
             b.setBlockData(bd);
             if (!bjb.getPool().equalsIgnoreCase("minecraft:empty") && pasteMobs) {

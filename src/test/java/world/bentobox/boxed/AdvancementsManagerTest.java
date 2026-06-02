@@ -42,7 +42,7 @@ import world.bentobox.boxed.objects.IslandAdvancements;
  * @author tastybento
  *
  */
-public class AdvancementsManagerTest extends CommonTestSetup {
+class AdvancementsManagerTest extends CommonTestSetup {
 
     @Mock
     private world.bentobox.bentobox.Settings pluginSettings;
@@ -129,7 +129,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws Exception
      */
     @Test
-    public void testAdvancementsManagerNoFile() throws Exception {
+    void testAdvancementsManagerNoFile() throws Exception {
         // Delete the advancements.yml file so the constructor logs an error. Do NOT tear
         // down the full mock infrastructure — we still need it for the second manager.
         deleteAll(dataFolder);
@@ -142,7 +142,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IOException
      */
     @Test
-    public void testAdvancementsManager() throws IOException {
+    void testAdvancementsManager() {
         verify(addon).saveResource("advancements.yml", false);
         verify(addon, never()).logError(anyString());
     }
@@ -151,7 +151,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#getIsland(world.bentobox.bentobox.database.objects.Island)}.
      */
     @Test
-    public void testGetIsland() {
+    void testGetIsland() {
         @NonNull
         IslandAdvancements adv = am.getIsland(island);
         assertEquals("uniqueId", adv.getUniqueId());
@@ -165,7 +165,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSaveIslandNotInCache() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    void testSaveIslandNotInCache() {
         am.removeFromCache(island);
         am.saveIsland(island);
         verify(island, times(2)).getUniqueId(); // 2x
@@ -178,7 +178,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSaveIslandInCache() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    void testSaveIslandInCache() {
         testGetIsland();
         am.saveIsland(island);
         verify(island, times(3)).getUniqueId(); // 3x
@@ -191,7 +191,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSaveNothingToSave() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    void testSaveNothingToSave() {
         am.removeFromCache(island);
         am.save();
         verify(island).getUniqueId();
@@ -204,7 +204,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * @throws IllegalAccessException
      */
     @Test
-    public void testSave() throws IllegalAccessException, InvocationTargetException, IntrospectionException {
+    void testSave() {
         testGetIsland();
         am.save();
         verify(island).getUniqueId();
@@ -214,7 +214,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#addAdvancement(world.bentobox.bentobox.database.objects.Island, java.lang.String)}.
      */
     @Test
-    public void testAddAdvancementIslandString() {
+    void testAddAdvancementIslandString() {
         assertTrue(am.addAdvancement(island, "advancement"));
         assertFalse(am.addAdvancement(island, "advancement")); // Second time should fail
     }
@@ -223,7 +223,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#removeAdvancement(world.bentobox.bentobox.database.objects.Island, java.lang.String)}.
      */
     @Test
-    public void testRemoveAdvancement() {
+    void testRemoveAdvancement() {
         assertTrue(am.addAdvancement(island, "advancement"));
         am.removeAdvancement(island, "advancement");
         assertTrue(am.addAdvancement(island, "advancement")); // Should work because it was removed
@@ -233,7 +233,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#hasAdvancement(world.bentobox.bentobox.database.objects.Island, java.lang.String)}.
      */
     @Test
-    public void testHasAdvancement() {
+    void testHasAdvancement() {
         assertFalse(am.hasAdvancement(island, "advancement"));
         am.addAdvancement(island, "advancement");
         assertTrue(am.hasAdvancement(island, "advancement"));
@@ -243,7 +243,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#checkIslandSize(world.bentobox.bentobox.database.objects.Island)}.
      */
     @Test
-    public void testCheckIslandSize() {
+    void testCheckIslandSize() {
         // Island protection size is set to 5, but after checking, the size is reduced by 4
         assertEquals(-4, am.checkIslandSize(island));
     }
@@ -252,7 +252,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#addAdvancement(org.bukkit.entity.Player, org.bukkit.advancement.Advancement)}.
      */
     @Test
-    public void testAddAdvancementPlayerAdvancementWrongWorld() {
+    void testAddAdvancementPlayerAdvancementWrongWorld() {
         when(addon.inWorld(world)).thenReturn(false);
         assertEquals(0, am.addAdvancement(player, advancement));
     }
@@ -261,7 +261,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#addAdvancement(org.bukkit.entity.Player, org.bukkit.advancement.Advancement)}.
      */
     @Test
-    public void testAddAdvancementPlayerAdvancement() {
+    void testAddAdvancementPlayerAdvancement() {
         assertEquals(9, am.addAdvancement(player, advancement));
         verify(island).setProtectionRange(14); // (9 + 5)
     }
@@ -271,7 +271,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * A null display means the advancement cannot be scored automatically.
      */
     @Test
-    public void testAddAdvancementPlayerAdvancementZeroScore() {
+    void testAddAdvancementPlayerAdvancementZeroScore() {
         when(advancement.getDisplay()).thenReturn(null);
         assertEquals(0, am.addAdvancement(player, advancement));
         verify(island, never()).setProtectionRange(org.mockito.ArgumentMatchers.anyInt());
@@ -281,7 +281,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#getScore(java.lang.String)}.
      */
     @Test
-    public void testGetScoreString() {
+    void testGetScoreString() {
         assertEquals(9, am.getScore("adventure/lightning_rod_with_villager_no_fire"));
     }
 
@@ -289,7 +289,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Test method for {@link world.bentobox.boxed.AdvancementsManager#getScore(org.bukkit.advancement.Advancement)}.
      */
     @Test
-    public void testGetScoreAdvancement() {
+    void testGetScoreAdvancement() {
         assertEquals(9, am.getScore(advancement));
     }
 
@@ -298,7 +298,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Root advancements fall back to settings.default-root-increase (0 in the shipped config).
      */
     @Test
-    public void testGetScoreAdvancementRoot() {
+    void testGetScoreAdvancementRoot() {
         when(advancement.getKey()).thenReturn(NamespacedKey.fromString("story/root"));
         assertEquals(0, am.getScore(advancement));
     }
@@ -308,7 +308,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Recipe advancements always score settings.unknown-recipe-increase (0 in the shipped config).
      */
     @Test
-    public void testGetScoreAdvancementRecipe() {
+    void testGetScoreAdvancementRecipe() {
         when(advancement.getKey()).thenReturn(NamespacedKey.fromString("recipes/brewing/blaze_powder"));
         assertEquals(0, am.getScore(advancement));
     }
@@ -318,7 +318,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * No island for this player means no expansion and a zero score.
      */
     @Test
-    public void testAddAdvancementPlayerAdvancementNullIsland() {
+    void testAddAdvancementPlayerAdvancementNullIsland() {
         when(im.getIsland(world, player.getUniqueId())).thenReturn(null);
         assertEquals(0, am.addAdvancement(player, advancement));
         verify(island, never()).setProtectionRange(org.mockito.ArgumentMatchers.anyInt());
@@ -329,7 +329,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Visitors (rank below MEMBER_RANK) cannot expand the island.
      */
     @Test
-    public void testAddAdvancementPlayerAdvancementVisitorRank() {
+    void testAddAdvancementPlayerAdvancementVisitorRank() {
         when(island.getRank(player.getUniqueId())).thenReturn(RanksManager.VISITOR_RANK);
         assertEquals(0, am.addAdvancement(player, advancement));
         verify(island, never()).setProtectionRange(org.mockito.ArgumentMatchers.anyInt());
@@ -340,7 +340,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * An advancement that's already been recorded on the island cannot grant a second expansion.
      */
     @Test
-    public void testAddAdvancementPlayerAdvancementAlreadyHas() {
+    void testAddAdvancementPlayerAdvancementAlreadyHas() {
         // Seed the island with the exact same namespaced key the manager will try to record.
         am.addAdvancement(island, advancement.getKey().toString());
         assertEquals(0, am.addAdvancement(player, advancement));
@@ -351,7 +351,7 @@ public class AdvancementsManagerTest extends CommonTestSetup {
      * Positive diff case: one scoring advancement grows a size-1 island to size 10.
      */
     @Test
-    public void testCheckIslandSizePositiveDiff() {
+    void testCheckIslandSizePositiveDiff() {
         when(island.getProtectionRange()).thenReturn(1);
         am.addAdvancement(island, "adventure/honey_block_slide");
         assertEquals(9, am.checkIslandSize(island));
