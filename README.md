@@ -4,7 +4,7 @@ A game mode where you are boxed into a tiny space that only expands by completin
 
 ## BentoBox Requirements
 
-* Requires BentoBox 1.23.0 or later (Snapshots can be downloaded here: [https://ci.bentobox.world](https://ci.bentobox.world))
+* Requires BentoBox 3.17.0 or later (Snapshots can be downloaded here: [https://ci.bentobox.world](https://ci.bentobox.world)). BentoBox 3.16.1+ is needed for native region-file cleanup of deleted boxes — see [Reclaiming Disk Space](#reclaiming-disk-space-deleted-island-chunks).
 * InvSwitcher - keeps advancements, inventory, etc. separate between worlds on a server.
 * Border - shows the box
 
