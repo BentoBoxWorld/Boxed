@@ -52,6 +52,8 @@ Each player will have a land of their own to explore up to the limit of the isla
 *World Seed*
 The world seed is used to generate the lands. It is recommended to keep this value. If you change it the land may be very different. Note that changing the seed mid-game requires a full reset of your databases and worlds.
 
+Want to use your own terrain or a custom-built map instead? See [Using a Custom Map as the Seed](#using-a-custom-map-as-the-seed).
+
 *Key Boxed-specific settings:*
 
 | Setting | Default | Description |
@@ -125,6 +127,82 @@ Admins can place structures in-game using the `/boxadmin place` command:
 To undo the last placed structure: `/boxadmin place undo`
 
 When a structure is placed via this command while standing in a player box, it is automatically saved to `structures.yml` and will be placed in all future boxes.
+
+
+## Using a Custom Map as the Seed
+
+Boxed does **not** have an "import map" button, but because of how it works you can still get your own custom terrain into player boxes. This section explains how.
+
+### How seeding actually works
+
+Boxed uses two worlds:
+
+1. A hidden **seed world** — `<worldname>/seed` (overworld) and `<worldname>/seed_nether` (nether). This is a normal world generated from the numeric world seed.
+2. The **game world** — `<worldname>` and `<worldname>_nether` — that players actually play in.
+
+On **every server start**, Boxed reads the chunks around the centre of the seed world and copies them into the game world's generator. Each player's box is then served a copy of that captured terrain.
+
+Two facts make custom maps possible:
+
+* The copy reads the seed world **from disk**, live, on every boot — so anything you change in the seed world flows into newly generated boxes.
+* The game world **copies the seed world's biomes as-is**. There is no biome remapping when a chunk is copied, so whatever biomes are in the seed world are what players get.
+
+Two limits to keep in mind:
+
+* The seed-world centre is fixed at **x = 0, z = 0** (y ≈ 64). Your custom content must be built around 0,0.
+* Only a square of radius **island distance** (the `world.island-distance` value, default 320 → a 640 × 640 area) around 0,0 is copied. Anything outside that is just the surrounding seas and is never used.
+* Once a game-world chunk has been generated and saved to disk, it is loaded from disk and is **no longer** taken from the seed world. So changing the seed world only affects boxes/areas that have **not yet been generated**. To push changes into already-explored areas you must regenerate those game-world chunks (see methods below).
+
+> **Always back up your worlds before trying any of this.** These are unsupported, manual techniques.
+
+### Method 1 — Match an existing world's seed (easiest)
+
+If you just want the same *terrain* as a world you already like, set Boxed's seed to that world's numeric seed.
+
+1. Find the seed of the world you like (`/seed` in that world).
+2. In `config.yml` set:
+   ```yaml
+   world:
+     generator:
+       seed: <that-number>
+   ```
+3. Optionally enable vanilla structures with `world.allow-structures: true`.
+4. Start with **fresh** Boxed worlds (the seed cannot be changed mid-game — delete the Boxed worlds and database, or set this up before first boot).
+
+Notes: this reproduces vanilla terrain for that seed. Boxed still applies its own biome overlay (`biomes.yml`) to the box area, and structures only appear if `world.allow-structures` is enabled. This does **not** let you import hand-built creations — for that use Method 2 or 3.
+
+### Method 2 — Edit the seed world by hand
+
+You can go into the seed world and build, paste, or remove whatever you like.
+
+1. Use a world-management plugin (e.g. Multiverse) to teleport into `<worldname>/seed`.
+2. Build or WorldEdit/paste your changes **around 0,0**, within the island-distance radius.
+3. Restart the server. On boot, Boxed re-copies the seed world, so your edits appear in any box that is generated **after** the restart.
+
+To apply your edits to boxes/areas that already exist, you must regenerate those game-world chunks while leaving the seed world untouched — for example by deleting the relevant region files in `<worldname>` / `<worldname>_nether`, or by letting [Regionerator](#using-regionerator) clean up unused chunks so they regenerate. The seed world is the source of truth; the game world is rebuilt from it.
+
+### Method 3 — Drop in your own world as the seed
+
+This replaces the generated seed world with a world you built or downloaded.
+
+1. Build or obtain a normal (vanilla) Minecraft world. Arrange the terrain you want **centred on 0,0**, covering at least the island-distance radius (default 320 blocks in every direction from 0,0).
+2. Stop the server.
+3. Copy your world's region files into Boxed's seed world folders, replacing what's there:
+   * Overworld: your `region/` → `<worldname>/seed/region/`
+   * Nether: your `DIM-1/region/` → `<worldname>/seed_nether/region/`
+4. Delete the game-world folders so they regenerate from your new seed world on next boot:
+   * `<worldname>` and `<worldname>_nether`
+   * Leave the seed worlds (`<worldname>/seed`, `<worldname>/seed_nether`) in place.
+5. Start the server. Boxed copies your imported chunks — terrain **and biomes** — into the freshly generated game world.
+
+Biomes: because the game world copies the seed world's biomes unchanged, your imported biomes carry over automatically. The `biomes.yml` overlay only affects chunks that Boxed *generates*; it does not touch the pre-existing chunks you dropped in, so your map's biomes are preserved as-is.
+
+### Tips and gotchas
+
+* The copy radius is `world.island-distance`. If you increase it, your custom content must cover the larger area.
+* Keep the seed worlds exempt from chunk-cleaning plugins (see [Using Regionerator](#using-regionerator)) or your custom seed terrain may be deleted and boxes will stop matching.
+* The first boot after importing is slow and RAM-hungry, just like a normal first start (see the warning near the top of this file).
+* All boxes share the same captured terrain, so every player gets the same custom map layout.
 
 
 ## Flags
