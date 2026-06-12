@@ -179,7 +179,7 @@ You can go into the seed world and build, paste, or remove whatever you like.
 2. Build or WorldEdit/paste your changes **around 0,0**, within the island-distance radius.
 3. Restart the server. On boot, Boxed re-copies the seed world, so your edits appear in any box that is generated **after** the restart.
 
-To apply your edits to boxes/areas that already exist, you must regenerate those game-world chunks while leaving the seed world untouched — for example by deleting the relevant region files in `<worldname>` / `<worldname>_nether`, or by letting [Regionerator](#using-regionerator) clean up unused chunks so they regenerate. The seed world is the source of truth; the game world is rebuilt from it.
+To apply your edits to boxes/areas that already exist, you must regenerate those game-world chunks while leaving the seed world untouched — for example by deleting the relevant region files in `<worldname>` / `<worldname>_nether`, or by resetting/deleting the affected islands so BentoBox reaps their region files (see [Reclaiming Disk Space](#reclaiming-disk-space-deleted-island-chunks)). When the chunks regenerate they are re-copied from the seed world, which is the source of truth.
 
 ### Method 3 — Drop in your own world as the seed
 
@@ -200,7 +200,7 @@ Biomes: because the game world copies the seed world's biomes unchanged, your im
 ### Tips and gotchas
 
 * The copy radius is `world.island-distance`. If you increase it, your custom content must cover the larger area.
-* Keep the seed worlds exempt from chunk-cleaning plugins (see [Using Regionerator](#using-regionerator)) or your custom seed terrain may be deleted and boxes will stop matching.
+* BentoBox's native region cleanup never touches the seed worlds, so your custom terrain is safe. If you run a third-party chunk-cleaner like Regionerator, exempt the seed worlds (see [Reclaiming Disk Space](#reclaiming-disk-space-deleted-island-chunks)) or your custom seed terrain may be deleted and boxes will stop matching.
 * The first boot after importing is slow and RAM-hungry, just like a normal first start (see the warning near the top of this file).
 * All boxes share the same captured terrain, so every player gets the same custom map layout.
 
@@ -241,27 +241,47 @@ To find out how to add custom advancements to your server, watch the tutorial vi
 Download the official [Boxed DataPack](https://github.com/BentoBoxWorld/BoxedDataPack) for extra custom advancements.
 
 
-## Using Regionerator
+## Reclaiming Disk Space (Deleted Island Chunks)
 
-*Note: This plugin is designed to delete unused regions of your world! Make sure you take backups if you use it! Use at your own risk!*
+**As of BentoBox 3.16.1, BentoBox reclaims disk space natively — you no longer need a third-party plugin for this.** (The region-file housekeeping sweep was added in 3.15.0; admin deletes were routed through it in 3.16.1.)
 
-[Regionerator](https://github.com/Jikoo/Regionerator) is a plugin that gradually deletes unused chunks to keep world sizes low. It supports BentoBox and respects box boundaries. It can be used to delete box chunks so that they can be regenerated. As Boxed uses seed worlds to copy from, these can appear to be unused by Regionerator and deleted, which means that startup becomes very slow. To avoid this, set the seed worlds as exempt from its deletions by adding these entries to the `worlds` section of the Regionerator config file:
+### How it works now
+
+When an island is deleted or reset, BentoBox does **not** wipe blocks immediately. Instead it *soft-deletes* the island: the owner is cleared, the box is locked, and the island is flagged `deletable` in the database. The actual world data is reclaimed later by deleting the `.mca` region files from disk — far cheaper than regenerating chunks block-by-block.
+
+A background **housekeeping sweep** does the reaping automatically. It is on by default:
+
+| Setting (BentoBox `config.yml`) | Default | Description |
+|---------|---------|-------------|
+| `island.deletion.housekeeping.deleted-sweep.enabled` | `true` | Reaps region files for islands BentoBox itself soft-deleted (e.g. `/box reset`, admin delete). Never touches active or unvisited islands. |
+| `island.deletion.housekeeping.deleted-sweep.interval-hours` | `24` | How often the deleted-island sweep runs. |
+| `island.deletion.housekeeping.age-sweep.enabled` | `false` | Opt-in: also reaps region files older than `min-age-days`, even if never reset. Use to reclaim abandoned boxes. |
+| `island.deletion.housekeeping.age-sweep.min-age-days` | `60` | Minimum age before the age-based sweep will reap a region. |
+
+A region is only reaped if **every** island overlapping it is deletable — a single active neighbour protects the whole region. To reap immediately instead of waiting for the next sweep, run:
+
+```
+/boxadmin purge deleted
+```
+
+### Your seed worlds are safe
+
+The sweep only scans gamemode island worlds and only the region files belonging to **deletable islands**. Boxed's seed worlds (`boxed_world/seed`, `boxed_world/seed_nether`) contain no islands, so they are never scanned and never reaped — your captured seed terrain is left intact. No exemption configuration is required.
+
+> The old advice to set `deletion.keep-previous-island-on-reset` no longer applies — that setting is ignored in current BentoBox; deletion is handled by the housekeeping sweep described above.
+
+### Regionerator (legacy / optional)
+
+You can still run [Regionerator](https://github.com/Jikoo/Regionerator) if you prefer, but it is no longer necessary for Boxed. If you do use it, exempt the seed worlds so it doesn't delete the terrain Boxed copies from (which would make startup very slow). Add these entries to the `worlds` section of the Regionerator config:
 
 ```yaml
 worlds:
-  boxed_world/seed_base:
-    days-till-flag-expires: -1
   boxed_world/seed:
+    days-till-flag-expires: -1
+  boxed_world/seed_nether:
     days-till-flag-expires: -1
   default:
     days-till-flag-expires: 0
-```
-
-To get the most out of Regionerator, change the BentoBox `config.yml` to *not* delete chunks when an island is removed. This leaves deletion up to Regionerator and it will clean up the chunks if the unused area is large enough. Set `keep-previous-island-on-reset: true`:
-
-```yaml
-deletion:
-    keep-previous-island-on-reset: true
 ```
 
 
