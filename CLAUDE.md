@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Boxed is a BentoBox GameModeAddon for Minecraft (Paper) where each player is confined to a small expandable box. Completing Minecraft advancements grows the box. Built against `bentobox` 3.13.0, Paper API 1.21.11, Java 21.
+Boxed is a BentoBox GameModeAddon for Minecraft (Paper) where each player is confined to a small expandable box. Completing Minecraft advancements grows the box. Built against `bentobox` 3.17.0, Paper API 1.21.11, Java 21.
 
 ## Build / Test
 
