@@ -1,6 +1,5 @@
 package world.bentobox.boxed.generators.chunks;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 

@@ -48,6 +48,7 @@ import world.bentobox.boxed.AdvancementsManager;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.CommonTestSetup;
 import world.bentobox.boxed.Settings;
+import world.bentobox.boxed.objects.IslandAdvancements;
 
 /**
  * @author tastybento
@@ -271,8 +272,8 @@ class AdvancementListenerTest extends CommonTestSetup {
     void testSyncAdvancementsSizeIncreased() {
         when(advManager.checkIslandSize(island)).thenReturn(3);
         // Return a non-null IslandAdvancements stub for grantAdv's iteration
-        when(advManager.getIsland(island))
-                .thenReturn(mock(world.bentobox.boxed.objects.IslandAdvancements.class));
+        IslandAdvancements islandAdvancements = mock(IslandAdvancements.class);
+        when(advManager.getIsland(island)).thenReturn(islandAdvancements);
         listener.syncAdvancements(user);
         verify(user).sendMessage(eq("boxed.size-changed"), anyString(), eq("3"));
         verify(player).playSound(eq(playerLocation), eq(Sound.ENTITY_PLAYER_LEVELUP), org.mockito.ArgumentMatchers.anyFloat(), org.mockito.ArgumentMatchers.anyFloat());
@@ -281,8 +282,8 @@ class AdvancementListenerTest extends CommonTestSetup {
     @Test
     void testSyncAdvancementsSizeDecreased() {
         when(advManager.checkIslandSize(island)).thenReturn(-2);
-        when(advManager.getIsland(island))
-                .thenReturn(mock(world.bentobox.boxed.objects.IslandAdvancements.class));
+        IslandAdvancements islandAdvancements = mock(IslandAdvancements.class);
+        when(advManager.getIsland(island)).thenReturn(islandAdvancements);
         listener.syncAdvancements(user);
         verify(user).sendMessage(eq("boxed.size-decreased"), anyString(), eq("2"));
     }

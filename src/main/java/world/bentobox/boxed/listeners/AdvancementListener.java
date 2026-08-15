@@ -121,6 +121,10 @@ public class AdvancementListener implements Listener {
      */
     private boolean isMemberAt(Player player) {
         Location loc = player.getLocation();
+        if (loc == null) {
+            // OfflinePlayer#getLocation() is nullable; an online player always has one
+            return false;
+        }
         return addon.getIslands().getIslandAt(loc).map(i -> i.getMemberSet().contains(player.getUniqueId()))
                 .orElse(false);
     }
