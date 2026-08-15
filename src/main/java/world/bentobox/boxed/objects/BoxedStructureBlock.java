@@ -12,8 +12,12 @@ import com.google.gson.annotations.Expose;
  *
  */
 public class BoxedStructureBlock {
-    //{author:"LadyAgnes",ignoreEntities:1b,integrity:1.0f,metadata:"drowned",mirror:"NONE",mode:"DATA",name:"",posX:0,posY:1,posZ:0,powered:0b,rotation:"NONE",seed:0L,showair:0b
-    //,showboundingbox:1b,sizeX:0,sizeY:0,sizeZ:0}
+    /*
+     * Example NBT payload this class is deserialized from:
+     * author "LadyAgnes", ignoreEntities 1b, integrity 1.0f, metadata "drowned", mirror "NONE", mode "DATA",
+     * name "", posX 0, posY 1, posZ 0, powered 0b, rotation "NONE", seed 0L, showair 0b, showboundingbox 1b,
+     * sizeX 0, sizeY 0, sizeZ 0
+     */
     @Expose
     private String author;
     @Expose

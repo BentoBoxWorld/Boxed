@@ -1777,6 +1777,7 @@ public class Settings implements WorldSettings {
     /**
      * @return the concurrentIslands
      */
+    @Override
     public int getConcurrentIslands() {
         if (concurrentIslands <= 0) {
             return BentoBox.getInstance().getSettings().getIslandNumber();
@@ -1794,6 +1795,7 @@ public class Settings implements WorldSettings {
     /**
      * @return the disallowTeamMemberIslands
      */
+    @Override
     public boolean isDisallowTeamMemberIslands() {
         return disallowTeamMemberIslands;
     }

@@ -10,6 +10,7 @@ import java.util.stream.StreamSupport;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
@@ -91,15 +92,16 @@ public class AdvancementListener implements Listener {
             return;
         }
         // Check if player is in the Boxed worlds
-        if (addon.inWorld(e.getPlayer().getWorld())) {
+        Player player = e.getPlayer();
+        if (addon.inWorld(player.getWorld())) {
             // Only allow members or higher to get advancements in a box
-            if (addon.getSettings().isDenyVisitorAdvancements() && !addon.getIslands().getIslandAt(e.getPlayer().getLocation()).map(i -> i.getMemberSet().contains(e.getPlayer().getUniqueId())).orElse(false)) {
+            if (addon.getSettings().isDenyVisitorAdvancements() && !isMemberAt(player)) {
                 // Remove advancement from player
                 e.getAdvancement().getCriteria().forEach(c ->
-                e.getPlayer().getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
-                User u = User.getInstance(e.getPlayer());
-                if (u != null && addon.getAdvManager().getScore(e.getAdvancement().getKey().getKey()) > 0) {
-                    u.notify("boxed.adv-disallowed", TextVariables.NAME, e.getPlayer().getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
+                player.getAdvancementProgress(e.getAdvancement()).revokeCriteria(c));
+                User u = User.getInstance(player);
+                if (addon.getAdvManager().getScore(e.getAdvancement().getKey().getKey()) > 0) {
+                    u.notify("boxed.adv-disallowed", TextVariables.NAME, player.getName(), TextVariables.DESCRIPTION, this.keyToString(u, e.getAdvancement().getKey()));
                 }
                 return;
             }
@@ -111,6 +113,20 @@ public class AdvancementListener implements Listener {
                 Bukkit.getScheduler().runTask(addon.getPlugin(), () -> tellTeam(user, e.getAdvancement().getKey(), score));
             }
         }
+    }
+
+    /**
+     * @param player player
+     * @return true if the player is a member (or higher) of the box they are standing in
+     */
+    private boolean isMemberAt(Player player) {
+        Location loc = player.getLocation();
+        if (loc == null) {
+            // OfflinePlayer#getLocation() is nullable; an online player always has one
+            return false;
+        }
+        return addon.getIslands().getIslandAt(loc).map(i -> i.getMemberSet().contains(player.getUniqueId()))
+                .orElse(false);
     }
 
     private void tellTeam(User user, NamespacedKey key, int score) {
@@ -253,7 +269,7 @@ public class AdvancementListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onTeamJoinTime(TeamJoinedEvent e) {
         User user = User.getInstance(e.getPlayerUUID());
-        if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnJoinResetAdvancements(), addon.getSettings().getOnJoinGrantAdvancements());
@@ -270,11 +286,10 @@ public class AdvancementListener implements Listener {
     public void onTeamLeaveTime(TeamLeaveEvent e) {
         if (addon.getSettings().isIgnoreAdvancements()) return;
         User user = User.getInstance(e.getPlayerUUID());
-        if (user != null && addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
+        if (addon.getSettings().isOnJoinResetAdvancements() && user.isOnline()
                 && addon.getOverWorld().equals(Util.getWorld(user.getWorld()))) {
             // Clear and set advancements
             clearAndSetAdv(user, addon.getSettings().isOnLeaveResetAdvancements(), addon.getSettings().getOnLeaveGrantAdvancements());
-
         }
     }
 

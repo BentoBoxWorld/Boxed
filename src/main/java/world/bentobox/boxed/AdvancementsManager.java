@@ -62,18 +62,6 @@ public class AdvancementsManager {
                 addon.logError("advancements.yml cannot be found! " + e.getLocalizedMessage());
             }
         }
-        /*
-        // DEBUG - lists all advancements to console
-        int scoreTotal = 0;
-        Iterator<Advancement> ad = Bukkit.getServer().advancementIterator();
-        while (ad.hasNext()) {
-            Advancement a = ad.next();
-            int score = getScore(a);
-                BentoBox.getInstance().logDebug("  'minecraft:" + a.getKey().getKey() + "': " + score);
-                scoreTotal += score;
-        }
-        BentoBox.getInstance().logDebug("Sum total = " + scoreTotal);
-         */
     }
 
     /**

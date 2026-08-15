@@ -1,7 +1,7 @@
 package world.bentobox.boxed.generators.biomes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.CommonTestSetup;
 import world.bentobox.boxed.Settings;
-import world.bentobox.boxed.WhiteBox;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
 
@@ -36,7 +35,7 @@ class CopyBiomeProviderTest extends CommonTestSetup {
     private Boxed addon;
 
     @BeforeEach
-    public void setUpProvider() {
+    void setUpProvider() {
         addon = mock(Boxed.class);
         Settings settings = mock(Settings.class);
         when(addon.getSettings()).thenReturn(settings);
@@ -48,8 +47,9 @@ class CopyBiomeProviderTest extends CommonTestSetup {
         worldInfo = mock(WorldInfo.class);
         when(worldInfo.getEnvironment()).thenReturn(Environment.NORMAL);
 
-        // 400 / 16 = 25 chunks half-width. repeatCalc needs size > 0.
-        WhiteBox.setInternalState(AbstractBoxedChunkGenerator.class, "size", 25);
+        // 400 / 16 = 25 chunks half-width.
+        when(chunkGen.repeatCalc(anyInt()))
+        .thenAnswer(inv -> AbstractBoxedChunkGenerator.repeatCalc(inv.getArgument(0), 25));
 
         gen = new BoxedBiomeGenerator(addon);
     }
@@ -78,7 +78,7 @@ class CopyBiomeProviderTest extends CommonTestSetup {
 
         assertEquals(Biome.OCEAN, gen.getBiome(worldInfo, 3, 64, 5));
         // The missing snapshot is logged as a warning
-        verify(plugin).logWarning(eq("Snapshot at 0 0 is not stored"));
+        verify(plugin).logWarning("Snapshot at 0 0 is not stored");
     }
 
     @Test

@@ -37,6 +37,8 @@ public class EnderPearlListener implements Listener {
     /**
      * @param addon addon
      */
+    private static final String NO_TELEPORT_OUTSIDE = "boxed.general.errors.no-teleport-outside";
+
     public EnderPearlListener(Boxed addon) {
         this.addon = addon;
     }
@@ -48,7 +50,7 @@ public class EnderPearlListener implements Listener {
             return; // Allow the teleport this one time
         }
         if (!addon.inWorld(e.getFrom()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
-                || (e.getTo() != null && !addon.inWorld(e.getTo()))
+                || !addon.inWorld(e.getTo())
                 || addon.getIslands().getSpawn(e.getFrom().getWorld()).map(spawn -> spawn.onIsland(e.getTo())).orElse(false)
                 ) {
             return;
@@ -56,16 +58,14 @@ public class EnderPearlListener implements Listener {
 
         User u = User.getInstance(e.getPlayer());
         // If the to-location is outside the box, cancel it
-        if (e.getTo() != null) {
-            addon.getIslands().getIslandAt(e.getTo()).ifPresent(i -> {
-                if (!i.onIsland(e.getTo())) {
-                    u.sendMessage("boxed.general.errors.no-teleport-outside");
-                    addon.logWarning(e.getPlayer().getName() + " tried to teleport outside of their box from "
-                            + e.getFrom() + " to " + e.getTo());
-                    e.setCancelled(true);
-                }
-            });
-        }
+        addon.getIslands().getIslandAt(e.getTo()).ifPresent(i -> {
+            if (!i.onIsland(e.getTo())) {
+                u.sendMessage(NO_TELEPORT_OUTSIDE);
+                addon.logWarning(e.getPlayer().getName() + " tried to teleport outside of their box from "
+                        + e.getFrom() + " to " + e.getTo());
+                e.setCancelled(true);
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -80,46 +80,50 @@ public class EnderPearlListener implements Listener {
         // Moving box is allowed
         Location l = e.getHitBlock().getRelative(BlockFace.UP).getLocation();
         World w = e.getHitBlock().getWorld();
-        if (e.getEntity() instanceof EnderPearl ep && ep.getShooter() instanceof Player player) {
-            User u = User.getInstance(player);
-            // Check if enderpearl is inside or outside the box
-            // Get user's box
-            Island is = addon.getIslands().getIsland(w, u);
-            if (is == null) {
-                return; // Nothing to do
-            }
-
-            // Get the box that the player is in
-            addon.getIslands().getIslandAt(u.getLocation()).ifPresent(fromIsland -> {
-                // Check that it is their box
-                if (!is.getUniqueId().equals(fromIsland.getUniqueId())) {
-                    return;
-                }
-                // Find where the pearl landed
-                addon.getIslands().getIslandAt(l).ifPresentOrElse(toIsland -> {
-                    if (fromIsland.getUniqueId().equals(toIsland.getUniqueId())) {
-                        if (!toIsland.onIsland(l)) {
-                            // Moving is allowed
-                            moveBox(u, fromIsland, l);
-                            Util.teleportAsync(player, l, TeleportCause.ENDER_PEARL);
-                        }
-                    } else {
-                        // Different box. This is never allowed. Cancel the throw
-                        e.setCancelled(true);
-                        u.sendMessage("boxed.general.errors.no-teleport-outside");
-                        addon.logWarning("Enderpearl: " + player.getName() + " tried to teleport between boxes from "
-                                + fromIsland.getCenter() + " to " + toIsland.getCenter());
-                    }
-                }, () -> {
-                    // No box. This is never allowed. Cancel the throw
-                    e.setCancelled(true);
-                    u.sendMessage("boxed.general.errors.no-teleport-outside");
-                    addon.logWarning("Enderpearl: " + player.getName() + " tried to teleport between boxes from "
-                            + fromIsland.getCenter() + " to some place outside");
-                });
-
-            });
+        if (!(e.getEntity() instanceof EnderPearl ep) || !(ep.getShooter() instanceof Player player)) {
+            return;
         }
+        User u = User.getInstance(player);
+        // Check if enderpearl is inside or outside the box
+        // Get user's box
+        Island is = addon.getIslands().getIsland(w, u);
+        if (is == null) {
+            return; // Nothing to do
+        }
+        // Get the box that the player is in and check that it is their box
+        addon.getIslands().getIslandAt(u.getLocation())
+        .filter(fromIsland -> is.getUniqueId().equals(fromIsland.getUniqueId()))
+        .ifPresent(fromIsland -> handlePearlLanding(e, u, fromIsland, l));
+    }
+
+    /**
+     * Handles an ender pearl thrown by a player from inside their own box.
+     * @param e projectile hit event
+     * @param u the thrower
+     * @param fromIsland the thrower's box
+     * @param l where the pearl landed
+     */
+    private void handlePearlLanding(ProjectileHitEvent e, User u, Island fromIsland, Location l) {
+        // Find where the pearl landed
+        addon.getIslands().getIslandAt(l).ifPresentOrElse(toIsland -> {
+            if (fromIsland.getUniqueId().equals(toIsland.getUniqueId())) {
+                if (!toIsland.onIsland(l)) {
+                    // Moving is allowed
+                    moveBox(u, fromIsland, l);
+                    Util.teleportAsync(u.getPlayer(), l, TeleportCause.ENDER_PEARL);
+                }
+            } else {
+                // Different box. This is never allowed. Cancel the throw
+                cancelThrow(e, u, fromIsland, toIsland.getCenter());
+            }
+        }, () -> cancelThrow(e, u, fromIsland, "some place outside")); // No box. This is never allowed. Cancel the throw
+    }
+
+    private void cancelThrow(ProjectileHitEvent e, User u, Island fromIsland, Object destination) {
+        e.setCancelled(true);
+        u.sendMessage(NO_TELEPORT_OUTSIDE);
+        addon.logWarning("Enderpearl: " + u.getName() + " tried to teleport between boxes from "
+                + fromIsland.getCenter() + " to " + destination);
     }
 
 

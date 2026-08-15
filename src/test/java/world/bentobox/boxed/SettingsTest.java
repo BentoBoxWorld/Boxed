@@ -26,7 +26,7 @@ class SettingsTest extends CommonTestSetup {
 
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         super.setUp();
         s = new Settings();
     }
