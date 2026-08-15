@@ -186,11 +186,7 @@ public class Boxed extends GameModeAddon {
         if (settings.isNetherGenerate()) {
             createNether(worldName);
         }
-        /*
-        // Make the end if it does not exist
-        if (settings.isEndGenerate()) {
-          //TODO
-         */
+        // The End is not supported yet
     }
 
     private void createNether(String worldName) {
@@ -399,10 +395,5 @@ public class Boxed extends GameModeAddon {
      */
     public AdvancementsManager getAdvManager() {
         return advManager;
-    }
-
-    @Override
-    public boolean isUsesNewChunkGeneration() {
-        return true;
     }
 }

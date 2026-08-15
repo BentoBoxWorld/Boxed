@@ -31,8 +31,6 @@ This is the core concept and touches almost everything:
 
 This is why first boot is extremely slow and RAM-hungry (see `README.md` warnings): the entire seed region is force-loaded up front. Any change to world generation, structure handling, or world naming must respect both worlds and the copy step in `Boxed.copyChunks()` / `createOverWorld()` / `createNether()`. The `generatorMaps` / `generatorMap` fields in `Boxed.java` route world names → generators for `getDefaultWorldGenerator` (used by Multiverse and similar world-management plugins) and for the hook in `allLoaded()` that calls `WorldManagementHook.registerWorld`.
 
-`isUsesNewChunkGeneration()` returns `true`, which tells BentoBox this addon uses the modern chunk-generation API.
-
 ### Advancements drive box size
 
 `AdvancementsManager` is the other key subsystem. Box growth is data-driven from `advancements.yml`: each advancement key maps to an integer "box growth" increment. `AdvancementListener` watches for player advancement events and asks the manager to update the island's protection-range. Per-island state lives in `objects/IslandAdvancements.java` (a BentoBox `DataObject` persisted via its database layer). `AdvancementsManager.save()` is called in `onDisable()` — any new cached state it holds should be flushed there too.

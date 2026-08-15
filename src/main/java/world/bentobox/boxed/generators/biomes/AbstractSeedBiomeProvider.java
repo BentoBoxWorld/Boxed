@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.bukkit.Registry;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.block.BlockFace;
@@ -21,6 +22,8 @@ import org.bukkit.generator.WorldInfo;
 import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.NonNull;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -30,6 +33,11 @@ import world.bentobox.boxed.Boxed;
  *
  */
 public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
+
+    /**
+     * Config marker for "no custom biome here, use the vanilla one"
+     */
+    private static final String CUSTOM_BIOME = "CUSTOM";
 
     private static final Map<Environment, String> ENV_MAP;
 
@@ -103,7 +111,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      */
     private enum MiddleBiome {
         X00(0, 0, Biome.SNOWY_PLAINS, Biome.ICE_SPIKES), X01(0, 1, Biome.PLAINS, Biome.PLAINS),
-        X02(0, 2, Biome.FLOWER_FOREST, Biome.SUNFLOWER_PLAINS), x03(0, 3, Biome.SAVANNA, Biome.SAVANNA),
+        X02(0, 2, Biome.FLOWER_FOREST, Biome.SUNFLOWER_PLAINS), X03(0, 3, Biome.SAVANNA, Biome.SAVANNA),
         X04(0, 4, Biome.DESERT, Biome.DESERT),
 
         X10(1, 0, Biome.SNOWY_PLAINS, Biome.SNOWY_PLAINS), X11(1, 1, Biome.PLAINS, Biome.PLAINS),
@@ -153,25 +161,25 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * Plateau biomes by temperature and humidity zones
      */
     private enum PlateauBiome {
-        X00(0, 0, Biome.SNOWY_PLAINS, Biome.ICE_SPIKES), x01(0, 1, Biome.MEADOW, Biome.CHERRY_GROVE),
-        X02(0, 2, Biome.MEADOW, Biome.CHERRY_GROVE), x03(0, 3, Biome.SAVANNA_PLATEAU, Biome.SAVANNA_PLATEAU),
+        X00(0, 0, Biome.SNOWY_PLAINS, Biome.ICE_SPIKES), X01(0, 1, Biome.MEADOW, Biome.CHERRY_GROVE),
+        X02(0, 2, Biome.MEADOW, Biome.CHERRY_GROVE), X03(0, 3, Biome.SAVANNA_PLATEAU, Biome.SAVANNA_PLATEAU),
         X04(0, 4, Biome.BADLANDS, Biome.ERODED_BADLANDS),
 
-        X10(1, 0, Biome.SNOWY_PLAINS, Biome.SNOWY_PLAINS), x11(1, 1, Biome.MEADOW, Biome.MEADOW),
-        X12(1, 2, Biome.MEADOW, Biome.CHERRY_GROVE), x13(1, 3, Biome.SAVANNA_PLATEAU, Biome.SAVANNA_PLATEAU),
+        X10(1, 0, Biome.SNOWY_PLAINS, Biome.SNOWY_PLAINS), X11(1, 1, Biome.MEADOW, Biome.MEADOW),
+        X12(1, 2, Biome.MEADOW, Biome.CHERRY_GROVE), X13(1, 3, Biome.SAVANNA_PLATEAU, Biome.SAVANNA_PLATEAU),
         X14(1, 4, Biome.BADLANDS, Biome.ERODED_BADLANDS),
 
-        X20(2, 0, Biome.SNOWY_PLAINS, Biome.SNOWY_TAIGA), x21(2, 1, Biome.FOREST, Biome.MEADOW),
-        X22(2, 2, Biome.MEADOW, Biome.BIRCH_FOREST), x23(2, 3, Biome.FOREST, Biome.FOREST),
+        X20(2, 0, Biome.SNOWY_PLAINS, Biome.SNOWY_TAIGA), X21(2, 1, Biome.FOREST, Biome.MEADOW),
+        X22(2, 2, Biome.MEADOW, Biome.BIRCH_FOREST), X23(2, 3, Biome.FOREST, Biome.FOREST),
         X24(2, 4, Biome.BADLANDS, Biome.BADLANDS),
 
-        X30(3, 0, Biome.SNOWY_TAIGA, Biome.SNOWY_TAIGA), x31(3, 1, Biome.TAIGA, Biome.MEADOW),
-        X32(3, 2, Biome.MEADOW, Biome.BIRCH_FOREST), x33(3, 3, Biome.FOREST, Biome.FOREST),
+        X30(3, 0, Biome.SNOWY_TAIGA, Biome.SNOWY_TAIGA), X31(3, 1, Biome.TAIGA, Biome.MEADOW),
+        X32(3, 2, Biome.MEADOW, Biome.BIRCH_FOREST), X33(3, 3, Biome.FOREST, Biome.FOREST),
         X34(3, 4, Biome.WOODED_BADLANDS, Biome.WOODED_BADLANDS),
 
         X40(4, 0, Biome.SNOWY_TAIGA, Biome.SNOWY_TAIGA),
         X41(4, 1, Biome.OLD_GROWTH_SPRUCE_TAIGA, Biome.OLD_GROWTH_PINE_TAIGA),
-        X42(4, 2, Biome.DARK_FOREST, Biome.DARK_FOREST), x43(4, 3, Biome.JUNGLE, Biome.JUNGLE),
+        X42(4, 2, Biome.DARK_FOREST, Biome.DARK_FOREST), X43(4, 3, Biome.JUNGLE, Biome.JUNGLE),
         X44(4, 4, Biome.WOODED_BADLANDS, Biome.WOODED_BADLANDS),;
 
         private int temp;
@@ -501,6 +509,113 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         };
     }
 
+    /*
+     * Shared building blocks for the erosion / ridge biome tables below.
+     * Temperature and humidity are levels 0-4, erosion is a level 0-6.
+     */
+
+    /**
+     * Erosion level 0 peaks: jagged/frozen peaks when cold, stony peaks when temperate, badlands when hot.
+     */
+    private static @NonNull Biome peaksBiome(int humidity, int temperature, double weirdness) {
+        if (temperature <= 2) {
+            return weirdness < 0 ? Biome.JAGGED_PEAKS : Biome.FROZEN_PEAKS;
+        }
+        if (temperature == 3) {
+            return Biome.STONY_PEAKS;
+        }
+        return BadlandBiome.getBiome(humidity, weirdness);
+    }
+
+    /**
+     * Snowy slopes when dry, grove when humid.
+     */
+    private static @NonNull Biome slopesOrGrove(int humidity) {
+        return humidity < 2 ? Biome.SNOWY_SLOPES : Biome.GROVE;
+    }
+
+    /**
+     * Middle biomes unless hot, in which case badlands.
+     */
+    private static @NonNull Biome middleOrBadlands(int humidity, int temperature, double weirdness) {
+        return temperature < 4 ? MiddleBiome.getBiome(humidity, temperature, weirdness)
+                : BadlandBiome.getBiome(humidity, weirdness);
+    }
+
+    /**
+     * Cold (temperature 0-2): slopes or grove, otherwise plateau biomes.
+     */
+    private static @NonNull Biome coldSlopesOrPlateau(int humidity, int temperature, double weirdness) {
+        return temperature < 3 ? slopesOrGrove(humidity) : PlateauBiome.getBiome(humidity, temperature, weirdness);
+    }
+
+    /**
+     * Frozen (temperature 0): slopes or grove, otherwise plateau biomes.
+     */
+    private static @NonNull Biome frozenSlopesOrPlateau(int humidity, int temperature, double weirdness) {
+        return temperature == 0 ? slopesOrGrove(humidity) : PlateauBiome.getBiome(humidity, temperature, weirdness);
+    }
+
+    /**
+     * Frozen (temperature 0): slopes or grove, otherwise middle biomes / badlands.
+     */
+    private static @NonNull Biome frozenSlopesOrMiddle(int humidity, int temperature, double weirdness) {
+        return temperature == 0 ? slopesOrGrove(humidity) : middleOrBadlands(humidity, temperature, weirdness);
+    }
+
+    /**
+     * Rivers: frozen when temperature is 0.
+     */
+    private static @NonNull Biome riverBiome(int temperature) {
+        return temperature == 0 ? Biome.FROZEN_RIVER : Biome.RIVER;
+    }
+
+    /**
+     * Swamps for temperate, mangrove swamps for hot. Only valid for temperature &gt; 0.
+     */
+    private static @NonNull Biome swampOrMangrove(int temperature) {
+        return temperature <= 2 ? Biome.SWAMP : Biome.MANGROVE_SWAMP;
+    }
+
+    /**
+     * High erosion fall-through: middle biomes when frozen, otherwise swamps.
+     */
+    private static @NonNull Biome swampBiome(int humidity, int temperature, double weirdness) {
+        return temperature == 0 ? MiddleBiome.getBiome(humidity, temperature, weirdness) : swampOrMangrove(temperature);
+    }
+
+    /**
+     * High erosion fall-through in valleys: frozen river when frozen, otherwise swamps.
+     */
+    private static @NonNull Biome valleySwampBiome(int temperature) {
+        return temperature == 0 ? Biome.FROZEN_RIVER : swampOrMangrove(temperature);
+    }
+
+    /**
+     * Whether erosion level 5 with positive weirdness and a hot temperature yields windswept savanna.
+     */
+    private static boolean isWindsweptSavanna(int temperature, double weirdness) {
+        return weirdness > 0 && temperature > 2;
+    }
+
+    /**
+     * Erosion level 5 special cases shared by most ridge types: negative weirdness with a cold temperature
+     * or high humidity gives shattered (or middle) biomes, positive weirdness with a hot temperature gives
+     * windswept savanna.
+     * @param shattered true to use shattered biomes for the negative-weirdness case, false to use middle biomes
+     * @return the special-case biome, or empty if the caller's default applies
+     */
+    private static Optional<Biome> erosionFiveBiome(int humidity, int temperature, double weirdness, boolean shattered) {
+        if (weirdness < 0 && (temperature <= 1 || humidity == 4)) {
+            return Optional.of(shattered ? ShatteredBiome.getBiome(humidity, temperature, weirdness)
+                    : MiddleBiome.getBiome(humidity, temperature, weirdness));
+        }
+        if (isWindsweptSavanna(temperature, weirdness)) {
+            return Optional.of(Biome.WINDSWEPT_SAVANNA);
+        }
+        return Optional.empty();
+    }
+
     private @NonNull Biome farInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
         return switch (Ridges.getRidge(convertToY(weirdness))) {
         case HIGH -> getFarInlandHighBiome(humidity, temperature, erosion, weirdness);
@@ -512,308 +627,86 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     }
 
     private @NonNull Biome getFarInlandValleysBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion >= 0 && erosion < 6) {
-            if (temperature > 0D) {
-                return Biome.RIVER;
-            } else {
-                return Biome.FROZEN_RIVER;
-            }
-        }
-        // e == 6
-        if (temperature == 0) {
-            return Biome.FROZEN_RIVER;
-        }
-        if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
+        return erosion < 6 ? riverBiome(temperature) : valleySwampBiome(temperature);
     }
 
-    private @NonNull Biome getValleysNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        return getFarInlandValleysBiome(humidity, temperature, erosion, weirdness);
-    }
-
+    /**
+     * Peaks biomes. Shared by far inland, near inland and coast.
+     */
     private @NonNull Biome getFarInlandPeaksBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature >= 0 && temperature <= 2) {
-                if (weirdness < 0) {
-                    return Biome.JAGGED_PEAKS;
-                } else {
-                    return Biome.FROZEN_PEAKS;
-                }
-            } else if (temperature == 3) {
-                return Biome.STONY_PEAKS;
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            } else if (temperature == 0 && humidity > 1) {
-                return Biome.GROVE;
-            } else if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion >= 2 && erosion <= 4) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Shattered biomes
-                return ShatteredBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        // middle biomes
-        return MiddleBiome.getBiome(humidity, temperature, weirdness);
+        return switch (erosion) {
+        case 0 -> peaksBiome(humidity, temperature, weirdness);
+        case 1 -> frozenSlopesOrMiddle(humidity, temperature, weirdness);
+        case 5 -> erosionFiveBiome(humidity, temperature, weirdness, true)
+                .orElseGet(() -> MiddleBiome.getBiome(humidity, temperature, weirdness));
+        default -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome getFarInlandMidBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature < 3 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature < 3 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature == 0 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 2) {
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 3) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1) || humidity == 4) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        if (temperature == 0) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        }
-        if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
+        return switch (erosion) {
+        case 0 -> coldSlopesOrPlateau(humidity, temperature, weirdness);
+        case 1 -> frozenSlopesOrPlateau(humidity, temperature, weirdness);
+        case 2 -> PlateauBiome.getBiome(humidity, temperature, weirdness);
+        case 3 -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        case 5 -> erosionFiveBiome(humidity, temperature, weirdness, false)
+                .orElseGet(() -> swampBiome(humidity, temperature, weirdness));
+        default -> swampBiome(humidity, temperature, weirdness);
+        };
     }
 
+    /**
+     * Low biomes. Shared by far inland and near inland.
+     */
     private @NonNull Biome getFarInlandLowBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion >= 0 && erosion < 2) {
-            if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion >= 2 && erosion < 5) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        if (temperature == 0) {
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
+        return switch (erosion) {
+        case 0, 1 -> middleOrBadlands(humidity, temperature, weirdness);
+        case 2, 3, 4 -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        case 5 -> erosionFiveBiome(humidity, temperature, weirdness, false)
+                .orElseGet(() -> swampBiome(humidity, temperature, weirdness));
+        default -> swampBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome getFarInlandHighBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature < 3 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature < 3 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature == 0 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            if (temperature > 0 && temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion == 2 || erosion == 3 || erosion == 4) {
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 4 || erosion == 6) {
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        }
-        return ShatteredBiome.getBiome(humidity, temperature, weirdness);
+        return switch (erosion) {
+        case 0 -> coldSlopesOrPlateau(humidity, temperature, weirdness);
+        case 1 -> frozenSlopesOrMiddle(humidity, temperature, weirdness);
+        case 2, 3, 4 -> PlateauBiome.getBiome(humidity, temperature, weirdness);
+        case 6 -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        default -> ShatteredBiome.getBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome nearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
         return switch (Ridges.getRidge(convertToY(weirdness))) {
         case HIGH -> getHighNearInlandBiome(humidity, temperature, erosion, weirdness);
-        case LOW -> getLowNearInlandBiome(humidity, temperature, erosion, weirdness);
+        case LOW -> getFarInlandLowBiome(humidity, temperature, erosion, weirdness);
         case MID -> getMidNearInlandBiome(humidity, temperature, erosion, weirdness);
-        case PEAKS -> getPeaksNearInlandBiome(humidity, temperature, erosion, weirdness);
-        default -> getValleysNearInlandBiome(humidity, temperature, erosion, weirdness);
+        case PEAKS -> getFarInlandPeaksBiome(humidity, temperature, erosion, weirdness);
+        default -> getFarInlandValleysBiome(humidity, temperature, erosion, weirdness);
         };
     }
 
-    private @NonNull Biome getPeaksNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature >= 0 && temperature <= 2) {
-                if (weirdness < 0) {
-                    return Biome.JAGGED_PEAKS;
-                } else {
-                    return Biome.FROZEN_PEAKS;
-                }
-            } else if (temperature == 3) {
-                return Biome.STONY_PEAKS;
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            } else if (temperature == 0 && humidity > 1) {
-                return Biome.GROVE;
-            } else if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion >= 2 && erosion <= 4) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Shattered biomes
-                return ShatteredBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        // middle biomes
-        return MiddleBiome.getBiome(humidity, temperature, weirdness);
-    }
-
     private @NonNull Biome getMidNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature < 3 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature < 3 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature == 0 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            if (temperature > 0 && temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion >= 2 && erosion <= 4) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1) || humidity == 4) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        if (temperature == 0) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        }
-        if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
-    }
-
-    private @NonNull Biome getLowNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion >= 0 && erosion < 2) {
-            if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion >= 2 && erosion < 5) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        if (temperature == 0) {
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
+        return switch (erosion) {
+        case 0 -> coldSlopesOrPlateau(humidity, temperature, weirdness);
+        case 1 -> frozenSlopesOrMiddle(humidity, temperature, weirdness);
+        case 2, 3, 4 -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        case 5 -> erosionFiveBiome(humidity, temperature, weirdness, false)
+                .orElseGet(() -> swampBiome(humidity, temperature, weirdness));
+        default -> swampBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome getHighNearInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature < 3 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature < 3 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature == 0 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            if (temperature > 0 && temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion >= 2 && erosion <= 4) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1) || humidity == 4) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        return MiddleBiome.getBiome(humidity, temperature, weirdness);
+        return switch (erosion) {
+        case 0 -> coldSlopesOrPlateau(humidity, temperature, weirdness);
+        case 1 -> frozenSlopesOrMiddle(humidity, temperature, weirdness);
+        case 5 -> erosionFiveBiome(humidity, temperature, weirdness, false)
+                .orElseGet(() -> MiddleBiome.getBiome(humidity, temperature, weirdness));
+        default -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome midInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
@@ -827,297 +720,105 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     }
 
     private @NonNull Biome getValleysMidInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0 || erosion == 1) {
-            if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            } else {
-                return BadlandBiome.getBiome(humidity, weirdness);
-            }
-        }
-        if (erosion >= 2 && erosion <= 5) {
-            if (temperature == 0) {
-                return Biome.FROZEN_RIVER;
-            } else {
-                return Biome.RIVER;
-            }
-        }
-        if (temperature == 0) {
-            return Biome.FROZEN_RIVER;
-        }
-        if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
+        return switch (erosion) {
+        case 0, 1 -> middleOrBadlands(humidity, temperature, weirdness);
+        case 2, 3, 4, 5 -> riverBiome(temperature);
+        default -> valleySwampBiome(temperature);
+        };
     }
 
     private @NonNull Biome getPeaksMidInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0 || erosion == 1) {
-            if (temperature >= 0 && temperature <= 2) {
-                if (weirdness < 0) {
-                    return Biome.JAGGED_PEAKS;
-                } else {
-                    return Biome.FROZEN_PEAKS;
-                }
-            } else if (temperature == 3) {
-                return Biome.STONY_PEAKS;
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-
-        } else if (erosion == 2) {
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 3) {
-            if (temperature < 4) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion == 4 || erosion == 6) {
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        }
-        return ShatteredBiome.getBiome(humidity, temperature, weirdness);
+        return switch (erosion) {
+        case 0, 1 -> peaksBiome(humidity, temperature, weirdness);
+        case 2 -> PlateauBiome.getBiome(humidity, temperature, weirdness);
+        case 3 -> middleOrBadlands(humidity, temperature, weirdness);
+        case 4, 6 -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        default -> ShatteredBiome.getBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome getMidMidInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature < 3 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature < 3 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature == 0 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            if (temperature > 0 && temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion == 2 || erosion == 3) {
-            if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion == 4) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            return ShatteredBiome.getBiome(humidity, temperature, weirdness);
-        }
-        if (temperature == 0) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        }
-        if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
+        return switch (erosion) {
+        case 0 -> coldSlopesOrPlateau(humidity, temperature, weirdness);
+        case 1 -> frozenSlopesOrMiddle(humidity, temperature, weirdness);
+        case 2, 3 -> middleOrBadlands(humidity, temperature, weirdness);
+        case 4 -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        case 5 -> ShatteredBiome.getBiome(humidity, temperature, weirdness);
+        default -> swampBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome getLowMidInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0 || erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            } else if (temperature == 0 && humidity > 1) {
-                return Biome.GROVE;
-            } else if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        }
-        if (erosion == 2 || erosion == 3) {
-            if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        }
-        // e == 6
-        if (temperature == 0) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        }
-        if (temperature == 1 || temperature == 2) {
-            return Biome.SWAMP;
-        }
-        return Biome.MANGROVE_SWAMP;
+        return switch (erosion) {
+        case 0, 1 -> frozenSlopesOrMiddle(humidity, temperature, weirdness);
+        case 2, 3 -> middleOrBadlands(humidity, temperature, weirdness);
+        default -> swampBiome(humidity, temperature, weirdness);
+        };
     }
 
     private @NonNull Biome getHighMidInlandBiome(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature < 3 && weirdness < 0D) {
-                return Biome.JAGGED_PEAKS;
-            }
-            if (temperature < 3 && weirdness > 0.0D) {
-                return Biome.FROZEN_PEAKS;
-            }
-            if (temperature == 3) {
-                return Biome.STONY_PEAKS;
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion == 1) {
-            if (temperature < 3 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            }
-            if (temperature < 3 && (humidity == 2 || humidity == 3 || humidity == 4)) {
-                return Biome.GROVE;
-            }
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 2) {
-            return PlateauBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 3) {
-            if (temperature < 4) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion == 4) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            return ShatteredBiome.getBiome(humidity, temperature, weirdness);
+        return switch (erosion) {
+        case 0 -> highMidInlandPeaks(humidity, temperature, weirdness);
+        case 1 -> coldSlopesOrPlateau(humidity, temperature, weirdness);
+        case 2 -> PlateauBiome.getBiome(humidity, temperature, weirdness);
+        case 3 -> middleOrBadlands(humidity, temperature, weirdness);
+        case 5 -> ShatteredBiome.getBiome(humidity, temperature, weirdness);
+        default -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        };
+    }
+
+    /**
+     * Erosion 0 peaks for the mid inland high ridge. Unlike {@link #peaksBiome} a weirdness of exactly zero
+     * with a cold temperature falls through to badlands.
+     */
+    private static @NonNull Biome highMidInlandPeaks(int humidity, int temperature, double weirdness) {
+        if (temperature < 3 && weirdness < 0D) {
+            return Biome.JAGGED_PEAKS;
         }
-        return MiddleBiome.getBiome(humidity, temperature, weirdness);
+        if (temperature < 3 && weirdness > 0D) {
+            return Biome.FROZEN_PEAKS;
+        }
+        if (temperature == 3) {
+            return Biome.STONY_PEAKS;
+        }
+        return BadlandBiome.getBiome(humidity, weirdness);
     }
 
     private @NonNull Biome coastBiome(int humidity, int temperature, int erosion, double weirdness) {
         return switch (Ridges.getRidge(convertToY(weirdness))) {
-        case HIGH -> getHighCoastBionme(humidity, temperature, erosion, weirdness);
-        case LOW -> getLowCoastBionme(humidity, temperature, erosion, weirdness);
-        case MID -> getMidCoastBionme(humidity, temperature, erosion, weirdness);
-        case PEAKS -> getPeaksCoastBionme(humidity, temperature, erosion, weirdness);
-        default -> getValleysCoastBionme(humidity, temperature, erosion, weirdness);
+        case HIGH -> getHighCoastBiome(humidity, temperature, erosion, weirdness);
+        case LOW -> getLowCoastBiome(humidity, temperature, erosion, weirdness);
+        case MID -> getMidCoastBiome(humidity, temperature, erosion, weirdness);
+        case PEAKS -> getFarInlandPeaksBiome(humidity, temperature, erosion, weirdness);
+        default -> riverBiome(temperature);
         };
     }
 
-    private @NonNull Biome getValleysCoastBionme(int humidity, int temperature, int erosion, double weirdness) {
-        if (temperature > 0D) {
-            return Biome.RIVER;
-        }
-        return Biome.FROZEN_RIVER;
+    private @NonNull Biome getMidCoastBiome(int humidity, int temperature, int erosion, double weirdness) {
+        return switch (erosion) {
+        case 1, 2 -> Biome.STONY_SHORE;
+        case 3 -> MiddleBiome.getBiome(humidity, temperature, weirdness);
+        case 4, 6 -> weirdness < 0 ? getBeachBiome(temperature) : MiddleBiome.getBiome(humidity, temperature, weirdness);
+        case 5 -> isWindsweptSavanna(temperature, weirdness) ? Biome.WINDSWEPT_SAVANNA : getBeachBiome(temperature);
+        default -> getBeachBiome(temperature);
+        };
     }
 
-    private @NonNull Biome getPeaksCoastBionme(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion == 0) {
-            if (temperature >= 0 && temperature <= 2) {
-                if (weirdness < 0) {
-                    return Biome.JAGGED_PEAKS;
-                } else {
-                    return Biome.FROZEN_PEAKS;
-                }
-            } else if (temperature == 3) {
-                return Biome.STONY_PEAKS;
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
+    private @NonNull Biome getLowCoastBiome(int humidity, int temperature, int erosion, double weirdness) {
+        return switch (erosion) {
+        case 0, 1, 2 -> Biome.STONY_SHORE;
+        case 5 -> isWindsweptSavanna(temperature, weirdness) ? Biome.WINDSWEPT_SAVANNA : getBeachBiome(temperature);
+        default -> getBeachBiome(temperature);
+        };
+    }
 
-        } else if (erosion == 1) {
-            if (temperature == 0 && (humidity == 0 || humidity == 1)) {
-                return Biome.SNOWY_SLOPES;
-            } else if (temperature == 0 && humidity > 1) {
-                return Biome.GROVE;
-            } else if (temperature < 4) {
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            return BadlandBiome.getBiome(humidity, weirdness);
-        } else if (erosion >= 2 && erosion <= 4) {
-            // Middle biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Shattered biomes
-                return ShatteredBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
+    private @NonNull Biome getHighCoastBiome(int humidity, int temperature, int erosion, double weirdness) {
+        if (erosion == 5) {
+            return erosionFiveBiome(humidity, temperature, weirdness, false)
+                    .orElseGet(() -> MiddleBiome.getBiome(humidity, temperature, weirdness));
         }
-        // middle biomes
         return MiddleBiome.getBiome(humidity, temperature, weirdness);
     }
-
-    private @NonNull Biome getMidCoastBionme(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion > 0 && erosion < 3) {
-            return Biome.STONY_SHORE;
-        } else if (erosion == 3) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 4) {
-            if (weirdness < 0) {
-                // Beach Biomes
-                return getBeachBiome(temperature);
-            } else {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-        } else if (erosion == 5) {
-            if (weirdness < 0) {
-                // Beach Biomes
-                return getBeachBiome(temperature);
-            }
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-
-        } else if (erosion == 6) {
-            if (weirdness < 0D) {
-                // Beach Biomes
-                return getBeachBiome(temperature);
-            } else {
-                // Middle Biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-        }
-        // Else Beach biomes
-        return getBeachBiome(temperature);
-    }
-
-    private @NonNull Biome getLowCoastBionme(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion >= 0 && erosion < 3) {
-            return Biome.STONY_SHORE;
-        } else if (erosion >= 3 && erosion < 5) {
-            // Beach Biomes
-            return getBeachBiome(temperature);
-        } else if (erosion == 5) {
-            if (weirdness < 0) {
-                // Beach Biomes
-                return getBeachBiome(temperature);
-            }
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        // Else Beach biomes
-        return getBeachBiome(temperature);
-    }
-
-    private @NonNull Biome getHighCoastBionme(int humidity, int temperature, int erosion, double weirdness) {
-        if (erosion >= 0 && erosion < 5) {
-            // Middle Biomes
-            return MiddleBiome.getBiome(humidity, temperature, weirdness);
-        } else if (erosion == 5) {
-            if (weirdness < 0 && (temperature == 0 || temperature == 1 || humidity == 4)) {
-                // Middle biomes
-                return MiddleBiome.getBiome(humidity, temperature, weirdness);
-            }
-            if (weirdness > 0 && (temperature > 2 && temperature <= 4 && humidity >= 0 && humidity <= 4)) {
-                return Biome.WINDSWEPT_SAVANNA;
-            }
-        }
-        // Middle Biomes
-        return MiddleBiome.getBiome(humidity, temperature, weirdness);
-    }
-
     Biome getBeachBiome(int t) {
         return switch (t) {
         case 0 -> Biome.SNOWY_BEACH;
@@ -1177,9 +878,8 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             result = getQuadrantBiome(BlockFace.SOUTH_EAST, d);
         }
 
-        if (result == null || result.equals(Biome.CUSTOM)) {
+        if (result == null) {
             result = getVanillaBiome(worldInfo, x, y, z, biomeParameterPoint, null);
-
         }
 
         // Caves
@@ -1194,7 +894,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     @Override
     public List<Biome> getBiomes(WorldInfo worldInfo) {
         // Return all of them for now!
-        return Registry.BIOME.stream().filter(b -> !b.equals(Biome.CUSTOM)).toList();
+        return RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME).stream().toList();
     }
 
     /**
@@ -1210,26 +910,37 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         }
         for (String ring : config.getStringList(sector)) {
             String[] split = ring.split(":");
-            if (split.length == 2) {
-                try {
-                    double d = Double.parseDouble(split[0]);
-                    Biome biome = Biome.valueOf(split[1].toUpperCase(Locale.ENGLISH));
-                    if (biome == null) {
-                        addon.logError(split[1].toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
-                        result.put(d, Biome.CUSTOM);
-                    } else {
-                        // A biome of null means that no alternative biome should be applied
-                        result.put(d, biome);
-                    }
-                } catch (Exception e) {
-                    addon.logError(sector + ": " + split[0]
-                            + " does not seem to be a double. For integers add a .0 to the end");
-                }
-            } else {
+            if (split.length != 2) {
                 addon.logError(ring + " must be in the format ratio:biome where ratio is a double.");
+                continue;
+            }
+            try {
+                double d = Double.parseDouble(split[0]);
+                // A biome of null means that no alternative biome should be applied
+                result.put(d, parseBiome(split[1]));
+            } catch (NumberFormatException e) {
+                addon.logError(sector + ": " + split[0]
+                        + " does not seem to be a double. For integers add a .0 to the end");
             }
         }
         return result;
+    }
+
+    /**
+     * Looks up a biome by config name.
+     * @param name biome name from the config, e.g. PLAINS or minecraft:plains. CUSTOM means "no biome".
+     * @return the biome, or null if the name is CUSTOM or the biome is unknown on this server
+     */
+    private Biome parseBiome(String name) {
+        if (CUSTOM_BIOME.equalsIgnoreCase(name)) {
+            return null;
+        }
+        NamespacedKey key = NamespacedKey.fromString(name.toLowerCase(Locale.ENGLISH));
+        Biome biome = key == null ? null : RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME).get(key);
+        if (biome == null) {
+            addon.logError(name.toUpperCase(Locale.ENGLISH) + " is an unknown biome on this server.");
+        }
+        return biome;
     }
 
 }

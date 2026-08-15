@@ -45,34 +45,38 @@ public class BoxedBlockPopulator extends BlockPopulator {
 
     @Override
     public void populate(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, LimitedRegion limitedRegion) {
-        Map<Pair<Integer, Integer>, ChunkStore> chunks = addon.getChunkGenerator(worldInfo.getEnvironment()).getChunks();
+        AbstractBoxedChunkGenerator gen = addon.getChunkGenerator(worldInfo.getEnvironment());
         World world = Bukkit.getWorld(worldInfo.getUID());
-        int xx = BoxedChunkGenerator.repeatCalc(chunkX);
-        int zz = BoxedChunkGenerator.repeatCalc(chunkZ);
-        Pair<Integer, Integer> coords = new Pair<>(xx, zz);
-        if (chunks.containsKey(coords)) {
-            ChunkStore data = chunks.get(coords);
-            // Paste entities
-            data.bpEnts().forEach(e -> {
-                Location l = getLoc(world, e.relativeLoc().clone(), chunkX, chunkZ);
-                if (limitedRegion.isInRegion(l)) {
-                    Entity ent = limitedRegion.spawnEntity(l, e.entity().getType());
-                    e.entity().configureEntity(ent);
-                }
-            });
-            // Fill chests
-            limitedRegion.getTileEntities().forEach(te -> {
-                int teX = BoxedChunkGenerator.repeatCalc(te.getX() >> 4);
-                int teZ = BoxedChunkGenerator.repeatCalc(te.getZ() >> 4);
-                if (teX == xx && teZ == zz) { 
-                    for (ChestData cd : data.chests()) {
-                        Location chestLoc = getLoc(world, cd.relativeLoc().clone(), chunkX, chunkZ);
-                        if (limitedRegion.isInRegion(chestLoc) && te.getLocation().equals(chestLoc)) {
-                            this.setBlockState(te, cd.chest());
-                        }
-                    }
-                }
-            });
+        int xx = gen.repeatCalc(chunkX);
+        int zz = gen.repeatCalc(chunkZ);
+        ChunkStore data = gen.getChunks().get(new Pair<>(xx, zz));
+        if (data == null) {
+            return;
+        }
+        // Paste entities
+        data.bpEnts().forEach(e -> {
+            Location l = getLoc(world, e.relativeLoc().clone(), chunkX, chunkZ);
+            if (limitedRegion.isInRegion(l)) {
+                Entity ent = limitedRegion.spawnEntity(l, e.entity().getType());
+                e.entity().configureEntity(ent);
+            }
+        });
+        // Fill chests
+        limitedRegion.getTileEntities().stream()
+        .filter(te -> gen.repeatCalc(te.getX() >> 4) == xx && gen.repeatCalc(te.getZ() >> 4) == zz)
+        .forEach(te -> fillChest(world, limitedRegion, data, te, chunkX, chunkZ));
+    }
+
+    /**
+     * Applies the stored chest data that matches this tile entity's location, if any
+     */
+    private void fillChest(World world, LimitedRegion limitedRegion, ChunkStore data, BlockState te, int chunkX,
+            int chunkZ) {
+        for (ChestData cd : data.chests()) {
+            Location chestLoc = getLoc(world, cd.relativeLoc().clone(), chunkX, chunkZ);
+            if (limitedRegion.isInRegion(chestLoc) && te.getLocation().equals(chestLoc)) {
+                this.setBlockState(te, cd.chest());
+            }
         }
     }
 

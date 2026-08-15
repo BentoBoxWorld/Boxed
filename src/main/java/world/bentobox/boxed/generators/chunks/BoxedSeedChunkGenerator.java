@@ -52,7 +52,6 @@ public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
     @Override
     public boolean shouldGenerateSurface() {
         return true;
-        // return this.addon.getSettings().isGenerateSurface();
     }
 
     @Override
@@ -73,18 +72,17 @@ public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
     @Override
     public boolean shouldGenerateStructures() {
         return true;
-        //return env.equals(Environment.NETHER); // We allow structures in the Nether
     }
 
     @Override
     protected List<EntityData> getEnts(Chunk chunk) {
         // These won't be stored
-        return null;
+        return List.of();
     }
 
     @Override
     protected List<ChestData> getTileEnts(Chunk chunk) {
         // These won't be stored
-        return null;
+        return List.of();
     }
 }

@@ -1,6 +1,5 @@
 package world.bentobox.boxed.generators.biomes;
 
-import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 
 import world.bentobox.boxed.Boxed;
@@ -13,7 +12,7 @@ import world.bentobox.boxed.Boxed;
 public class BoxedBiomeGenerator extends AbstractCopyBiomeProvider {
 
     public BoxedBiomeGenerator(Boxed boxed) {
-        super(boxed, Environment.NORMAL, Biome.OCEAN);
+        super(boxed, Biome.OCEAN);
     }
 
 }

@@ -38,7 +38,7 @@ class AdminPlaceStructureCommandTest extends CommonTestSetup {
     private User user;
 
     @BeforeEach
-    public void setUpCommand() {
+    void setUpCommand() {
         addon = mock(Boxed.class);
 
         CompositeCommand parent = mock(CompositeCommand.class);

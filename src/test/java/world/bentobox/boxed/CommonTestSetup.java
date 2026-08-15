@@ -21,22 +21,16 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Player.Spigot;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemFactory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockbukkit.mockbukkit.MockBukkit;
@@ -131,7 +125,7 @@ public abstract class CommonTestSetup {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         // Processes the @Mock annotations and initializes the field
         closeable = MockitoAnnotations.openMocks(this);
         server = MockBukkit.mock();
@@ -228,9 +222,7 @@ public abstract class CommonTestSetup {
 
         // Util
         mockedUtil.when(() -> Util.findFirstMatchingEnum(any(), any())).thenCallRealMethod();
-        // Util translate color codes (used in user translate methods)
-        //mockedUtil.when(() -> translateColorCodes(anyString())).thenAnswer((Answer<String>) invocation -> invocation.getArgument(0, String.class));
-        
+
         // Server & Scheduler
         mockedBukkit.when(Bukkit::getScheduler).thenReturn(sch);
 
@@ -287,32 +279,13 @@ public abstract class CommonTestSetup {
         List<TextComponent> capturedMessages = captor.getAllValues();
 
         // Count the number of occurrences of the expectedMessage in the captured messages
-        long actualOccurrences = capturedMessages.stream().map(component -> component.toLegacyText()) // Convert each TextComponent to plain text
-                .filter(messageText -> messageText.contains(expectedMessage)) // Check if the message contains the expected text
+        long actualOccurrences = capturedMessages.stream()
+                .filter(component -> component.toLegacyText().contains(expectedMessage)) // Check if the message contains the expected text
                 .count(); // Count how many times the expected message appears
 
         // Assert that the number of occurrences matches the expectedOccurrences
         assertEquals(expectedOccurrences,
                 actualOccurrences, "Expected message occurrence mismatch: " + expectedMessage);
-    }
-
-    /**
-     * Get the exploded event
-     * @param entity
-     * @param l
-     * @param list
-     * @return
-     */
-    public EntityExplodeEvent getExplodeEvent(Entity entity, Location l, List<Block> list) {
-        //return new EntityExplodeEvent(entity, l, list, 0, null);
-        return new EntityExplodeEvent(entity, l, list, 0, null);
-    }
-
-    public PlayerDeathEvent getPlayerDeathEvent(Player player, List<ItemStack> drops, int droppedExp, int newExp,
-            int newTotalExp, int newLevel, @Nullable String deathMessage) {
-        //Technically this null is not allowed, but it works right now
-        return new PlayerDeathEvent(player, null, drops, droppedExp, newExp,
-                newTotalExp, newLevel, deathMessage);
     }
 
 }
