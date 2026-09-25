@@ -264,16 +264,17 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     }
 
     /**
-     * Continental location by continentalness
+     * Continental location by continentalness. The outer bands are open-ended because
+     * vanilla noise can fall outside the nominal [-1.2, 1.0] range.
      */
-    private enum ContLoc {
-        MUSHROOM_FIELDS(-1.2, -1.05),
+    enum ContLoc {
+        MUSHROOM_FIELDS(Double.NEGATIVE_INFINITY, -1.05),
         DEEP_OCEAN(-1.05, -0.455),
         OCEAN(-0.455, -0.19),
         COAST(-0.19, -0.11),
         NEAR_INLAND(-0.11, 0.03),
         MID_INLAND(0.03, 0.3),
-        FAR_INLAND(0.3, 10.0);
+        FAR_INLAND(0.3, Double.POSITIVE_INFINITY);
 
         private double min;
         private double max;
@@ -283,7 +284,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             this.max = max;
         }
 
-        public static ContLoc getCont(double continentalness) {
+        static ContLoc getCont(double continentalness) {
             for (ContLoc c : ContLoc.values()) {
                 if (continentalness >= c.min && continentalness < c.max) {
                     return c;
