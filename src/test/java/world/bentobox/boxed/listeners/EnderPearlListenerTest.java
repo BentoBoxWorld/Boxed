@@ -81,7 +81,7 @@ class EnderPearlListenerTest extends CommonTestSetup {
 
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         super.setUp();
 
         // Local static mock for User (parent already wired User.setPlugin + one cached mockPlayer)
@@ -167,7 +167,7 @@ class EnderPearlListenerTest extends CommonTestSetup {
      */
     @Test
     void testOnPlayerTeleportNotAllowed() {
-        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
+        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CONSUMABLE_EFFECT);
         epl.onPlayerTeleport(e);
         assertTrue(e.isCancelled());
         verify(user).sendMessage("boxed.general.errors.no-teleport-outside");
@@ -179,7 +179,7 @@ class EnderPearlListenerTest extends CommonTestSetup {
     @Test
     void testOnPlayerTeleportNotSurvival() {
         when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
-        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
+        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CONSUMABLE_EFFECT);
         epl.onPlayerTeleport(e);
         assertFalse(e.isCancelled());
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
@@ -191,7 +191,7 @@ class EnderPearlListenerTest extends CommonTestSetup {
     @Test
     void testOnPlayerTeleportNullTo() {
         when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
-        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, null, TeleportCause.CHORUS_FRUIT);
+        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, null, TeleportCause.CONSUMABLE_EFFECT);
         epl.onPlayerTeleport(e);
         assertFalse(e.isCancelled());
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
@@ -203,7 +203,7 @@ class EnderPearlListenerTest extends CommonTestSetup {
     @Test
     void testOnPlayerTeleportToSpawn() {
         when(spawn.onIsland(any())).thenReturn(true);
-        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
+        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CONSUMABLE_EFFECT);
         epl.onPlayerTeleport(e);
         assertFalse(e.isCancelled());
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");
@@ -216,7 +216,7 @@ class EnderPearlListenerTest extends CommonTestSetup {
     void testOnPlayerTeleportNotInWorldAllowed() {
         when(addon.inWorld(any(World.class))).thenReturn(false);
         when(addon.inWorld(any(Location.class))).thenReturn(false);
-        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CHORUS_FRUIT);
+        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.CONSUMABLE_EFFECT);
         epl.onPlayerTeleport(e);
         assertFalse(e.isCancelled());
         verify(user, never()).sendMessage("boxed.general.errors.no-teleport-outside");

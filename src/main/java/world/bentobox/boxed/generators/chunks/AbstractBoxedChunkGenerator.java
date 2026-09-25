@@ -25,7 +25,10 @@ import world.bentobox.boxed.Boxed;
 public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
 
     protected final Boxed addon;
-    protected static int size;
+    /**
+     * Half-width of the repeating seed region in chunks
+     */
+    protected final int size;
     protected final Map<Pair<Integer, Integer>, ChunkStore> chunks = new HashMap<>();
     public record ChunkStore(ChunkSnapshot snapshot, List<EntityData> bpEnts, List<ChestData> chests, Map<Vector, Biome> chunkBiomes) {}
 
@@ -33,12 +36,9 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
 
     public record ChestData(Vector relativeLoc, BlueprintBlock chest) {}
 
-    //private final WorldRef wordRefNether;
-
-    public AbstractBoxedChunkGenerator(Boxed addon) {
+    protected AbstractBoxedChunkGenerator(Boxed addon) {
         this.addon = addon;
         size = (int)(addon.getSettings().getIslandDistance() / 16D); // Size is chunks
-
     }
 
     /**
@@ -51,7 +51,8 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
         Map<Vector, Biome> chunkBiomes = new HashMap<>();
         for (int xx = 0; xx < 16; xx+=4) {
             for (int zz = 0; zz < 16; zz+=4) {
-                for (int yy = chunk.getWorld().getMinHeight(); yy < chunk.getWorld().getMaxHeight(); yy+=4) { // TODO: every 4th yy?
+                // Biomes are stored per 4x4x4 cell, so only sample every 4th block
+                for (int yy = chunk.getWorld().getMinHeight(); yy < chunk.getWorld().getMaxHeight(); yy+=4) {
                     chunkBiomes.put(new Vector(xx, yy, zz), chunk.getBlock(xx, yy, zz).getBiome());
                 }
             }
@@ -82,20 +83,22 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
 
 
     /**
-     * Calculates the repeating value for a given size
+     * Maps a chunk coordinate back into this generator's repeating seed region
      * @param chunkCoord chunk coord
-     * @return mapped chunk coord
+     * @return mapped chunk coord in the range [-size, size)
      */
-    public static int repeatCalc(int chunkCoord) {
+    public int repeatCalc(int chunkCoord) {
+        return repeatCalc(chunkCoord, size);
+    }
+
+    /**
+     * Maps a chunk coordinate back into a repeating region of the given half-width
+     * @param chunkCoord chunk coord
+     * @param size half-width of the region in chunks
+     * @return mapped chunk coord in the range [-size, size)
+     */
+    public static int repeatCalc(int chunkCoord, int size) {
         return Math.floorMod(chunkCoord + size, size*2) - size;
-        /*
-        int xx;
-        if (chunkCoord > 0) {
-            xx = Math.floorMod(chunkCoord + size, size*2) - size;
-        } else {
-            xx = Math.floorMod(chunkCoord - size, -size*2) + size;
-        }
-        return xx;*/
     }
 
     /**
@@ -119,19 +122,16 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
     @Override
     public boolean shouldGenerateCaves() {
         return false;
-        //return this.addon.getSettings().isGenerateCaves();
     }
 
     @Override
     public boolean shouldGenerateDecorations() {
         return false;
-        //return this.addon.getSettings().isGenerateDecorations();
     }
 
     @Override
     public boolean shouldGenerateMobs() {
         return true;
-        //return this.addon.getSettings().isGenerateMobs();
     }
 
     @Override

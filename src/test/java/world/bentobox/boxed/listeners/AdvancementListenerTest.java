@@ -1,11 +1,13 @@
 package world.bentobox.boxed.listeners;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -46,6 +48,7 @@ import world.bentobox.boxed.AdvancementsManager;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.CommonTestSetup;
 import world.bentobox.boxed.Settings;
+import world.bentobox.boxed.objects.IslandAdvancements;
 
 /**
  * @author tastybento
@@ -76,7 +79,7 @@ class AdvancementListenerTest extends CommonTestSetup {
 
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         super.setUp();
 
         // Local User mock (parent only cached mockPlayer, not our local player mock)
@@ -219,26 +222,34 @@ class AdvancementListenerTest extends CommonTestSetup {
 
     @Test
     void testOnPortalNetherNoException() {
-        // With null netherAdvancement fields, giveAdv short-circuits — we just assert no throw.
-        listener.onPortal(portalEvent(TeleportCause.NETHER_PORTAL));
+        // With null netherAdvancement fields, giveAdv short-circuits — assert no throw and that the cause was inspected.
+        PlayerPortalEvent e = portalEvent(TeleportCause.NETHER_PORTAL);
+        assertDoesNotThrow(() -> listener.onPortal(e));
+        verify(e).getCause();
     }
 
     @Test
     void testOnPortalEndNoException() {
-        listener.onPortal(portalEvent(TeleportCause.END_PORTAL));
+        PlayerPortalEvent e = portalEvent(TeleportCause.END_PORTAL);
+        assertDoesNotThrow(() -> listener.onPortal(e));
+        verify(e, atLeastOnce()).getCause();
     }
 
     @Test
     void testOnPortalNotSurvival() {
         when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
-        // should early return — no NPE even though we don't stub the cause
-        listener.onPortal(portalEvent(TeleportCause.NETHER_PORTAL));
+        // should early return before the cause is ever inspected
+        PlayerPortalEvent e = portalEvent(TeleportCause.NETHER_PORTAL);
+        listener.onPortal(e);
+        verify(e, never()).getCause();
     }
 
     @Test
     void testOnPortalNotInWorld() {
         when(addon.inWorld(world)).thenReturn(false);
-        listener.onPortal(portalEvent(TeleportCause.NETHER_PORTAL));
+        PlayerPortalEvent e = portalEvent(TeleportCause.NETHER_PORTAL);
+        listener.onPortal(e);
+        verify(e, never()).getCause();
     }
 
     // ---------- syncAdvancements ----------
@@ -261,8 +272,8 @@ class AdvancementListenerTest extends CommonTestSetup {
     void testSyncAdvancementsSizeIncreased() {
         when(advManager.checkIslandSize(island)).thenReturn(3);
         // Return a non-null IslandAdvancements stub for grantAdv's iteration
-        when(advManager.getIsland(island))
-                .thenReturn(mock(world.bentobox.boxed.objects.IslandAdvancements.class));
+        IslandAdvancements islandAdvancements = mock(IslandAdvancements.class);
+        when(advManager.getIsland(island)).thenReturn(islandAdvancements);
         listener.syncAdvancements(user);
         verify(user).sendMessage(eq("boxed.size-changed"), anyString(), eq("3"));
         verify(player).playSound(eq(playerLocation), eq(Sound.ENTITY_PLAYER_LEVELUP), org.mockito.ArgumentMatchers.anyFloat(), org.mockito.ArgumentMatchers.anyFloat());
@@ -271,8 +282,8 @@ class AdvancementListenerTest extends CommonTestSetup {
     @Test
     void testSyncAdvancementsSizeDecreased() {
         when(advManager.checkIslandSize(island)).thenReturn(-2);
-        when(advManager.getIsland(island))
-                .thenReturn(mock(world.bentobox.boxed.objects.IslandAdvancements.class));
+        IslandAdvancements islandAdvancements = mock(IslandAdvancements.class);
+        when(advManager.getIsland(island)).thenReturn(islandAdvancements);
         listener.syncAdvancements(user);
         verify(user).sendMessage(eq("boxed.size-decreased"), anyString(), eq("2"));
     }

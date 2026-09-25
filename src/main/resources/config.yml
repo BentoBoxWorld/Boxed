@@ -474,12 +474,18 @@ area:
       require-confirmation: true
   deaths:
     # Whether deaths are counted or not.
+    # If false, BentoBox does not count deaths and the Level addon does not record deaths against areas.
     counted: true
     # Maximum number of deaths to count. The death count can be used by add-ons.
+    # Since Level 2.29.0 this also caps how many deaths each member can contribute to an area's death penalty.
     max: 10
-    # When a player joins a team, reset their death count
+    # When a player joins a team, reset their death count.
+    # This only affects BentoBox's own per-player death count, used by the %boxed_deaths% placeholder.
+    # Since Level 2.29.0, area levels use per-area death tracking and are not affected by this setting.
     team-join-reset: true
-    # Reset player death count when they start a new area or reset an area
+    # Reset player death count when they start a new area or reset an area.
+    # This only affects BentoBox's own per-player death count.
+    # Since Level 2.29.0 the Level addon clears an area's own death record automatically when it is reset or deleted.
     reset-on-new-area: true
 protection:
   # Geo restrict mobs.

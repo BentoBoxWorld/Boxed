@@ -16,7 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.structure.Mirror;
 import org.bukkit.block.structure.StructureRotation;
@@ -119,9 +118,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         }
 
         // Next come the coordinates - there must be at least 3 of them
-        if ((!args.get(1).equals("~") && !Util.isInteger(args.get(1), true))
-                || (!args.get(2).equals("~") && !Util.isInteger(args.get(2), true))
-                || (!args.get(3).equals("~") && !Util.isInteger(args.get(3), true))) {
+        if (!isCoordinate(args.get(1)) || !isCoordinate(args.get(2)) || !isCoordinate(args.get(3))) {
             user.sendMessage("boxed.commands.boxadmin.place.use-integers");
             return false;
         }
@@ -132,10 +129,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         }
 
         // Handle rotation
-        sr = Enums.getIfPresent(StructureRotation.class, args.get(4).toUpperCase(Locale.ENGLISH)).orNull();
-        if (sr == null) {
-            user.sendMessage("boxed.commands.boxadmin.place.unknown-rotation");
-            Arrays.stream(StructureRotation.values()).map(StructureRotation::name).forEach(user::sendRawMessage);
+        if (!parseRotation(user, args.get(4))) {
             return false;
         }
 
@@ -144,24 +138,67 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         }
 
         // Handle mirror
-        mirror = Enums.getIfPresent(Mirror.class, args.get(5).toUpperCase(Locale.ENGLISH)).orNull();
+        if (!parseMirror(user, args.get(5))) {
+            return false;
+        }
+
+        // Handle NO_MOBS
+        return args.size() < 7 || parseNoMobs(user, args.get(6));
+    }
+
+    /**
+     * @param arg command argument
+     * @return true if the argument is a relative marker (~) or an integer
+     */
+    private static boolean isCoordinate(String arg) {
+        return arg.equals("~") || Util.isInteger(arg, true);
+    }
+
+    /**
+     * Parses the rotation argument into {@link #sr}
+     * @param user user to inform if the rotation is unknown
+     * @param arg rotation argument
+     * @return true if the rotation is valid
+     */
+    private boolean parseRotation(User user, String arg) {
+        sr = Enums.getIfPresent(StructureRotation.class, arg.toUpperCase(Locale.ENGLISH)).orNull();
+        if (sr == null) {
+            user.sendMessage("boxed.commands.boxadmin.place.unknown-rotation");
+            Arrays.stream(StructureRotation.values()).map(StructureRotation::name).forEach(user::sendRawMessage);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Parses the mirror argument into {@link #mirror}
+     * @param user user to inform if the mirror is unknown
+     * @param arg mirror argument
+     * @return true if the mirror is valid
+     */
+    private boolean parseMirror(User user, String arg) {
+        mirror = Enums.getIfPresent(Mirror.class, arg.toUpperCase(Locale.ENGLISH)).orNull();
         if (mirror == null) {
             user.sendMessage("boxed.commands.boxadmin.place.unknown-mirror");
             Arrays.stream(Mirror.values()).map(Mirror::name).forEach(user::sendRawMessage);
             return false;
         }
-
-        if (args.size() == 7) {
-            if (args.get(6).toUpperCase(Locale.ENGLISH).equals("NO_MOBS")) {
-                noMobs = true;
-            } else {
-                user.sendMessage("boxed.commands.boxadmin.place.unknown", TextVariables.LABEL, args.get(6).toUpperCase(Locale.ENGLISH));
-                return false;
-            }
-        }
-
-        // Syntax is okay
         return true;
+    }
+
+    /**
+     * Parses the NO_MOBS argument into {@link #noMobs}
+     * @param user user to inform if the argument is unknown
+     * @param arg argument
+     * @return true if the argument is valid
+     */
+    private boolean parseNoMobs(User user, String arg) {
+        if (arg.toUpperCase(Locale.ENGLISH).equals("NO_MOBS")) {
+            noMobs = true;
+            return true;
+        }
+        user.sendMessage("boxed.commands.boxadmin.place.unknown", TextVariables.LABEL, arg.toUpperCase(Locale.ENGLISH));
+        return false;
     }
 
     @Override
@@ -193,7 +230,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
                 .removeJigsaw(new StructureRecord(tag.getKey(), tag.getKey(), spot, sr, mirror, noMobs, removedBlocks));
         placedStructures.push(new StructureRecord(tag.getKey(), tag.getKey(), spot, sr, mirror, noMobs, removedBlocks)); // Track the placement
 
-        boolean result = saveStructure(spot, tag, user, sr, mirror);
+        boolean result = saveStructure(spot, tag, sr, mirror);
         if (result) {
             user.sendMessage("boxed.commands.boxadmin.place.saved");
         } else {
@@ -202,7 +239,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         return result;
     }
 
-    private boolean saveStructure(Location spot, NamespacedKey tag, User user, StructureRotation sr2, Mirror mirror2) {
+    private boolean saveStructure(Location spot, NamespacedKey tag, StructureRotation sr2, Mirror mirror2) {
         return getAddon().getIslands().getIslandAt(spot).map(i -> {
             int xx = spot.getBlockX() - i.getCenter().getBlockX();
             int zz = spot.getBlockZ() - i.getCenter().getBlockZ();
@@ -218,8 +255,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
                 config.set(spot.getWorld().getEnvironment().name().toLowerCase(Locale.ENGLISH) + "." + xx + "," + spot.getBlockY() + "," + zz, v.toString());
                 config.save(structures);
             } catch (IOException | InvalidConfigurationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                getAddon().logError("Could not save structure to " + STRUCTURE_FILE + ": " + e.getMessage());
                 return false;
             }
             return true;
@@ -261,13 +297,13 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             Collections.emptyList() // No entity transformers
         );
         lastRecord.removedBlocks().clear();
-        removeStructure(lastRecord.location(), tag, user); // Remove from config
+        removeStructure(lastRecord.location()); // Remove from config
 
         user.sendMessage("boxed.commands.boxadmin.place.undo-success");
         return true;
     }
 
-    private boolean removeStructure(Location spot, NamespacedKey tag, User user) {
+    private boolean removeStructure(Location spot) {
         return getAddon().getIslands().getIslandAt(spot).map(i -> {
             int xx = spot.getBlockX() - i.getCenter().getBlockX();
             int zz = spot.getBlockZ() - i.getCenter().getBlockZ();
@@ -282,7 +318,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
                     return true;
                 }
             } catch (IOException | InvalidConfigurationException e) {
-                e.printStackTrace();
+                getAddon().logError("Could not remove structure from " + STRUCTURE_FILE + ": " + e.getMessage());
             }
             return false;
         }).orElse(false);

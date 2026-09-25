@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Boxed is a BentoBox GameModeAddon for Minecraft (Paper) where each player is confined to a small expandable box. Completing Minecraft advancements grows the box. Built against `bentobox` 3.13.0, Paper API 1.21.11, Java 21.
+Boxed is a BentoBox GameModeAddon for Minecraft (Paper) where each player is confined to a small expandable box. Completing Minecraft advancements grows the box. Built against `bentobox` 3.17.0, Paper API 1.21.11, Java 21.
 
 ## Build / Test
 
@@ -30,8 +30,6 @@ This is the core concept and touches almost everything:
 2. **Game world** (`<worldname>`, `<worldname>_nether`): the world players actually play in. It uses `BoxedChunkGenerator` (a subclass of `AbstractBoxedChunkGenerator`) which does **not** generate terrain from scratch — instead, `Boxed.copyChunks(...)` pre-reads every chunk inside `islandDistance` from the seed world during `createWorlds()` and stores them in the chunk generator. When the game world asks for a chunk, the generator serves back the pre-captured copy.
 
 This is why first boot is extremely slow and RAM-hungry (see `README.md` warnings): the entire seed region is force-loaded up front. Any change to world generation, structure handling, or world naming must respect both worlds and the copy step in `Boxed.copyChunks()` / `createOverWorld()` / `createNether()`. The `generatorMaps` / `generatorMap` fields in `Boxed.java` route world names → generators for `getDefaultWorldGenerator` (used by Multiverse and similar world-management plugins) and for the hook in `allLoaded()` that calls `WorldManagementHook.registerWorld`.
-
-`isUsesNewChunkGeneration()` returns `true`, which tells BentoBox this addon uses the modern chunk-generation API.
 
 ### Advancements drive box size
 

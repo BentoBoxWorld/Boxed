@@ -61,11 +61,11 @@ class AdvancementsManagerTest extends CommonTestSetup {
     private AbstractDatabaseHandler<Object> h;
 
     @SuppressWarnings("unchecked")
-    @Override
+    /**
+     * Runs after {@link CommonTestSetup#setUp()} (JUnit runs superclass @BeforeEach methods first)
+     */
     @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-
+    void setUpManager() throws Exception {
         // Database static mock (local — CommonTestSetup does not handle this one)
         h = mock(AbstractDatabaseHandler.class);
         mockedDatabaseSetup = Mockito.mockStatic(DatabaseSetup.class);

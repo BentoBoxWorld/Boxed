@@ -33,12 +33,11 @@ public class PlaceholdersManager {
      * @return string of advancement count
      */
     public String getCountByLocation(User user) {
-        if (user != null && user.getUniqueId() != null && user.getLocation() != null) {
-            return addon.getIslands().getIslandAt(user.getLocation())
-                    .map(i -> String.valueOf(addon.getAdvManager().getIsland(i).getAdvancements().size())).orElse("");
-        } else {
+        if (user == null || user.getUniqueId() == null) {
             return "";
         }
+        return addon.getIslands().getIslandAt(user.getLocation())
+                .map(i -> String.valueOf(addon.getAdvManager().getIsland(i).getAdvancements().size())).orElse("");
     }
 
 

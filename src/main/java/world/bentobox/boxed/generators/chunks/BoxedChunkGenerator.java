@@ -87,44 +87,59 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
     private List<EntityData> setEntities(Collection<LivingEntity> entities) {
         List<EntityData> bpEnts = new ArrayList<>();
         for (LivingEntity entity: entities) {
-            BlueprintEntity bpe = new BlueprintEntity();
-            bpe.setType(entity.getType());
-            bpe.setCustomName(entity.getCustomName());
-            if (entity instanceof Villager villager) {
-                setVillager(villager, bpe);
-            }
-            if (entity instanceof Colorable c) {
-                if (c.getColor() != null) {
-                    bpe.setColor(c.getColor());
-                }
-            }
-            if (entity instanceof Tameable tameable) {
-                bpe.setTamed(tameable.isTamed());
-            }
-            if (entity instanceof ChestedHorse chestedHorse) {
-                bpe.setChest(chestedHorse.isCarryingChest());
-            }
-            // Only set if child. Most animals are adults
-            if (entity instanceof Ageable ageable && !ageable.isAdult()) {
-                bpe.setAdult(false);
-            }
-            if (entity instanceof AbstractHorse horse) {
-                bpe.setDomestication(horse.getDomestication());
-                bpe.setInventory(new HashMap<>());
-                for (int i = 0; i < horse.getInventory().getSize(); i++) {
-                    ItemStack item = horse.getInventory().getItem(i);
-                    if (item != null) {
-                        bpe.getInventory().put(i, item);
-                    }
-                }
-            }
-
-            if (entity instanceof Horse horse) {
-                bpe.setStyle(horse.getStyle());
-            }
-            bpEnts.add(new EntityData(getLocInChunk(entity.getLocation()), bpe));
+            bpEnts.add(new EntityData(getLocInChunk(entity.getLocation()), toBlueprintEntity(entity)));
         }
         return bpEnts;
+    }
+
+    /**
+     * Captures the entity's state as a blueprint entity
+     * @param entity living entity
+     * @return blueprint entity
+     */
+    private BlueprintEntity toBlueprintEntity(LivingEntity entity) {
+        BlueprintEntity bpe = new BlueprintEntity();
+        bpe.setType(entity.getType());
+        bpe.setCustomName(entity.getCustomName());
+        if (entity instanceof Villager villager) {
+            setVillager(villager, bpe);
+        }
+        if (entity instanceof Colorable c && c.getColor() != null) {
+            bpe.setColor(c.getColor());
+        }
+        if (entity instanceof Tameable tameable) {
+            bpe.setTamed(tameable.isTamed());
+        }
+        if (entity instanceof ChestedHorse chestedHorse) {
+            bpe.setChest(chestedHorse.isCarryingChest());
+        }
+        // Only set if child. Most animals are adults
+        if (entity instanceof Ageable ageable && !ageable.isAdult()) {
+            bpe.setAdult(false);
+        }
+        if (entity instanceof AbstractHorse horse) {
+            setHorse(horse, bpe);
+        }
+        if (entity instanceof Horse horse) {
+            bpe.setStyle(horse.getStyle());
+        }
+        return bpe;
+    }
+
+    /**
+     * Set the horse domestication and inventory
+     * @param horse - horse
+     * @param bpe - Blueprint Entity
+     */
+    private void setHorse(AbstractHorse horse, BlueprintEntity bpe) {
+        bpe.setDomestication(horse.getDomestication());
+        bpe.setInventory(new HashMap<>());
+        for (int i = 0; i < horse.getInventory().getSize(); i++) {
+            ItemStack item = horse.getInventory().getItem(i);
+            if (item != null) {
+                bpe.getInventory().put(i, item);
+            }
+        }
     }
 
     // Get the location in the chunk
@@ -212,8 +227,6 @@ public class BoxedChunkGenerator extends AbstractBoxedChunkGenerator {
         ChunkStore chunk = this.getChunk(xx,zz);
         if (chunk == null) {
             // This should never be needed because islands should abut each other
-            //cd.setRegion(0, minY, 0, 16, 0, 16, Material.WATER);
-            //BentoBox.getInstance().logError("No chunks found for " + xx + " " + zz);
             return;
         }
         // Copy the chunk
