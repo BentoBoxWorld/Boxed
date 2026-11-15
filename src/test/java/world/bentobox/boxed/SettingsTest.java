@@ -401,4 +401,23 @@ class SettingsTest extends CommonTestSetup {
         assertEquals("admin", s.getAdminCommandAliases());
     }
 
+    /**
+     * Test method for {@link world.bentobox.boxed.Settings#setStructureSettings(java.util.Map)}.
+     */
+    @Test
+    void testSetStructureSettings() {
+        Map<String, Boolean> structureSettings = Collections.emptyMap();
+        s.setStructureSettings(structureSettings);
+        assertEquals(structureSettings, s.getStructureSettings());
+    }
+
+    /**
+     * Test method for {@link world.bentobox.boxed.Settings#setTeamsDisabled(boolean)}.
+     */
+    @Test
+    void testSetTeamsDisabled() {
+        s.setTeamsDisabled(true);
+        assertTrue(s.isTeamsDisabled());
+    }
+
 }

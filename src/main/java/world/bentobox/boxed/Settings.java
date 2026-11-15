@@ -218,9 +218,31 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.falling-banned-commands")
     private List<String> fallingBannedCommands = new ArrayList<>();
 
+    @ConfigComment("Per-world override for vanilla structure generation and structure searches")
+    @ConfigComment("(/locate, Eyes of Ender, explorer/treasure maps, dolphins, cartographer trades).")
+    @ConfigComment("Boxed generates vanilla worlds with structures, so this allows per-structure control.")
+    @ConfigComment("Key is the vanilla structure id (e.g. trial_chambers, ancient-city), value is:")
+    @ConfigComment("  false - disable the structure in Boxed worlds")
+    @ConfigComment("  true  - force it on even if BentoBox's global world.disabled-structures disables it")
+    @ConfigComment("Structures not listed inherit BentoBox's global world.disabled-structures setting.")
+    @ConfigComment("Example:")
+    @ConfigComment("  structure-settings:")
+    @ConfigComment("    monument: false")
+    @ConfigComment("    trial_chambers: false")
+    @ConfigComment("Requires BentoBox 3.19.1 or later.")
+    @ConfigEntry(path = "world.structure-settings", since = "3.5.0")
+    private Map<String, Boolean> structureSettings = new HashMap<>();
+
     // ---------------------------------------------
 
     /*      ISLAND      */
+    @ConfigComment("Disable the team system in Boxed worlds.")
+    @ConfigComment("When true, players cannot invite, accept team invites, kick, leave, promote, demote")
+    @ConfigComment("or change island owner. Trust and coop still work and are the alternative to teams.")
+    @ConfigComment("After turning this on, run /boxadmin team disbandall once to remove existing team members.")
+    @ConfigComment("Requires BentoBox 3.16.0 or later.")
+    @ConfigEntry(path = "area.teams-disabled", since = "3.5.0")
+    private boolean teamsDisabled = false;
     @ConfigComment("Default max team size")
     @ConfigComment("Permission size cannot be less than the default below. ")
     @ConfigEntry(path = "area.max-team-size")
@@ -1822,6 +1844,36 @@ public class Settings implements WorldSettings {
      */
     public void setAllowStructures(boolean allowStructures) {
         this.allowStructures = allowStructures;
+    }
+
+    /**
+     * @return per-structure generation overrides for this game mode's worlds
+     */
+    @Override
+    public Map<String, Boolean> getStructureSettings() {
+        return structureSettings;
+    }
+
+    /**
+     * @param structureSettings per-structure generation overrides to set
+     */
+    public void setStructureSettings(Map<String, Boolean> structureSettings) {
+        this.structureSettings = structureSettings;
+    }
+
+    /**
+     * @return true if the team subsystem is disabled in this game mode's worlds
+     */
+    @Override
+    public boolean isTeamsDisabled() {
+        return teamsDisabled;
+    }
+
+    /**
+     * @param teamsDisabled whether to disable the team subsystem
+     */
+    public void setTeamsDisabled(boolean teamsDisabled) {
+        this.teamsDisabled = teamsDisabled;
     }
 
 }

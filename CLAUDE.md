@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Boxed is a BentoBox GameModeAddon for Minecraft (Paper) where each player is confined to a small expandable box. Completing Minecraft advancements grows the box. Built against `bentobox` 3.17.0, Paper API 1.21.11, Java 21.
+Boxed is a BentoBox GameModeAddon for Minecraft (Paper) where each player is confined to a small expandable box. Completing Minecraft advancements grows the box. Built against `bentobox` 3.23.7, Paper API 26.3, Java 25.
 
 ## Build / Test
 
@@ -51,7 +51,7 @@ Because advancements are per-world in vanilla but Boxed runs multiple worlds on 
 
 ## Testing notes
 
-Tests use JUnit 5 (Jupiter) + Mockito 5 `mockStatic` + MockBukkit (`v1.21-SNAPSHOT` via jitpack.io). There is no PowerMock and no custom `ServerMocks` helper. All test classes extend `CommonTestSetup`, which:
+Tests use JUnit 5 (Jupiter) + Mockito 5.20.0 `mockStatic` + MockBukkit (`v26.3` version 4.119.0 via jitpack.io). There is no PowerMock and no custom `ServerMocks` helper. All test classes extend `CommonTestSetup`, which:
 
 - Calls `MockBukkit.mock()` and registers `Mockito.mockStatic(Bukkit.class, RETURNS_DEEP_STUBS)` — use the inherited `mockedBukkit` field to stub `Bukkit.*` calls rather than creating your own.
 - Exposes ready-made `@Mock` fields (`plugin`, `mockPlayer`, `world`, `location`, `iwm`, `im`, `island`, `pim`, `itemFactory`, `inv`, `notifier`, `fm`, `spigot`, `hooksManager`, `bm`, `sch`, `lm`, `phm`) plus the MockBukkit `server` and `mockedUtil` statics. Don't re-declare these in subclasses.
