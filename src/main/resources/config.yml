@@ -304,7 +304,28 @@ world:
   # Falling banned commands - players cannot use these commands when falling
   # if the PREVENT_TELEPORT_WHEN_FALLING world setting flag is active
   falling-banned-commands: []
+  # Per-world override for vanilla structure generation and structure searches
+  # (/locate, Eyes of Ender, explorer/treasure maps, dolphins, cartographer trades).
+  # Boxed generates vanilla worlds with structures, so this allows per-structure control.
+  # Key is the vanilla structure id (e.g. trial_chambers, ancient-city), value is:
+  #   false - disable the structure in Boxed worlds
+  #   true  - force it on even if BentoBox's global world.disabled-structures disables it
+  # Structures not listed inherit BentoBox's global world.disabled-structures setting.
+  # Example:
+  #   structure-settings:
+  #     monument: false
+  #     trial_chambers: false
+  # Requires BentoBox 3.19.1 or later.
+  # Added since 3.5.0.
+  structure-settings: {}
 area:
+  # Disable the team system in Boxed worlds.
+  # When true, players cannot invite, accept team invites, kick, leave, promote, demote
+  # or change island owner. Trust and coop still work and are the alternative to teams.
+  # After turning this on, run /boxadmin team disbandall once to remove existing team members.
+  # Requires BentoBox 3.16.0 or later.
+  # Added since 3.5.0.
+  teams-disabled: false
   # Default max team size
   # Permission size cannot be less than the default below. 
   max-team-size: 4
