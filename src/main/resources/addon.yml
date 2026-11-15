@@ -21,6 +21,15 @@ permissions:
   boxed.island.sethome:
     description: Let the player use the sethome command
     default: true
+  boxed.island.deletehome:
+    description: Allow use of '/box deletehome' command - delete a home location
+    default: true
+  boxed.island.homes:
+    description: Allow use of '/box homes' command - list your homes
+    default: true
+  boxed.island.renamehome:
+    description: Allow use of '/box renamehome' command - rename a home location
+    default: true
   boxed.island.info:
     description: Let the player check other players info
     default: true
