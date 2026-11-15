@@ -135,6 +135,9 @@ permissions:
   boxed.admin.reload:
     description: Reload the config.yml
     default: op
+  boxed.admin.place:
+    description: Allow use of '/boxadmin place' command - place a structure in a box and record it for future boxes
+    default: op
   boxed.admin.delete:
     description: Let a player completely remove a player (including island)
     default: op
