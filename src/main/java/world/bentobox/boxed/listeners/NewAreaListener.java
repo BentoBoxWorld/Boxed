@@ -2,17 +2,18 @@ package world.bentobox.boxed.listeners;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -82,14 +83,16 @@ public class NewAreaListener implements Listener {
     private final Boxed addon;
     private final File structureFile;
     /**
-     * Queue for structures that have been determined to be built now
+     * Queue for structures whose chunk is loaded and that will be placed in the next ticks
      */
-    private final Queue<StructureRecord> itemsToBuild = new LinkedList<>();
+    private final Queue<StructureRecord> itemsToBuild = new ArrayDeque<>();
 
     /**
-     * Store for structures that are pending being built, e.g., waiting until the chunk they are is in loaded
+     * Structures waiting for the chunk they are in to load, keyed by chunk coordinates.
+     * Together with {@link #itemsToBuild}, this is every structure that has not been placed yet,
+     * and that is what is saved to the database.
      */
-    private final Map<Pair<Integer, Integer>, List<StructureRecord>> pending;
+    private final Map<Pair<Integer, Integer>, List<StructureRecord>> pending = new HashMap<>();
 
     /**
      * A cache of all structures that have been placed. Used to determine if players have entered them
@@ -97,7 +100,10 @@ public class NewAreaListener implements Listener {
     private final Map<String, IslandStructures> islandStructureCache = new HashMap<>();
 
     private static final Random rand = new Random();
-    private boolean pasting = true;
+    /**
+     * Set once the structure templates have been loaded. Nothing is placed before then.
+     */
+    private volatile boolean ready;
     private static final Gson gson = new Gson();
     private static final String TODO = "ToDo";
     private static final String MINECRAFT = "minecraft:";
@@ -122,7 +128,8 @@ public class NewAreaListener implements Listener {
         handler = new Database<>(addon, IslandStructures.class);
         // Load the pending structures
         toPlace = new Database<>(addon, ToBePlacedStructures.class);
-        pending = this.loadToDos().getReadyToBuild();
+        this.loadToDos().getReadyToBuild()
+                .forEach((k, v) -> pending.put(k, new ArrayList<>(v)));
         // Try to build something
         runStructurePrinter();
     }
@@ -132,7 +139,7 @@ public class NewAreaListener implements Listener {
      */
     private void runStructurePrinter() {
         // Set up recurring task
-        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructure, 100, 60);
+        Bukkit.getScheduler().runTaskTimer(addon.getPlugin(), this::buildStructures, 100, 1);
         // Run through all the structures in the Jar and register them with the server
         for (String js : JAR_STRUCTURES) {
             addon.saveResource("structures/" + js + ".nbt", false);
@@ -150,27 +157,34 @@ public class NewAreaListener implements Listener {
     }
 
     /**
-     * Builds a structure from the queue if not already pasting.
-     * Only one structure is built at a time.
+     * Places queued structures until the per-tick time budget is used up. At least one
+     * structure is placed each tick when the queue is not empty, because a single
+     * structure cannot be split across ticks.
      */
-    private void buildStructure() {
-        // Only kick off a build if there is something to build and something isn't
-        // already being built
-        if (!pasting && !itemsToBuild.isEmpty()) {
-            // Build item
-            StructureRecord item = itemsToBuild.poll();
-            placeStructure(item);
+    void buildStructures() {
+        if (!ready || itemsToBuild.isEmpty()) {
+            return;
         }
+        final long budget = TimeUnit.MILLISECONDS
+                .toNanos(Math.max(0, addon.getSettings().getStructureTimeBudget()));
+        final long start = System.nanoTime();
+        do {
+            placeStructure(itemsToBuild.poll());
+        } while (!itemsToBuild.isEmpty() && System.nanoTime() - start < budget);
+        // Placed structures are no longer outstanding
+        savePending();
     }
 
     /**
      * Places a structure at the specified location and updates the island structure cache.
+     * Structures already recorded as placed at this location are skipped.
      * 
      * @param item The structure record to place.
      */
     private void placeStructure(StructureRecord item) {
-        // Set the semaphore - only paste one at a time
-        pasting = true;
+        if (isPlaced(item)) {
+            return;
+        }
         // Place the structure - this cannot be done async
         Structure structure = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(item.structure()));
         if (structure == null) {
@@ -192,8 +206,34 @@ public class NewAreaListener implements Listener {
             }
             handler.saveObjectAsync(getIslandStructData(id));
         });
-        // Clear the semaphore
-        pasting = false;
+    }
+
+    /**
+     * Checks whether this structure has already been placed. Placed structures are
+     * recorded per island with a bounding box that has the placement location as one
+     * of its corners. Older versions of Boxed kept placed structures in the pending list,
+     * so this stops them being placed a second time.
+     *
+     * @param item structure record
+     * @return true if the island already has this structure at this location
+     */
+    private boolean isPlaced(StructureRecord item) {
+        Location loc = item.location();
+        if (loc.getWorld() == null) {
+            return false;
+        }
+        boolean nether = loc.getWorld().getEnvironment().equals(Environment.NETHER);
+        return addon.getIslands().getIslandAt(loc).map(Island::getUniqueId).map(this::getIslandStructData)
+                .map(is -> nether ? is.getNetherStructureBoundingBoxMap() : is.getStructureBoundingBoxMap())
+                .map(map -> map.entrySet().stream().anyMatch(en -> en.getValue().equals(item.name())
+                        && isCorner(en.getKey(), loc)))
+                .orElse(false);
+    }
+
+    private static boolean isCorner(BoundingBox bb, Location loc) {
+        return (bb.getMinX() == loc.getBlockX() || bb.getMaxX() == loc.getBlockX())
+                && (bb.getMinY() == loc.getBlockY() || bb.getMaxY() == loc.getBlockY())
+                && (bb.getMinZ() == loc.getBlockZ() || bb.getMaxZ() == loc.getBlockZ());
     }
 
     /**
@@ -215,7 +255,7 @@ public class NewAreaListener implements Listener {
                     }
                 }
             }
-            pasting = false; // Allow pasting
+            ready = true; // Allow placing
         });
     }
 
@@ -231,22 +271,65 @@ public class NewAreaListener implements Listener {
         if (!(addon.inWorld(chunk.getWorld()))) {
             return;
         }
-        Pair<Integer, Integer> chunkCoords = new Pair<>(chunk.getX(), chunk.getZ());
-        if (pending.containsKey(chunkCoords)) {
-            Iterator<StructureRecord> it = pending.get(chunkCoords).iterator();
-            while (it.hasNext()) {
-                StructureRecord item = it.next();
-                if (item.location().getWorld().equals(e.getWorld())) {
-                    // Placing structure in itemsToBuild
-                    this.itemsToBuild.add(item);
-                    it.remove();
-                }
-            }
-            // Save to latest to the database
-            ToBePlacedStructures tbd = new ToBePlacedStructures();
-            tbd.setReadyToBuild(pending);
-            toPlace.saveObjectAsync(tbd);
+        queueLoaded(chunk.getWorld(), new Pair<>(chunk.getX(), chunk.getZ()));
+    }
+
+    /**
+     * Moves the pending structures in this chunk to the build queue.
+     * The pending list is keyed only by chunk coordinates, so the world is checked too.
+     *
+     * @param world world of the loaded chunk
+     * @param chunkCoords chunk coordinates
+     */
+    private void queueLoaded(World world, Pair<Integer, Integer> chunkCoords) {
+        List<StructureRecord> records = pending.get(chunkCoords);
+        if (records == null) {
+            return;
         }
+        Iterator<StructureRecord> it = records.iterator();
+        while (it.hasNext()) {
+            StructureRecord item = it.next();
+            if (world.equals(item.location().getWorld())) {
+                itemsToBuild.add(item);
+                it.remove();
+            }
+        }
+        if (records.isEmpty()) {
+            pending.remove(chunkCoords);
+        }
+    }
+
+    /**
+     * Builds the database object holding every structure that has not been placed yet.
+     * The lists are copied because the database may write them on another thread.
+     *
+     * @return to-be-placed structures
+     */
+    private ToBePlacedStructures toDos() {
+        Map<Pair<Integer, Integer>, List<StructureRecord>> all = new HashMap<>();
+        pending.forEach((k, v) -> all.put(k, new ArrayList<>(v)));
+        for (StructureRecord item : itemsToBuild) {
+            Location l = item.location();
+            all.computeIfAbsent(new Pair<>(l.getBlockX() >> 4, l.getBlockZ() >> 4), k -> new ArrayList<>()).add(item);
+        }
+        ToBePlacedStructures tbd = new ToBePlacedStructures();
+        tbd.setReadyToBuild(all);
+        return tbd;
+    }
+
+    /**
+     * Saves the structures that have not been placed yet.
+     */
+    private void savePending() {
+        toPlace.saveObjectAsync(toDos());
+    }
+
+    /**
+     * Saves the structures that have not been placed yet and waits for the write.
+     * Used on shutdown.
+     */
+    public void saveNow() {
+        toPlace.saveObjectNow(toDos());
     }
 
 
@@ -352,34 +435,20 @@ public class NewAreaListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onIslandDeleted(IslandDeleteEvent event) {
-        String deletedIslandId = event.getIsland().getUniqueId();
+        Island deleted = event.getIsland();
 
         // Remove from in-memory cache
-        islandStructureCache.remove(deletedIslandId);
+        islandStructureCache.remove(deleted.getUniqueId());
 
-        // Remove from active build queue so we don't paste into a deleted island
-        itemsToBuild.removeIf(rec -> event.getIsland().inIslandSpace(rec.location()));
-
-        // Remove from in-memory pending structures
+        // Remove from the build queue and the pending structures so we don't paste into a deleted island
+        boolean changed = itemsToBuild.removeIf(rec -> deleted.inIslandSpace(rec.location()));
         for (List<StructureRecord> records : pending.values()) {
-            records.removeIf(rec -> event.getIsland().inIslandSpace(rec.location()));
+            changed |= records.removeIf(rec -> deleted.inIslandSpace(rec.location()));
         }
         pending.values().removeIf(List::isEmpty);
 
-        // Remove from pending structures in database
-        Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = loadToDos().getReadyToBuild();
-        boolean dbChanged = false;
-        for (List<StructureRecord> records : readyToBuild.values()) {
-            if (records.removeIf(rec -> event.getIsland().inIslandSpace(rec.location()))) {
-                dbChanged = true;
-            }
-        }
-
-        // Save updated pending structures if any were removed
-        if (dbChanged) {
-            ToBePlacedStructures tbd = new ToBePlacedStructures();
-            tbd.setReadyToBuild(readyToBuild);
-            toPlace.saveObjectAsync(tbd);
+        if (changed) {
+            savePending();
         }
     }
 
@@ -405,11 +474,13 @@ public class NewAreaListener implements Listener {
                 place(config.getConfigurationSection(env), center, e);
             }
         }
-
+        savePending();
     }
 
     /**
-     * Places structures defined in the configuration section at the specified center location.
+     * Adds the structures defined in the configuration section, relative to the center location,
+     * to the pending list. Structures in chunks that are already loaded are queued to be placed
+     * straight away; the rest are queued when their chunk loads.
      * 
      * @param section The configuration section.
      * @param center The center location.
@@ -423,8 +494,6 @@ public class NewAreaListener implements Listener {
         if (world == null) {
             return;
         }
-
-        Map<Pair<Integer, Integer>, List<StructureRecord>> readyToBuild = new HashMap<>();
 
         for (String vector : section.getKeys(false)) {
             String[] nameParts = section.getString(vector).split(",");
@@ -443,7 +512,7 @@ public class NewAreaListener implements Listener {
                     .loadStructure(NamespacedKey.fromString(MINECRAFT + name));
             if (structure == null) {
                 BentoBox.getInstance().logError(COULD_NOT_LOAD + name);
-                return;
+                continue;
             }
 
             String[] coords = vector.split(",");
@@ -455,23 +524,15 @@ public class NewAreaListener implements Listener {
                 // Structure will be placed at location
                 StructureRecord sr = new StructureRecord(name, MINECRAFT + name, location, rotation, mirror, noMobs,
                         Collections.emptyMap());
-                readyToBuild.computeIfAbsent(new Pair<>(x >> 4, z >> 4), k -> new ArrayList<>()).add(sr);
-                this.itemsToBuild.add(sr);
+                Pair<Integer, Integer> chunkCoords = new Pair<>(x >> 4, z >> 4);
+                pending.computeIfAbsent(chunkCoords, k -> new ArrayList<>()).add(sr);
+                if (world.isChunkLoaded(x >> 4, z >> 4)) {
+                    queueLoaded(world, chunkCoords);
+                }
             } else {
                 addon.logError("Structure file syntax error: " + vector + ": " + Arrays.toString(coords));
             }
         }
-        // Load the pending structures and add the ones from this new island to the list
-        ToBePlacedStructures tbd = this.loadToDos();
-        Map<Pair<Integer, Integer>, List<StructureRecord>> mergedMap = tbd.getReadyToBuild();
-        readyToBuild.forEach((key, value) -> mergedMap.merge(key, value, (list1, list2) -> {
-            list1.addAll(list2);
-            return list1;
-        }));
-
-        // Save the list
-        tbd.setReadyToBuild(mergedMap);
-        toPlace.saveObjectAsync(tbd);
     }
 
     /**
