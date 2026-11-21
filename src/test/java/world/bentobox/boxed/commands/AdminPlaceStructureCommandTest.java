@@ -66,7 +66,7 @@ class AdminPlaceStructureCommandTest extends CommonTestSetup {
     @Test
     void testSetup() {
         assertEquals("place", cmd.getLabel());
-        assertEquals("boxed.commands.boxadmin.place", cmd.getPermission());
+        assertEquals("admin.place", cmd.getPermission());
         assertFalse(cmd.isOnlyPlayer());
     }
 

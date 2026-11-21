@@ -67,7 +67,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
 
     @Override
     public void setup() {
-        this.setPermission("boxed.commands.boxadmin.place");
+        this.setPermission("admin.place");
         this.setOnlyPlayer(false);
         this.setParametersHelp("boxed.commands.boxadmin.place.parameters");
         this.setDescription("boxed.commands.boxadmin.place.description");

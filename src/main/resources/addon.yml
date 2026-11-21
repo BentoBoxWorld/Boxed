@@ -1,7 +1,7 @@
 name: Boxed
 main: world.bentobox.boxed.Boxed
 version: ${version}${build.number}
-api-version: 3.9.0
+api-version: 3.23.0
 metrics: true
 icon: "COMPOSTER"
 repository: "BentoBoxWorld/Boxed"
@@ -20,6 +20,15 @@ permissions:
     default: true
   boxed.island.sethome:
     description: Let the player use the sethome command
+    default: true
+  boxed.island.deletehome:
+    description: Allow use of '/box deletehome' command - delete a home location
+    default: true
+  boxed.island.homes:
+    description: Allow use of '/box homes' command - list your homes
+    default: true
+  boxed.island.renamehome:
+    description: Allow use of '/box renamehome' command - rename a home location
     default: true
   boxed.island.info:
     description: Let the player check other players info
@@ -125,6 +134,9 @@ permissions:
     default: op
   boxed.admin.reload:
     description: Reload the config.yml
+    default: op
+  boxed.admin.place:
+    description: Allow use of '/boxadmin place' command - place a structure in a box and record it for future boxes
     default: op
   boxed.admin.delete:
     description: Let a player completely remove a player (including island)
