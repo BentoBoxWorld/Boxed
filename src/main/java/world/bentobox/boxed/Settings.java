@@ -68,6 +68,13 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "boxed.deny-visitor-advancements")
     private boolean denyVisitorAdvancements = true;
 
+    @ConfigComment("Milliseconds per tick that placing vanilla structures (villages, shipwrecks, etc.) in boxes may use.")
+    @ConfigComment("Structures are placed one at a time until this time is used up, so a new box gets its structures")
+    @ConfigComment("quickly when the server has spare time. A tick is 50 ms. Lower this if structure placement causes lag.")
+    @ConfigComment("0 places one structure per tick.")
+    @ConfigEntry(path = "boxed.structure-time-budget", since = "3.5.0")
+    private int structureTimeBudget = 10;
+
     /*      WORLD       */
     @ConfigComment("Friendly name for this world. Used in admin commands. Must be a single word")
     @ConfigEntry(path = "world.friendly-name")
@@ -1737,6 +1744,20 @@ public class Settings implements WorldSettings {
      */
     public void setDenyVisitorAdvancements(boolean denyVisitorAdvancements) {
         this.denyVisitorAdvancements = denyVisitorAdvancements;
+    }
+
+    /**
+     * @return milliseconds per tick that structure placement may use
+     */
+    public int getStructureTimeBudget() {
+        return structureTimeBudget;
+    }
+
+    /**
+     * @param structureTimeBudget milliseconds per tick that structure placement may use
+     */
+    public void setStructureTimeBudget(int structureTimeBudget) {
+        this.structureTimeBudget = structureTimeBudget;
     }
 
     /**

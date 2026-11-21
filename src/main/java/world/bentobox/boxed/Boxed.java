@@ -63,6 +63,7 @@ public class Boxed extends GameModeAddon {
     private Settings settings;
     private AbstractBoxedChunkGenerator worldGen;
     private BoxedSeedChunkGenerator seedGen;
+    private NewAreaListener newAreaListener;
     private AbstractBoxedChunkGenerator netherGen;
     private BoxedSeedChunkGenerator netherSeedGen;
 
@@ -147,7 +148,8 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
-        this.registerListener(new NewAreaListener(this));
+        newAreaListener = new NewAreaListener(this);
+        this.registerListener(newAreaListener);
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);
@@ -160,6 +162,10 @@ public class Boxed extends GameModeAddon {
     public void onDisable() {
         // Save the advancements cache
         getAdvManager().save();
+        // Save the structures that have not been placed yet
+        if (newAreaListener != null) {
+            newAreaListener.saveNow();
+        }
     }
 
     @Override
