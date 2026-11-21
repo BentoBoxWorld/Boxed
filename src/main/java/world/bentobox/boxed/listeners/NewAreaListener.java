@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
@@ -104,6 +107,28 @@ public class NewAreaListener implements Listener {
      * Set once the structure templates have been loaded. Nothing is placed before then.
      */
     private volatile boolean ready;
+
+    /**
+     * Chunk coordinates in a world
+     */
+    private record ChunkKey(World world, int x, int z) {}
+
+    /**
+     * Structures waiting for the chunks they cover to load in the background
+     */
+    private final Set<StructureRecord> waitingForChunks = Collections.newSetFromMap(new IdentityHashMap<>());
+    /**
+     * Structures that should be placed without checking chunks, because loading them failed
+     */
+    private final Set<StructureRecord> skipChunkCheck = Collections.newSetFromMap(new IdentityHashMap<>());
+    /**
+     * Chunks each structure keeps loaded with a plugin chunk ticket until it is placed
+     */
+    private final Map<StructureRecord, List<ChunkKey>> heldChunks = new IdentityHashMap<>();
+    /**
+     * Number of structures holding a ticket on each chunk
+     */
+    private final Map<ChunkKey, Integer> ticketCounts = new HashMap<>();
     private static final Gson gson = new Gson();
     private static final String TODO = "ToDo";
     private static final String MINECRAFT = "minecraft:";
@@ -169,7 +194,11 @@ public class NewAreaListener implements Listener {
                 .toNanos(Math.max(0, addon.getSettings().getStructureTimeBudget()));
         final long start = System.nanoTime();
         do {
-            placeStructure(itemsToBuild.poll());
+            StructureRecord item = itemsToBuild.poll();
+            if (chunksLoaded(item)) {
+                placeStructure(item);
+                releaseChunks(item);
+            }
         } while (!itemsToBuild.isEmpty() && System.nanoTime() - start < budget);
         // Placed structures are no longer outstanding
         savePending();
@@ -206,6 +235,104 @@ public class NewAreaListener implements Listener {
             }
             handler.saveObjectAsync(getIslandStructData(id));
         });
+    }
+
+    /**
+     * Checks that every chunk the structure could touch is loaded. If any is not, the chunks
+     * are loaded in the background, the structure waits, and it goes back on the build queue
+     * once they are loaded. Placing a structure that reaches into an unloaded chunk would
+     * otherwise make the server load or generate that chunk on the main thread.
+     *
+     * @param item structure record
+     * @return true if the structure can be placed now
+     */
+    private boolean chunksLoaded(StructureRecord item) {
+        World world = item.location().getWorld();
+        if (world == null || skipChunkCheck.remove(item)) {
+            return true;
+        }
+        Structure structure = Bukkit.getStructureManager().loadStructure(NamespacedKey.fromString(item.structure()));
+        if (structure == null) {
+            // placeStructure will report it
+            return true;
+        }
+        List<ChunkKey> keys = getChunks(item, structure);
+        List<ChunkKey> missing = keys.stream().filter(k -> !world.isChunkLoaded(k.x(), k.z())).toList();
+        if (missing.isEmpty()) {
+            return true;
+        }
+        waitingForChunks.add(item);
+        CompletableFuture<?>[] futures = missing.stream().map(k -> world.getChunkAtAsync(k.x(), k.z()))
+                .toArray(CompletableFuture[]::new);
+        CompletableFuture.allOf(futures).whenComplete((v, ex) -> runOnMainThread(() -> {
+            if (ex != null) {
+                addon.logError("Could not load chunks for structure " + item.name() + " at "
+                        + Util.xyz(item.location().toVector()) + ": " + ex.getMessage());
+                skipChunkCheck.add(item);
+            }
+            // Keep the chunks loaded until the structure is placed
+            keys.stream().filter(k -> world.isChunkLoaded(k.x(), k.z())).forEach(k -> holdChunk(item, k));
+            if (waitingForChunks.remove(item)) {
+                itemsToBuild.add(item);
+            } else {
+                // Removed while waiting, e.g., the island was deleted
+                releaseChunks(item);
+            }
+        }));
+        return false;
+    }
+
+    /**
+     * Gets the chunks a structure could touch: a square around its location as wide as its
+     * longest side, so any rotation or mirror fits, plus one block for the edge updates.
+     *
+     * @param item structure record
+     * @param structure the structure
+     * @return chunk keys
+     */
+    private static List<ChunkKey> getChunks(StructureRecord item, Structure structure) {
+        Location loc = item.location();
+        int reach = Math.max(structure.getSize().getBlockX(), structure.getSize().getBlockZ()) + 1;
+        List<ChunkKey> keys = new ArrayList<>();
+        for (int cx = (loc.getBlockX() - reach) >> 4; cx <= (loc.getBlockX() + reach) >> 4; cx++) {
+            for (int cz = (loc.getBlockZ() - reach) >> 4; cz <= (loc.getBlockZ() + reach) >> 4; cz++) {
+                keys.add(new ChunkKey(loc.getWorld(), cx, cz));
+            }
+        }
+        return keys;
+    }
+
+    private void runOnMainThread(Runnable r) {
+        if (Bukkit.isPrimaryThread()) {
+            r.run();
+        } else {
+            Bukkit.getScheduler().runTask(addon.getPlugin(), r);
+        }
+    }
+
+    private void holdChunk(StructureRecord item, ChunkKey key) {
+        heldChunks.computeIfAbsent(item, k -> new ArrayList<>()).add(key);
+        if (ticketCounts.merge(key, 1, Integer::sum) == 1) {
+            key.world().addPluginChunkTicket(key.x(), key.z(), addon.getPlugin());
+        }
+    }
+
+    /**
+     * Releases the chunk tickets held for this structure.
+     *
+     * @param item structure record
+     */
+    private void releaseChunks(StructureRecord item) {
+        List<ChunkKey> keys = heldChunks.remove(item);
+        if (keys == null) {
+            return;
+        }
+        for (ChunkKey key : keys) {
+            Integer count = ticketCounts.computeIfPresent(key, (k, c) -> c > 1 ? c - 1 : null);
+            if (count == null) {
+                key.world().removePluginChunkTicket(key.x(), key.z(), addon.getPlugin());
+            }
+        }
     }
 
     /**
@@ -308,7 +435,9 @@ public class NewAreaListener implements Listener {
     private ToBePlacedStructures toDos() {
         Map<Pair<Integer, Integer>, List<StructureRecord>> all = new HashMap<>();
         pending.forEach((k, v) -> all.put(k, new ArrayList<>(v)));
-        for (StructureRecord item : itemsToBuild) {
+        List<StructureRecord> notPending = new ArrayList<>(itemsToBuild);
+        notPending.addAll(waitingForChunks);
+        for (StructureRecord item : notPending) {
             Location l = item.location();
             all.computeIfAbsent(new Pair<>(l.getBlockX() >> 4, l.getBlockZ() >> 4), k -> new ArrayList<>()).add(item);
         }
@@ -441,7 +570,12 @@ public class NewAreaListener implements Listener {
         islandStructureCache.remove(deleted.getUniqueId());
 
         // Remove from the build queue and the pending structures so we don't paste into a deleted island
-        boolean changed = itemsToBuild.removeIf(rec -> deleted.inIslandSpace(rec.location()));
+        List<StructureRecord> removed = itemsToBuild.stream().filter(rec -> deleted.inIslandSpace(rec.location()))
+                .toList();
+        removed.forEach(this::releaseChunks);
+        boolean changed = itemsToBuild.removeAll(removed);
+        // Structures waiting for chunks release them when the chunks load
+        changed |= waitingForChunks.removeIf(rec -> deleted.inIslandSpace(rec.location()));
         for (List<StructureRecord> records : pending.values()) {
             changed |= records.removeIf(rec -> deleted.inIslandSpace(rec.location()));
         }
@@ -596,7 +730,7 @@ public class NewAreaListener implements Listener {
         }
         // Set water blocks for underwater ruins
         if (underwater && b.getType().equals(Material.AIR)) {
-            b.setType(Material.WATER);
+            b.setType(Material.WATER, false);
         }
     }
 

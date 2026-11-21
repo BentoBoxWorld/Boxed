@@ -75,6 +75,7 @@ class NewAreaListenerTest extends CommonTestSetup {
     private Block block;
 
     private Settings settings;
+    private final CompletableFuture<Chunk> chunkFuture = new CompletableFuture<>();
     private File dataFolder;
     private MockedStatic<DatabaseSetup> mockedDatabaseSetup;
     private AbstractDatabaseHandler<Object> h;
@@ -134,6 +135,9 @@ class NewAreaListenerTest extends CommonTestSetup {
             inv.getArgument(1, Runnable.class).run();
             return null;
         });
+
+        mockedBukkit.when(Bukkit::isPrimaryThread).thenReturn(true);
+        when(world.getChunkAtAsync(anyInt(), anyInt())).thenReturn(chunkFuture);
 
         nal = new NewAreaListener(addon);
         nal.onBentoBoxReady(mock(BentoBoxReadyEvent.class));
@@ -217,6 +221,7 @@ class NewAreaListenerTest extends CommonTestSetup {
         verifyPlaced(0);
         assertEquals(normalCount, savedTodoCount());
         // The masons house is at 0,64,80 relative to the center, chunk 0,5
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
         loadChunk(0, 5);
         nal.buildStructures();
         verifyPlaced(1);
@@ -228,7 +233,7 @@ class NewAreaListenerTest extends CommonTestSetup {
         settings.setStructureTimeBudget(0);
         when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
         createIsland();
-        when(sm.loadStructure(any(NamespacedKey.class))).thenReturn(null, structure);
+        when(sm.loadStructure(any(NamespacedKey.class))).thenReturn(null, null, structure); // chunk check and placement
         nal.buildStructures(); // Could not load
         verifyPlaced(0);
         nal.buildStructures();
@@ -278,6 +283,7 @@ class NewAreaListenerTest extends CommonTestSetup {
 
         nal.buildStructures();
         verifyPlaced(0);
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
         loadChunk(0, 0);
         nal.buildStructures();
         verify(structure).place(eq(loc), anyBoolean(), any(StructureRotation.class), any(Mirror.class), anyInt(),
@@ -285,6 +291,58 @@ class NewAreaListenerTest extends CommonTestSetup {
         // Saved on shutdown with nothing left
         nal.saveNow();
         verify(h).saveObjectNow(any());
+    }
+
+    /**
+     * Queues every structure, then reports their neighbouring chunks as unloaded.
+     */
+    private void queueWithUnloadedNeighbours() {
+        settings.setStructureTimeBudget(10_000);
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
+        createIsland();
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(false);
+        nal.buildStructures();
+        verifyPlaced(0);
+        verify(world, atLeastOnce()).getChunkAtAsync(anyInt(), anyInt());
+    }
+
+    @Test
+    void testUnloadedChunksLoadedInBackground() {
+        queueWithUnloadedNeighbours();
+        // Waiting structures are still saved
+        assertEquals(normalCount, savedTodoCount());
+        // Chunks load
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
+        chunkFuture.complete(mock(Chunk.class));
+        verify(world, atLeastOnce()).addPluginChunkTicket(anyInt(), anyInt(), eq(plugin));
+        nal.buildStructures();
+        verifyPlaced(normalCount);
+        verify(world, atLeastOnce()).removePluginChunkTicket(anyInt(), anyInt(), eq(plugin));
+        assertEquals(0, savedTodoCount());
+    }
+
+    @Test
+    void testDeletedWhileWaitingForChunks() {
+        queueWithUnloadedNeighbours();
+        when(island.inIslandSpace(any(Location.class))).thenReturn(true);
+        IslandDeleteEvent e = mock(IslandDeleteEvent.class);
+        when(e.getIsland()).thenReturn(island);
+        nal.onIslandDeleted(e);
+        assertEquals(0, savedTodoCount());
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
+        chunkFuture.complete(mock(Chunk.class));
+        nal.buildStructures();
+        verifyPlaced(0);
+        verify(world, atLeastOnce()).removePluginChunkTicket(anyInt(), anyInt(), eq(plugin));
+    }
+
+    @Test
+    void testChunkLoadFailurePlacesAnyway() {
+        queueWithUnloadedNeighbours();
+        chunkFuture.completeExceptionally(new IllegalStateException("bad chunk"));
+        verify(addon, atLeastOnce()).logError(Mockito.contains("bad chunk"));
+        nal.buildStructures();
+        verifyPlaced(normalCount);
     }
 
     @Test
