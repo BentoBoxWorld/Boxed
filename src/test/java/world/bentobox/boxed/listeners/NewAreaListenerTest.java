@@ -75,7 +75,6 @@ class NewAreaListenerTest extends CommonTestSetup {
     private Block block;
 
     private Settings settings;
-    private final CompletableFuture<Chunk> chunkFuture = new CompletableFuture<>();
     private File dataFolder;
     private MockedStatic<DatabaseSetup> mockedDatabaseSetup;
     private AbstractDatabaseHandler<Object> h;
@@ -136,8 +135,6 @@ class NewAreaListenerTest extends CommonTestSetup {
             return null;
         });
 
-        mockedBukkit.when(Bukkit::isPrimaryThread).thenReturn(true);
-        when(world.getChunkAtAsync(anyInt(), anyInt())).thenReturn(chunkFuture);
 
         nal = new NewAreaListener(addon);
         nal.onBentoBoxReady(mock(BentoBoxReadyEvent.class));
@@ -293,56 +290,59 @@ class NewAreaListenerTest extends CommonTestSetup {
         verify(h).saveObjectNow(any());
     }
 
-    /**
-     * Queues every structure, then reports their neighbouring chunks as unloaded.
-     */
-    private void queueWithUnloadedNeighbours() {
+    @Test
+    void testUnloadedNeighbourChunkWaitsForThatChunk() {
+        settings.setStructureTimeBudget(10_000);
+        // The masons house (0,64,80) and the villager next to it (-3,65,84) are in chunks 0,5 and -1,5.
+        // Both areas reach into chunk -1,5, which is not loaded
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenAnswer(inv -> {
+            int x = inv.getArgument(0);
+            int z = inv.getArgument(1);
+            return !(x == -1 && z == 5);
+        });
+        createIsland();
+        nal.buildStructures();
+        verifyPlaced(normalCount - 2);
+        // Waiting, and saved, but no chunks are loaded for it
+        assertEquals(2, savedTodoCount());
+        verify(world, never()).getChunkAtAsync(anyInt(), anyInt());
+        nal.buildStructures();
+        verifyPlaced(normalCount - 2);
+        // Another chunk loading does nothing
+        loadChunk(0, 5);
+        nal.buildStructures();
+        verifyPlaced(normalCount - 2);
+        // The missing chunk loads
+        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
+        loadChunk(-1, 5);
+        nal.buildStructures();
+        verifyPlaced(normalCount);
+        assertEquals(0, savedTodoCount());
+    }
+
+    @Test
+    void testStructureWithoutIslandDropped() {
         settings.setStructureTimeBudget(10_000);
         when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
         createIsland();
-        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(false);
+        when(im.getIslandAt(any())).thenReturn(Optional.empty());
         nal.buildStructures();
         verifyPlaced(0);
-        verify(world, atLeastOnce()).getChunkAtAsync(anyInt(), anyInt());
-    }
-
-    @Test
-    void testUnloadedChunksLoadedInBackground() {
-        queueWithUnloadedNeighbours();
-        // Waiting structures are still saved
-        assertEquals(normalCount, savedTodoCount());
-        // Chunks load
-        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
-        chunkFuture.complete(mock(Chunk.class));
-        verify(world, atLeastOnce()).addPluginChunkTicket(anyInt(), anyInt(), eq(plugin));
-        nal.buildStructures();
-        verifyPlaced(normalCount);
-        verify(world, atLeastOnce()).removePluginChunkTicket(anyInt(), anyInt(), eq(plugin));
         assertEquals(0, savedTodoCount());
     }
 
     @Test
-    void testDeletedWhileWaitingForChunks() {
-        queueWithUnloadedNeighbours();
-        when(island.inIslandSpace(any(Location.class))).thenReturn(true);
-        IslandDeleteEvent e = mock(IslandDeleteEvent.class);
-        when(e.getIsland()).thenReturn(island);
-        nal.onIslandDeleted(e);
+    void testSavedStructuresWithoutIslandDroppedAtStartup() throws Exception {
+        StructureRecord sr = new StructureRecord("igloo/top", "minecraft:igloo/top", new Location(world, 5, 64, 5),
+                StructureRotation.NONE, Mirror.NONE, false, Collections.emptyMap());
+        ToBePlacedStructures tbd = new ToBePlacedStructures();
+        tbd.setReadyToBuild(new java.util.HashMap<>(Map.of(new Pair<>(0, 0), new ArrayList<>(List.of(sr)))));
+        when(h.objectExists("ToDo")).thenReturn(true);
+        when(h.loadObject("ToDo")).thenReturn(tbd);
+        when(im.getIslandAt(any())).thenReturn(Optional.empty());
+        nal = new NewAreaListener(addon);
+        nal.onBentoBoxReady(mock(BentoBoxReadyEvent.class));
         assertEquals(0, savedTodoCount());
-        when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
-        chunkFuture.complete(mock(Chunk.class));
-        nal.buildStructures();
-        verifyPlaced(0);
-        verify(world, atLeastOnce()).removePluginChunkTicket(anyInt(), anyInt(), eq(plugin));
-    }
-
-    @Test
-    void testChunkLoadFailurePlacesAnyway() {
-        queueWithUnloadedNeighbours();
-        chunkFuture.completeExceptionally(new IllegalStateException("bad chunk"));
-        verify(addon, atLeastOnce()).logError(Mockito.contains("bad chunk"));
-        nal.buildStructures();
-        verifyPlaced(normalCount);
     }
 
     @Test
