@@ -1,5 +1,8 @@
 # Boxed
 
+<!-- BentoBox stats badges: https://download.bentobox.world/admin (Badges tab) -->
+[![Servers](https://download.bentobox.world/badge/Boxed/servers.svg)](https://download.bentobox.world/) [![Popularity](https://download.bentobox.world/badge/Boxed/rank.svg)](https://download.bentobox.world/) [![Downloads](https://download.bentobox.world/badge/Boxed/downloads.svg)](https://download.bentobox.world/) [![Minecraft](https://download.bentobox.world/badge/Boxed/mc.svg)](https://download.bentobox.world/)
+
 A game mode where you are boxed into a tiny space that only expands by completing advancements.
 
 ## BentoBox Requirements
