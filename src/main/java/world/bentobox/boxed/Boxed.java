@@ -63,6 +63,7 @@ import world.bentobox.boxed.generators.template.TemplateChunk;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.BoxCleaner;
 import world.bentobox.boxed.listeners.EnderPearlListener;
+import world.bentobox.boxed.listeners.FortressMobsListener;
 import world.bentobox.boxed.listeners.NewAreaListener;
 
 /**
@@ -153,7 +154,8 @@ public class Boxed extends GameModeAddon {
             generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
                     Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes(), area.centreX(), area.centreZ())));
             generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
-                    Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes())));
+                    Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes(), area.netherCentreX(),
+                            area.netherCentreZ())));
         }
 
         return true;
@@ -184,6 +186,7 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
+        this.registerListener(new FortressMobsListener(this));
         newAreaListener = new NewAreaListener(this);
         this.registerListener(newAreaListener);
         boxCleaner = new BoxCleaner(this);
@@ -231,8 +234,8 @@ public class Boxed extends GameModeAddon {
             boolean regenerate = checkRebuildRequest(area);
             loadTemplate(area, worldName, Environment.NORMAL, area.centreX(), area.centreZ(), regenerate);
             if (settings.isNetherGenerate()) {
-                loadTemplate(area, worldName, Environment.NETHER, settings.getNetherSeedX(),
-                        settings.getNetherSeedZ(), regenerate);
+                loadTemplate(area, worldName, Environment.NETHER, area.netherCentreX(), area.netherCentreZ(),
+                        regenerate);
             }
         }
         // Create overworld

@@ -618,6 +618,7 @@ boxed:
           none: '&c No dry, wooded land was found. Try another seed or a bigger search radius.'
           failed: '&c The search could not be run. Check the console for the error'
           result: '&e [xyz] &a scores [number]: &7 [description]'
+          nether: '&a Nether: &e nether-centre: [xyz] &a gives every box a fortress, with a blaze spawner at size [number]'
           report: '&a The full list is in &e [file]'
           how-to: '&a To use a place, set &e seed: [seed] &a and &e centre: x,z &a for [name] in areas.yml, run &e /boxadmin areas rebuild [name] regenerate &a and restart.'
     island:

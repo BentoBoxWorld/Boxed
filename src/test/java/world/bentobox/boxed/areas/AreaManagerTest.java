@@ -199,6 +199,7 @@ class AreaManagerTest {
                 areas:
                   moved:
                     centre: 1210, -650
+                    nether-centre: 272,128
                   american:
                     center: "32,48"
                   broken:
@@ -209,6 +210,9 @@ class AreaManagerTest {
         // The spot is moved to the corner of its chunk
         assertEquals(1200, am.getArea("moved").centreX());
         assertEquals(-656, am.getArea("moved").centreZ());
+        assertEquals(272, am.getArea("moved").netherCentreX());
+        assertEquals(128, am.getArea("moved").netherCentreZ());
+        assertEquals(0, am.getDefaultArea().netherCentreX());
         assertEquals(32, am.getArea("american").centreX());
         assertEquals(48, am.getArea("american").centreZ());
         assertEquals(0, am.getArea("broken").centreX());

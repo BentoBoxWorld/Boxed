@@ -69,9 +69,11 @@ public class AreaManager {
             }
             String requires = getRequirement(s, id, ids, errorLog);
             int[] centre = parseCentre(s.getString("centre", s.getString("center", "")), id, errorLog);
+            int[] netherCentre = parseCentre(s.getString("nether-centre", s.getString("nether-center", "")), id,
+                    errorLog);
             Area area = new Area(id, s.getLong("seed", defaultSeed), s.getString("biomes", "biomes.yml"),
                     s.getString("structures", "structures.yml"), grid.getInt(path), s.getBoolean("enabled", true),
-                    requires, Math.max(0, s.getInt("unlocks-next-at", 0)), centre[0], centre[1]);
+                    requires, Math.max(0, s.getInt("unlocks-next-at", 0)), centre[0], centre[1], netherCentre[0], netherCentre[1]);
             areas.put(id, area);
             areaByRow.put(area.row(), area);
         }
