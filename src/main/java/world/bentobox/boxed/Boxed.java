@@ -440,6 +440,25 @@ public class Boxed extends GameModeAddon {
     }
 
     /**
+     * Boxed only plays properly when its helper addons are set up a certain way, so it asks
+     * them for that instead of leaving it to the admin. The admin can refuse in each addon's
+     * config.
+     */
+    @Override
+    public Map<String, Object> getRequestedSettings(String addonName) {
+        return switch (addonName) {
+        // Advancements grow the box, so they must not come in from other worlds, and each of a
+        // player's boxes needs its own. A box needs its own inventory too, or the items
+        // from one box would earn the item advancements of the next straight away.
+        case "InvSwitcher" -> Map.of("options.advancements", true, "options.islands.active", true,
+                "options.islands.advancements", true, "options.islands.inventory", true);
+        // The game is the box, so players must not be able to walk out of it
+        case "Border" -> Map.of("return-teleport", true);
+        default -> Map.of();
+        };
+    }
+
+    /**
      * A player has at most one box in an area, so a box with no name is listed by its area:
      * the display name of the area's blueprint bundle, or the area's name if it has none.
      */

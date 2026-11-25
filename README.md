@@ -86,7 +86,7 @@ Areas can be chained so that a player's box in one area has to reach a certain s
 | `unlocks-next-at` | The size a player's box in this area must reach to unlock the areas that require it. Set it per area to make some harder than others. 0 (the default) means having a box there is enough. |
 | `enabled` | Set to `false` to stop new boxes being made in the area. Existing boxes are not affected. |
 
-A player can have one box in each area. They need to be allowed more than one box (`world.concurrent-area` in `config.yml`) to have boxes in more than one area at a time. With InvSwitcher, turn on `options.islands.advancements` so each box has its own advancements.
+A player can have one box in each area. They need to be allowed more than one box (`world.concurrent-area` in `config.yml`) to have boxes in more than one area at a time. Boxed asks InvSwitcher to give each box its own advancements and inventory, and asks Border to keep players inside their box, so you do not have to set those up. Both addons list what was asked for in the console at startup, and each has a `game-mode-requests` section in its config where you can refuse.
 
 ```yaml
 areas:
