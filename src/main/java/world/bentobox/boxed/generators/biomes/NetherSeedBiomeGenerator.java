@@ -15,4 +15,11 @@ public class NetherSeedBiomeGenerator extends AbstractSeedBiomeProvider {
         super(boxed, Environment.NETHER);
     }
 
+    /**
+     * @param boxed addon
+     * @param biomesFile name of the file that defines the biomes
+     */
+    public NetherSeedBiomeGenerator(Boxed boxed, String biomesFile) {
+        super(boxed, Environment.NETHER, biomesFile);
+    }
 }

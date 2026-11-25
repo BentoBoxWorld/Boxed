@@ -1,20 +1,15 @@
 package world.bentobox.boxed.generators.chunks;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
+import java.util.Random;
+
+import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintEntity;
-import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 
 /**
@@ -29,9 +24,6 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
      * Half-width of the repeating seed region in chunks
      */
     protected final int size;
-    protected final Map<Pair<Integer, Integer>, ChunkStore> chunks = new HashMap<>();
-    public record ChunkStore(ChunkSnapshot snapshot, List<EntityData> bpEnts, List<ChestData> chests, Map<Vector, Biome> chunkBiomes) {}
-
     public record EntityData(Vector relativeLoc, BlueprintEntity entity) {}
 
     public record ChestData(Vector relativeLoc, BlueprintBlock chest) {}
@@ -42,37 +34,29 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
     }
 
     /**
-     * Save a chunk
-     * @param z - chunk z coord
-     * @param x - chunk x coord
-     * @param chunk the chunk to set
+     * Works out which row of the box grid a chunk is in. Row 0 is centred on z = 0.
+     * @param chunkZ chunk z
+     * @param size half-width of a box's area in chunks
+     * @return grid row
      */
-    public void setChunk(int x, int z, Chunk chunk) {
-        Map<Vector, Biome> chunkBiomes = new HashMap<>();
-        for (int xx = 0; xx < 16; xx+=4) {
-            for (int zz = 0; zz < 16; zz+=4) {
-                // Biomes are stored per 4x4x4 cell, so only sample every 4th block
-                for (int yy = chunk.getWorld().getMinHeight(); yy < chunk.getWorld().getMaxHeight(); yy+=4) {
-                    chunkBiomes.put(new Vector(xx, yy, zz), chunk.getBlock(xx, yy, zz).getBiome());
-                }
-            }
-        }
-        chunks.put(new Pair<>(x, z), new ChunkStore(chunk.getChunkSnapshot(), getEnts(chunk), getTileEnts(chunk), chunkBiomes));
+    public static int rowCalc(int chunkZ, int size) {
+        return Math.floorDiv(chunkZ + size, size * 2);
     }
 
-    protected abstract List<EntityData> getEnts(Chunk chunk);
-
-    protected abstract List<ChestData> getTileEnts(Chunk chunk);
+    /**
+     * @return half-width of the repeating seed region in chunks
+     */
+    public int getSize() {
+        return size;
+    }
 
     /**
-     * Get the chunk store for these chunk coords or null if there is none.
-     * @param x chunk x
-     * @param z chunk z
-     * @return chunk store or null if there is none
+     * Gives the world a fixed spawn point. Without this the server searches for a safe spawn
+     * when the world is created, loading chunks one at a time, which takes minutes in the Nether.
      */
-    @Nullable
-    public ChunkStore getChunk(int x, int z) {
-        return chunks.get(new Pair<>(x, z));
+    @Override
+    public Location getFixedSpawnLocation(World world, Random random) {
+        return new Location(world, 0, 64, 0);
     }
 
     @Override
@@ -99,13 +83,6 @@ public abstract class AbstractBoxedChunkGenerator extends ChunkGenerator {
      */
     public static int repeatCalc(int chunkCoord, int size) {
         return Math.floorMod(chunkCoord + size, size*2) - size;
-    }
-
-    /**
-     * @return the chunks
-     */
-    public Map<Pair<Integer, Integer>, ChunkStore> getChunks() {
-        return chunks;
     }
 
     @Override

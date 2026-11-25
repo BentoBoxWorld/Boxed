@@ -1,5 +1,7 @@
 package world.bentobox.boxed.listeners;
 
+import world.bentobox.bentobox.managers.RanksManager;
+import world.bentobox.bentobox.api.events.island.IslandEnterEvent;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -133,6 +135,7 @@ class AdvancementListenerTest extends CommonTestSetup {
         when(island.getMemberSet()).thenReturn(com.google.common.collect.ImmutableSet.of(playerUuid));
         when(advManager.getScore(anyString())).thenReturn(9);
         when(advManager.addAdvancement(any(Player.class), any(Advancement.class))).thenReturn(9);
+        when(advManager.getBox(any())).thenReturn(island);
 
         listener = new AdvancementListener(addon);
     }
@@ -263,7 +266,7 @@ class AdvancementListenerTest extends CommonTestSetup {
 
     @Test
     void testSyncAdvancementsNoIsland() {
-        when(im.getIsland(world, user)).thenReturn(null);
+        when(advManager.getBox(any())).thenReturn(null);
         listener.syncAdvancements(user);
         verify(user, never()).sendMessage(anyString(), any());
     }
@@ -286,6 +289,36 @@ class AdvancementListenerTest extends CommonTestSetup {
         when(advManager.getIsland(island)).thenReturn(islandAdvancements);
         listener.syncAdvancements(user);
         verify(user).sendMessage(eq("boxed.size-decreased"), anyString(), eq("2"));
+    }
+
+    // ---------- moving between boxes ----------
+
+    private IslandEnterEvent enterEvent() {
+        IslandEnterEvent e = mock(IslandEnterEvent.class);
+        when(e.getIsland()).thenReturn(island);
+        when(e.getPlayerUUID()).thenReturn(playerUuid);
+        when(island.getWorld()).thenReturn(world);
+        when(island.getRank(playerUuid)).thenReturn(RanksManager.OWNER_RANK);
+        return e;
+    }
+
+    @Test
+    void testAdvancementsHandedBackWhileEnteringABoxAreNotCounted() {
+        listener.onEnterBox(enterEvent());
+        // Another addon gives the player this box's advancements back
+        listener.onAdvancement(advancementDoneEvent());
+        verify(advManager, never()).addAdvancement(any(Player.class), any(Advancement.class));
+    }
+
+    @Test
+    void testVisitorEnteringABoxIsNotAffected() {
+        IslandEnterEvent e = enterEvent();
+        when(island.getRank(playerUuid)).thenReturn(RanksManager.VISITOR_RANK);
+        listener.onEnterBox(e);
+        verify(sch, never()).runTask(eq(plugin), any(Runnable.class));
+        // Advancements still count as normal
+        listener.onAdvancement(advancementDoneEvent());
+        verify(advManager).addAdvancement(player, advancement);
     }
 
     // ---------- onPlayerJoin / onPlayerEnterWorld ----------

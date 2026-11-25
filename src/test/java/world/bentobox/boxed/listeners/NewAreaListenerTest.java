@@ -105,6 +105,7 @@ class NewAreaListenerTest extends CommonTestSetup {
                 .loadConfiguration(new File(dataFolder, "structures.yml")).getConfigurationSection("normal")
                 .getKeys(false).size();
         when(addon.getDataFolder()).thenReturn(dataFolder);
+        when(addon.getStructuresFile(any())).thenReturn(new File(dataFolder, "structures.yml"));
         when(addon.getPlugin()).thenReturn(plugin);
         settings = new Settings();
         when(addon.getSettings()).thenReturn(settings);

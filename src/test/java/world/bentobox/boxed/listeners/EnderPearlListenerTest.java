@@ -174,6 +174,19 @@ class EnderPearlListenerTest extends CommonTestSetup {
     }
 
     /**
+     * Admins are not held inside a box, so admin teleports such as tpnether work.
+     */
+    @Test
+    void testOnPlayerTeleportAdminAllowed() {
+        when(addon.getPermissionPrefix()).thenReturn("boxed.");
+        when(player.hasPermission("boxed.admin.tp")).thenReturn(true);
+        PlayerTeleportEvent e = new PlayerTeleportEvent(player, from, to, TeleportCause.COMMAND);
+        epl.onPlayerTeleport(e);
+        assertFalse(e.isCancelled());
+        verify(user, never()).sendMessage(anyString());
+    }
+
+    /**
      * Test method for {@link world.bentobox.boxed.listeners.EnderPearlListener#onPlayerTeleport(org.bukkit.event.player.PlayerTeleportEvent)}.
      */
     @Test

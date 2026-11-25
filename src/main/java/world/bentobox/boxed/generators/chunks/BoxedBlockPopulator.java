@@ -21,10 +21,9 @@ import org.bukkit.util.Vector;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintTrialSpawner;
-import world.bentobox.bentobox.util.Pair;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChestData;
-import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
+import world.bentobox.boxed.generators.template.TemplateChunk;
 
 /**
  * @author tastybento
@@ -48,12 +47,12 @@ public class BoxedBlockPopulator extends BlockPopulator {
         World world = Bukkit.getWorld(worldInfo.getUID());
         int xx = gen.repeatCalc(chunkX);
         int zz = gen.repeatCalc(chunkZ);
-        ChunkStore data = gen.getChunks().get(new Pair<>(xx, zz));
+        TemplateChunk data = addon.getTemplateChunk(worldInfo.getEnvironment(), chunkX, chunkZ);
         if (data == null) {
             return;
         }
         // Paste entities
-        data.bpEnts().forEach(e -> {
+        data.getEntities().forEach(e -> {
             Location l = getLoc(world, e.relativeLoc().clone(), chunkX, chunkZ);
             if (limitedRegion.isInRegion(l)) {
                 Entity ent = limitedRegion.spawnEntity(l, e.entity().getType());
@@ -69,9 +68,9 @@ public class BoxedBlockPopulator extends BlockPopulator {
     /**
      * Applies the stored chest data that matches this tile entity's location, if any
      */
-    private void fillChest(World world, LimitedRegion limitedRegion, ChunkStore data, BlockState te, int chunkX,
+    private void fillChest(World world, LimitedRegion limitedRegion, TemplateChunk data, BlockState te, int chunkX,
             int chunkZ) {
-        for (ChestData cd : data.chests()) {
+        for (ChestData cd : data.getChests()) {
             Location chestLoc = getLoc(world, cd.relativeLoc().clone(), chunkX, chunkZ);
             if (limitedRegion.isInRegion(chestLoc) && te.getLocation().equals(chestLoc)) {
                 this.setBlockState(te, cd.chest());

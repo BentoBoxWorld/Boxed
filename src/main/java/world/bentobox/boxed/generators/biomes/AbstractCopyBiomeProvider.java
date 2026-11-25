@@ -5,18 +5,16 @@ import java.util.List;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
-import org.bukkit.util.Vector;
-import org.eclipse.jdt.annotation.Nullable;
 
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import world.bentobox.bentobox.BentoBox;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
-import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
+import world.bentobox.boxed.generators.template.Template;
 
 /**
- * Copies biomes from seed world
+ * Copies biomes from the area template
  * @author tastybento
  *
  */
@@ -38,16 +36,13 @@ public abstract class AbstractCopyBiomeProvider extends BiomeProvider {
         AbstractBoxedChunkGenerator gen = addon.getChunkGenerator(worldInfo.getEnvironment());
         int chunkX = gen.repeatCalc(x >> 4);
         int chunkZ = gen.repeatCalc(z >> 4);
-        @Nullable ChunkStore c = gen.getChunk(chunkX, chunkZ);
-
-        if (c != null) {
-            int xx = Math.floorMod(x, 16);
-            int zz = Math.floorMod(z, 16);
-            return c.chunkBiomes().getOrDefault(new Vector(xx, y, zz), defaultBiome);
-        } else {
-            BentoBox.getInstance().logWarning("Snapshot at " + chunkX + " " + chunkZ + " is not stored");
+        Template template = addon.getTemplate(worldInfo.getEnvironment(), z >> 4);
+        if (template == null || !template.hasChunk(chunkX, chunkZ)) {
+            BentoBox.getInstance().logWarning("Template chunk " + chunkX + " " + chunkZ + " is not stored");
             return defaultBiome;
         }
+        Biome biome = template.getBiome(chunkX, chunkZ, Math.floorMod(x, 16), y, Math.floorMod(z, 16));
+        return biome == null ? defaultBiome : biome;
     }
 
     @Override

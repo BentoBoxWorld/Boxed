@@ -6,13 +6,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.WorldInfo;
-import org.bukkit.util.Vector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,17 +16,16 @@ import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.CommonTestSetup;
 import world.bentobox.boxed.Settings;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
-import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChunkStore;
+import world.bentobox.boxed.generators.template.Template;
 
 /**
  * Tests {@link AbstractCopyBiomeProvider#getBiome(WorldInfo, int, int, int)} via the
- * concrete overworld {@link BoxedBiomeGenerator}. The provider looks up the biome that
- * was captured from the seed world for the (wrapped) chunk and the in-chunk position.
+ * concrete overworld {@link BoxedBiomeGenerator}. The provider looks up the biome stored in
+ * the template for the (wrapped) chunk and the in-chunk position.
  */
 class CopyBiomeProviderTest extends CommonTestSetup {
 
     private BoxedBiomeGenerator gen;
-    private AbstractBoxedChunkGenerator chunkGen;
     private WorldInfo worldInfo;
     private Boxed addon;
 
@@ -41,7 +36,7 @@ class CopyBiomeProviderTest extends CommonTestSetup {
         when(addon.getSettings()).thenReturn(settings);
         when(settings.getIslandDistance()).thenReturn(400);
 
-        chunkGen = mock(AbstractBoxedChunkGenerator.class);
+        AbstractBoxedChunkGenerator chunkGen = mock(AbstractBoxedChunkGenerator.class);
         when(addon.getChunkGenerator(Environment.NORMAL)).thenReturn(chunkGen);
 
         worldInfo = mock(WorldInfo.class);
@@ -54,42 +49,50 @@ class CopyBiomeProviderTest extends CommonTestSetup {
         gen = new BoxedBiomeGenerator(addon);
     }
 
+    private Template template(int chunkX, int chunkZ) {
+        Template template = mock(Template.class);
+        when(template.hasChunk(chunkX, chunkZ)).thenReturn(true);
+        when(addon.getTemplate(Environment.NORMAL, 0)).thenReturn(template);
+        return template;
+    }
+
     @Test
     void testReturnsStoredBiome() {
         // x=3,z=5 -> chunk 0,0 ; in-chunk position (3, y, 5)
-        Map<Vector, Biome> biomes = new HashMap<>();
-        biomes.put(new Vector(3, 64, 5), Biome.PLAINS);
-        when(chunkGen.getChunk(0, 0)).thenReturn(new ChunkStore(null, null, null, biomes));
+        Template template = template(0, 0);
+        when(template.getBiome(0, 0, 3, 64, 5)).thenReturn(Biome.PLAINS);
 
         assertEquals(Biome.PLAINS, gen.getBiome(worldInfo, 3, 64, 5));
     }
 
     @Test
     void testReturnsDefaultBiomeWhenPositionNotStored() {
-        // Chunk exists but the requested position is not in the map -> default (OCEAN)
-        when(chunkGen.getChunk(0, 0)).thenReturn(new ChunkStore(null, null, null, new HashMap<>()));
+        // Chunk exists but has no biome at the requested position -> default (OCEAN)
+        template(0, 0);
 
         assertEquals(Biome.OCEAN, gen.getBiome(worldInfo, 3, 64, 5));
     }
 
     @Test
     void testReturnsDefaultBiomeAndWarnsWhenChunkMissing() {
-        when(chunkGen.getChunk(0, 0)).thenReturn(null);
+        // There is a template, but not for this chunk
+        template(5, 5);
 
         assertEquals(Biome.OCEAN, gen.getBiome(worldInfo, 3, 64, 5));
-        // The missing snapshot is logged as a warning
-        verify(plugin).logWarning("Snapshot at 0 0 is not stored");
+        // The missing chunk is logged as a warning
+        verify(plugin).logWarning("Template chunk 0 0 is not stored");
+    }
+
+    @Test
+    void testReturnsDefaultBiomeWhenThereIsNoTemplate() {
+        assertEquals(Biome.OCEAN, gen.getBiome(worldInfo, 3, 64, 5));
     }
 
     @Test
     void testCoordinatesAreWrappedIntoSeedRegion() {
-        // x in a far chunk still resolves back into the stored region.
-        // x = 3 + 16*25 = 403 -> chunkX 25 -> repeatCalc(25)= -25 ... but getChunk is
-        // stubbed on the wrapped coord, so verify the wrapped lookup is used.
-        Map<Vector, Biome> biomes = new HashMap<>();
-        biomes.put(new Vector(3, 64, 5), Biome.DESERT);
         // 403 >> 4 = 25 ; repeatCalc(25) with size 25 = floorMod(50,50)-25 = -25
-        when(chunkGen.getChunk(-25, 0)).thenReturn(new ChunkStore(null, null, null, biomes));
+        Template template = template(-25, 0);
+        when(template.getBiome(-25, 0, 3, 64, 5)).thenReturn(Biome.DESERT);
 
         assertEquals(Biome.DESERT, gen.getBiome(worldInfo, 403, 64, 5));
     }

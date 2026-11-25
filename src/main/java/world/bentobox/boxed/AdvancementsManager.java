@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -178,8 +179,8 @@ public class AdvancementsManager {
         if (score == 0) {
             return 0;
         }
-        // Get island
-        Island island = addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
+        // Get the box this counts towards
+        Island island = getBox(p);
         if (island != null
                 && island.getRank(p.getUniqueId()) >= RanksManager.MEMBER_RANK // Only island members expand island
                 && addAdvancement(island, advancement.getKey().toString())) {
@@ -190,6 +191,22 @@ public class AdvancementsManager {
         }
         return 0;
 
+    }
+
+    /**
+     * Gets the box that a player's advancements count towards. A player can have a box in
+     * more than one area, so this is the box they are in, if they are a member of it. If they
+     * are somewhere else, it is their main box.
+     * @param p player
+     * @return the box, or null if the player has none
+     */
+    @Nullable
+    public Island getBox(Player p) {
+        Location loc = p.getLocation();
+        Island here = loc == null ? null
+                : addon.getIslands().getIslandAt(loc)
+                        .filter(i -> i.getRank(p.getUniqueId()) >= RanksManager.MEMBER_RANK).orElse(null);
+        return here != null ? here : addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
     }
 
     /**

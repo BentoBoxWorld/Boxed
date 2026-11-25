@@ -57,7 +57,7 @@
         <mock-bukkit.version>4.119.0</mock-bukkit.version>
         <!-- More visible way how to change dependency versions -->
         <paper.version>26.3.build.231-stable</paper.version>
-        <bentobox.version>3.23.7</bentobox.version>
+        <bentobox.version>3.25.0-SNAPSHOT</bentobox.version>
         <!-- Revision variable removes warning about dynamic version -->
         <revision>${build.version}-SNAPSHOT</revision>
         <!-- Do not change unless you want different name for local builds. -->

@@ -81,7 +81,6 @@ public class NewAreaListener implements Listener {
             "shipwreck", "stronghold", "swamp_hut", "trial_chambers", "village_desert", "village_plains", "village_savanna",
             "village_snowy", "village_taiga");
     private final Boxed addon;
-    private final File structureFile;
     /**
      * Queue for structures whose chunk is loaded and that will be placed in the next ticks
      */
@@ -123,8 +122,6 @@ public class NewAreaListener implements Listener {
         this.addon = addon;
         // Save the default structures file from the jar
         addon.saveResource("structures.yml", false);
-        // Load the config
-        structureFile = new File(addon.getDataFolder(), "structures.yml");
         // Get database ready
         handler = new Database<>(addon, IslandStructures.class);
         // Load the pending structures
@@ -545,8 +542,9 @@ public class NewAreaListener implements Listener {
         }
         // Load the latest config so that admins can change it on the fly without
         // reloading
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(structureFile);
         Location center = island.getProtectionCenter();
+        // Each area has its own list of structures. A missing file means no structures.
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(addon.getStructuresFile(island.getCenter()));
         for (String env : config.getKeys(false)) {
             Environment e = Enums.getIfPresent(Environment.class, env.toUpperCase(Locale.ENGLISH)).orNull();
             if (e == null) {
