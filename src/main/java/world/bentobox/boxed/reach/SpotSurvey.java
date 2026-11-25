@@ -67,7 +67,7 @@ public class SpotSurvey {
     }
 
     private final Map<Material, int[]> all = new EnumMap<>(Material.class);
-    private final Map<Material, int[]> shallow = new EnumMap<>(Material.class);
+    private final Map<Material, int[]> nearSurface = new EnumMap<>(Material.class);
     private int dry;
     private int columns;
     private int dryCentre;
@@ -103,7 +103,7 @@ public class SpotSurvey {
                 countDry(m, size);
             }
             if (ground != Integer.MIN_VALUE && ground - y < SHALLOW) {
-                shallow.computeIfAbsent(m, k -> new int[RADIUS + 1])[size]++;
+                nearSurface.computeIfAbsent(m, k -> new int[RADIUS + 1])[size]++;
             }
         }
     }
@@ -132,7 +132,7 @@ public class SpotSurvey {
      */
     public Score score() {
         LandSurvey everything = toSurvey(all);
-        LandSurvey near = toSurvey(shallow);
+        LandSurvey near = toSurvey(nearSurface);
         // The middle is the four columns of a box of size 1
         boolean centre = dryCentre == 4;
         int dryPercent = columns == 0 ? 0 : dry * 100 / columns;

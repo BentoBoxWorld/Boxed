@@ -206,6 +206,28 @@ public class AdminAreasFindCommand extends CompositeCommand {
             });
         }
 
+        /**
+         * Deletes the world a search used, and any that were left behind by a search that the
+         * server stopped in the middle of.
+         * @param folder folder of the world that was just used, or null if it is still loaded
+         */
+        private void deleteWorlds(File folder) {
+            File[] siblings = folder == null || folder.getParentFile() == null ? null
+                    : folder.getParentFile().listFiles((dir, name) -> name.startsWith(WORLD_PREFIX));
+            if (siblings == null) {
+                return;
+            }
+            for (File old : siblings) {
+                try (Stream<Path> files = Files.walk(old.toPath())) {
+                    for (Path path : files.sorted(Comparator.reverseOrder()).toList()) {
+                        Files.delete(path);
+                    }
+                } catch (IOException e) {
+                    getAddon().logWarning("Could not delete " + old + ": " + e.getMessage());
+                }
+            }
+        }
+
         private boolean isCurrent(Candidate c) {
             return seed == area.seed() && c.x() == area.centreX() && c.z() == area.centreZ();
         }
@@ -301,28 +323,6 @@ public class AdminAreasFindCommand extends CompositeCommand {
         user.sendMessage(PREFIX + "started", "[seed]", String.valueOf(seed));
         new Search(user, area, seed, radius).start();
         return true;
-    }
-
-    /**
-     * Deletes the world a search used, and any that were left behind by a search that the
-     * server stopped in the middle of.
-     * @param folder folder of the world that was just used, or null if it is still loaded
-     */
-    private void deleteWorlds(File folder) {
-        File[] siblings = folder == null || folder.getParentFile() == null ? null
-                : folder.getParentFile().listFiles((dir, name) -> name.startsWith(WORLD_PREFIX));
-        if (siblings == null) {
-            return;
-        }
-        for (File old : siblings) {
-            try (Stream<Path> files = Files.walk(old.toPath())) {
-                for (Path path : files.sorted(Comparator.reverseOrder()).toList()) {
-                    Files.delete(path);
-                }
-            } catch (IOException e) {
-                getAddon().logWarning("Could not delete " + old + ": " + e.getMessage());
-            }
-        }
     }
 
     @Override

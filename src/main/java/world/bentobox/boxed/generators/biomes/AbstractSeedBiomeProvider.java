@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.World.Environment;
@@ -306,7 +307,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * Block x and z of the spots that the custom biomes are laid out around. A seed world has
      * one. The spot finder tries out several in one world.
      */
-    private volatile int[][] centres;
+    private final AtomicReference<int[][]> centres = new AtomicReference<>();
     protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
 
     protected AbstractSeedBiomeProvider(Boxed boxed, Environment env) {
@@ -333,7 +334,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         this.addon = boxed;
         this.env = env;
         this.dist = addon.getSettings().getIslandDistance();
-        this.centres = new int[][] { { centreX, centreZ } };
+        this.centres.set(new int[][] { { centreX, centreZ } });
         // Load the config
         File biomeFile = new File(addon.getDataFolder(), biomesFile);
         // The default file is saved from the jar. Other areas' files are made by the admin.
@@ -366,14 +367,14 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         if (spots.isEmpty()) {
             throw new IllegalArgumentException("There must be at least one spot");
         }
-        this.centres = spots.stream().map(int[]::clone).toArray(int[][]::new);
+        this.centres.set(spots.stream().map(int[]::clone).toArray(int[][]::new));
     }
 
     /**
      * @return the spot nearest to a block
      */
     private int[] nearestCentre(int x, int z) {
-        int[][] all = centres;
+        int[][] all = centres.get();
         int[] nearest = all[0];
         long best = Long.MAX_VALUE;
         for (int[] c : all) {
