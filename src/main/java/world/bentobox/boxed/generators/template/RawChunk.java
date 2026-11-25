@@ -7,7 +7,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -30,6 +32,25 @@ import java.util.zip.InflaterInputStream;
  */
 public record RawChunk(int minY, List<String> blockPalette, short[][] sections, int[] uniform,
         List<Placed> entities, List<Placed> tiles) {
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof RawChunk other && minY == other.minY && blockPalette.equals(other.blockPalette)
+                && Arrays.deepEquals(sections, other.sections) && Arrays.equals(uniform, other.uniform)
+                && entities.equals(other.entities) && tiles.equals(other.tiles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(minY, blockPalette, Arrays.deepHashCode(sections), Arrays.hashCode(uniform), entities,
+                tiles);
+    }
+
+    @Override
+    public String toString() {
+        return "RawChunk[minY=" + minY + ", blockPalette=" + blockPalette + ", sections=" + sections.length
+                + ", entities=" + entities.size() + ", tiles=" + tiles.size() + "]";
+    }
 
     /**
      * Something stored at a position in the chunk, described by a JSON string.

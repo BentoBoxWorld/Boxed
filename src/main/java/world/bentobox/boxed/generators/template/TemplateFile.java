@@ -170,6 +170,7 @@ public class TemplateFile implements Closeable {
         private final RawBiomes[] biomes;
         private final long seed;
         private long position;
+        private boolean aborted;
 
         /**
          * @param file template file to make
@@ -217,9 +218,13 @@ public class TemplateFile implements Closeable {
 
         /**
          * Writes the biome table, header and index and moves the finished file into place.
+         * Does nothing if the build was given up with {@link #abort()}.
          */
         @Override
         public synchronized void close() throws IOException {
+            if (aborted) {
+                return;
+            }
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             try (DataOutputStream out = new DataOutputStream(new DeflaterOutputStream(bytes))) {
                 for (RawBiomes b : biomes) {
@@ -248,6 +253,7 @@ public class TemplateFile implements Closeable {
          * Gives up on the build and removes the temporary file.
          */
         public synchronized void abort() {
+            aborted = true;
             try {
                 channel.close();
                 Files.deleteIfExists(temp.toPath());

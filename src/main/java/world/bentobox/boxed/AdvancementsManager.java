@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -201,8 +202,9 @@ public class AdvancementsManager {
      */
     @Nullable
     public Island getBox(Player p) {
-        Island here = p.getLocation() == null ? null
-                : addon.getIslands().getIslandAt(p.getLocation())
+        Location loc = p.getLocation();
+        Island here = loc == null ? null
+                : addon.getIslands().getIslandAt(loc)
                         .filter(i -> i.getRank(p.getUniqueId()) >= RanksManager.MEMBER_RANK).orElse(null);
         return here != null ? here : addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
     }

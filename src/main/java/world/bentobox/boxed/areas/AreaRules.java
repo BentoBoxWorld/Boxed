@@ -1,5 +1,6 @@
 package world.bentobox.boxed.areas;
 
+import java.util.List;
 import java.io.IOException;
 import java.util.stream.Stream;
 
@@ -43,7 +44,7 @@ public class AreaRules {
      * @param variables variables for the reason, in pairs
      * @param hidden true if the player should not even be shown the area
      */
-    record Refusal(String reference, String[] variables, boolean hidden) {
+    record Refusal(String reference, List<String> variables, boolean hidden) {
     }
 
     /**
@@ -57,20 +58,20 @@ public class AreaRules {
     Refusal refusal(@NonNull User user, @Nullable String bundle, @Nullable Island oldBox) {
         AreaManager areas = addon.getAreas();
         if (areas.isPending(bundle)) {
-            return new Refusal(NOT_READY, new String[0], true);
+            return new Refusal(NOT_READY, List.of(), true);
         }
         Area area = areas.getAreaForBundle(bundle);
         if (!area.enabled()) {
-            return new Refusal(CLOSED, new String[0], true);
+            return new Refusal(CLOSED, List.of(), true);
         }
         // One box per area. A box that is being reset is about to go, so it does not count.
         if (boxes(user, area).anyMatch(i -> oldBox == null || !i.getUniqueId().equals(oldBox.getUniqueId()))) {
-            return new Refusal(ALREADY_HAVE, new String[0], false);
+            return new Refusal(ALREADY_HAVE, List.of(), false);
         }
         Area required = areas.getArea(area.requires());
         if (required != null && !hasUnlockedNext(user, required)) {
-            return new Refusal(required.unlockSize() > 0 ? REQUIRES : REQUIRES_BOX, new String[] {
-                    TextVariables.NAME, required.id(), TextVariables.NUMBER, String.valueOf(required.unlockSize()) },
+            return new Refusal(required.unlockSize() > 0 ? REQUIRES : REQUIRES_BOX, List.of(
+                    TextVariables.NAME, required.id(), TextVariables.NUMBER, String.valueOf(required.unlockSize())),
                     false);
         }
         return null;
@@ -92,7 +93,7 @@ public class AreaRules {
             return BundleAvailability.available();
         }
         return refusal.hidden() ? BundleAvailability.hidden()
-                : BundleAvailability.locked(user.getTranslation(refusal.reference(), refusal.variables()));
+                : BundleAvailability.locked(user.getTranslation(refusal.reference(), refusal.variables().toArray(String[]::new)));
     }
 
     /**
@@ -108,9 +109,9 @@ public class AreaRules {
     public Area check(@NonNull User user, @Nullable String bundle, @Nullable Island oldBox) throws IOException {
         Refusal refusal = refusal(user, bundle, oldBox);
         if (refusal != null) {
-            if (refusal.variables().length > 0) {
+            if (!refusal.variables().isEmpty()) {
                 // The reason has details, so tell the player here and refuse with the short version
-                user.sendMessage(refusal.reference(), refusal.variables());
+                user.sendMessage(refusal.reference(), refusal.variables().toArray(String[]::new));
                 throw new IOException(LOCKED);
             }
             throw new IOException(refusal.reference());

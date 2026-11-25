@@ -3,7 +3,9 @@ package world.bentobox.boxed.generators.template;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The biomes of one chunk of a template in their stored form. Biomes are stored per 4x4x4
@@ -19,6 +21,22 @@ import java.util.List;
  * @author tastybento
  */
 public record RawBiomes(int minY, List<String> palette, byte[] cells) {
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof RawBiomes other && minY == other.minY && palette.equals(other.palette)
+                && Arrays.equals(cells, other.cells);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(minY, palette, Arrays.hashCode(cells));
+    }
+
+    @Override
+    public String toString() {
+        return "RawBiomes[minY=" + minY + ", palette=" + palette + ", cells=" + cells.length + "]";
+    }
 
     /**
      * @param x x in the chunk, 0 to 15

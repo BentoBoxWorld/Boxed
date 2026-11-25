@@ -290,11 +290,12 @@ public class BoxCleaner implements Listener {
         remaining = null;
         queued.remove(key(job));
         String where = job.centre().getBlockX() + "," + job.centre().getBlockZ();
-        if (job.islandId() != null) {
-            Optional<Island> box = addon.getIslands().getIslandById(job.islandId());
+        String id = job.islandId();
+        if (id != null) {
+            Optional<Island> box = addon.getIslands().getIslandById(id);
             if (box.isPresent() && box.get().isDeletable()) {
-                addon.getIslands().getIslandCache().deleteIslandFromCache(job.islandId());
-                addon.getIslands().deleteIslandId(job.islandId());
+                addon.getIslands().getIslandCache().deleteIslandFromCache(id);
+                addon.getIslands().deleteIslandId(id);
                 // Tell other addons the box is completely gone, as BentoBox does
                 IslandEvent.builder().island(box.get()).reason(Reason.PURGED).build();
             }

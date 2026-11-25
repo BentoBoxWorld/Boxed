@@ -464,9 +464,6 @@ public class Boxed extends GameModeAddon {
      */
     @Override
     public String getIslandLabel(User user, Island island) {
-        if (island.getCenter() == null) {
-            return null;
-        }
         Area area = getAreaAt(island.getCenter().getBlockZ() >> 4);
         BlueprintBundle bundle = getPlugin().getBlueprintsManager().getBlueprintBundles(this).get(area.id());
         return bundle == null || bundle.getDisplayName() == null || bundle.getDisplayName().isBlank() ? area.id()

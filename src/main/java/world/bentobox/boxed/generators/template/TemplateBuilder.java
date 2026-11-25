@@ -89,50 +89,58 @@ public class TemplateBuilder {
      * @throws IOException if the file could not be written
      */
     public void build(File file, long seed) throws IOException {
-        TemplateFile.Writer writer = new TemplateFile.Writer(file, size, seed);
         int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-        ExecutorService pool = Executors.newFixedThreadPool(threads, r -> {
-            Thread t = new Thread(r, "Boxed template builder");
-            t.setDaemon(true);
-            return t;
-        });
-        // Limits how many captured chunks wait to be compressed
-        Semaphore permits = new Semaphore(threads * 4);
-        AtomicReference<Exception> failure = new AtomicReference<>();
+        // Closing the writer puts the finished file in place, unless the build was given up
+        try (TemplateFile.Writer writer = new TemplateFile.Writer(file, size, seed);
+                ExecutorService pool = Executors.newFixedThreadPool(threads, r -> {
+                    Thread t = new Thread(r, "Boxed template builder");
+                    t.setDaemon(true);
+                    return t;
+                })) {
+            // Limits how many captured chunks wait to be compressed
+            Semaphore permits = new Semaphore(threads * 4);
+            AtomicReference<Exception> failure = new AtomicReference<>();
+            try {
+                captureAll(file, writer, pool, permits, failure);
+                pool.shutdown();
+                if (!pool.awaitTermination(10, TimeUnit.MINUTES)) {
+                    failure.compareAndSet(null, new IOException("Timed out compressing chunks"));
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                failure.compareAndSet(null, e);
+            } catch (RuntimeException e) {
+                failure.compareAndSet(null, e);
+            } finally {
+                pool.shutdownNow();
+            }
+            if (failure.get() != null) {
+                writer.abort();
+                throw new IOException("Could not build " + file.getName(), failure.get());
+            }
+        }
+    }
+
+    private void captureAll(File file, TemplateFile.Writer writer, ExecutorService pool, Semaphore permits,
+            AtomicReference<Exception> failure) throws InterruptedException {
         int total = size * 2 * size * 2;
         int done = 0;
         int lastPercent = 0;
-        try {
-            request(-size);
-            for (int x = -size; x < size && failure.get() == null; x++) {
-                // Get the server working on the next column while this one is captured
-                request(x + 1);
-                for (int z = -size; z < size; z++) {
-                    capture(x, z, writer, pool, permits, failure);
-                    done++;
-                }
-                unload(x - 2);
-                int percent = done * 100 / total;
-                if (percent / 10 != lastPercent / 10) {
-                    log.accept("Building " + file.getName() + " from " + world.getName() + ": " + percent + "% done");
-                }
-                lastPercent = percent;
+        request(-size);
+        for (int x = -size; x < size && failure.get() == null; x++) {
+            // Get the server working on the next column while this one is captured
+            request(x + 1);
+            for (int z = -size; z < size; z++) {
+                capture(x, z, writer, pool, permits, failure);
+                done++;
             }
-            pool.shutdown();
-            if (!pool.awaitTermination(10, TimeUnit.MINUTES)) {
-                failure.compareAndSet(null, new IOException("Timed out compressing chunks"));
+            unload(x - 2);
+            int percent = done * 100 / total;
+            if (percent / 10 != lastPercent / 10) {
+                log.accept("Building " + file.getName() + " from " + world.getName() + ": " + percent + "% done");
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            failure.compareAndSet(null, e);
-        } finally {
-            pool.shutdownNow();
+            lastPercent = percent;
         }
-        if (failure.get() != null) {
-            writer.abort();
-            throw new IOException("Could not build " + file.getName(), failure.get());
-        }
-        writer.close();
     }
 
     /**
