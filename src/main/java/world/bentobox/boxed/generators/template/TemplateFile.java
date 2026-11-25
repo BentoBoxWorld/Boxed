@@ -108,16 +108,16 @@ public class TemplateFile implements Closeable {
      * Reads the compressed data of a chunk. Safe to call from any thread.
      * @param x chunk x, from -size to size - 1
      * @param z chunk z, from -size to size - 1
-     * @return compressed chunk, or null if the template does not have this chunk
+     * @return compressed chunk, or an empty array if the template does not have this chunk
      * @throws IOException if the file cannot be read
      */
     public byte[] read(int x, int z) throws IOException {
         if (x < -size || x >= size || z < -size || z >= size) {
-            return null;
+            return new byte[0];
         }
         int slot = slot(size, x, z);
         if (lengths[slot] <= 0) {
-            return null;
+            return new byte[0];
         }
         return readFully(lengths[slot], offsets[slot]).array();
     }
@@ -257,7 +257,7 @@ public class TemplateFile implements Closeable {
             try {
                 channel.close();
                 Files.deleteIfExists(temp.toPath());
-            } catch (IOException e) {
+            } catch (IOException _) {
                 // Nothing more can be done
             }
         }

@@ -251,19 +251,8 @@ public class BoxCleaner implements Listener {
         int maxY = world.getMaxHeight();
         for (int sectionY = minY; sectionY < maxY; sectionY += 16) {
             // Most of the sky is air in both, which is quick to check
-            if (snapshot.isSectionEmpty((sectionY - minY) >> 4) && template.isAirSection(sectionY)) {
-                continue;
-            }
-            for (int y = sectionY; y < sectionY + 16; y++) {
-                for (int z = 0; z < 16; z++) {
-                    for (int x = 0; x < 16; x++) {
-                        BlockData wanted = template.getBlockData(x, y, z);
-                        if (wanted != null && !wanted.equals(snapshot.getBlockData(x, y, z))) {
-                            chunk.getBlock(x, y, z).setBlockData(wanted, false);
-                            changed++;
-                        }
-                    }
-                }
+            if (!snapshot.isSectionEmpty((sectionY - minY) >> 4) || !template.isAirSection(sectionY)) {
+                changed += restoreSection(chunk, snapshot, template, sectionY);
             }
         }
         // Chests, spawners and so on get their contents back, whether or not the block changed
@@ -277,6 +266,26 @@ public class BoxCleaner implements Listener {
             l.setY(e.relativeLoc().getY());
             e.entity().configureEntity(world.spawnEntity(l, e.entity().getType()));
         });
+        return changed;
+    }
+
+    /**
+     * Puts back every block of a 16-block-high section that differs from the template.
+     * @return the number of blocks that were put back
+     */
+    private static int restoreSection(Chunk chunk, ChunkSnapshot snapshot, TemplateChunk template, int sectionY) {
+        int changed = 0;
+        for (int y = sectionY; y < sectionY + 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    BlockData wanted = template.getBlockData(x, y, z);
+                    if (wanted != null && !wanted.equals(snapshot.getBlockData(x, y, z))) {
+                        chunk.getBlock(x, y, z).setBlockData(wanted, false);
+                        changed++;
+                    }
+                }
+            }
+        }
         return changed;
     }
 

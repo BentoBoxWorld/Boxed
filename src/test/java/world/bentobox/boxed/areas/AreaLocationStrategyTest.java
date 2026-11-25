@@ -15,6 +15,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import world.bentobox.bentobox.managers.BlueprintsManager;
 import world.bentobox.bentobox.managers.IslandDeletionManager;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.CommonTestSetup;
@@ -47,7 +48,8 @@ class AreaLocationStrategyTest extends CommonTestSetup {
         when(addon.getSettings()).thenReturn(settings);
         // No blueprints, so boxes go at the island height setting
         when(addon.getPlugin()).thenReturn(plugin);
-        when(plugin.getBlueprintsManager()).thenReturn(mock(world.bentobox.bentobox.managers.BlueprintsManager.class));
+        BlueprintsManager blueprints = mock(BlueprintsManager.class);
+        when(plugin.getBlueprintsManager()).thenReturn(blueprints);
         AbstractBoxedChunkGenerator gen = mock(AbstractBoxedChunkGenerator.class);
         // 20 chunks half-width = boxes 640 blocks apart
         when(gen.getSize()).thenReturn(20);

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -138,7 +139,7 @@ class BoxHeightTest extends CommonTestSetup {
     void testCentrePutsTheSignOnTheGround() {
         assertEquals(4, new BoxHeight(addon).get(ice));
         // The sign is one block north of the bedrock, which is in the chunk north of the centre
-        org.mockito.Mockito.verify(template).getChunk(0, -1);
+        verify(template).getChunk(0, -1);
     }
 
     @Test

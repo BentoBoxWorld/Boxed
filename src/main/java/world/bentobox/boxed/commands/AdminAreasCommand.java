@@ -37,6 +37,8 @@ import world.bentobox.boxed.areas.AreaManager;
 public class AdminAreasCommand extends CompositeCommand {
 
     private static final String PREFIX = "boxed.commands.boxadmin.areas.";
+
+    private static final String AREAS = "areas.";
     private static final String UNKNOWN_AREA = PREFIX + "unknown-area";
 
     public AdminAreasCommand(CompositeCommand parent) {
@@ -183,7 +185,7 @@ public class AdminAreasCommand extends CompositeCommand {
             long seed;
             try {
                 seed = args.size() == 2 ? Long.parseLong(args.get(1)) : ThreadLocalRandom.current().nextLong();
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException _) {
                 user.sendMessage(PREFIX + "create.invalid-seed");
                 return false;
             }
@@ -215,9 +217,9 @@ public class AdminAreasCommand extends CompositeCommand {
             }
             File areasFile = new File(folder, "areas.yml");
             YamlConfiguration config = YamlConfiguration.loadConfiguration(areasFile);
-            config.set("areas." + name + ".seed", seed);
-            config.set("areas." + name + ".biomes", biomes);
-            config.set("areas." + name + ".structures", structures);
+            config.set(AREAS + name + ".seed", seed);
+            config.set(AREAS + name + ".biomes", biomes);
+            config.set(AREAS + name + ".structures", structures);
             config.save(areasFile);
 
             // A bundle with the same name is how players choose the area

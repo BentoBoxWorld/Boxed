@@ -206,25 +206,7 @@ public class TemplateBuilder {
         int[] uniform = new int[sectionCount];
         for (int section = 0; section < sectionCount; section++) {
             short[] blocks = new short[RawChunk.SECTION_BLOCKS];
-            boolean same = true;
-            int i = 0;
-            for (int y = 0; y < 16; y++) {
-                for (int z = 0; z < 16; z++) {
-                    for (int x = 0; x < 16; x++) {
-                        BlockData data = snapshot.getBlockData(x, minY + (section << 4) + y, z);
-                        Integer id = blockIds.get(data);
-                        if (id == null) {
-                            id = blockPalette.size();
-                            blockIds.put(data, id);
-                            blockPalette.add(data.getAsString());
-                        }
-                        blocks[i] = id.shortValue();
-                        same &= blocks[i] == blocks[0];
-                        i++;
-                    }
-                }
-            }
-            if (same) {
+            if (fillSection(snapshot, minY + (section << 4), blocks, blockIds, blockPalette)) {
                 uniform[section] = blocks[0];
             } else {
                 sections[section] = blocks;
@@ -232,6 +214,29 @@ public class TemplateBuilder {
         }
 
         return new RawChunk(minY, blockPalette, sections, uniform, entities, tiles);
+    }
+
+    /**
+     * Fills in the palette indices of one section, adding to the palette as needed.
+     * @return true if every block in the section is the same
+     */
+    private static boolean fillSection(ChunkSnapshot snapshot, int baseY, short[] blocks,
+            Map<BlockData, Integer> blockIds, List<String> blockPalette) {
+        boolean same = true;
+        int i = 0;
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    blocks[i] = blockIds.computeIfAbsent(snapshot.getBlockData(x, baseY + y, z), data -> {
+                        blockPalette.add(data.getAsString());
+                        return blockPalette.size() - 1;
+                    }).shortValue();
+                    same &= blocks[i] == blocks[0];
+                    i++;
+                }
+            }
+        }
+        return same;
     }
 
     /**
@@ -248,14 +253,10 @@ public class TemplateBuilder {
         for (int y = 0; y < maxY - minY; y += 4) {
             for (int z = 0; z < 16; z += 4) {
                 for (int x = 0; x < 16; x += 4) {
-                    Biome biome = snapshot.getBiome(x, minY + y, z);
-                    Integer id = biomeIds.get(biome);
-                    if (id == null) {
-                        id = palette.size();
-                        biomeIds.put(biome, id);
-                        palette.add(biome.getKey().toString());
-                    }
-                    cells[RawBiomes.index(x, y, z)] = id.byteValue();
+                    cells[RawBiomes.index(x, y, z)] = biomeIds.computeIfAbsent(snapshot.getBiome(x, minY + y, z), b -> {
+                        palette.add(b.getKey().toString());
+                        return palette.size() - 1;
+                    }).byteValue();
                 }
             }
         }
