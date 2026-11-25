@@ -207,22 +207,15 @@ public class LandSurvey {
      */
     private void addBiomes(Template template, int chunkX, int chunkZ, boolean nether, Map<Biome, int[]> counters) {
         Kind kind = nether ? Kind.NETHER_BIOME : Kind.BIOME;
-        for (int x = 0; x < 16; x += 4) {
-            for (int z = 0; z < 16; z += 4) {
-                int size = sizeFor((chunkX << 4) + x, (chunkZ << 4) + z);
-                if (size <= radius) {
-                    addBiomeColumn(template, chunkX, chunkZ, x, z, size, kind, counters);
+        for (int cell = 0; cell < 16; cell++) {
+            int x = (cell & 3) << 2;
+            int z = (cell >> 2) << 2;
+            int size = sizeFor((chunkX << 4) + x, (chunkZ << 4) + z);
+            for (int y : BIOME_HEIGHTS) {
+                Biome biome = size <= radius ? template.getBiome(chunkX, chunkZ, x, y, z) : null;
+                if (biome != null) {
+                    counters.computeIfAbsent(biome, b -> counter(kind, b.getKey().getKey()))[size]++;
                 }
-            }
-        }
-    }
-
-    private void addBiomeColumn(Template template, int chunkX, int chunkZ, int x, int z, int size, Kind kind,
-            Map<Biome, int[]> counters) {
-        for (int y : BIOME_HEIGHTS) {
-            Biome biome = template.getBiome(chunkX, chunkZ, x, y, z);
-            if (biome != null) {
-                counters.computeIfAbsent(biome, b -> counter(kind, b.getKey().getKey()))[size]++;
             }
         }
     }
