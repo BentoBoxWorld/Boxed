@@ -81,15 +81,14 @@ public class TemplateChunk {
      */
     @Nullable
     public Integer getGroundLevel(int x, int z) {
-        for (int y = minY + sections.length * 16 - 1; y >= minY; y--) {
-            if (isAirSection(y)) {
-                // Skip to the bottom of the empty section
-                y = minY + (((y - minY) >> 4) << 4);
-                continue;
-            }
-            Material m = getBlockData(x, y, z).getMaterial();
-            if (m.isSolid() && !Tag.LEAVES.isTagged(m) && !Tag.LOGS.isTagged(m)) {
-                return y;
+        for (int section = sections.length - 1; section >= 0; section--) {
+            int baseY = minY + (section << 4);
+            // Empty sections are skipped whole
+            for (int y = baseY + 15; y >= baseY && !isAirSection(baseY); y--) {
+                Material m = getBlockData(x, y, z).getMaterial();
+                if (m.isSolid() && !Tag.LEAVES.isTagged(m) && !Tag.LOGS.isTagged(m)) {
+                    return y;
+                }
             }
         }
         return null;

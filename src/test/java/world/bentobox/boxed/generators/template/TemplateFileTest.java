@@ -73,10 +73,10 @@ class TemplateFileTest {
             assertArrayEquals(a, template.read(-2, -2));
             assertArrayEquals(b, template.read(1, 1));
             // Not written
-            assertNull(template.read(0, 0));
+            assertEquals(0, template.read(0, 0).length);
             // Outside the template
-            assertNull(template.read(2, 0));
-            assertNull(template.read(0, -3));
+            assertEquals(0, template.read(2, 0).length);
+            assertEquals(0, template.read(0, -3).length);
             assertEquals(-1, template.slot(2, 0));
 
             RawBiomes[] biomes = template.readBiomes();

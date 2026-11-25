@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -534,7 +533,9 @@ public class Boxed extends GameModeAddon {
             return seedWorld;
         }
         try (Stream<Path> files = Files.walk(folder.toPath())) {
-            files.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
+            for (Path path : files.sorted(Comparator.reverseOrder()).toList()) {
+                Files.delete(path);
+            }
         } catch (IOException e) {
             logError("Could not delete seed world " + folder + ": " + e.getMessage());
         }

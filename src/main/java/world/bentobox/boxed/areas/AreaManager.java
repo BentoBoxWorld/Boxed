@@ -39,7 +39,7 @@ public class AreaManager {
     private final File gridFile;
     private final YamlConfiguration grid;
     private final Map<String, Area> areas = new LinkedHashMap<>();
-    private final Map<Integer, Area> rows = new ConcurrentHashMap<>();
+    private final Map<Integer, Area> areaByRow = new ConcurrentHashMap<>();
     private final Map<Integer, Map<Environment, Template>> templates = new ConcurrentHashMap<>();
     private final Set<String> pending = ConcurrentHashMap.newKeySet();
     private final Area defaultArea;
@@ -55,19 +55,7 @@ public class AreaManager {
         this.gridFile = gridFile;
         this.grid = YamlConfiguration.loadConfiguration(gridFile);
         ConfigurationSection section = config.getConfigurationSection("areas");
-        List<String> ids = new ArrayList<>();
-        // The default area always exists and always comes first
-        ids.add(Area.DEFAULT);
-        if (section != null) {
-            for (String id : section.getKeys(false)) {
-                if (!VALID_ID.matcher(id).matches()) {
-                    errorLog.accept("Area name '" + id
-                            + "' is not valid. Use lower case letters, numbers and underscores only. Ignoring it.");
-                } else if (!ids.contains(id)) {
-                    ids.add(id);
-                }
-            }
-        }
+        List<String> ids = getIds(section, errorLog);
         boolean changed = false;
         for (String id : ids) {
             String path = ROWS + "." + id;
@@ -79,22 +67,53 @@ public class AreaManager {
             if (s == null) {
                 s = new YamlConfiguration();
             }
-            String requires = s.getString("requires");
-            if (requires != null && (!ids.contains(requires) || requires.equals(id))) {
-                errorLog.accept("Area '" + id + "' requires area '" + requires
-                        + "', which is not a different, known area. Ignoring the requirement.");
-                requires = null;
-            }
+            String requires = getRequirement(s, id, ids, errorLog);
             Area area = new Area(id, s.getLong("seed", defaultSeed), s.getString("biomes", "biomes.yml"),
                     s.getString("structures", "structures.yml"), grid.getInt(path), s.getBoolean("enabled", true),
                     requires, Math.max(0, s.getInt("unlocks-next-at", 0)));
             areas.put(id, area);
-            rows.put(area.row(), area);
+            areaByRow.put(area.row(), area);
         }
         defaultArea = areas.get(Area.DEFAULT);
         if (changed) {
             save(errorLog);
         }
+    }
+
+    /**
+     * Lists the names of the areas in the config. The default area always exists and always
+     * comes first.
+     */
+    private static List<String> getIds(ConfigurationSection section, java.util.function.Consumer<String> errorLog) {
+        List<String> ids = new ArrayList<>();
+        ids.add(Area.DEFAULT);
+        if (section == null) {
+            return ids;
+        }
+        for (String id : section.getKeys(false)) {
+            if (!VALID_ID.matcher(id).matches()) {
+                errorLog.accept("Area name '" + id
+                        + "' is not valid. Use lower case letters, numbers and underscores only. Ignoring it.");
+            } else if (!ids.contains(id)) {
+                ids.add(id);
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * @return the area that an area requires, or null if it requires none or the one it names
+     *         is not a different, known area
+     */
+    private static String getRequirement(ConfigurationSection s, String id, List<String> ids,
+            java.util.function.Consumer<String> errorLog) {
+        String requires = s.getString("requires");
+        if (requires != null && (!ids.contains(requires) || requires.equals(id))) {
+            errorLog.accept("Area '" + id + "' requires area '" + requires
+                    + "', which is not a different, known area. Ignoring the requirement.");
+            return null;
+        }
+        return requires;
     }
 
     /**
@@ -191,7 +210,7 @@ public class AreaManager {
      */
     @NonNull
     public Area getAreaAtRow(int row) {
-        Area area = rows.get(row);
+        Area area = areaByRow.get(row);
         return area == null ? defaultArea : area;
     }
 

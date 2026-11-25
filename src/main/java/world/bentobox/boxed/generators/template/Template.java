@@ -163,7 +163,7 @@ public class Template implements Closeable {
     private TemplateChunk load(int x, int z) {
         try {
             byte[] data = file.read(x, z);
-            return data == null ? null : resolve(RawChunk.decode(data));
+            return data.length == 0 ? null : resolve(RawChunk.decode(data));
         } catch (IOException | RuntimeException e) {
             errorLog.accept("Could not read template chunk " + x + " " + z + ": " + e);
             return null;
@@ -188,7 +188,7 @@ public class Template implements Closeable {
         return blockDataCache.computeIfAbsent(string, s -> {
             try {
                 return Bukkit.createBlockData(s);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException _) {
                 errorLog.accept("Template has a block this server does not know: " + s);
                 return Material.AIR.createBlockData();
             }

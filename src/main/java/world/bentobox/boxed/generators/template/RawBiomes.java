@@ -24,8 +24,8 @@ public record RawBiomes(int minY, List<String> palette, byte[] cells) {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof RawBiomes other && minY == other.minY && palette.equals(other.palette)
-                && Arrays.equals(cells, other.cells);
+        return o instanceof RawBiomes(int otherMinY, List<String> otherPalette, byte[] otherCells)
+                && minY == otherMinY && palette.equals(otherPalette) && Arrays.equals(cells, otherCells);
     }
 
     @Override
