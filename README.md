@@ -7,16 +7,12 @@ A game mode where you are boxed into a tiny space that only expands by completin
 
 ## BentoBox Requirements
 
-* Requires BentoBox 3.17.0 or later (Snapshots can be downloaded here: [https://ci.bentobox.world](https://ci.bentobox.world)). BentoBox 3.16.1+ is needed for native region-file cleanup of deleted boxes — see [Reclaiming Disk Space](#reclaiming-disk-space-deleted-island-chunks).
+* Requires BentoBox 3.25.0 or later (Snapshots can be downloaded here: [https://ci.bentobox.world](https://ci.bentobox.world)). BentoBox 3.16.1+ is needed for native region-file cleanup of deleted boxes — see [Reclaiming Disk Space](#reclaiming-disk-space-deleted-island-chunks).
 * InvSwitcher - keeps advancements, inventory, etc. separate between worlds on a server.
 * Border - shows the box
 
-### Warning!!
-Boxed requires **a lot of RAM** and can take up to **10 minutes** to boot up for the first time as it pre-generates the worlds. After the initial start, it will start up much quicker. With 12GB of RAM running on a fast ARM-based system, it takes ~ 8 minutes for the first boot. If you do not have enough RAM then weird things will happen to your server including strange errors about chunks and things like that. To dedicate enough RAM to your JVM, use the correct flags during startup. Here is my `start.sh` for running on Paper 1.19.4:
-```
-#!/bin/sh
-java -Xms12G -Xmx12G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:InitiatingHeapOccupancyPercent=15 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true  -jar paper-1.19.4.jar nogui
-```
+### First start
+The first time Boxed starts it builds its worlds from a hidden seed world and saves the result as template files in `plugins/BentoBox/addons/Boxed/areas/`. This takes around 30 seconds on a modern machine and happens only once. After that the seed world is not loaded at all and Boxed starts in a few seconds. No special amount of RAM is needed.
 
 ## How to install
 
@@ -24,7 +20,7 @@ java -Xms12G -Xmx12G -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMill
 
 1. Place Boxed addon into the BentoBox addons folder along with InvSwitcher and Border (use the latest versions!).
 2. (Optional) Install the Datapack for custom advancements - https://github.com/BentoBoxWorld/BoxedDataPack/
-3. Restart the server - new worlds will be created. This will take a while!
+3. Restart the server - new worlds will be created. The first start takes a little longer.
 4. Login.
 5. Type `/boxed` to start.
 6. Turn off advancement announcements with `/gamerule announceAdvancements false` to avoid spam, or set `boxed.broadcast-advancements: true` in `config.yml` to have Boxed broadcast them instead.
@@ -65,6 +61,52 @@ Want to use your own terrain or a custom-built map instead? See [Using a Custom 
 | `boxed.broadcast-advancements` | `false` | If `true`, Boxed will broadcast new advancements. Recommended: set the game rule `/gamerule announceAdvancements false` and use this setting instead. |
 | `boxed.deny-visitor-advancements` | `true` | If `true`, visitors cannot earn advancements. Note: visitors will still receive other rewards such as experience. |
 | `world.allow-structures` | `false` | Allow vanilla structures to generate in the seed world. |
+
+### Areas (areas.yml)
+
+An *area* is a kind of land that a box can be made in. Every box in the same area has exactly the same land; boxes in different areas have different land, biomes and structures. Out of the box there is one area called `default`.
+
+To add an area, run `/boxadmin areas create <name> [seed]` and restart the server. The command adds the area to `areas.yml`, gives it a biomes file (a copy of `biomes.yml` to edit) and an empty structures file, and makes a blueprint bundle with the same name. Players who pick that bundle get a box in that area; bundles that do not match an area use the default area. The land of the new area is built once at the restart (about 20 seconds) and saved in `areas/<name>/`.
+
+You can also do the same by hand: add the area to `areas.yml` and make a blueprint bundle whose unique id is the area's name.
+
+| Command | What it does |
+|---------|--------------|
+| `/boxadmin areas` | Lists the areas with their row, seed and number of boxes. |
+| `/boxadmin areas tp <area>` | Takes you to the land where the area's next box will be, so you can look at it and place structures before any player has a box there. |
+| `/boxadmin areas create <name> [seed]` | Makes a new area and its blueprint bundle. Needs a restart. |
+| `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
+| `/boxadmin areas clean [x z]` | Puts the land of the box position you are in (or the one at x, z) back the way it was. Use it after trying out structures in a position nobody has a box in. Positions with a box in use are refused. |
+
+Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
+
+| Setting | Description |
+|---------|-------------|
+| `requires` | The area that unlocks this one. Leave out for an area anyone can start in. |
+| `unlocks-next-at` | The size a player's box in this area must reach to unlock the areas that require it. Set it per area to make some harder than others. 0 (the default) means having a box there is enough. |
+| `enabled` | Set to `false` to stop new boxes being made in the area. Existing boxes are not affected. |
+
+A player can have one box in each area. They need to be allowed more than one box (`world.concurrent-area` in `config.yml`) to have boxes in more than one area at a time. With InvSwitcher, turn on `options.islands.advancements` so each box has its own advancements.
+
+```yaml
+areas:
+  default:
+    biomes: biomes.yml
+    structures: structures.yml
+    unlocks-next-at: 100
+  icelands:
+    seed: 1234567890
+    biomes: biomes-icelands.yml
+    structures: structures-icelands.yml
+    requires: default
+```
+
+Each area owns one east-west row of the world, recorded in `areas/grid.yml`, and its boxes are placed along that row. `/boxadmin place` saves structures to the structures file of the area you are standing in. Requires BentoBox 3.25.0 or later.
+
+Notes:
+* Do not remove an area that has boxes in it, and do not edit `areas/grid.yml`.
+* Changing an area's seed or biomes after it is built does nothing until you run `/boxadmin areas rebuild <area> regenerate` and restart.
+* A row that no area owns has the default area's land. If players have already seen the edge of such a row, those chunks keep the default land after a new area is given that row.
 
 ### Blueprint
 
@@ -122,14 +164,14 @@ Admins can place structures in-game using the `/boxadmin place` command:
 | Argument | Description |
 |----------|-------------|
 | `<structure>` | Minecraft structure name (tab-complete to see available structures) |
-| `[x y z]` | Coordinates where the structure should be placed. Use `~` for the current position. |
+| `[x y z]` | Coordinates where the structure should be placed. Use `~` for the current position. For `y` you can also use `ground` to sit the structure on the highest solid block, ignoring water and trees (the sea bed at sea), or `surface` for the top of whatever is there (the water surface at sea). Add an offset to sink or raise it, for example `ground-1` or `surface+3`. |
 | `[ROTATION]` | Optional rotation: `NONE`, `CLOCKWISE_90`, `CLOCKWISE_180`, `COUNTERCLOCKWISE_90` |
 | `[MIRROR]` | Optional mirror: `NONE`, `LEFT_RIGHT`, `FRONT_BACK` |
 | `[NO_MOBS]` | Optional flag to suppress mob spawning from this structure |
 
 To undo the last placed structure: `/boxadmin place undo`
 
-When a structure is placed via this command while standing in a player box, it is automatically saved to `structures.yml` and will be placed in all future boxes.
+The structure is saved to the structures file of the area you are in and will be placed in all future boxes of that area. You do not need to be in a box: use `/boxadmin areas tp <area>` to go to an area's land before anyone has a box there. Operators, and players with the Border addon's `boxed.border.bypass` permission, can walk around outside a box; other admins are put in spectator mode.
 
 
 ## Using a Custom Map as the Seed
@@ -143,12 +185,14 @@ Boxed uses two worlds:
 1. A hidden **seed world** — `<worldname>/seed` (overworld) and `<worldname>/seed_nether` (nether). This is a normal world generated from the numeric world seed.
 2. The **game world** — `<worldname>` and `<worldname>_nether` — that players actually play in.
 
-On **every server start**, Boxed reads the chunks around the centre of the seed world and copies them into the game world's generator. Each player's box is then served a copy of that captured terrain.
+The **first time** the server starts, Boxed reads the chunks around the centre of the seed world and saves them, with their biomes, as template files: `plugins/BentoBox/addons/Boxed/areas/default/normal.bxt` and `nether.bxt`. Each player's box is then served a copy of that terrain from the template. The seed world is unloaded once the templates are built and is not loaded again.
 
 Two facts make custom maps possible:
 
-* The copy reads the seed world **from disk**, live, on every boot — so anything you change in the seed world flows into newly generated boxes.
-* The game world **copies the seed world's biomes as-is**. There is no biome remapping when a chunk is copied, so whatever biomes are in the seed world are what players get.
+* The templates are built from the seed world **on disk**, so anything you change in the seed world can be turned into new templates.
+* The templates **copy the seed world's biomes as-is**. There is no biome remapping, so whatever biomes are in the seed world are what players get.
+
+**To rebuild the templates** after changing the seed world, run `/boxadmin areas rebuild default` and restart the server (or stop the server, delete the `.bxt` files and start it again). The seed world's saved chunks are read again and anything not yet generated is generated.
 
 Two limits to keep in mind:
 
@@ -178,9 +222,9 @@ Notes: this reproduces vanilla terrain for that seed. Boxed still applies its ow
 
 You can go into the seed world and build, paste, or remove whatever you like.
 
-1. Use a world-management plugin (e.g. Multiverse) to teleport into `<worldname>/seed`.
+1. Use a world-management plugin (e.g. Multiverse) to load and teleport into `<worldname>/seed`. It is not loaded by default.
 2. Build or WorldEdit/paste your changes **around 0,0**, within the island-distance radius.
-3. Restart the server. On boot, Boxed re-copies the seed world, so your edits appear in any box that is generated **after** the restart.
+3. Stop the server, delete the `.bxt` template files (see above) and start it again. Boxed rebuilds the templates from the seed world, so your edits appear in any box that is generated **after** the restart.
 
 To apply your edits to boxes/areas that already exist, you must regenerate those game-world chunks while leaving the seed world untouched — for example by deleting the relevant region files in `<worldname>` / `<worldname>_nether`, or by resetting/deleting the affected islands so BentoBox reaps their region files (see [Reclaiming Disk Space](#reclaiming-disk-space-deleted-island-chunks)). When the chunks regenerate they are re-copied from the seed world, which is the source of truth.
 
@@ -193,8 +237,9 @@ This replaces the generated seed world with a world you built or downloaded.
 3. Copy your world's region files into Boxed's seed world folders, replacing what's there:
    * Overworld: your `region/` → `<worldname>/seed/region/`
    * Nether: your `DIM-1/region/` → `<worldname>/seed_nether/region/`
-4. Delete the game-world folders so they regenerate from your new seed world on next boot:
+4. Delete the game-world folders and the `.bxt` template files so they are rebuilt from your new seed world on next boot:
    * `<worldname>` and `<worldname>_nether`
+   * `plugins/BentoBox/addons/Boxed/areas/default/*.bxt`
    * Leave the seed worlds (`<worldname>/seed`, `<worldname>/seed_nether`) in place.
 5. Start the server. Boxed copies your imported chunks — terrain **and biomes** — into the freshly generated game world.
 
@@ -204,7 +249,6 @@ Biomes: because the game world copies the seed world's biomes unchanged, your im
 
 * The copy radius is `world.island-distance`. If you increase it, your custom content must cover the larger area.
 * BentoBox's native region cleanup never touches the seed worlds, so your custom terrain is safe. If you run a third-party chunk-cleaner like Regionerator, exempt the seed worlds (see [Reclaiming Disk Space](#reclaiming-disk-space-deleted-island-chunks)) or your custom seed terrain may be deleted and boxes will stop matching.
-* The first boot after importing is slow and RAM-hungry, just like a normal first start (see the warning near the top of this file).
 * All boxes share the same captured terrain, so every player gets the same custom map layout.
 
 
@@ -248,7 +292,13 @@ Download the official [Boxed DataPack](https://github.com/BentoBoxWorld/BoxedDat
 
 **As of BentoBox 3.16.1, BentoBox reclaims disk space natively — you no longer need a third-party plugin for this.** (The region-file housekeeping sweep was added in 3.15.0; admin deletes were routed through it in 3.16.1.)
 
-### How it works now
+### Boxed cleans up its own boxes
+
+When a box is deleted or reset, Boxed puts its land back the way it was: every chunk of the box's position that has been generated, in the overworld and the Nether, is compared with the area's template and anything different is restored. Structures, mobs and dropped items are removed too. This is done a little each tick and takes around a minute for a well-explored box. When it finishes, the console says so and the position is free for a new box, which gets its structures placed afresh. Boxes waiting to be cleaned when the server stops are picked up when it starts again.
+
+This does not depend on the region-file housekeeping described below, which Boxed worlds rarely benefit from: neighbouring box positions share region files, so a region can almost never be deleted while any neighbour is in use. The housekeeping is still safe to leave on.
+
+### How BentoBox housekeeping works
 
 When an island is deleted or reset, BentoBox does **not** wipe blocks immediately. Instead it *soft-deletes* the island: the owner is cleared, the box is locked, and the island is flagged `deletable` in the database. The actual world data is reclaimed later by deleting the `.mca` region files from disk — far cheaper than regenerating chunks block-by-block.
 
@@ -275,7 +325,7 @@ The sweep only scans gamemode island worlds and only the region files belonging 
 
 ### Regionerator (legacy / optional)
 
-You can still run [Regionerator](https://github.com/Jikoo/Regionerator) if you prefer, but it is no longer necessary for Boxed. If you do use it, exempt the seed worlds so it doesn't delete the terrain Boxed copies from (which would make startup very slow). Add these entries to the `worlds` section of the Regionerator config:
+You can still run [Regionerator](https://github.com/Jikoo/Regionerator) if you prefer, but it is no longer necessary for Boxed. If you do use it, exempt the seed worlds so it doesn't delete the terrain the templates are built from. Add these entries to the `worlds` section of the Regionerator config:
 
 ```yaml
 worlds:

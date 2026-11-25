@@ -2,6 +2,21 @@
 # This is a YML file. Be careful when editing. Check your edits in a YAML checker like    #
 # the one at http://yaml-online-parser.appspot.com                                        #
 boxed:
+  # Words BentoBox uses in its own messages when it means an island
+  prefixes:
+    island: box
+    Island: Box
+    Islands: Boxes
+    an-island: a box
+    islands: boxes
+  areas:
+    errors:
+      not-ready: '&c That area is new and will be ready after the server restarts.'
+      closed: '&c New boxes cannot be made in that area any more.'
+      locked: '&c You have not unlocked that area yet.'
+      requires: '&c Reach size [number] in the [name] area first.'
+      requires-box: '&c Start a box in the [name] area first.'
+      already-have: '&c You already have a box in that area.'
   completed: '&a [name] completed!'
   size-changed: '&a Box size increased by [number]!'
   size-decreased: '&c Box size decreased by [number]!'
@@ -537,348 +552,6 @@ boxed:
       previous-command-cancelled: '&c Previous command cancelled'
       stand-still: '&6 Do not move! Teleporting in [seconds] seconds'
       moved-so-command-cancelled: '&c You moved. Teleport cancelled!'
-    box:
-      about:
-        description: display licence details
-      go:
-        parameters: '[home name]'
-        description: teleport you to your box
-        teleport: '&a Teleporting you to your box.'
-        in-progress: '&a Teleporting in progress, please wait...'
-        teleported: '&a Teleported you to home &e [number].'
-        failure: '&c Teleporting failed for some reason. Please try again later.'
-        unknown-home: '&c Unknown home name!'
-      help:
-        description: the main box command
-      spawn:
-        description: teleport you to the spawn
-        teleporting: '&a Teleporting you to the spawn.'
-        no-spawn: '&c There is no spawn in this gamemode.'
-      create:
-        description: create an box, using optional blueprint (requires permission)
-        parameters: <blueprint>
-        too-many-boxes: '&c There are too many boxes in this world: there isn''t enough
-          room for yours to be created.'
-        cannot-create-box: '&c A spot could not be found in time, please try again...'
-        unable-create-box: '&c Your box could not be generated, please contact an
-          administrator.'
-        creating-box: '&a Finding a spot for your box...'
-        you-cannot-make: '&c You cannot make any more boxes!'
-        max-uses: '&c You cannot make any more of that type of box!'
-        you-cannot-make-team: '&c Team members cannot make boxes in the same world
-          as their team box.'
-        pasting:
-          estimated-time: '&a Estimated time: &b [number] &a seconds.'
-          blocks: '&a Building it block by block: &b [number] &a blocks in all...'
-          entities: '&a Filling it with entities: &b [number] &a entities in all...'
-          dimension-done: '&a box in [world] is constructed.'
-          done: '&a Done! Your box is ready and waiting for you!'
-        pick: '&2 Pick an box'
-        unknown-blueprint: '&c That blueprint has not been loaded yet.'
-        on-first-login: '&a Welcome! We will start preparing your box in a few seconds.'
-        you-can-teleport-to-your-box: '&a You can teleport to your box when you want.'
-      deletehome:
-        description: delete a home location
-        parameters: '[home name]'
-      homes:
-        description: list your homes
-      info:
-        description: display info about your box or the player's box
-        parameters: <player>
-      near:
-        description: show the name of neighboring boxes around you
-        parameters: ''
-        the-following-boxes: '&a The following boxes are nearby:'
-        syntax: '&6 [direction]: &a [name]'
-        north: North
-        south: South
-        east: East
-        west: West
-        no-neighbors: '&c You have no immediate neighboring boxes!'
-      reset:
-        description: restart your box and remove the old one
-        parameters: <blueprint>
-        none-left: '&c You have no more resets left!'
-        resets-left: '&c You have &b [number] &c resets left'
-        confirmation: |-
-          &c Are you sure you want to do this?
-          &c All box members will be kicked from the box, you will have to reinvite them afterwards.
-          &c There is no going back: once your current box is deleted, there will be &l no &r &c way to retrieve it later on.
-        kicked-from-box: '&c You are kicked from your box in [gamemode] because the
-          owner is resetting it.'
-      sethome:
-        description: set your home teleport point
-        must-be-on-your-box: '&c You must be on your box to set home!'
-        too-many-homes: '&c Cannot set - your box is at the maximum of [number] homes.'
-        home-set: '&6 Your box home has been set to your current location.'
-        homes-are: '&6 box homes are:'
-        home-list-syntax: '&6 [name]'
-        nether:
-          not-allowed: '&c You are not allowed to set your home in the Nether.'
-          confirmation: '&c Are you sure you want to set your home in the Nether?'
-        the-end:
-          not-allowed: '&c You are not allowed to set your home in the End.'
-          confirmation: '&c Are you sure you want to set your home in the End?'
-        parameters: '[home name]'
-      setname:
-        description: set a name for your box
-        name-too-short: '&c Too short. Minimum size is [number] characters.'
-        name-too-long: '&c Too long. Maximum size is [number] characters.'
-        name-already-exists: '&c There is already an box with that name in this gamemode.'
-        parameters: <name>
-        success: '&a Successfully set your box''s name to &b [name]&a .'
-      renamehome:
-        description: rename a home location
-        parameters: '[home name]'
-        enter-new-name: '&6 Enter the new name'
-        already-exists: '&c That name already exists, try another name.'
-      resetname:
-        description: reset your box name
-        success: '&a Successfully reset your box name.'
-      team:
-        description: manage your team
-        gui:
-          titles:
-            team-panel: Team Management
-          buttons:
-            status:
-              name: Status
-              description: The status of the team
-            rank-filter:
-              name: Rank Filter
-              description: '&a Click to cycle ranks'
-            invitation: Invitation
-            invite:
-              name: Invite player
-              description: |
-                &a Players must be in the
-                &a same world as you to be
-                &a shown in the list.
-          tips:
-            LEFT:
-              name: '&b Left Click'
-              invite: '&a to invite a player'
-            RIGHT:
-              name: '&b Right Click'
-            SHIFT_RIGHT:
-              name: '&b Shift Right Click'
-              reject: '&a to reject'
-              kick: '&a to kick player'
-              leave: '&a to leave team'
-            SHIFT_LEFT:
-              name: '&b Shift Left Click'
-              accept: '&a to accept '
-              setowner: |
-                &a to set owner
-                &a to this player
-        info:
-          description: display detailed info about your team
-          member-layout:
-            online: '&a &l  o &r &f [name]'
-            offline: '&c &l  o &r &f [name] &7 ([last_seen])'
-            offline-not-last-seen: '&c &l  o &r &f [name]'
-          last-seen:
-            layout: '&b [number] &7 [unit] ago'
-            days: days
-            hours: hours
-            minutes: minutes
-          header: |
-            &f --- &a Team details &f ---
-            &a Members: &b [total]&7 /&b [max]
-            &a Online members: &b [online]
-          rank-layout:
-            owner: '&6 [rank]:'
-            generic: '&6 [rank] &7 (&b [number]&7 )&6 :'
-        coop:
-          description: make a player coop rank on your box
-          parameters: <player>
-          cannot-coop-yourself: '&c You cannot coop yourself!'
-          already-has-rank: '&c Player already has a rank!'
-          you-are-a-coop-member: '&2 You were cooped by &b[name]&a.'
-          success: '&a You cooped &b [name]&a.'
-          name-has-invited-you: |
-            &a [name] has invited you
-            &a to join as a coop member
-            &a of their box.
-        uncoop:
-          description: remove a coop rank from player
-          parameters: <player>
-          cannot-uncoop-yourself: '&c You cannot uncoop yourself!'
-          cannot-uncoop-member: '&c You cannot uncoop a team member!'
-          player-not-cooped: '&c Player is not cooped!'
-          you-are-no-longer-a-coop-member: '&c You are no longer a coop member of
-            [name]''s box.'
-          all-members-logged-off: '&c All box members logged off so you are no longer
-            a coop member of [name]''s box.'
-          success: '&b [name] &a is no longer a coop member of your box.'
-          is-full: '&c You cannot coop anyone else.'
-        trust:
-          description: give a player trusted rank on your box
-          parameters: <player>
-          trust-in-yourself: '&c Trust in yourself!'
-          name-has-invited-you: |
-            &a [name] has invited you
-            &a to join as a trusted member
-            &a of their box.
-          player-already-trusted: '&c Player is already trusted!'
-          you-are-trusted: '&2 You are trusted by &b [name]&a !'
-          success: '&a You trusted &b [name]&a .'
-          is-full: '&c You cannot trust anyone else. Watch your back!'
-        untrust:
-          description: remove trusted player rank from player
-          parameters: <player>
-          cannot-untrust-yourself: '&c You cannot untrust yourself!'
-          cannot-untrust-member: '&c You cannot untrust a team member!'
-          player-not-trusted: '&c Player is not trusted!'
-          you-are-no-longer-trusted: '&c You are no longer trusted by &b [name]&a
-            !'
-          success: '&b [name] &a is no longer trusted on your box.'
-        invite:
-          description: invite a player to join your box
-          invitation-sent: '&a Invitation sent to &b[name]&a.'
-          removing-invite: '&c Removing invite.'
-          name-has-invited-you: |
-            &a [name] has invited you
-            &a to join their box.
-          to-accept-or-reject: '&a Do /[label] team accept to accept, or /[label]
-            team reject to reject'
-          you-will-lose-your-box: |
-            &c WARNING! You will lose all
-            &c your boxes if you accept!
-          gui:
-            titles:
-              team-invite-panel: Invite Players
-            button:
-              already-invited: '&c Invited already'
-              search: '&a Search for a player'
-              searching: |
-                &b Searching for
-                &c [name]
-            enter-name: '&a Enter name:'
-            tips:
-              LEFT:
-                name: '&b Left Click'
-                search: '&a Enter the player''s name'
-                back: '&a Back'
-                invite: |
-                  &a to invite a player
-                  &a to join your team
-              RIGHT:
-                name: '&b Right Click'
-                coop: '&a to coop player'
-              SHIFT_LEFT:
-                name: '&b Shift Left Click'
-                trust: '&a to trust a player'
-          errors:
-            cannot-invite-self: '&c You cannot invite yourself!'
-            cooldown: '&c You cannot invite that person for another [number] seconds.'
-            box-is-full: '&c Your box is full, you can''t invite anyone else.'
-            none-invited-you: '&c No one invited you :c.'
-            you-already-are-in-team: '&c You are already on a team!'
-            already-on-team: '&c That player is already on a team!'
-            invalid-invite: '&c That invite is no longer valid, sorry.'
-            you-have-already-invited: '&c You have already invited that player!'
-          parameters: <player>
-          you-can-invite: '&a You can invite [number] more players.'
-          accept:
-            description: accept an invitation
-            you-joined-box: '&a You joined an box! Use &b/[label] team &a to see the
-              other members.'
-            name-joined-your-box: '&a [name] joined your box!'
-            confirmation: |
-              &c Are you sure you
-              &c want to accept this
-              &c invite?
-          reject:
-            description: reject an invitation
-            you-rejected-invite: '&a You rejected the invitation to join an box.'
-            name-rejected-your-invite: '&c [name] rejected your box invite!'
-          cancel:
-            description: cancel the pending invite to join your box
-        leave:
-          cannot-leave: '&c Owners cannot leave! Become a member first, or kick all
-            members.'
-          description: leave your box
-          left-your-box: '&c [name] &c left your box'
-          success: '&a You left this box.'
-        kick:
-          description: remove a member from your box
-          parameters: <player>
-          player-kicked: '&c The [name] kicked you from the box in [gamemode]!'
-          cannot-kick: '&c You cannot kick yourself!'
-          cannot-kick-rank: '&c Your rank does not allow to kick [name]!'
-          success: '&b [name] &a has been kicked from your box.'
-        demote:
-          description: demote a player on your box down a rank
-          parameters: <player>
-          errors:
-            cant-demote-yourself: '&c You can''t demote yourself!'
-            cant-demote: '&c You can''t demote higher ranks!'
-            must-be-member: '&c Player must be an box member!'
-          failure: '&c Player cannot be demoted any further!'
-          success: '&a Demoted [name] to [rank]'
-        promote:
-          description: promote a player on your box up a rank
-          parameters: <player>
-          errors:
-            cant-promote-yourself: '&c You can''t promote yourself!'
-            cant-promote: '&c You can''t promote above your rank!'
-            must-be-member: '&c Player must be an box member!'
-          failure: '&c Player cannot be promoted any further!'
-          success: '&a Promoted [name] to [rank]'
-        setowner:
-          description: transfer your box ownership to a member
-          errors:
-            cant-transfer-to-yourself: '&c You can''t transfer ownership to yourself!
-              &7 (&o Well, in fact, you could... But we don''t want you to. Because
-              it''s useless.&r &7 )'
-            target-is-not-member: '&c That player is not part of your box team!'
-            at-max: '&c That player already has the maximum number of boxes they are
-              allowed!'
-          name-is-the-owner: '&a [name] is now the box owner!'
-          parameters: <player>
-          you-are-the-owner: '&a You are now the box owner!'
-      ban:
-        description: ban a player from your box
-        parameters: <player>
-        cannot-ban-yourself: '&c You cannot ban yourself!'
-        cannot-ban: '&c That player cannot be banned.'
-        cannot-ban-member: '&c Kick the team member first, then ban.'
-        cannot-ban-more-players: '&c You reached the ban limit, you cannot ban any
-          more players from your box.'
-        player-already-banned: '&c Player is already banned.'
-        player-banned: '&b [name]&c  is now banned from your box.'
-        owner-banned-you: '&b [name]&c  banned you from their box!'
-        you-are-banned: '&b You are banned from this box!'
-      unban:
-        description: unban a player from your box
-        parameters: <player>
-        cannot-unban-yourself: '&c You cannot unban yourself!'
-        player-not-banned: '&c Player is not banned.'
-        player-unbanned: '&b [name]&a  is now unbanned from your box.'
-        you-are-unbanned: '&b [name]&a  unbanned you from their box!'
-      banlist:
-        description: list banned players
-        noone: '&a No one is banned on this box.'
-        the-following: '&b The following players are banned:'
-        names: '&c [line]'
-        you-can-ban: '&b You can ban up to &e [number] &b more players.'
-      settings:
-        description: display box settings
-      language:
-        description: select language
-        parameters: '[language]'
-        not-available: '&c This language is not available.'
-        already-selected: '&c You are already using this language.'
-      expel:
-        description: expel a player from your box
-        parameters: <player>
-        cannot-expel-yourself: '&c You cannot expel yourself!'
-        cannot-expel: '&c That player cannot be expelled.'
-        cannot-expel-member: '&c You cannot expel a team member!'
-        not-on-box: '&c That player is not on your box!'
-        player-expelled-you: '&b [name]&c  expelled you from the box!'
-        success: '&a You expelled &b [name] &a from the box.'
     boxed:
       help:
         description: Start a Boxed game or teleport to your Box
@@ -889,16 +562,47 @@ boxed:
     boxadmin:
       place:
         description: Place an area structure
-        parameters: <x> <y> <z> <rotation> <mirror> <no mobs>
-        use-integers: '&c Coordinated must be integers'
+        parameters: <structure> [x y z] [rotation] [mirror] [NO_MOBS] - y can be ground or surface, with an offset such as ground-1
+        use-integers: '&c Coordinates must be whole numbers or ~. The height can also be ground or surface.'
         wrong-world: '&c This command can only be used in a Boxed world'
         unknown-structure: '&c Cannot place: Unknown structure'
         unknown-rotation: '&c Cannot place: Unknown rotation type'
         unknown-mirror: '&c Cannot place: Unknown mirror type'
-        saved: '&a Placed and saved to structures.yml'
-        failed: '&c Could not be saved to structures.yml. Check console for error'
+        saved: '&a Placed and saved to this area''s structures file'
+        failed: '&c Could not be saved to this area''s structures file. Check console for error'
         unknown: '&c Unknown parameter: [label]'
         undo-success: '&a Undone. Some changes cannot be undone.'
+      areas:
+        description: list the areas that boxes can be made in
+        header: '&a Areas:'
+        entry: '&e [name] &7 - row [row], seed [seed], [number] boxes'
+        entry-closed: '&7     closed to new boxes'
+        entry-requires: '&7     unlocked by a box of size [number] or more in [name]'
+        unknown-area: '&c There is no area with that name'
+        tp:
+          description: go to the land where the next box of an area will be
+          parameters: <area>
+          teleporting: '&a Teleporting you to the [name] area...'
+          spectator: '&a You are now in spectator mode because only operators can walk around outside a box. Use /gamemode to change back when you return to a box.'
+        create:
+          description: make a new area and a blueprint bundle for it
+          parameters: <name> [seed]
+          invalid-name: '&c Area names can only have lower case letters, numbers and underscores'
+          invalid-seed: '&c The seed must be a whole number'
+          exists: '&c There is already an area or blueprint bundle with that name'
+          failed: '&c The area could not be made. Check the console for the error'
+          success: '&a Made area [name] with seed [seed]. Restart the server to build its land. Until then boxes cannot be made in it.'
+        rebuild:
+          description: build the land of an area again at the next restart
+          parameters: <area> [regenerate]
+          failed: '&c The request could not be saved. Check the console for the error'
+          success: '&a The land of [name] will be rebuilt from its seed worlds at the next restart. Boxes already explored do not change.'
+          success-regenerate: '&a The seed worlds and land of [name] will be generated again at the next restart. Boxes already explored do not change.'
+        clean:
+          description: put the land of an unused box position back the way it was
+          parameters: '[x z]'
+          in-use: '&c There is a box in use there. Delete the box first.'
+          success: '&a The land of the box position at [xyz] is being put back. See the console for when it is done.'
     island:
       go:
         parameters: '[home number]'
@@ -916,6 +620,10 @@ boxed:
         unable-create-island: '&c Your box could not be generated, please contact
           an administrator.'
         creating-island: '&a Finding a spot for your box...'
+        you-cannot-make: '&c You cannot make any more boxes!'
+        max-uses: '&c You cannot make any more of that type of box!'
+        you-cannot-make-team: '&c Team members cannot make boxes in the same world
+          as their team box.'
         pasting:
           estimated-time: '&a Estimated time: &b [number] &a seconds.'
           blocks: '&a Building it block by block: &b [number] &a blocks in all...'
@@ -2062,7 +1770,7 @@ boxed:
           &a blocks
       ENTER_EXIT_MESSAGES:
         description: Display entry and exit messages
-        island: '[name]''s protected box'
+        island: '[name]''s box'
         name: Enter/Exit messages
         now-entering: '&a Now entering &b [name]&a .'
         now-entering-your-island: '&a Now entering your box.'

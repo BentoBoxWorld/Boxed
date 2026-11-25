@@ -51,6 +51,8 @@ public class EnderPearlListener implements Listener {
         }
         if (!addon.inWorld(e.getFrom()) || !e.getPlayer().getGameMode().equals(GameMode.SURVIVAL)
                 || !addon.inWorld(e.getTo())
+                // Admins can go anywhere, for example with the admin tp commands
+                || e.getPlayer().hasPermission(addon.getPermissionPrefix() + "admin.tp")
                 || addon.getIslands().getSpawn(e.getFrom().getWorld()).map(spawn -> spawn.onIsland(e.getTo())).orElse(false)
                 ) {
             return;

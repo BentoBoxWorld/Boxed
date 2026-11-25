@@ -1,0 +1,45 @@
+# Areas are the different kinds of land that a box can be made in.
+# Every box in the same area has exactly the same land. Boxes in different areas have
+# different land, so each area gives players different challenges.
+#
+# The area called "default" always exists. To add another area, add a section below with
+# a name made of lower case letters, numbers or underscores, then make a blueprint bundle
+# with the same unique id as the area. Players who pick that bundle get a box in that area.
+# Bundles that do not match an area use the default area.
+#
+# Settings for each area:
+#   seed       - the world seed the land is generated from. The default area uses the seed
+#                in config.yml unless one is given here.
+#   biomes     - the file that says which biomes are placed around the middle of the area.
+#   structures - the file that lists the structures placed in each new box of this area.
+#   enabled    - set to false to stop new boxes being made in this area. Boxes already there
+#                are not affected. Default is true.
+#   requires   - the name of another area that unlocks this one. Leave out for an area
+#                anyone can start in.
+#   unlocks-next-at - the size a player's box in this area must reach to unlock the areas
+#                that require it. Set it per area: a bigger number makes the next area
+#                harder to reach. 0 (the default) means having a box here is enough.
+#
+# A player can have one box in each area. They need to be allowed more than one box to use
+# more than one area at a time: see world.concurrent-area in config.yml.
+#
+# Admins can list areas with /boxadmin areas, visit one with /boxadmin areas tp <area>,
+# make one with /boxadmin areas create <name> [seed] and build one again with
+# /boxadmin areas rebuild <area> [regenerate].
+#
+# The land of an area is built once, when the server first starts with the area in this
+# file, and saved in the areas folder. Changing an area's seed or biomes afterwards does
+# nothing until you run /boxadmin areas rebuild <area> regenerate and restart.
+# Boxes that players have already explored do not change.
+#
+# Do not remove an area that has boxes in it.
+areas:
+  default:
+    biomes: biomes.yml
+    structures: structures.yml
+#    unlocks-next-at: 100
+#  icelands:
+#    seed: 1234567890
+#    biomes: biomes-icelands.yml
+#    structures: structures-icelands.yml
+#    requires: default

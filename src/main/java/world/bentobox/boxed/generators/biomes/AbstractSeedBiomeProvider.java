@@ -3,11 +3,14 @@ package world.bentobox.boxed.generators.biomes;
 import java.io.File;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -38,6 +41,8 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * Config marker for "no custom biome here, use the vanilla one"
      */
     private static final String CUSTOM_BIOME = "CUSTOM";
+
+    private static final String DEFAULT_BIOMES = "biomes.yml";
 
     private static final Map<Environment, String> ENV_MAP;
 
@@ -295,13 +300,24 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     }
 
     private final Boxed addon;
+    private final Environment env;
     protected final int dist;
     private final int spawnX;
     private final int spawnZ;
     protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
 
     protected AbstractSeedBiomeProvider(Boxed boxed, Environment env) {
+        this(boxed, env, DEFAULT_BIOMES);
+    }
+
+    /**
+     * @param boxed addon
+     * @param env environment
+     * @param biomesFile name of the file in the addon folder that defines the biomes
+     */
+    protected AbstractSeedBiomeProvider(Boxed boxed, Environment env, String biomesFile) {
         this.addon = boxed;
+        this.env = env;
         // These fields are used to determine the biomes around the spawn point
         this.dist = addon.getSettings().getIslandDistance();
         if (env.equals(Environment.NORMAL)) {
@@ -312,10 +328,14 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             spawnZ = addon.getSettings().getNetherSeedZ();
         }
         // Load the config
-        File biomeFile = new File(addon.getDataFolder(), "biomes.yml");
-        // Check if it exists and if not, save it from the jar
+        File biomeFile = new File(addon.getDataFolder(), biomesFile);
+        // The default file is saved from the jar. Other areas' files are made by the admin.
         if (!biomeFile.exists()) {
-            addon.saveResource("biomes.yml", true);
+            if (DEFAULT_BIOMES.equals(biomesFile)) {
+                addon.saveResource(DEFAULT_BIOMES, true);
+            } else {
+                addon.logError(biomesFile + " does not exist, so vanilla biomes will be used for that area.");
+            }
         }
         YamlConfiguration config = YamlConfiguration.loadConfiguration(biomeFile);
         SortedMap<Double, Biome> northEast = loadQuad(config, ENV_MAP.get(env) + ".north-east");
@@ -892,10 +912,21 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
 
     }
 
+    /**
+     * Lists the biomes this provider can return. For the Nether this must only be the biomes
+     * that can really occur. The server uses this list to decide which structures to look for,
+     * and if it thinks strongholds are possible in the Nether it searches the whole area for
+     * their biomes before generating any chunk, which takes minutes and never finds any.
+     */
     @Override
     public List<Biome> getBiomes(WorldInfo worldInfo) {
-        // Return all of them for now!
-        return RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME).stream().toList();
+        if (env != Environment.NETHER) {
+            return RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME).stream().toList();
+        }
+        Set<Biome> biomes = new LinkedHashSet<>(List.of(Biome.NETHER_WASTES, Biome.CRIMSON_FOREST,
+                Biome.WARPED_FOREST, Biome.SOUL_SAND_VALLEY, Biome.BASALT_DELTAS));
+        quadrants.values().forEach(q -> q.values().stream().filter(Objects::nonNull).forEach(biomes::add));
+        return List.copyOf(biomes);
     }
 
     /**

@@ -1,5 +1,10 @@
 package world.bentobox.boxed.commands;
 
+import org.bukkit.World;
+import org.bukkit.Tag;
+import org.bukkit.HeightMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,7 +47,9 @@ import world.bentobox.boxed.objects.ToBePlacedStructures.StructureRecord;
  */
 public class AdminPlaceStructureCommand extends CompositeCommand {
 
-    private static final String STRUCTURE_FILE = "structures.yml";
+    private static final Pattern GROUND_LEVEL = Pattern.compile("(ground|surface)([+-]\\d+)?",
+            Pattern.CASE_INSENSITIVE);
+
 
     /**
      * Integrity determines how damaged the building should look by randomly skipping blocks to place.
@@ -118,7 +125,8 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         }
 
         // Next come the coordinates - there must be at least 3 of them
-        if (!isCoordinate(args.get(1)) || !isCoordinate(args.get(2)) || !isCoordinate(args.get(3))) {
+        if (!isCoordinate(args.get(1)) || !(isCoordinate(args.get(2)) || isGroundLevel(args.get(2)))
+                || !isCoordinate(args.get(3))) {
             user.sendMessage("boxed.commands.boxadmin.place.use-integers");
             return false;
         }
@@ -152,6 +160,50 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
      */
     private static boolean isCoordinate(String arg) {
         return arg.equals("~") || Util.isInteger(arg, true);
+    }
+
+    /**
+     * @param arg command argument
+     * @return true if the argument asks for the height to be worked out from the land:
+     *         "ground" or "surface", optionally followed by an offset such as -1 or +3
+     */
+    static boolean isGroundLevel(String arg) {
+        return GROUND_LEVEL.matcher(arg).matches();
+    }
+
+    /**
+     * Works out the height for a structure that should sit on the land.
+     * <ul>
+     * <li>ground - on the highest solid block, ignoring water, leaves and tree trunks. This is
+     * the sea bed when the spot is under water.</li>
+     * <li>surface - on the highest block of any kind, so on top of the water at sea.</li>
+     * </ul>
+     * An offset can follow, so ground-1 sinks the structure one block into the ground.
+     * @param world world
+     * @param x block x
+     * @param z block z
+     * @param arg the height argument, see {@link #isGroundLevel(String)}
+     * @return the y to place the structure at
+     */
+    static int groundLevel(World world, int x, int z, String arg) {
+        Matcher m = GROUND_LEVEL.matcher(arg);
+        if (!m.matches()) {
+            throw new IllegalArgumentException(arg);
+        }
+        int offset = m.group(2) == null ? 0 : Integer.parseInt(m.group(2));
+        if (m.group(1).equalsIgnoreCase("surface")) {
+            return world.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING) + 1 + offset;
+        }
+        int y = world.getHighestBlockYAt(x, z, HeightMap.OCEAN_FLOOR);
+        // Go down through trees to the soil they grow in
+        while (y > world.getMinHeight() && isTree(world.getBlockAt(x, y, z).getType())) {
+            y--;
+        }
+        return y + 1 + offset;
+    }
+
+    private static boolean isTree(Material type) {
+        return Tag.LEAVES.isTagged(type) || Tag.LOGS.isTagged(type);
     }
 
     /**
@@ -211,10 +263,16 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         Structure s = Bukkit.getStructureManager().loadStructure(tag);
         int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX()
                 : Integer.parseInt(args.get(1).trim());
-        int y = args.size() == 1 || args.get(2).equals("~") ? user.getLocation().getBlockY()
-                : Integer.parseInt(args.get(2).trim());
         int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ()
                 : Integer.parseInt(args.get(3).trim());
+        int y;
+        if (args.size() == 1 || args.get(2).equals("~")) {
+            y = user.getLocation().getBlockY();
+        } else if (isGroundLevel(args.get(2))) {
+            y = groundLevel(user.getWorld(), x, z, args.get(2));
+        } else {
+            y = Integer.parseInt(args.get(2).trim());
+        }
         Location spot = new Location(user.getWorld(), x, y, z);
         Map<Vector, BlockData> removedBlocks = new HashMap<>();
         BlockTransformer store = (region, xx, yy, zz, current, state) -> {
@@ -240,13 +298,18 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     }
 
     private boolean saveStructure(Location spot, NamespacedKey tag, StructureRotation sr2, Mirror mirror2) {
-        return getAddon().getIslands().getIslandAt(spot).map(i -> {
-            int xx = spot.getBlockX() - i.getCenter().getBlockX();
-            int zz = spot.getBlockZ() - i.getCenter().getBlockZ();
-            File structures = new File(getAddon().getDataFolder(), STRUCTURE_FILE);
+        // Positions are saved relative to the middle of the box position, which exists even
+        // if nobody has a box there yet
+        return Optional.of(((Boxed) getAddon()).getBoxCentre(spot)).map(i -> {
+            int xx = spot.getBlockX() - i.getBlockX();
+            int zz = spot.getBlockZ() - i.getBlockZ();
+            File structures = ((Boxed) getAddon()).getStructuresFile(spot);
             YamlConfiguration config = new YamlConfiguration();
             try {
-                config.load(structures);
+                // An area may not have a structures file yet
+                if (structures.exists()) {
+                    config.load(structures);
+                }
                 StringBuilder v = new StringBuilder();
                 v.append(tag.getKey()).append(",").append(sr2.name()).append(",").append(mirror2.name());
                 if (noMobs) {
@@ -255,7 +318,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
                 config.set(spot.getWorld().getEnvironment().name().toLowerCase(Locale.ENGLISH) + "." + xx + "," + spot.getBlockY() + "," + zz, v.toString());
                 config.save(structures);
             } catch (IOException | InvalidConfigurationException e) {
-                getAddon().logError("Could not save structure to " + STRUCTURE_FILE + ": " + e.getMessage());
+                getAddon().logError("Could not save structure to " + structures.getName() + ": " + e.getMessage());
                 return false;
             }
             return true;
@@ -304,13 +367,18 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     }
 
     private boolean removeStructure(Location spot) {
-        return getAddon().getIslands().getIslandAt(spot).map(i -> {
-            int xx = spot.getBlockX() - i.getCenter().getBlockX();
-            int zz = spot.getBlockZ() - i.getCenter().getBlockZ();
-            File structures = new File(getAddon().getDataFolder(), STRUCTURE_FILE);
+        // Positions are saved relative to the middle of the box position, which exists even
+        // if nobody has a box there yet
+        return Optional.of(((Boxed) getAddon()).getBoxCentre(spot)).map(i -> {
+            int xx = spot.getBlockX() - i.getBlockX();
+            int zz = spot.getBlockZ() - i.getBlockZ();
+            File structures = ((Boxed) getAddon()).getStructuresFile(spot);
             YamlConfiguration config = new YamlConfiguration();
             try {
-                config.load(structures);
+                // An area may not have a structures file yet
+                if (structures.exists()) {
+                    config.load(structures);
+                }
                 String key = spot.getWorld().getEnvironment().name().toLowerCase(Locale.ENGLISH) + "." + xx + "," + spot.getBlockY() + "," + zz;
                 if (config.contains(key)) {
                     config.set(key, null); // Remove the entry
@@ -318,7 +386,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
                     return true;
                 }
             } catch (IOException | InvalidConfigurationException e) {
-                getAddon().logError("Could not remove structure from " + STRUCTURE_FILE + ": " + e.getMessage());
+                getAddon().logError("Could not remove structure from " + structures.getName() + ": " + e.getMessage());
             }
             return false;
         }).orElse(false);
@@ -336,7 +404,7 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
         } else if (args.size() == 3) {
             return Optional.of(List.of(String.valueOf(user.getLocation().getBlockX()), "~"));
         } else if (args.size() == 4) {
-            return Optional.of(List.of(String.valueOf(user.getLocation().getBlockY()), "~"));
+            return Optional.of(List.of(String.valueOf(user.getLocation().getBlockY()), "~", "ground", "surface"));
         } else if (args.size() == 5) {
             return Optional.of(List.of(String.valueOf(user.getLocation().getBlockZ()), "~"));
         } else if (args.size() == 6) {

@@ -1,21 +1,33 @@
 package world.bentobox.boxed;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Difficulty;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.SpawnCategory;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import world.bentobox.bentobox.api.addons.GameModeAddon;
 import world.bentobox.bentobox.api.commands.admin.DefaultAdminCommand;
@@ -26,8 +38,19 @@ import world.bentobox.bentobox.api.flags.Flag;
 import world.bentobox.bentobox.api.flags.Flag.Mode;
 import world.bentobox.bentobox.api.flags.Flag.Type;
 import world.bentobox.bentobox.api.hooks.Hook;
+import world.bentobox.bentobox.database.json.BentoboxTypeAdapterFactory;
+import world.bentobox.bentobox.api.user.User;
+import world.bentobox.bentobox.blueprints.BundleAvailability;
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBundle;
+import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.hooks.WorldManagementHook;
+import world.bentobox.bentobox.managers.island.NewIslandLocationStrategy;
+import world.bentobox.boxed.areas.Area;
+import world.bentobox.boxed.areas.AreaLocationStrategy;
+import world.bentobox.boxed.areas.AreaManager;
+import world.bentobox.boxed.areas.AreaRules;
 import world.bentobox.bentobox.managers.RanksManager;
+import world.bentobox.boxed.commands.AdminAreasCommand;
 import world.bentobox.boxed.commands.AdminPlaceStructureCommand;
 import world.bentobox.boxed.generators.biomes.BoxedBiomeGenerator;
 import world.bentobox.boxed.generators.biomes.NetherSeedBiomeGenerator;
@@ -35,7 +58,11 @@ import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedChunkGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedSeedChunkGenerator;
+import world.bentobox.boxed.generators.template.Template;
+import world.bentobox.boxed.generators.template.TemplateBuilder;
+import world.bentobox.boxed.generators.template.TemplateChunk;
 import world.bentobox.boxed.listeners.AdvancementListener;
+import world.bentobox.boxed.listeners.BoxCleaner;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 import world.bentobox.boxed.listeners.NewAreaListener;
 
@@ -55,22 +82,23 @@ public class Boxed extends GameModeAddon {
             .type(Type.WORLD_SETTING)
             .defaultSetting(true)
             .build();
-    private static final String SEED = "seed";
     private static final String NETHER = "_nether";
+    private static final String AREAS_FOLDER = "areas";
+    private static final String REBUILD_MARKER = "rebuild";
+    private static final String REGENERATE = "regenerate";
     private static final String THE_END = "_the_end";
 
     // Settings
     private Settings settings;
     private AbstractBoxedChunkGenerator worldGen;
-    private BoxedSeedChunkGenerator seedGen;
     private NewAreaListener newAreaListener;
+    private BoxCleaner boxCleaner;
     private AbstractBoxedChunkGenerator netherGen;
-    private BoxedSeedChunkGenerator netherSeedGen;
+    private AreaManager areas;
 
 
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
     private AdvancementsManager advManager;
-    private World seedWorld;
     private final Map<World, ChunkGenerator> generatorMap = new HashMap<>();
     private final Map<String, ChunkGenerator> generatorMaps = new HashMap<>();
     private BiomeProvider boxedBiomeProvider;
@@ -91,6 +119,7 @@ public class Boxed extends GameModeAddon {
             {
                 super.setup();
                 new AdminPlaceStructureCommand(this);
+                new AdminAreasCommand(this);
             }
         };
     }
@@ -108,17 +137,25 @@ public class Boxed extends GameModeAddon {
         this.worldGen = new BoxedChunkGenerator(this);
         generatorMaps.put(settings.getWorldName(), worldGen);
 
-        seedGen = new BoxedSeedChunkGenerator(this, Environment.NORMAL,
-                new SeedBiomeGenerator(this));
-        generatorMaps.put(settings.getWorldName() + "/" + SEED, seedGen);
-
-        // Nether generators
+        // Nether generator
         this.netherGen = new BoxedChunkGenerator(this);
         generatorMaps.put(settings.getWorldName() + NETHER, netherGen);
 
-        netherSeedGen = new BoxedSeedChunkGenerator(this, Environment.NETHER,
-                new NetherSeedBiomeGenerator(this));
-        generatorMaps.put(settings.getWorldName() + "/" + SEED + NETHER, netherSeedGen);
+        // Areas and the generators of their seed worlds. Areas are only loaded once because
+        // they hold the open templates.
+        if (areas == null) {
+            saveResource("areas.yml", false);
+            areas = new AreaManager(YamlConfiguration.loadConfiguration(new File(getDataFolder(), "areas.yml")),
+                    new File(getDataFolder(), AREAS_FOLDER + File.separator + "grid.yml"), settings.getSeed(),
+                    this::logError);
+        }
+        String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
+        for (Area area : areas.getAreas()) {
+            generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
+                    Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes())));
+            generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
+                    Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes())));
+        }
 
         return true;
     }
@@ -150,6 +187,8 @@ public class Boxed extends GameModeAddon {
         this.registerListener(new EnderPearlListener(this));
         newAreaListener = new NewAreaListener(this);
         this.registerListener(newAreaListener);
+        boxCleaner = new BoxCleaner(this);
+        this.registerListener(boxCleaner);
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);
@@ -165,6 +204,9 @@ public class Boxed extends GameModeAddon {
         // Save the structures that have not been placed yet
         if (newAreaListener != null) {
             newAreaListener.saveNow();
+        }
+        if (areas != null) {
+            areas.removeTemplates().forEach(this::close);
         }
     }
 
@@ -184,65 +226,305 @@ public class Boxed extends GameModeAddon {
 
     @Override
     public void createWorlds() {
-        String worldName = settings.getWorldName().toLowerCase();
+        String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
+        // Get the land of every area ready before the game worlds ask for it
+        for (Area area : areas.getAreas()) {
+            boolean regenerate = checkRebuildRequest(area);
+            loadTemplate(area, worldName, Environment.NORMAL, settings.getSeedX(), settings.getSeedZ(), regenerate);
+            if (settings.isNetherGenerate()) {
+                loadTemplate(area, worldName, Environment.NETHER, settings.getNetherSeedX(),
+                        settings.getNetherSeedZ(), regenerate);
+            }
+        }
         // Create overworld
-        createOverWorld(worldName);
+        if (getServer().getWorld(worldName) == null) {
+            log("Creating Boxed world ...");
+        }
+        islandWorld = getWorld(worldName, World.Environment.NORMAL);
 
         // Make the nether if it does not exist
         if (settings.isNetherGenerate()) {
-            createNether(worldName);
+            if (getServer().getWorld(worldName + NETHER) == null) {
+                log("Creating Boxed's Nether...");
+            }
+            netherWorld = getWorld(worldName, World.Environment.NETHER);
         }
         // The End is not supported yet
     }
 
-    private void createNether(String worldName) {
-        // Create vanilla seed nether world
-        log("Creating Boxed Seed Nether world ...");
-        World seedWorldNether = WorldCreator
-                .name(worldName + "/" + SEED + NETHER)
-                .generator(netherSeedGen)
-                .environment(Environment.NETHER)
-                .seed(getSettings().getSeed())
-                .createWorld();
-        seedWorldNether.setDifficulty(Difficulty.EASY);
-
-        seedWorldNether.setSpawnLocation(settings.getNetherSeedX(), 64, settings.getNetherSeedZ());
-        generatorMap.put(seedWorldNether, netherSeedGen);
-        getPlugin().getIWM().addWorld(seedWorldNether, this);
-        copyChunks(seedWorldNether, netherGen);
-
-        if (getServer().getWorld(worldName + NETHER) == null) {
-            log("Creating Boxed's Nether...");
-        }
-        netherWorld = getWorld(worldName, World.Environment.NETHER);
+    /**
+     * @param area area
+     * @param env environment
+     * @return the template file for the area and environment
+     */
+    File getTemplateFile(Area area, Environment env) {
+        return new File(getAreaFolder(area), env.name().toLowerCase(Locale.ENGLISH) + ".bxt");
     }
 
-    private void createOverWorld(String worldName) {
-        // Create vanilla seed world
-        log("Creating Boxed Seed world ...");
-        seedWorld = WorldCreator
-                .name(worldName + "/" + SEED)
-                .generator(seedGen)
-                .environment(Environment.NORMAL)
-                .seed(getSettings().getSeed())
-                .createWorld();
-        seedWorld.setDifficulty(Difficulty.EASY);
-
-        seedWorld.setSpawnLocation(settings.getSeedX(), 64, settings.getSeedZ());
-
-        generatorMap.put(seedWorld, seedGen);
-        getPlugin().getIWM().addWorld(seedWorld, this);
-        copyChunks(seedWorld, worldGen);
-
-        if (getServer().getWorld(worldName) == null) {
-            log("Creating Boxed world ...");
+    /**
+     * Opens the template of an area for an environment. If there is no usable template file,
+     * the area's seed world is loaded, the template is built from it and the seed world is
+     * unloaded again. This only happens once; after that the seed world is not needed to run
+     * the server.
+     * @param area area
+     * @param worldName name of the game overworld
+     * @param env environment
+     * @param seedX block x of the centre of the area in the seed world
+     * @param seedZ block z of the centre of the area in the seed world
+     * @param regenerate true to throw away the seed world and generate it again
+     */
+    private void loadTemplate(Area area, String worldName, Environment env, int seedX, int seedZ,
+            boolean regenerate) {
+        String what = "the " + env + " land of the " + area.id() + " area";
+        String seedWorldName = area.seedWorldName(worldName, env == Environment.NETHER);
+        File file = getTemplateFile(area, env);
+        int size = worldGen.getSize();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().enableComplexMapKeySerialization()
+                .disableHtmlEscaping().registerTypeAdapterFactory(new BentoboxTypeAdapterFactory(getPlugin()))
+                .create();
+        Template template = openTemplate(file, gson, size, area.seed());
+        if (template == null) {
+            log("Building " + what + " from its seed world. This only happens once...");
+            long start = System.currentTimeMillis();
+            WorldCreator creator = WorldCreator
+                    .name(seedWorldName)
+                    .generator(generatorMaps.get(seedWorldName))
+                    .environment(env)
+                    .seed(area.seed());
+            World seedWorld = creator.createWorld();
+            if (seedWorld != null && regenerate) {
+                seedWorld = regenerateSeedWorld(seedWorld, creator);
+            }
+            if (seedWorld == null) {
+                logError("Could not create seed world " + seedWorldName);
+                return;
+            }
+            try {
+                new TemplateBuilder(seedWorld, seedX >> 4, seedZ >> 4, size, gson, this::log).build(file,
+                        area.seed());
+            } catch (IOException e) {
+                logError("Could not build " + what + ": " + e);
+                getPlugin().logStacktrace(e);
+            }
+            // The seed world is saved so the template can be rebuilt from it later
+            if (!Bukkit.unloadWorld(seedWorld, true)) {
+                logWarning("Could not unload seed world " + seedWorldName);
+            }
+            log("Built " + what + " in " + (System.currentTimeMillis() - start) / 1000 + " seconds");
+            template = openTemplate(file, gson, size, area.seed());
         }
-
-        // Create the world if it does not exist
-        islandWorld = getWorld(worldName, World.Environment.NORMAL);
-
+        if (template == null) {
+            logError("There is no template for " + what + ". Boxes there will be empty!");
+        } else {
+            close(areas.setTemplate(area, env, template));
+        }
     }
-    
+
+    /**
+     * Opens a template file if it exists and matches the current settings.
+     * @return the template, or null if it has to be built
+     */
+    private Template openTemplate(File file, Gson gson, int size, long seed) {
+        if (!file.exists()) {
+            return null;
+        }
+        try {
+            Template template = new Template(file, gson, this::logError);
+            if (template.getSize() == size && template.getSeed() == seed) {
+                return template;
+            }
+            log(file + " was built with a different seed or area radius, so it will be rebuilt");
+            template.close();
+        } catch (IOException e) {
+            logError("Could not read " + file + ", so it will be rebuilt: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private void close(@Nullable Template template) {
+        if (template != null) {
+            try {
+                template.close();
+            } catch (IOException e) {
+                logError("Could not close a template: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * @return the cleaner that puts the land of deleted boxes back
+     */
+    public BoxCleaner getBoxCleaner() {
+        return boxCleaner;
+    }
+
+    /**
+     * @return the areas that boxes can be made in
+     */
+    public AreaManager getAreas() {
+        return areas;
+    }
+
+    /**
+     * Gets the area that a chunk of the game world is in.
+     * @param chunkZ chunk z in the game world
+     * @return the area
+     */
+    public Area getAreaAt(int chunkZ) {
+        return areas.getAreaAtRow(AbstractBoxedChunkGenerator.rowCalc(chunkZ, worldGen.getSize()));
+    }
+
+    /**
+     * Gets the land that the boxes at a chunk of the game world are made from.
+     * @param env environment
+     * @param chunkZ chunk z in the game world
+     * @return the template, or null if there is none
+     */
+    @Nullable
+    public Template getTemplate(Environment env, int chunkZ) {
+        return areas.getTemplate(getAreaAt(chunkZ), env);
+    }
+
+    /**
+     * Gets the land for a chunk of the game world.
+     * @param env environment
+     * @param chunkX chunk x in the game world
+     * @param chunkZ chunk z in the game world
+     * @return the chunk, or null if there is none
+     */
+    @Nullable
+    public TemplateChunk getTemplateChunk(Environment env, int chunkX, int chunkZ) {
+        Template template = getTemplate(env, chunkZ);
+        return template == null ? null : template.getChunk(worldGen.repeatCalc(chunkX), worldGen.repeatCalc(chunkZ));
+    }
+
+    /**
+     * Gets the middle of the box position that a location is in. Box positions are a fixed
+     * grid, so this works whether or not anyone has a box there.
+     * @param location a location in the game world
+     * @return the middle of the box position, at the same height as the location
+     */
+    public Location getBoxCentre(Location location) {
+        int pitch = worldGen.getSize() * 2 * 16;
+        int x = Math.floorDiv(location.getBlockX() + pitch / 2, pitch) * pitch;
+        int z = Math.floorDiv(location.getBlockZ() + pitch / 2, pitch) * pitch;
+        return new Location(location.getWorld(), x, location.getBlockY(), z);
+    }
+
+    /**
+     * Gets the file that lists the structures placed in new boxes of the area at a location.
+     * @param location a location in the game world
+     * @return the area's structures file, which may not exist yet
+     */
+    public File getStructuresFile(Location location) {
+        return new File(getDataFolder(), getAreaAt(location.getBlockZ() >> 4).structures());
+    }
+
+    /**
+     * Boxes are placed in the area that matches the blueprint bundle the player picked. The
+     * box is refused if the area is closed or the player has not unlocked it.
+     */
+    @Override
+    public NewIslandLocationStrategy getNewIslandLocationStrategy(User user, String blueprintBundle,
+            Island oldIsland) throws IOException {
+        return new AreaLocationStrategy(this, new AreaRules(this).check(user, blueprintBundle, oldIsland));
+    }
+
+    /**
+     * Areas that are closed or not built yet are not offered to players. Areas a player has
+     * not unlocked, or already has a box in, are shown but cannot be picked.
+     */
+    @Override
+    public BundleAvailability getBundleAvailability(User user, BlueprintBundle bundle, Island oldIsland) {
+        return new AreaRules(this).availability(user, bundle.getUniqueId(), oldIsland);
+    }
+
+    /**
+     * A player has at most one box in an area, so a box with no name is listed by its area:
+     * the display name of the area's blueprint bundle, or the area's name if it has none.
+     */
+    @Override
+    public String getIslandLabel(User user, Island island) {
+        if (island.getCenter() == null) {
+            return null;
+        }
+        Area area = getAreaAt(island.getCenter().getBlockZ() >> 4);
+        BlueprintBundle bundle = getPlugin().getBlueprintsManager().getBlueprintBundles(this).get(area.id());
+        return bundle == null || bundle.getDisplayName() == null || bundle.getDisplayName().isBlank() ? area.id()
+                : bundle.getDisplayName();
+    }
+
+    /**
+     * @param area area
+     * @return the folder that holds the area's templates
+     */
+    public File getAreaFolder(Area area) {
+        return new File(getDataFolder(), AREAS_FOLDER + File.separator + area.id());
+    }
+
+    /**
+     * Asks for the land of an area to be built again the next time the server starts.
+     * @param area area
+     * @param regenerate true to also throw away the area's seed worlds, so that changes to
+     *                   its seed or biomes take effect. False rebuilds from the seed worlds
+     *                   as they are, which keeps any changes made to them by hand.
+     * @return true if the request was saved
+     */
+    public boolean requestRebuild(Area area, boolean regenerate) {
+        File marker = new File(getAreaFolder(area), REBUILD_MARKER);
+        try {
+            Files.createDirectories(marker.getParentFile().toPath());
+            Files.writeString(marker.toPath(), regenerate ? REGENERATE : "");
+            return true;
+        } catch (IOException e) {
+            logError("Could not save rebuild request for area " + area.id() + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Acts on a rebuild request left by {@link #requestRebuild(Area, boolean)}: removes the
+     * area's templates so that they are built again.
+     * @return true if the seed worlds must be thrown away too
+     */
+    private boolean checkRebuildRequest(Area area) {
+        File marker = new File(getAreaFolder(area), REBUILD_MARKER);
+        if (!marker.exists()) {
+            return false;
+        }
+        boolean regenerate = false;
+        try {
+            regenerate = REGENERATE.equals(Files.readString(marker.toPath()).strip());
+            for (Environment env : Environment.values()) {
+                Files.deleteIfExists(getTemplateFile(area, env).toPath());
+            }
+            Files.delete(marker.toPath());
+            log("The land of the " + area.id() + " area will be rebuilt as requested.");
+        } catch (IOException e) {
+            logError("Could not act on the rebuild request for area " + area.id() + ": " + e.getMessage());
+        }
+        return regenerate;
+    }
+
+    /**
+     * Throws away a seed world and makes it again from nothing.
+     * @return the new seed world, or null if it could not be made
+     */
+    private World regenerateSeedWorld(World seedWorld, WorldCreator creator) {
+        File folder = seedWorld.getWorldFolder();
+        // Be very sure this is a seed world before deleting anything
+        if (!folder.getName().startsWith("seed") || !Bukkit.unloadWorld(seedWorld, false)) {
+            logError("Could not regenerate seed world " + seedWorld.getName() + ". Using it as it is.");
+            return seedWorld;
+        }
+        try (Stream<Path> files = Files.walk(folder.toPath())) {
+            files.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
+        } catch (IOException e) {
+            logError("Could not delete seed world " + folder + ": " + e.getMessage());
+        }
+        return creator.createWorld();
+    }
+
     /**
      * Registers a world with world management plugins
      *
@@ -258,42 +540,6 @@ public class Boxed extends GameModeAddon {
                         Bukkit.getScheduler().runTask(getPlugin(), () -> worldManagementHook.registerWorld(world, true));
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * Copies chunks from the seed world, so they can be pasted in the game world
-     * @param world - source world
-     * @param gen - generator to store the chunks
-     */
-    private void copyChunks(World world, AbstractBoxedChunkGenerator gen) {
-        int startX = 0;
-        int startZ = 0;
-        if (world.getEnvironment().equals(Environment.NORMAL)) {
-            startX = this.settings.getSeedX() >> 4;
-            startZ = this.settings.getSeedZ() >> 4;
-        } else {
-            startX = this.settings.getNetherSeedX() >> 4;
-            startZ = this.settings.getNetherSeedZ() >> 4;
-        }
-
-        // Convert to chunks
-        int size = (int)(this.getSettings().getIslandDistance() / 16D);
-        double percent = size * 4D * size;
-        int count = 0;
-        int last = 0;
-        for (int x = -size; x <= size; x ++) {
-            for (int z = -size; z <= size; z++) {
-                gen.setChunk(x, z, world.getChunkAt(startX + x, startZ + z));
-                count++;
-                int p = (int) (count / percent * 100);
-                if (p % 10 == 0 && p != last) {
-                    last = p;
-                    this.log("Pregenerating seed chunks for " + world.getName() + "'s " + world.getEnvironment() + " "
-                            + p + "% done");
-                }
-
             }
         }
     }
@@ -322,7 +568,7 @@ public class Boxed extends GameModeAddon {
                 .name(worldName2)
                 .generator(getChunkGenerator(env))
                 .environment(env)
-                .seed(seedWorld.getSeed()) // For development
+                .seed(settings.getSeed())
                 .createWorld();
         // Set spawn rates
         if (w != null) {

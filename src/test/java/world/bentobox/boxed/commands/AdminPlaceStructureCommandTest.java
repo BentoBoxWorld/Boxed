@@ -1,5 +1,8 @@
 package world.bentobox.boxed.commands;
 
+import org.bukkit.World;
+import org.bukkit.Material;
+import org.bukkit.HeightMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -102,6 +105,48 @@ class AdminPlaceStructureCommandTest extends CommonTestSetup {
     @Test
     void testTildeCoordinates() {
         assertTrue(cmd.canExecute(user, "place", List.of("igloo", "~", "~", "~")));
+    }
+
+    @Test
+    void testGroundLevelHeights() {
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo", "~", "ground", "~")));
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo", "10", "surface", "20")));
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo", "~", "GROUND-1", "~")));
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo", "~", "ground+12", "~")));
+        // Only the height can be ground level
+        assertFalse(cmd.canExecute(user, "place", List.of("igloo", "ground", "~", "~")));
+        assertFalse(cmd.canExecute(user, "place", List.of("igloo", "~", "ground-", "~")));
+        assertFalse(cmd.canExecute(user, "place", List.of("igloo", "~", "floor", "~")));
+    }
+
+    @Test
+    void testGroundLevelIgnoresWaterAndTrees() {
+        World w = mock(World.class);
+        when(w.getMinHeight()).thenReturn(-64);
+        // Sea bed at 40 under water that reaches 62
+        when(w.getHighestBlockYAt(5, 5, HeightMap.OCEAN_FLOOR)).thenReturn(40);
+        when(w.getHighestBlockYAt(5, 5, HeightMap.MOTION_BLOCKING)).thenReturn(62);
+        org.bukkit.block.Block bed = mock(org.bukkit.block.Block.class);
+        when(bed.getType()).thenReturn(Material.SAND);
+        when(w.getBlockAt(5, 40, 5)).thenReturn(bed);
+        assertEquals(41, AdminPlaceStructureCommand.groundLevel(w, 5, 5, "ground"));
+        assertEquals(40, AdminPlaceStructureCommand.groundLevel(w, 5, 5, "ground-1"));
+        assertEquals(63, AdminPlaceStructureCommand.groundLevel(w, 5, 5, "surface"));
+        assertEquals(66, AdminPlaceStructureCommand.groundLevel(w, 5, 5, "Surface+3"));
+
+        // A tree: leaves at 72, trunk down to 70, soil at 69
+        when(w.getHighestBlockYAt(9, 9, HeightMap.OCEAN_FLOOR)).thenReturn(72);
+        org.bukkit.block.Block leaves = mock(org.bukkit.block.Block.class);
+        when(leaves.getType()).thenReturn(Material.OAK_LEAVES);
+        org.bukkit.block.Block log = mock(org.bukkit.block.Block.class);
+        when(log.getType()).thenReturn(Material.OAK_LOG);
+        org.bukkit.block.Block soil = mock(org.bukkit.block.Block.class);
+        when(soil.getType()).thenReturn(Material.DIRT);
+        when(w.getBlockAt(9, 72, 9)).thenReturn(leaves);
+        when(w.getBlockAt(9, 71, 9)).thenReturn(log);
+        when(w.getBlockAt(9, 70, 9)).thenReturn(log);
+        when(w.getBlockAt(9, 69, 9)).thenReturn(soil);
+        assertEquals(70, AdminPlaceStructureCommand.groundLevel(w, 9, 9, "ground"));
     }
 
     @Test

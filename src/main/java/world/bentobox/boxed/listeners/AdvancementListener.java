@@ -1,5 +1,10 @@
 package world.bentobox.boxed.listeners;
 
+import world.bentobox.bentobox.managers.RanksManager;
+import world.bentobox.bentobox.api.events.island.IslandEnterEvent;
+import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +59,10 @@ public class AdvancementListener implements Listener {
     private final Advancement endAdvancement;
     private final Advancement netherRoot;
     private final Advancement endRoot;
+    /**
+     * Players who are going into one of their boxes this tick
+     */
+    private final Set<UUID> switching = new HashSet<>();
 
     /**
      * @param addon addon
@@ -93,6 +102,10 @@ public class AdvancementListener implements Listener {
         }
         // Check if player is in the Boxed worlds
         Player player = e.getPlayer();
+        // Advancements handed back to a player who is moving between their boxes are not new
+        if (switching.contains(player.getUniqueId())) {
+            return;
+        }
         if (addon.inWorld(player.getWorld())) {
             // Only allow members or higher to get advancements in a box
             if (addon.getSettings().isDenyVisitorAdvancements() && !isMemberAt(player)) {
@@ -130,7 +143,7 @@ public class AdvancementListener implements Listener {
     }
 
     private void tellTeam(User user, NamespacedKey key, int score) {
-        Island island = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        Island island = addon.getAdvManager().getBox(user.getPlayer());
         if (island == null) {
             // Something went wrong here
             return;
@@ -156,9 +169,15 @@ public class AdvancementListener implements Listener {
      */
     public void syncAdvancements(User user) {
         if (addon.getSettings().isIgnoreAdvancements()) return;
-        Island box = addon.getIslands().getIsland(addon.getOverWorld(), user);
+        Island box = addon.getAdvManager().getBox(user.getPlayer());
         if (box != null) {
-            grantAdv(user, addon.getAdvManager().getIsland(box).getAdvancements());
+            List<String> boxAdvancements = addon.getAdvManager().getIsland(box).getAdvancements();
+            // A player with more than one box must not carry advancements from one to another,
+            // or they could never earn them again in the second box
+            if (addon.getIslands().getNumberOfConcurrentIslands(user.getUniqueId(), addon.getOverWorld()) > 1) {
+                revokeOthers(user, boxAdvancements);
+            }
+            grantAdv(user, boxAdvancements);
             int diff = addon.getAdvManager().checkIslandSize(box);
             if (diff > 0) {
                 user.sendMessage("boxed.size-changed", TextVariables.NUMBER, String.valueOf(diff));
@@ -168,6 +187,50 @@ public class AdvancementListener implements Listener {
                 user.getPlayer().playSound(Objects.requireNonNull(user.getLocation()), Sound.ENTITY_VILLAGER_DEATH, 1F, 2F);
             }
         }
+    }
+
+    /**
+     * Takes away finished advancements that count towards box size and that this box has not
+     * earned. Advancements in progress, and ones that do not change box size, are left alone.
+     * @param user - user
+     * @param keep - the advancements the box has
+     */
+    private void revokeOthers(User user, List<String> keep) {
+        Iterator<Advancement> it = Bukkit.advancementIterator();
+        while (it.hasNext()) {
+            Advancement a = it.next();
+            AdvancementProgress progress = user.getPlayer().getAdvancementProgress(a);
+            if (progress.isDone() && !keep.contains(a.getKey().toString()) && addon.getAdvManager().getScore(a) != 0) {
+                List.copyOf(progress.getAwardedCriteria()).forEach(progress::revokeCriteria);
+            }
+        }
+    }
+
+    /**
+     * When a player goes into a box they belong to, their advancements are made to match that
+     * box. Other addons, such as InvSwitcher, may swap the player's advancements at this
+     * moment too. Whatever is handed back to the player while this is going on is ignored,
+     * so that one box's advancements are never counted towards another box.
+     * @param e IslandEnterEvent
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onEnterBox(IslandEnterEvent e) {
+        if (addon.getSettings().isIgnoreAdvancements() || !addon.inWorld(e.getIsland().getWorld())
+                || e.getIsland().getRank(e.getPlayerUUID()) < RanksManager.MEMBER_RANK) {
+            return;
+        }
+        UUID uuid = e.getPlayerUUID();
+        switching.add(uuid);
+        // By the next tick the player is in the box and any swapping is over
+        Bukkit.getScheduler().runTask(addon.getPlugin(), () -> {
+            User user = User.getInstance(uuid);
+            if (user.isOnline() && addon.inWorld(user.getWorld())
+                    && user.getPlayer().getGameMode().equals(GameMode.SURVIVAL)) {
+                // Still ignoring advancements while the player is given the box's own
+                syncAdvancements(user);
+            }
+            switching.remove(uuid);
+        });
     }
 
     private void informPlayer(User user, NamespacedKey key, int score) {

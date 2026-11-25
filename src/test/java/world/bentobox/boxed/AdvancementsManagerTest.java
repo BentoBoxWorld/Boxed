@@ -1,5 +1,7 @@
 package world.bentobox.boxed;
 
+import world.bentobox.bentobox.database.objects.Island;
+import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -264,6 +266,37 @@ class AdvancementsManagerTest extends CommonTestSetup {
     void testAddAdvancementPlayerAdvancement() {
         assertEquals(9, am.addAdvancement(player, advancement));
         verify(island).setProtectionRange(14); // (9 + 5)
+    }
+
+    /**
+     * A player with two boxes: advancements count towards the box they are in, not their main box.
+     */
+    @Test
+    void testAdvancementCountsTowardsTheBoxThePlayerIsIn() {
+        Island second = mock(Island.class);
+        when(second.getUniqueId()).thenReturn("second-box");
+        when(second.getRank(player.getUniqueId())).thenReturn(RanksManager.OWNER_RANK);
+        when(second.getProtectionRange()).thenReturn(1);
+        when(player.getLocation()).thenReturn(location);
+        when(im.getIslandAt(any())).thenReturn(Optional.of(second));
+        assertEquals(second, am.getBox(player));
+        assertEquals(9, am.addAdvancement(player, advancement));
+        verify(second).setProtectionRange(10); // 1 + 9
+        verify(island, never()).setProtectionRange(org.mockito.ArgumentMatchers.anyInt());
+    }
+
+    /**
+     * In a box the player is only visiting, their advancements count towards their own box.
+     */
+    @Test
+    void testGetBoxFallsBackToMainBox() {
+        Island other = mock(Island.class);
+        when(other.getRank(player.getUniqueId())).thenReturn(RanksManager.VISITOR_RANK);
+        when(player.getLocation()).thenReturn(location);
+        when(im.getIslandAt(any())).thenReturn(Optional.of(other));
+        assertEquals(island, am.getBox(player));
+        when(im.getIslandAt(any())).thenReturn(Optional.empty());
+        assertEquals(island, am.getBox(player));
     }
 
     /**

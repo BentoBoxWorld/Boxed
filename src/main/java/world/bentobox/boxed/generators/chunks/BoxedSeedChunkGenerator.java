@@ -1,8 +1,5 @@
 package world.bentobox.boxed.generators.chunks;
 
-import java.util.List;
-
-import org.bukkit.Chunk;
 import org.bukkit.World.Environment;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
@@ -72,17 +69,5 @@ public class BoxedSeedChunkGenerator extends AbstractBoxedChunkGenerator {
     @Override
     public boolean shouldGenerateStructures() {
         return true;
-    }
-
-    @Override
-    protected List<EntityData> getEnts(Chunk chunk) {
-        // These won't be stored
-        return List.of();
-    }
-
-    @Override
-    protected List<ChestData> getTileEnts(Chunk chunk) {
-        // These won't be stored
-        return List.of();
     }
 }

@@ -178,8 +178,8 @@ public class AdvancementsManager {
         if (score == 0) {
             return 0;
         }
-        // Get island
-        Island island = addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
+        // Get the box this counts towards
+        Island island = getBox(p);
         if (island != null
                 && island.getRank(p.getUniqueId()) >= RanksManager.MEMBER_RANK // Only island members expand island
                 && addAdvancement(island, advancement.getKey().toString())) {
@@ -190,6 +190,21 @@ public class AdvancementsManager {
         }
         return 0;
 
+    }
+
+    /**
+     * Gets the box that a player's advancements count towards. A player can have a box in
+     * more than one area, so this is the box they are in, if they are a member of it. If they
+     * are somewhere else, it is their main box.
+     * @param p player
+     * @return the box, or null if the player has none
+     */
+    @Nullable
+    public Island getBox(Player p) {
+        Island here = p.getLocation() == null ? null
+                : addon.getIslands().getIslandAt(p.getLocation())
+                        .filter(i -> i.getRank(p.getUniqueId()) >= RanksManager.MEMBER_RANK).orElse(null);
+        return here != null ? here : addon.getIslands().getIsland(addon.getOverWorld(), p.getUniqueId());
     }
 
     /**

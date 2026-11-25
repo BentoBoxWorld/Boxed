@@ -14,4 +14,12 @@ public class SeedBiomeGenerator extends AbstractSeedBiomeProvider {
     public SeedBiomeGenerator(Boxed boxed) {
         super(boxed, Environment.NORMAL);
     }
+
+    /**
+     * @param boxed addon
+     * @param biomesFile name of the file that defines the biomes
+     */
+    public SeedBiomeGenerator(Boxed boxed, String biomesFile) {
+        super(boxed, Environment.NORMAL, biomesFile);
+    }
 }
