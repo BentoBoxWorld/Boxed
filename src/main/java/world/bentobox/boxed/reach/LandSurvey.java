@@ -1,5 +1,6 @@
 package world.bentobox.boxed.reach;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Locale;
@@ -48,7 +49,7 @@ public class LandSurvey {
     }
 
     private final int radius;
-    private final Map<Kind, Map<String, int[]>> counts = new HashMap<>();
+    private final Map<Kind, Map<String, int[]>> counts = new EnumMap<>(Kind.class);
 
     /**
      * @param radius the largest box size, which is the distance from the centre of the land to its edge
@@ -174,46 +175,62 @@ public class LandSurvey {
      * @param nether true if the template is the nether
      */
     public void addTemplate(Template template, boolean nether) {
-        Kind blockKind = nether ? Kind.NETHER_BLOCK : Kind.BLOCK;
-        Kind biomeKind = nether ? Kind.NETHER_BIOME : Kind.BIOME;
-        Kind entityKind = nether ? Kind.NETHER_ENTITY : Kind.ENTITY;
-        // Block data objects are shared within a template, so they can be looked up by identity
+        // Block data and biome objects are shared within a template, so they can be looked up by identity
         Map<BlockData, int[]> blockCounters = new IdentityHashMap<>();
         Map<Biome, int[]> biomeCounters = new IdentityHashMap<>();
         int chunks = template.getSize();
         for (int chunkX = -chunks; chunkX < chunks; chunkX++) {
             for (int chunkZ = -chunks; chunkZ < chunks; chunkZ++) {
                 TemplateChunk chunk = template.getChunk(chunkX, chunkZ);
-                if (chunk == null) {
-                    continue;
-                }
-                int baseX = chunkX << 4;
-                int baseZ = chunkZ << 4;
-                chunk.forEachBlock((x, y, z, data) -> {
-                    int size = sizeFor(baseX + x, baseZ + z);
-                    if (size <= radius) {
-                        blockCounters.computeIfAbsent(data,
-                                d -> counter(blockKind, d.getMaterial().getKey().getKey()))[size]++;
-                    }
-                });
-                // Biomes are stored every four blocks. The one at sea level stands for the column,
-                // and a few lower down pick up the cave biomes.
-                for (int x = 0; x < 16; x += 4) {
-                    for (int z = 0; z < 16; z += 4) {
-                        int size = sizeFor(baseX + x, baseZ + z);
-                        for (int y : BIOME_HEIGHTS) {
-                            Biome biome = size <= radius ? template.getBiome(chunkX, chunkZ, x, y, z) : null;
-                            if (biome != null) {
-                                biomeCounters.computeIfAbsent(biome, b -> counter(biomeKind, b.getKey().getKey()))[size]++;
-                            }
-                        }
-                    }
-                }
-                for (EntityData e : chunk.getEntities()) {
-                    add(entityKind, e.entity().getType().getKey().getKey(),
-                            sizeFor(baseX + e.relativeLoc().getBlockX(), baseZ + e.relativeLoc().getBlockZ()), 1);
+                if (chunk != null) {
+                    addBlocks(chunk, chunkX << 4, chunkZ << 4, nether, blockCounters);
+                    addBiomes(template, chunkX, chunkZ, nether, biomeCounters);
+                    addEntities(chunk, chunkX << 4, chunkZ << 4, nether);
                 }
             }
+        }
+    }
+
+    private void addBlocks(TemplateChunk chunk, int baseX, int baseZ, boolean nether, Map<BlockData, int[]> counters) {
+        Kind kind = nether ? Kind.NETHER_BLOCK : Kind.BLOCK;
+        chunk.forEachBlock((x, y, z, data) -> {
+            int size = sizeFor(baseX + x, baseZ + z);
+            if (size <= radius) {
+                counters.computeIfAbsent(data, d -> counter(kind, d.getMaterial().getKey().getKey()))[size]++;
+            }
+        });
+    }
+
+    /**
+     * Biomes are stored every four blocks. The one at sea level stands for the column, and a
+     * few higher and lower pick up the cave and mountain biomes.
+     */
+    private void addBiomes(Template template, int chunkX, int chunkZ, boolean nether, Map<Biome, int[]> counters) {
+        Kind kind = nether ? Kind.NETHER_BIOME : Kind.BIOME;
+        for (int x = 0; x < 16; x += 4) {
+            for (int z = 0; z < 16; z += 4) {
+                int size = sizeFor((chunkX << 4) + x, (chunkZ << 4) + z);
+                if (size <= radius) {
+                    addBiomeColumn(template, chunkX, chunkZ, x, z, size, kind, counters);
+                }
+            }
+        }
+    }
+
+    private void addBiomeColumn(Template template, int chunkX, int chunkZ, int x, int z, int size, Kind kind,
+            Map<Biome, int[]> counters) {
+        for (int y : BIOME_HEIGHTS) {
+            Biome biome = template.getBiome(chunkX, chunkZ, x, y, z);
+            if (biome != null) {
+                counters.computeIfAbsent(biome, b -> counter(kind, b.getKey().getKey()))[size]++;
+            }
+        }
+    }
+
+    private void addEntities(TemplateChunk chunk, int baseX, int baseZ, boolean nether) {
+        for (EntityData e : chunk.getEntities()) {
+            add(nether ? Kind.NETHER_ENTITY : Kind.ENTITY, e.entity().getType().getKey().getKey(),
+                    sizeFor(baseX + e.relativeLoc().getBlockX(), baseZ + e.relativeLoc().getBlockZ()), 1);
         }
     }
 

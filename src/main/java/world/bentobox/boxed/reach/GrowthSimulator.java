@@ -168,7 +168,7 @@ public class GrowthSimulator {
             boolean possible = false;
             List<String> reasons = new ArrayList<>();
             for (Alternative a : need.alternatives()) {
-                String reason = explain(a, size, earned);
+                String reason = explain(a, size);
                 possible |= !reason.startsWith("!");
                 reasons.add(reason.startsWith("!") ? reason.substring(1) : reason);
             }
@@ -181,7 +181,7 @@ public class GrowthSimulator {
     /**
      * Says why an alternative is not met. The text starts with ! if it never can be.
      */
-    private String explain(Alternative a, int size, Set<String> earned) {
+    private String explain(Alternative a, int size) {
         switch (a.type()) {
         case NEVER:
             return "!" + a.names();

@@ -93,21 +93,23 @@ public class TemplateChunk {
      */
     public void forEachBlock(BlockVisitor visitor) {
         for (int section = 0; section < sections.length; section++) {
-            int baseY = minY + (section << 4);
             short[] blocks = sections[section];
             BlockData same = blocks == null ? palette[uniform[section]] : null;
-            if (same != null && same.getMaterial() == Material.AIR) {
-                continue;
+            if (same == null || same.getMaterial() != Material.AIR) {
+                visitSection(visitor, minY + (section << 4), blocks, same);
             }
-            int i = 0;
-            for (int y = 0; y < 16; y++) {
-                for (int z = 0; z < 16; z++) {
-                    for (int x = 0; x < 16; x++) {
-                        BlockData data = same != null ? same : palette[blocks[i]];
-                        i++;
-                        if (data.getMaterial() != Material.AIR) {
-                            visitor.visit(x, baseY + y, z, data);
-                        }
+        }
+    }
+
+    private void visitSection(BlockVisitor visitor, int baseY, short[] blocks, BlockData same) {
+        int i = 0;
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    BlockData data = same != null ? same : palette[blocks[i]];
+                    i++;
+                    if (data.getMaterial() != Material.AIR) {
+                        visitor.visit(x, baseY + y, z, data);
                     }
                 }
             }

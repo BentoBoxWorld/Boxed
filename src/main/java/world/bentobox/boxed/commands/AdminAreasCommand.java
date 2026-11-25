@@ -53,6 +53,7 @@ public class AdminAreasCommand extends CompositeCommand {
     private static final String PREFIX = "boxed.commands.boxadmin.areas.";
 
     private static final String AREAS = "areas.";
+    private static final String REQUIREMENTS = "requirements.yml";
     private static final String UNKNOWN_AREA = PREFIX + "unknown-area";
 
     public AdminAreasCommand(CompositeCommand parent) {
@@ -394,26 +395,14 @@ public class AdminAreasCommand extends CompositeCommand {
             Template nether = addon.getAreas().getTemplate(area, Environment.NETHER);
             // Everything is read on the main thread. Only the survey of the land runs off it.
             File folder = addon.getDataFolder();
-            if (!new File(folder, "requirements.yml").exists()) {
-                addon.saveResource("requirements.yml", false);
+            if (!new File(folder, REQUIREMENTS).exists()) {
+                addon.saveResource(REQUIREMENTS, false);
             }
             Requirements requirements = new Requirements(
-                    YamlConfiguration.loadConfiguration(new File(folder, "requirements.yml")), addon::logWarning);
+                    YamlConfiguration.loadConfiguration(new File(folder, REQUIREMENTS)), addon::logWarning);
             YamlConfiguration structures = YamlConfiguration.loadConfiguration(new File(folder, area.structures()));
-            Map<String, Integer> scores = new HashMap<>();
-            ConfigurationSection adv = YamlConfiguration.loadConfiguration(new File(folder, "advancements.yml"))
-                    .getConfigurationSection("advancements");
-            if (adv != null) {
-                adv.getKeys(false).forEach(k -> scores.put(k.contains(":") ? k : "minecraft:" + k, adv.getInt(k)));
-            }
-            // The starter blocks, by position relative to the centre of the box
-            Map<Vector, String> starter = new HashMap<>();
-            Blueprint bp = new BoxHeight(addon).getBlueprint(area);
-            if (bp != null) {
-                Vector bedrock = bp.getBedrock() == null ? new Vector() : bp.getBedrock();
-                Stream.of(bp.getBlocks(), bp.getAttached()).filter(Objects::nonNull)
-                        .forEach(m -> m.forEach((pos, block) -> starter.put(pos.clone().subtract(bedrock), block.getBlockData())));
-            }
+            Map<String, Integer> scores = getScores(folder);
+            Map<Vector, String> starter = getStarterBlocks(addon, area);
             int radius = normal.getSize() * 16;
             int startSize = Math.max(1, addon.getSettings().getIslandProtectionRange());
             File report = new File(addon.getAreaFolder(area), "reachability.txt");
@@ -446,6 +435,33 @@ public class AdminAreasCommand extends CompositeCommand {
                 });
             });
             return true;
+        }
+
+        /**
+         * @return how much each advancement grows the box, from advancements.yml
+         */
+        private static Map<String, Integer> getScores(File folder) {
+            Map<String, Integer> scores = new HashMap<>();
+            ConfigurationSection adv = YamlConfiguration.loadConfiguration(new File(folder, "advancements.yml"))
+                    .getConfigurationSection("advancements");
+            if (adv != null) {
+                adv.getKeys(false).forEach(k -> scores.put(k.contains(":") ? k : "minecraft:" + k, adv.getInt(k)));
+            }
+            return scores;
+        }
+
+        /**
+         * @return the starter blocks of an area, by position relative to the centre of the box
+         */
+        private static Map<Vector, String> getStarterBlocks(Boxed addon, Area area) {
+            Map<Vector, String> starter = new HashMap<>();
+            Blueprint bp = new BoxHeight(addon).getBlueprint(area);
+            if (bp != null) {
+                Vector bedrock = bp.getBedrock() == null ? new Vector() : bp.getBedrock();
+                Stream.of(bp.getBlocks(), bp.getAttached()).filter(Objects::nonNull).forEach(
+                        m -> m.forEach((pos, block) -> starter.put(pos.clone().subtract(bedrock), block.getBlockData())));
+            }
+            return starter;
         }
 
         @Override

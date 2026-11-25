@@ -2,6 +2,7 @@ package world.bentobox.boxed.reach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import world.bentobox.boxed.reach.GrowthSimulator.Blocked;
+import world.bentobox.boxed.reach.GrowthSimulator.Earned;
 import world.bentobox.boxed.reach.GrowthSimulator.Result;
 import world.bentobox.boxed.reach.LandSurvey.Kind;
 import world.bentobox.boxed.reach.Requirements.Alternative;
@@ -162,7 +164,7 @@ class GrowthSimulatorTest {
         Result result = new GrowthSimulator(survey, requirements, scores, 1).run();
 
         // 1 -> mine_stone -> 3: only two iron in reach, so the box stops there
-        assertEquals(List.of("minecraft:story/mine_stone"), result.earned().stream().map(e -> e.advancement()).toList());
+        assertEquals(List.of("minecraft:story/mine_stone"), result.earned().stream().map(Earned::advancement).toList());
         assertEquals(3, result.finalSize());
         assertFalse(result.filledLand());
         assertEquals(List.of("minecraft:story/not_in_file"), result.unlisted());
@@ -204,7 +206,7 @@ class GrowthSimulatorTest {
      * The requirements file that ships with Boxed can be read without complaints.
      */
     @Test
-    void testShippedRequirementsFile() throws Exception {
+    void testShippedRequirementsFile() {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(new java.io.File("src/main/resources/requirements.yml"));
         List<String> problems = new ArrayList<>();
         Requirements shipped = new Requirements(config, problems::add);
@@ -213,7 +215,7 @@ class GrowthSimulatorTest {
         YamlConfiguration adv = YamlConfiguration.loadConfiguration(new java.io.File("src/main/resources/advancements.yml"));
         for (String key : adv.getConfigurationSection("advancements").getKeys(false)) {
             if (adv.getInt("advancements." + key) > 0) {
-                assertTrue(shipped.getNeeds("minecraft:" + key) != null, key + " is missing from requirements.yml");
+                assertNotNull(shipped.getNeeds("minecraft:" + key), key + " is missing from requirements.yml");
             }
         }
     }
