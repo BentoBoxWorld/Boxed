@@ -1,5 +1,6 @@
 package world.bentobox.boxed.commands;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.EnumMap;
 import java.util.Comparator;
@@ -8,25 +9,38 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
+import world.bentobox.bentobox.blueprints.Blueprint;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBundle;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
 import world.bentobox.boxed.areas.AreaLocationStrategy;
 import world.bentobox.boxed.areas.AreaManager;
+import world.bentobox.boxed.areas.BoxHeight;
+import world.bentobox.boxed.generators.template.Template;
+import world.bentobox.boxed.reach.GrowthSimulator;
+import world.bentobox.boxed.reach.LandSurvey;
+import world.bentobox.boxed.reach.ReachReport;
+import world.bentobox.boxed.reach.Requirements;
 
 /**
  * Admin command that lists the areas. Its sub-commands visit an area, make a new one and
@@ -54,6 +68,7 @@ public class AdminAreasCommand extends CompositeCommand {
         new Create(this);
         new Rebuild(this);
         new Clean(this);
+        new Check(this);
     }
 
     @Override
@@ -343,6 +358,99 @@ public class AdminAreasCommand extends CompositeCommand {
             }
             user.sendMessage(PREFIX + "clean.success", TextVariables.XYZ, centre.getBlockX() + "," + centre.getBlockZ());
             return true;
+        }
+    }
+
+    /**
+     * Plays out how a box grows in an area and reports where players get stuck.
+     */
+    static class Check extends CompositeCommand {
+
+        Check(CompositeCommand parent) {
+            super(parent, "check");
+        }
+
+        @Override
+        public void setup() {
+            this.setPermission("admin.areas.check");
+            this.setOnlyPlayer(false);
+            this.setParametersHelp(PREFIX + "check.parameters");
+            this.setDescription(PREFIX + "check.description");
+        }
+
+        @Override
+        public boolean execute(User user, String label, List<String> args) {
+            Boxed addon = getAddon();
+            if (args.size() != 1) {
+                this.showHelp(this, user);
+                return false;
+            }
+            Area area = addon.getAreas().getArea(args.get(0).toLowerCase(Locale.ENGLISH));
+            Template normal = area == null ? null : addon.getAreas().getTemplate(area, Environment.NORMAL);
+            if (area == null || normal == null) {
+                user.sendMessage(PREFIX + "unknown-area");
+                return false;
+            }
+            Template nether = addon.getAreas().getTemplate(area, Environment.NETHER);
+            // Everything is read on the main thread. Only the survey of the land runs off it.
+            File folder = addon.getDataFolder();
+            if (!new File(folder, "requirements.yml").exists()) {
+                addon.saveResource("requirements.yml", false);
+            }
+            Requirements requirements = new Requirements(
+                    YamlConfiguration.loadConfiguration(new File(folder, "requirements.yml")), addon::logWarning);
+            YamlConfiguration structures = YamlConfiguration.loadConfiguration(new File(folder, area.structures()));
+            Map<String, Integer> scores = new HashMap<>();
+            ConfigurationSection adv = YamlConfiguration.loadConfiguration(new File(folder, "advancements.yml"))
+                    .getConfigurationSection("advancements");
+            if (adv != null) {
+                adv.getKeys(false).forEach(k -> scores.put(k.contains(":") ? k : "minecraft:" + k, adv.getInt(k)));
+            }
+            // The starter blocks, by position relative to the centre of the box
+            Map<Vector, String> starter = new HashMap<>();
+            Blueprint bp = new BoxHeight(addon).getBlueprint(area);
+            if (bp != null) {
+                Vector bedrock = bp.getBedrock() == null ? new Vector() : bp.getBedrock();
+                Stream.of(bp.getBlocks(), bp.getAttached()).filter(Objects::nonNull)
+                        .forEach(m -> m.forEach((pos, block) -> starter.put(pos.clone().subtract(bedrock), block.getBlockData())));
+            }
+            int radius = normal.getSize() * 16;
+            int startSize = Math.max(1, addon.getSettings().getIslandProtectionRange());
+            File report = new File(addon.getAreaFolder(area), "reachability.txt");
+            user.sendMessage(PREFIX + "check.started", TextVariables.NAME, area.id());
+            Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () -> {
+                LandSurvey survey = new LandSurvey(radius);
+                survey.addTemplate(normal, false);
+                if (nether != null) {
+                    survey.addTemplate(nether, true);
+                }
+                survey.addBlueprint(starter);
+                survey.addStructures(structures.getConfigurationSection("normal"), false);
+                survey.addStructures(structures.getConfigurationSection("nether"), true);
+                requirements.applyTo(survey);
+                GrowthSimulator.Result result = new GrowthSimulator(survey, requirements, scores, startSize).run();
+                String summary = ReachReport.summary(result);
+                String written;
+                try {
+                    Files.write(report.toPath(), ReachReport.lines(area.id(), survey, result));
+                    written = report.getPath();
+                } catch (IOException e) {
+                    addon.logError("Could not write " + report + ": " + e.getMessage());
+                    written = "-";
+                }
+                String path = written;
+                Bukkit.getScheduler().runTask(getPlugin(), () -> {
+                    addon.log("Area " + area.id() + ": " + summary);
+                    user.sendMessage(PREFIX + "check.result", TextVariables.DESCRIPTION, summary);
+                    user.sendMessage(PREFIX + "check.report", "[file]", path);
+                });
+            });
+            return true;
+        }
+
+        @Override
+        public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
+            return areaNames(getAddon(), args);
         }
     }
 }

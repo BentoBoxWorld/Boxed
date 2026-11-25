@@ -79,7 +79,7 @@ public class BoxHeight {
      * in the first bundle if the area has no bundle of its own.
      */
     @Nullable
-    private Blueprint getBlueprint(Area area) {
+    public Blueprint getBlueprint(Area area) {
         Map<String, BlueprintBundle> bundles = addon.getPlugin().getBlueprintsManager().getBlueprintBundles(addon);
         BlueprintBundle own = bundles.get(area.id());
         String name = Stream.concat(Stream.ofNullable(own),

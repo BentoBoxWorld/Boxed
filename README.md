@@ -77,6 +77,7 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `/boxadmin areas create <name> [seed]` | Makes a new area and its blueprint bundle. Needs a restart. |
 | `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
 | `/boxadmin areas clean [x z]` | Puts the land of the box position you are in (or the one at x, z) back the way it was. Use it after trying out structures in a position nobody has a box in. Positions with a box in use are refused. |
+| `/boxadmin areas check <area>` | Plays out how a box grows in the area and reports where players get stuck. See [Checking that an area can be played](#checking-that-an-area-can-be-played). |
 
 Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
 
@@ -142,6 +143,28 @@ advancements:
   ...
 ```
   
+### Checking that an area can be played
+
+`/boxadmin areas check <area>` answers the question "can a player in this area actually grow their box?". It looks at the area's land, the starter blueprint and the area's structures file, then plays the game out on paper: starting from a new box, it earns every advancement whose needs are inside the box, grows the box by their scores, and repeats until nothing more can be earned.
+
+The command prints one line, for example:
+
+```
+The box stops growing at size 263 of 320. 48 advancements earned for 262 points, 1 out of reach, 48 impossible (276 points).
+```
+
+and writes the full report to `areas/<area>/reachability.txt`. The report lists:
+
+* the advancements earned in each round and the box size at the time,
+* the advancements that were still out of reach when the box stopped growing, with what was missing and the box size at which it first appears,
+* the advancements that are impossible in the area, with the reason,
+* the box size at which each biome, mob and structure first comes into the box.
+
+What each advancement needs is set in `requirements.yml`, which is written to the Boxed folder the first time you run the command. It is a model written by hand: it lists the raw resources an advancement comes down to (blocks, biomes, mobs, structures, other advancements), not every crafting step, and some entries are simplified. Mobs cannot be seen in the land itself, so the file also says which biomes and structures bring which mobs. Correct it to suit your server and your data pack. The check takes around half a minute and does not slow the server down.
+
+An advancement that scores points but can never be earned is worth either removing from `advancements.yml` or making possible, for example by placing a structure with `/boxadmin place`.
+
+
 ### biomes.yml
 The player's land has biomes and they are defined here. It's not possible to define where the biomes are right now, only what affect they have on the terrain.
 
