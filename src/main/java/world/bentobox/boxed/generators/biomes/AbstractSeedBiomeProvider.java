@@ -302,8 +302,11 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
     private final Boxed addon;
     private final Environment env;
     protected final int dist;
-    private final int spawnX;
-    private final int spawnZ;
+    /**
+     * Block x and z of the spots that the custom biomes are laid out around. A seed world has
+     * one. The spot finder tries out several in one world.
+     */
+    private volatile int[][] centres;
     protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
 
     protected AbstractSeedBiomeProvider(Boxed boxed, Environment env) {
@@ -316,17 +319,21 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * @param biomesFile name of the file in the addon folder that defines the biomes
      */
     protected AbstractSeedBiomeProvider(Boxed boxed, Environment env, String biomesFile) {
+        this(boxed, env, biomesFile, 0, 0);
+    }
+
+    /**
+     * @param boxed addon
+     * @param env environment
+     * @param biomesFile name of the file in the addon folder that defines the biomes
+     * @param centreX block x of the spot the biomes are laid out around
+     * @param centreZ block z of the spot the biomes are laid out around
+     */
+    protected AbstractSeedBiomeProvider(Boxed boxed, Environment env, String biomesFile, int centreX, int centreZ) {
         this.addon = boxed;
         this.env = env;
-        // These fields are used to determine the biomes around the spawn point
         this.dist = addon.getSettings().getIslandDistance();
-        if (env.equals(Environment.NORMAL)) {
-            spawnX = addon.getSettings().getSeedX();
-            spawnZ = addon.getSettings().getSeedZ();
-        } else {
-            spawnX = addon.getSettings().getNetherSeedX();
-            spawnZ = addon.getSettings().getNetherSeedZ();
-        }
+        this.centres = new int[][] { { centreX, centreZ } };
         // Load the config
         File biomeFile = new File(addon.getDataFolder(), biomesFile);
         // The default file is saved from the jar. Other areas' files are made by the admin.
@@ -348,6 +355,37 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         quadrants.put(BlockFace.NORTH_WEST, northWest);
         quadrants.put(BlockFace.SOUTH_EAST, southEast);
         quadrants.put(BlockFace.SOUTH_WEST, southWest);
+    }
+
+    /**
+     * Lays the custom biomes out around several spots instead of one. The spots should be
+     * far enough apart that their biomes do not overlap.
+     * @param spots block x and z of each spot. There must be at least one.
+     */
+    public void setCentres(List<int[]> spots) {
+        if (spots.isEmpty()) {
+            throw new IllegalArgumentException("There must be at least one spot");
+        }
+        this.centres = spots.stream().map(int[]::clone).toArray(int[][]::new);
+    }
+
+    /**
+     * @return the spot nearest to a block
+     */
+    private int[] nearestCentre(int x, int z) {
+        int[][] all = centres;
+        int[] nearest = all[0];
+        long best = Long.MAX_VALUE;
+        for (int[] c : all) {
+            long dx = (long) x - c[0];
+            long dz = (long) z - c[1];
+            long d = dx * dx + dz * dz;
+            if (d < best) {
+                best = d;
+                nearest = c;
+            }
+        }
+        return nearest;
     }
 
     private Biome getQuadrantBiome(BlockFace dir, double d) {
@@ -879,7 +917,8 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
          */
 
         Vector s = new Vector(x, 0, z);
-        Vector l = new Vector(spawnX, 0, spawnZ);
+        int[] centre = nearestCentre(x, z);
+        Vector l = new Vector(centre[0], 0, centre[1]);
         double dis = l.distance(s);
         if (dis > dist * 2) {
             // Only customize biomes around the spawn location

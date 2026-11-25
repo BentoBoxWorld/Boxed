@@ -40,6 +40,10 @@ Never hold the whole region in memory or load the seed world on a normal boot �
 
 `reach/` answers whether an area can be played. `LandSurvey` counts, per box size, the blocks, biomes and template entities of an area's templates plus the starter blueprint and the structures file. `Requirements` reads `requirements.yml`, a hand-written model of what each scored advancement needs (and `provides` rules that turn biomes and structures into mobs). `GrowthSimulator` earns everything in reach, grows the box by the scores and repeats; `ReachReport` writes it up. `/boxadmin areas check <area>` runs the survey off the main thread. Every advancement with a score in `advancements.yml` must have an entry in `requirements.yml` (a test enforces it).
 
+### Finding a place to start
+
+`/boxadmin areas find <area> [seed|random] [radius]` (`AdminAreasFindCommand`) looks for good spots in a seed. `reach/SpotFinder` searches the vanilla biomes (no chunks needed) for wooded land with water nearby; the best few are generated in a throwaway `<worldname>/finder_<time>` world, using the area's biomes file laid out around every spot at once (`AbstractSeedBiomeProvider.setCentres`), and scored by `reach/SpotSurvey` (dry middle, then the box size that takes in logs, surface water, shallow stone, iron ore and coal). The world is unloaded without saving and deleted. An area uses a spot through `centre: x,z` in `areas.yml` (`Area.centreX/centreZ`, overworld only; the Nether template is still taken from 0,0).
+
 ### Deleted boxes
 
 `listeners/BoxCleaner` restores a deleted (soft-deleted, `isDeletable()`) box's whole position from the template — generated chunks only, both dimensions, within a 10 ms per tick budget — then removes the island record so `AreaLocationStrategy` can hand the position out again (it always takes the first position in the row with no record). Do not rely on BentoBox's region-file purge for Boxed: it only deletes a region when every position overlapping it is deletable, and 640-block positions always share 512-block regions with neighbours. Deleted boxes are re-queued from the island cache on `BentoBoxReadyEvent`, so no extra persistence is needed.

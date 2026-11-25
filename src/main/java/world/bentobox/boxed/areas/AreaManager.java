@@ -68,9 +68,10 @@ public class AreaManager {
                 s = new YamlConfiguration();
             }
             String requires = getRequirement(s, id, ids, errorLog);
+            int[] centre = parseCentre(s.getString("centre", s.getString("center", "")), id, errorLog);
             Area area = new Area(id, s.getLong("seed", defaultSeed), s.getString("biomes", "biomes.yml"),
                     s.getString("structures", "structures.yml"), grid.getInt(path), s.getBoolean("enabled", true),
-                    requires, Math.max(0, s.getInt("unlocks-next-at", 0)));
+                    requires, Math.max(0, s.getInt("unlocks-next-at", 0)), centre[0], centre[1]);
             areas.put(id, area);
             areaByRow.put(area.row(), area);
         }
@@ -78,6 +79,28 @@ public class AreaManager {
         if (changed) {
             save(errorLog);
         }
+    }
+
+    /**
+     * Reads where in the seed world the middle of an area is. Land is copied in whole chunks,
+     * so the spot is moved to the corner of its chunk.
+     * @param text "x,z", or empty for the middle of the seed world
+     * @return block x and z
+     */
+    static int[] parseCentre(String text, String id, java.util.function.Consumer<String> errorLog) {
+        if (text.isBlank()) {
+            return new int[] { 0, 0 };
+        }
+        String[] xz = text.split(",");
+        try {
+            if (xz.length == 2) {
+                return new int[] { Integer.parseInt(xz[0].trim()) >> 4 << 4, Integer.parseInt(xz[1].trim()) >> 4 << 4 };
+            }
+        } catch (NumberFormatException _) {
+            // Reported below
+        }
+        errorLog.accept("Area " + id + ": centre must be two whole numbers like 1200,-640. Using 0,0.");
+        return new int[] { 0, 0 };
     }
 
     /**

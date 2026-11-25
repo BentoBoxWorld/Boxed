@@ -75,9 +75,10 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `/boxadmin areas` | Lists the areas with their row, seed and number of boxes. |
 | `/boxadmin areas tp <area>` | Takes you to the land where the area's next box will be, so you can look at it and place structures before any player has a box there. |
 | `/boxadmin areas create <name> [seed]` | Makes a new area and its blueprint bundle. Needs a restart. |
-| `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
+| `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed, centre or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
 | `/boxadmin areas clean [x z]` | Puts the land of the box position you are in (or the one at x, z) back the way it was. Use it after trying out structures in a position nobody has a box in. Positions with a box in use are refused. |
 | `/boxadmin areas check <area>` | Plays out how a box grows in the area and reports where players get stuck. See [Checking that an area can be played](#checking-that-an-area-can-be-played). |
+| `/boxadmin areas find <area> [seed\|random] [radius]` | Looks through a seed for good places to start a box. See [Finding a good place to start](#finding-a-good-place-to-start). |
 
 Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
 
@@ -163,6 +164,27 @@ and writes the full report to `areas/<area>/reachability.txt`. The report lists:
 What each advancement needs is set in `requirements.yml`, which is written to the Boxed folder the first time you run the command. It is a model written by hand: it lists the raw resources an advancement comes down to (blocks, biomes, mobs, structures, other advancements), not every crafting step, and some entries are simplified. Mobs cannot be seen in the land itself, so the file also says which biomes and structures bring which mobs. Correct it to suit your server and your data pack. The check takes around half a minute and does not slow the server down.
 
 An advancement that scores points but can never be earned is worth either removing from `advancements.yml` or making possible, for example by placing a structure with `/boxadmin place`.
+
+### Finding a good place to start
+
+Every box in an area is a copy of the land around one place in the area's seed. By default that place is 0,0, so whether new players start in a forest or in the sea depends on the seed. `/boxadmin areas find <area> [seed|random] [radius]` finds better places for you:
+
+* with no seed it searches the seed the area already has, so you can see how the current place compares,
+* with a seed it searches that seed, and with `random` it picks a new seed,
+* `radius` is how far from 0,0 to search in blocks. The default is 5000.
+
+The search looks for dry, wooded land with a river or the sea a short walk away. It then generates the land around the best dozen places in a temporary world, which is deleted afterwards, and gives each a score out of 100. The score is highest when the middle is dry land and a small box already holds logs, water at the surface, stone near the surface, iron ore and coal. The area's biomes file is used, so the land is what a box there would really have. It takes around 10 seconds.
+
+The three best places are shown and the full list is written to `areas/<area>/spots.txt`:
+
+```
+100/100  centre: 1664,1536  (forest, river or sea about 32 blocks away, 92% land)
+         dry land (100% dry), wood at size 4, water at size 14, stone at size 1, iron ore at size 2, coal at size 2
+```
+
+To use a place, set the area's `seed` and `centre` in `areas.yml`, run `/boxadmin areas rebuild <area> regenerate` and restart the server. Boxes that players have already explored do not change, so do this before the area is in use. `centre` moves the overworld only. The Nether of an area is always taken from 0,0 of its seed.
+
+A good start does not mean the area can be finished. Run `/boxadmin areas check <area>` after the restart to see how far a box there can grow.
 
 
 ### biomes.yml

@@ -151,7 +151,7 @@ public class Boxed extends GameModeAddon {
         String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
         for (Area area : areas.getAreas()) {
             generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
-                    Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes())));
+                    Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes(), area.centreX(), area.centreZ())));
             generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
                     Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes())));
         }
@@ -229,7 +229,7 @@ public class Boxed extends GameModeAddon {
         // Get the land of every area ready before the game worlds ask for it
         for (Area area : areas.getAreas()) {
             boolean regenerate = checkRebuildRequest(area);
-            loadTemplate(area, worldName, Environment.NORMAL, settings.getSeedX(), settings.getSeedZ(), regenerate);
+            loadTemplate(area, worldName, Environment.NORMAL, area.centreX(), area.centreZ(), regenerate);
             if (settings.isNetherGenerate()) {
                 loadTemplate(area, worldName, Environment.NETHER, settings.getNetherSeedX(),
                         settings.getNetherSeedZ(), regenerate);

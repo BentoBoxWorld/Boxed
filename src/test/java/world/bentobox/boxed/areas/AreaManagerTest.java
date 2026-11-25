@@ -192,4 +192,26 @@ class AreaManagerTest {
         assertEquals(1, AbstractBoxedChunkGenerator.rowCalc(59, 20));
         assertEquals(-1, AbstractBoxedChunkGenerator.rowCalc(-21, 20));
     }
+
+    @Test
+    void testCentre() throws Exception {
+        AreaManager am = manager("""
+                areas:
+                  moved:
+                    centre: 1210, -650
+                  american:
+                    center: "32,48"
+                  broken:
+                    centre: here
+                """);
+        assertEquals(0, am.getDefaultArea().centreX());
+        assertEquals(0, am.getDefaultArea().centreZ());
+        // The spot is moved to the corner of its chunk
+        assertEquals(1200, am.getArea("moved").centreX());
+        assertEquals(-656, am.getArea("moved").centreZ());
+        assertEquals(32, am.getArea("american").centreX());
+        assertEquals(48, am.getArea("american").centreZ());
+        assertEquals(0, am.getArea("broken").centreX());
+        assertEquals(0, am.getArea("broken").centreZ());
+    }
 }
