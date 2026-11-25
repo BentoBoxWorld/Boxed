@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.World.Environment;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
+import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
@@ -28,6 +29,8 @@ import world.bentobox.boxed.workshop.WorkshopManager;
 public class AdminAreasEditCommand extends CompositeCommand {
 
     private static final String PREFIX = "boxed.commands.boxadmin.areas.edit.";
+    private static final String NONE = PREFIX + "none";
+    private static final String FAILED = PREFIX + "failed";
     private static final String START = "start";
     private static final String GO = "go";
     private static final String DISCARD = "discard";
@@ -68,11 +71,8 @@ public class AdminAreasEditCommand extends CompositeCommand {
             return open(user, manager);
         }
         return switch (args.get(0).toLowerCase(Locale.ENGLISH)) {
-        case START -> args.size() >= 2 && args.size() <= 4 ? start(user, args.get(1),
-                args.size() > 2 ? args.get(2) : SAME, args.size() > 3 ? args.get(3) : NEW) : help(user);
-        case GO -> args.size() <= 2 && (args.size() == 1 || NETHER.equalsIgnoreCase(args.get(1)))
-                ? go(user, args.size() == 2 ? Environment.NETHER : Environment.NORMAL)
-                : help(user);
+        case START -> startTyped(user, args);
+        case GO -> goTyped(user, args);
         case DISCARD -> {
             if (args.size() == 2 && CONFIRM.equalsIgnoreCase(args.get(1))) {
                 yield discard(user);
@@ -82,6 +82,20 @@ public class AdminAreasEditCommand extends CompositeCommand {
         }
         default -> help(user);
         };
+    }
+
+    private boolean startTyped(User user, List<String> args) {
+        if (args.size() < 2 || args.size() > 4) {
+            return help(user);
+        }
+        return start(user, args.get(1), args.size() > 2 ? args.get(2) : SAME, args.size() > 3 ? args.get(3) : NEW);
+    }
+
+    private boolean goTyped(User user, List<String> args) {
+        if (args.size() == 1) {
+            return go(user, Environment.NORMAL);
+        }
+        return args.size() == 2 && NETHER.equalsIgnoreCase(args.get(1)) ? go(user, Environment.NETHER) : help(user);
     }
 
     private boolean help(User user) {
@@ -101,7 +115,7 @@ public class AdminAreasEditCommand extends CompositeCommand {
             user.sendMessage(PREFIX + "status", SEED_VAR, String.valueOf(w.getSeed()), "[style]",
                     BiomeStyles.name(w.getBiomes()), "[area]", w.getArea() == null ? "-" : w.getArea());
         } else {
-            user.sendMessage(PREFIX + "none", "[label]", getTopLabel());
+            user.sendMessage(NONE, TextVariables.LABEL, getTopLabel());
         }
         return true;
     }
@@ -151,7 +165,7 @@ public class AdminAreasEditCommand extends CompositeCommand {
             manager.start(seed, biomes, area);
         } catch (IOException e) {
             addon.logError("Could not start work on an area: " + e.getMessage());
-            user.sendMessage(PREFIX + "failed");
+            user.sendMessage(FAILED);
             return false;
         }
         user.sendMessage(PREFIX + "started", SEED_VAR, String.valueOf(seed), "[style]", BiomeStyles.name(biomes));
@@ -184,11 +198,11 @@ public class AdminAreasEditCommand extends CompositeCommand {
         Boxed addon = getAddon();
         WorkshopManager manager = addon.getWorkshop();
         if (manager.get().isEmpty()) {
-            user.sendMessage(PREFIX + "none", "[label]", getTopLabel());
+            user.sendMessage(NONE, TextVariables.LABEL, getTopLabel());
             return false;
         }
         if (!manager.hasDimension(env) || manager.getWorld(env) == null) {
-            user.sendMessage(PREFIX + "failed");
+            user.sendMessage(FAILED);
             return false;
         }
         if (!user.isPlayer()) {
@@ -197,7 +211,7 @@ public class AdminAreasEditCommand extends CompositeCommand {
         }
         manager.enter(user.getPlayer(), env).whenComplete((ok, error) -> {
             if (error != null || !Boolean.TRUE.equals(ok)) {
-                user.sendMessage(PREFIX + "failed");
+                user.sendMessage(FAILED);
             } else {
                 user.sendMessage(PREFIX + "welcome");
             }
@@ -213,10 +227,10 @@ public class AdminAreasEditCommand extends CompositeCommand {
     boolean discard(User user) {
         WorkshopManager manager = this.<Boxed>getAddon().getWorkshop();
         if (manager.get().isEmpty()) {
-            user.sendMessage(PREFIX + "none", "[label]", getTopLabel());
+            user.sendMessage(NONE, TextVariables.LABEL, getTopLabel());
             return false;
         }
-        manager.discard().thenAccept(clean -> user.sendMessage(PREFIX + (clean ? "discarded" : "discard-failed")));
+        manager.discard().thenAccept(clean -> user.sendMessage(PREFIX + (Boolean.TRUE.equals(clean) ? "discarded" : "discard-failed")));
         return true;
     }
 

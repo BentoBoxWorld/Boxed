@@ -54,6 +54,7 @@ public class WorkshopManager {
     private static final int NETHER_ROOF = 110;
 
     private final Boxed addon;
+    private final File areasFolder;
     private final File file;
     private final File displacedFile;
     private final Map<Environment, World> worlds = new EnumMap<>(Environment.class);
@@ -67,9 +68,9 @@ public class WorkshopManager {
      */
     public WorkshopManager(Boxed addon) {
         this.addon = addon;
-        File folder = new File(addon.getDataFolder(), "areas");
-        this.file = new File(folder, "workshop.yml");
-        this.displacedFile = new File(folder, "displaced.yml");
+        this.areasFolder = new File(addon.getDataFolder(), "areas");
+        this.file = new File(areasFolder, "workshop.yml");
+        this.displacedFile = new File(areasFolder, "displaced.yml");
     }
 
     /**
@@ -121,9 +122,12 @@ public class WorkshopManager {
         return env == Environment.NORMAL || (env == Environment.NETHER && addon.getSettings().isNetherGenerate());
     }
 
+    private static String suffix(Environment env) {
+        return env == Environment.NETHER ? NETHER : "";
+    }
+
     private String worldName(Environment env) {
-        return addon.getSettings().getWorldName().toLowerCase(Locale.ENGLISH) + "/" + WORLD
-                + (env == Environment.NETHER ? NETHER : "");
+        return addon.getSettings().getWorldName().toLowerCase(Locale.ENGLISH) + "/" + WORLD + suffix(env);
     }
 
     /**
@@ -133,8 +137,7 @@ public class WorkshopManager {
     @Nullable
     private File worldFolder(Environment env) {
         World overWorld = addon.getOverWorld();
-        return overWorld == null ? null
-                : new File(overWorld.getWorldFolder(), WORLD + (env == Environment.NETHER ? NETHER : ""));
+        return overWorld == null ? null : new File(overWorld.getWorldFolder(), WORLD + suffix(env));
     }
 
     /**
@@ -401,7 +404,7 @@ public class WorkshopManager {
             if (displaced.isEmpty()) {
                 Files.deleteIfExists(displacedFile.toPath());
             } else {
-                displacedFile.getParentFile().mkdirs();
+                Files.createDirectories(areasFolder.toPath());
                 config.save(displacedFile);
             }
         } catch (IOException e) {

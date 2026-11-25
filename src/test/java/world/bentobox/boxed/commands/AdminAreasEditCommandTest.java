@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -161,7 +162,7 @@ class AdminAreasEditCommandTest extends CommonTestSetup {
 
     @Test
     void testStartThatCannotBeSaved() throws IOException {
-        org.mockito.Mockito.doThrow(new IOException("disk full")).when(manager).start(anyLong(), anyString(), any());
+        doThrow(new IOException("disk full")).when(manager).start(anyLong(), anyString(), any());
         assertFalse(cmd.execute(user, "edit", List.of("start", "1")));
         verify(user).sendMessage(PREFIX + "failed");
     }

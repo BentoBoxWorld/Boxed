@@ -2,6 +2,7 @@ package world.bentobox.boxed.workshop;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -21,13 +22,14 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public class Workshop {
 
-    private static final String PLAYERS = "players";
-    private static final String CENTRES = "centres";
+    private static final String PLAYERS_KEY = "players";
+    private static final String BIOMES_KEY = "biomes";
+    private static final String CENTRES_KEY = "centres";
 
     private final long seed;
     private final String biomes;
     private final String area;
-    private final Map<Environment, int[]> centres = new HashMap<>();
+    private final Map<Environment, int[]> centres = new EnumMap<>(Environment.class);
     private final Map<UUID, GameMode> players = new HashMap<>();
 
     /**
@@ -112,10 +114,10 @@ public class Workshop {
     public void save(File file) throws IOException {
         YamlConfiguration config = new YamlConfiguration();
         config.set("seed", seed);
-        config.set("biomes", biomes);
+        config.set(BIOMES_KEY, biomes);
         config.set("area", area);
-        centres.forEach((env, c) -> config.set(CENTRES + "." + env.name().toLowerCase(Locale.ENGLISH), c[0] + "," + c[1]));
-        players.forEach((uuid, mode) -> config.set(PLAYERS + "." + uuid, mode.name()));
+        centres.forEach((env, c) -> config.set(CENTRES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH), c[0] + "," + c[1]));
+        players.forEach((uuid, mode) -> config.set(PLAYERS_KEY + "." + uuid, mode.name()));
         File parent = file.getParentFile();
         if (parent != null) {
             parent.mkdirs();
@@ -133,11 +135,11 @@ public class Workshop {
             return null;
         }
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        if (!config.contains("seed") || config.getString("biomes") == null) {
+        if (!config.contains("seed") || config.getString(BIOMES_KEY) == null) {
             return null;
         }
-        Workshop workshop = new Workshop(config.getLong("seed"), config.getString("biomes"), config.getString("area"));
-        ConfigurationSection c = config.getConfigurationSection(CENTRES);
+        Workshop workshop = new Workshop(config.getLong("seed"), config.getString(BIOMES_KEY), config.getString("area"));
+        ConfigurationSection c = config.getConfigurationSection(CENTRES_KEY);
         if (c != null) {
             for (String key : c.getKeys(false)) {
                 String[] xz = c.getString(key, "").split(",");
@@ -149,7 +151,7 @@ public class Workshop {
                 }
             }
         }
-        ConfigurationSection p = config.getConfigurationSection(PLAYERS);
+        ConfigurationSection p = config.getConfigurationSection(PLAYERS_KEY);
         if (p != null) {
             for (String key : p.getKeys(false)) {
                 try {
