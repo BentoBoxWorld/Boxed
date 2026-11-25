@@ -248,11 +248,7 @@ public class AdminAreasFindCommand extends CompositeCommand {
                 Map<Long, ChunkSnapshot> snapshots = new HashMap<>();
                 for (CompletableFuture<Chunk> chunk : chunks) {
                     Chunk c = chunk.join();
-                    for (BlockState tile : c.getTileEntities()) {
-                        if (tile instanceof CreatureSpawner spawner && spawner.getSpawnedType() == EntityType.BLAZE) {
-                            spawners.add(new int[] { tile.getX(), tile.getZ() });
-                        }
-                    }
+                    addBlazeSpawners(c, spawners);
                     snapshots.put(key(c.getX(), c.getZ()), c.getChunkSnapshot(false, false, false));
                     nether.unloadChunk(c.getX(), c.getZ(), false);
                 }
@@ -387,6 +383,14 @@ public class AdminAreasFindCommand extends CompositeCommand {
             } catch (IOException e) {
                 getAddon().logError("Could not write " + report + ": " + e.getMessage());
                 return false;
+            }
+        }
+    }
+
+    private static void addBlazeSpawners(Chunk chunk, List<int[]> spawners) {
+        for (BlockState tile : chunk.getTileEntities()) {
+            if (tile instanceof CreatureSpawner spawner && spawner.getSpawnedType() == EntityType.BLAZE) {
+                spawners.add(new int[] { tile.getX(), tile.getZ() });
             }
         }
     }

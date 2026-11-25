@@ -143,7 +143,8 @@ class FortressMobsListenerTest extends CommonTestSetup {
     @Test
     void testOtherWorldsAndSpawnReasons() {
         roll(0);
-        when(addon.getNetherWorld()).thenReturn(mock(World.class));
+        World other = mock(World.class);
+        when(addon.getNetherWorld()).thenReturn(other);
         listener.onSpawn(event);
         when(addon.getNetherWorld()).thenReturn(world);
         when(event.getSpawnReason()).thenReturn(SpawnReason.SPAWNER);
