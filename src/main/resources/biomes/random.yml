@@ -1,0 +1,38 @@
+# Square patches of biomes picked at random from a list.
+# size is the width of a patch in blocks. The patch in the middle of the box always gets the
+# first biome in the list, and CUSTOM means "leave the biome the seed has". List a biome more
+# than once to make it more common. The pattern is the same for every area that uses this file.
+# blend is how many blocks the edges between patches wander.
+blend: 24
+distribution:
+  overworld:
+    patches:
+      size: 96
+      biomes:
+      - CUSTOM
+      - FOREST
+      - PLAINS
+      - DESERT
+      - SAVANNA
+      - JUNGLE
+      - TAIGA
+      - SNOWY_PLAINS
+      - SWAMP
+      - DARK_FOREST
+      - BIRCH_FOREST
+      - CHERRY_GROVE
+      - MANGROVE_SWAMP
+      - WARM_OCEAN
+      - ICE_SPIKES
+      - BADLANDS
+      - MUSHROOM_FIELDS
+  nether:
+    patches:
+      size: 64
+      biomes:
+      - CUSTOM
+      - NETHER_WASTES
+      - CRIMSON_FOREST
+      - WARPED_FOREST
+      - SOUL_SAND_VALLEY
+      - BASALT_DELTAS

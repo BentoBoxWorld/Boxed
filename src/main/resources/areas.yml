@@ -17,6 +17,8 @@
 #                structures, so the Nether has to be taken from a place that has one.
 #                /boxadmin areas find lists places that do.
 #   biomes     - the file that says which biomes are placed around the middle of the area.
+#                biomes.yml is the original style. The biomes folder has others, for
+#                example biomes/natural.yml, and you can add your own there.
 #   structures - the file that lists the structures placed in each new box of this area.
 #   enabled    - set to false to stop new boxes being made in this area. Boxes already there
 #                are not affected. Default is true.
@@ -33,6 +35,8 @@
 # make one with /boxadmin areas create <name> [seed], build one again with
 # /boxadmin areas rebuild <area> [regenerate], check that one can be played to the end with
 # /boxadmin areas check <area> and look for a better place to start with /boxadmin areas find.
+# /boxadmin areas edit opens the workshop, where a seed and a biome style can be tried out
+# in a temporary world.
 #
 # The land of an area is built once, when the server first starts with the area in this
 # file, and saved in the areas folder. Changing an area's seed, centres or biomes afterwards does
