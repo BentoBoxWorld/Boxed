@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,6 +66,9 @@ import world.bentobox.boxed.listeners.BoxCleaner;
 import world.bentobox.boxed.listeners.EnderPearlListener;
 import world.bentobox.boxed.listeners.FortressMobsListener;
 import world.bentobox.boxed.listeners.NewAreaListener;
+import world.bentobox.boxed.listeners.WorkshopListener;
+import world.bentobox.boxed.workshop.BiomeStyles;
+import world.bentobox.boxed.workshop.WorkshopManager;
 
 /**
  * Main Boxed class - provides a survival game inside a box
@@ -95,6 +99,7 @@ public class Boxed extends GameModeAddon {
     private BoxCleaner boxCleaner;
     private AbstractBoxedChunkGenerator netherGen;
     private AreaManager areas;
+    private WorkshopManager workshop;
 
 
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
@@ -109,6 +114,10 @@ public class Boxed extends GameModeAddon {
         saveDefaultConfig();
         // Load settings from config.yml. This will check if there are any issues with it too.
         loadSettings();
+        // The biome styles that come with Boxed. Admins add their own to the same folder.
+        for (String style : List.of("natural", "rings", "random", "none")) {
+            saveResource(BiomeStyles.FOLDER + "/" + style + ".yml", false);
+        }
 
         // Register commands
         playerCommand = new DefaultPlayerCommand(this) {};
@@ -191,6 +200,10 @@ public class Boxed extends GameModeAddon {
         this.registerListener(newAreaListener);
         boxCleaner = new BoxCleaner(this);
         this.registerListener(boxCleaner);
+        // An area that was being worked on when the server stopped is still there
+        workshop = new WorkshopManager(this);
+        workshop.load();
+        this.registerListener(new WorkshopListener(this, workshop));
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);
@@ -365,6 +378,13 @@ public class Boxed extends GameModeAddon {
      */
     public AreaManager getAreas() {
         return areas;
+    }
+
+    /**
+     * @return the workshop, where admins make new areas
+     */
+    public WorkshopManager getWorkshop() {
+        return workshop;
     }
 
     /**

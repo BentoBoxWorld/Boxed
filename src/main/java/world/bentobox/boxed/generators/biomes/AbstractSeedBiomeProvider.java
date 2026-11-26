@@ -7,23 +7,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Biome;
-import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.generator.BiomeParameterPoint;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
-import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.NonNull;
 
 import io.papermc.paper.registry.RegistryAccess;
@@ -37,11 +31,6 @@ import world.bentobox.boxed.Boxed;
  *
  */
 public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
-
-    /**
-     * Config marker for "no custom biome here, use the vanilla one"
-     */
-    private static final String CUSTOM_BIOME = "CUSTOM";
 
     private static final String DEFAULT_BIOMES = "biomes.yml";
 
@@ -308,7 +297,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      * one. The spot finder tries out several in one world.
      */
     private final AtomicReference<int[][]> centres = new AtomicReference<>();
-    protected final Map<BlockFace, SortedMap<Double, Biome>> quadrants;
+    private final BiomeLayout layout;
 
     protected AbstractSeedBiomeProvider(Boxed boxed, Environment env) {
         this(boxed, env, DEFAULT_BIOMES);
@@ -346,16 +335,8 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             }
         }
         YamlConfiguration config = YamlConfiguration.loadConfiguration(biomeFile);
-        SortedMap<Double, Biome> northEast = loadQuad(config, ENV_MAP.get(env) + ".north-east");
-        SortedMap<Double, Biome> southEast = loadQuad(config, ENV_MAP.get(env) + ".south-east");
-        SortedMap<Double, Biome> northWest = loadQuad(config, ENV_MAP.get(env) + ".north-west");
-        SortedMap<Double, Biome> southWest = loadQuad(config, ENV_MAP.get(env) + ".south-west");
-
-        quadrants = new EnumMap<>(BlockFace.class);
-        quadrants.put(BlockFace.NORTH_EAST, northEast);
-        quadrants.put(BlockFace.NORTH_WEST, northWest);
-        quadrants.put(BlockFace.SOUTH_EAST, southEast);
-        quadrants.put(BlockFace.SOUTH_WEST, southWest);
+        layout = new BiomeLayout(config.getConfigurationSection(ENV_MAP.get(env)), config.getDouble("blend", 0), dist,
+                this::parseBiome, addon::logError);
     }
 
     /**
@@ -387,11 +368,6 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             }
         }
         return nearest;
-    }
-
-    private Biome getQuadrantBiome(BlockFace dir, double d) {
-        Entry<Double, Biome> en = ((TreeMap<Double, Biome>) quadrants.get(dir)).ceilingEntry(d);
-        return en == null ? null : en.getValue();
     }
 
     @Override
@@ -917,30 +893,11 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
          *
          */
 
-        Vector s = new Vector(x, 0, z);
         int[] centre = nearestCentre(x, z);
-        Vector l = new Vector(centre[0], 0, centre[1]);
-        double dis = l.distance(s);
-        if (dis > dist * 2) {
-            // Only customize biomes around the spawn location
-            return getVanillaBiome(worldInfo, x, y, z, biomeParameterPoint, null);
-        }
-        // Provide custom biomes
-        Biome result;
-        double d = dis / dist; // Normalize
-        Vector direction = s.subtract(l);
-        if (direction.getBlockX() <= 0 && direction.getBlockZ() <= 0) {
-            result = getQuadrantBiome(BlockFace.NORTH_WEST, d);
-        } else if (direction.getBlockX() > 0 && direction.getBlockZ() <= 0) {
-            result = getQuadrantBiome(BlockFace.NORTH_EAST, d);
-        } else if (direction.getBlockX() <= 0 && direction.getBlockZ() > 0) {
-            result = getQuadrantBiome(BlockFace.SOUTH_WEST, d);
-        } else {
-            result = getQuadrantBiome(BlockFace.SOUTH_EAST, d);
-        }
-
+        Biome result = layout.get(x - centre[0], z - centre[1]);
         if (result == null) {
-            result = getVanillaBiome(worldInfo, x, y, z, biomeParameterPoint, null);
+            // Only some of the land around the middle has chosen biomes
+            return getVanillaBiome(worldInfo, x, y, z, biomeParameterPoint, null);
         }
 
         // Caves
@@ -965,48 +922,16 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         }
         Set<Biome> biomes = new LinkedHashSet<>(List.of(Biome.NETHER_WASTES, Biome.CRIMSON_FOREST,
                 Biome.WARPED_FOREST, Biome.SOUL_SAND_VALLEY, Biome.BASALT_DELTAS));
-        quadrants.values().forEach(q -> q.values().stream().filter(Objects::nonNull).forEach(biomes::add));
+        biomes.addAll(layout.biomes());
         return List.copyOf(biomes);
     }
 
     /**
-     * Loads the custom biomes from the config file
-     * @param config - Yaml configuration object
-     * @param sector - the direction section to load
-     * @return sorted map of the biomes and their probabilities as keys
-     */
-    private SortedMap<Double, Biome> loadQuad(YamlConfiguration config, String sector) {
-        SortedMap<Double, Biome> result = new TreeMap<>();
-        if (!config.contains(sector)) {
-            return result;
-        }
-        for (String ring : config.getStringList(sector)) {
-            String[] split = ring.split(":");
-            if (split.length != 2) {
-                addon.logError(ring + " must be in the format ratio:biome where ratio is a double.");
-                continue;
-            }
-            try {
-                double d = Double.parseDouble(split[0]);
-                // A biome of null means that no alternative biome should be applied
-                result.put(d, parseBiome(split[1]));
-            } catch (NumberFormatException e) {
-                addon.logError(sector + ": " + split[0]
-                        + " does not seem to be a double. For integers add a .0 to the end");
-            }
-        }
-        return result;
-    }
-
-    /**
      * Looks up a biome by config name.
-     * @param name biome name from the config, e.g. PLAINS or minecraft:plains. CUSTOM means "no biome".
-     * @return the biome, or null if the name is CUSTOM or the biome is unknown on this server
+     * @param name biome name from the config, e.g. PLAINS or minecraft:plains
+     * @return the biome, or null if the biome is unknown on this server
      */
     private Biome parseBiome(String name) {
-        if (CUSTOM_BIOME.equalsIgnoreCase(name)) {
-            return null;
-        }
         NamespacedKey key = NamespacedKey.fromString(name.toLowerCase(Locale.ENGLISH));
         Biome biome = key == null ? null : RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME).get(key);
         if (biome == null) {

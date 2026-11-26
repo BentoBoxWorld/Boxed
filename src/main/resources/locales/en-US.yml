@@ -609,6 +609,38 @@ boxed:
           started: '&a Surveying the land of [name]. This takes a few seconds...'
           result: '&a [description]'
           report: '&a The full report is in &e [file]'
+        edit:
+          description: work on a new area, or change one, in a temporary world
+          parameters: '[start <seed|random|same> [biome style] [area] | go [nether] | discard confirm]'
+          none: '&c No area is being worked on. Start one with &b /[label] areas edit'
+          exists: '&c An area is already being worked on. Finish it or discard it first.'
+          unknown-style: '&c There is no biome style with that name. Styles: &e [styles]'
+          started: '&a Started work on an area with seed &e [seed] &a and the &e [style] &a biome style.'
+          status: '&a An area is being worked on. Seed &e [seed]&a, biome style &e [style]&a, started from area &e [area]'
+          ready: '&a The world is ready.'
+          welcome: '&a You are in the area workshop, in creative mode. Nothing here is permanent until the area is made.'
+          failed: '&c That did not work. See the console for the reason.'
+          discard-confirm: '&c This deletes the area being worked on and its worlds. Type &b discard confirm &c to do it.'
+          discarded: '&a The area that was being worked on has been removed.'
+          discard-failed: '&c The area was removed, but a world could not be unloaded. See the console.'
+          dialog:
+            start-title: Work on an area
+            start-body: Pick an area to change, or make a new one. Leave the seed empty for a random seed, or to keep the seed of the area you picked.
+            area: Area
+            new-area: A new area
+            seed: Seed
+            style: Biome style
+            same-style: Same as the area (original for a new area)
+            go: Go
+            cancel: Cancel
+            status-title: Area in progress
+            status-body: 'Seed: [seed]. Biome style: [style]. Started from area: [area]'
+            go-overworld: Go to the overworld
+            go-nether: Go to the Nether
+            discard: Discard it
+            save-for-later: Save for later
+            discard-title: Discard this area?
+            discard-body: The temporary worlds and everything done in them will be deleted. Areas that are already made are not affected.
         find:
           description: look through a seed for good places to start a box
           parameters: <area> [seed|random] [search radius]
