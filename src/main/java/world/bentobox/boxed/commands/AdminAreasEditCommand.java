@@ -238,21 +238,22 @@ public class AdminAreasEditCommand extends CompositeCommand {
     public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
         Boxed addon = getAddon();
         String last = args.isEmpty() ? "" : args.get(args.size() - 1);
-        // The first argument is this command's own label
         List<String> options = new ArrayList<>();
-        String sub = args.size() > 2 ? args.get(1).toLowerCase(Locale.ENGLISH) : "";
-        if (args.size() <= 2) {
+        int parameter = AdminAreasCommand.parameter(this, args);
+        // The first parameter says what to do, and the rest depend on it
+        String sub = parameter > 1 ? args.get(args.size() - parameter).toLowerCase(Locale.ENGLISH) : "";
+        if (parameter <= 1) {
             options.addAll(List.of(START, GO, DISCARD));
-        } else if (sub.equals(START) && args.size() == 3) {
+        } else if (sub.equals(START) && parameter == 2) {
             options.addAll(List.of(RANDOM, SAME));
-        } else if (sub.equals(START) && args.size() == 4) {
+        } else if (sub.equals(START) && parameter == 3) {
             options.add(SAME);
             options.addAll(BiomeStyles.list(addon.getDataFolder()));
-        } else if (sub.equals(START) && args.size() == 5) {
+        } else if (sub.equals(START) && parameter == 4) {
             addon.getAreas().getAreas().forEach(a -> options.add(a.id()));
-        } else if (sub.equals(GO) && args.size() == 3) {
+        } else if (sub.equals(GO) && parameter == 2) {
             options.add(NETHER);
-        } else if (sub.equals(DISCARD) && args.size() == 3) {
+        } else if (sub.equals(DISCARD) && parameter == 2) {
             options.add(CONFIRM);
         }
         return Optional.of(Util.tabLimit(options, last));

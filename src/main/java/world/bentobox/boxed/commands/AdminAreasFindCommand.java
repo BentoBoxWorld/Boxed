@@ -482,10 +482,11 @@ public class AdminAreasFindCommand extends CompositeCommand {
 
     @Override
     public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
-        if (args.size() == 3) {
-            return Optional.of(Util.tabLimit(List.of(RANDOM), args.get(2)));
+        int parameter = AdminAreasCommand.parameter(this, args);
+        if (parameter == 2) {
+            return Optional.of(Util.tabLimit(List.of(RANDOM), args.get(args.size() - 1)));
         }
-        if (args.size() > 3) {
+        if (parameter > 2) {
             return Optional.empty();
         }
         return Optional.of(Util.tabLimit(this.<Boxed>getAddon().getAreas().getAreas().stream().map(Area::id).toList(),

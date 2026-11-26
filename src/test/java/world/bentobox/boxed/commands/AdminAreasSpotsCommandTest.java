@@ -52,7 +52,9 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
                 new Workshop.Spot(-2560, 64, "taiga", -1, "")));
         when(manager.get()).thenReturn(Optional.of(workshop));
 
+        // The command is /boxadmin areas spots
         CompositeCommand parent = mock(CompositeCommand.class);
+        when(parent.getParent()).thenReturn(mock(CompositeCommand.class));
         when(parent.getAddon()).thenReturn(addon);
         when(parent.getTopLabel()).thenReturn("boxadmin");
         when(parent.getPermissionPrefix()).thenReturn("");
@@ -154,7 +156,7 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
 
     @Test
     void testTabComplete() {
-        assertEquals(List.of("border", "1", "2"), cmd.tabComplete(user, "spots", List.of("spots", "")).orElseThrow());
-        assertEquals(List.of("2"), cmd.tabComplete(user, "spots", List.of("spots", "2")).orElseThrow());
+        assertEquals(List.of("border", "1", "2"), cmd.tabComplete(user, "spots", List.of("areas", "spots", "")).orElseThrow());
+        assertEquals(List.of("2"), cmd.tabComplete(user, "spots", List.of("areas", "spots", "2")).orElseThrow());
     }
 }

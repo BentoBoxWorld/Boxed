@@ -143,7 +143,7 @@ public class AdminAreasSpotsCommand extends CompositeCommand {
 
     @Override
     public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
-        if (args.size() > 2) {
+        if (AdminAreasCommand.parameter(this, args) > 1) {
             return Optional.empty();
         }
         List<String> options = new ArrayList<>();

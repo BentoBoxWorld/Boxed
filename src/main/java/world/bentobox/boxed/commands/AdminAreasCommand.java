@@ -101,6 +101,22 @@ public class AdminAreasCommand extends CompositeCommand {
         return true;
     }
 
+    /**
+     * Works out which parameter of a command is being typed. BentoBox gives tab completion
+     * everything typed after the top command, so the labels of the commands on the way down
+     * (for example "areas" and "find") come before the parameters.
+     * @param command the command being completed
+     * @param args everything typed after the top command
+     * @return 1 for the first parameter, 2 for the second and so on
+     */
+    static int parameter(CompositeCommand command, List<String> args) {
+        int labels = 0;
+        for (CompositeCommand c = command; c.getParent() != null; c = c.getParent()) {
+            labels++;
+        }
+        return args.size() - labels;
+    }
+
     private static Optional<List<String>> areaNames(Boxed addon, List<String> args) {
         if (args.isEmpty()) {
             return Optional.empty();
@@ -317,8 +333,8 @@ public class AdminAreasCommand extends CompositeCommand {
 
         @Override
         public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
-            if (args.size() == 2) {
-                return Optional.of(Util.tabLimit(List.of(REGENERATE), args.get(1)));
+            if (parameter(this, args) == 2) {
+                return Optional.of(Util.tabLimit(List.of(REGENERATE), args.get(args.size() - 1)));
             }
             return areaNames(getAddon(), args);
         }

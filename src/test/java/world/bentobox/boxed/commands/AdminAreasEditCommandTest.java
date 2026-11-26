@@ -74,7 +74,9 @@ class AdminAreasEditCommandTest extends CommonTestSetup {
             return manager.get().orElseThrow();
         });
 
+        // The command is /boxadmin areas edit
         CompositeCommand parent = mock(CompositeCommand.class);
+        when(parent.getParent()).thenReturn(mock(CompositeCommand.class));
         when(parent.getAddon()).thenReturn(addon);
         when(parent.getTopLabel()).thenReturn("boxadmin");
         when(parent.getPermissionPrefix()).thenReturn("");
@@ -215,13 +217,13 @@ class AdminAreasEditCommandTest extends CommonTestSetup {
     void testTabComplete() {
         Area icelands = areas.getArea("icelands");
         when(areas.getAreas()).thenReturn(List.of(icelands));
-        assertEquals(List.of("start", "go", "discard"), cmd.tabComplete(user, "edit", List.of("edit", "")).orElseThrow());
-        assertEquals(List.of("random", "same"), cmd.tabComplete(user, "edit", List.of("edit", "start", "")).orElseThrow());
+        assertEquals(List.of("start", "go", "discard"), cmd.tabComplete(user, "edit", List.of("areas", "edit", "")).orElseThrow());
+        assertEquals(List.of("random", "same"), cmd.tabComplete(user, "edit", List.of("areas", "edit", "start", "")).orElseThrow());
         assertEquals(List.of("same", "original", "rings"),
-                cmd.tabComplete(user, "edit", List.of("edit", "start", "1", "")).orElseThrow());
+                cmd.tabComplete(user, "edit", List.of("areas", "edit", "start", "1", "")).orElseThrow());
         assertEquals(List.of("icelands"),
-                cmd.tabComplete(user, "edit", List.of("edit", "start", "1", "rings", "")).orElseThrow());
-        assertEquals(List.of("nether"), cmd.tabComplete(user, "edit", List.of("edit", "go", "")).orElseThrow());
-        assertEquals(List.of("confirm"), cmd.tabComplete(user, "edit", List.of("edit", "discard", "c")).orElseThrow());
+                cmd.tabComplete(user, "edit", List.of("areas", "edit", "start", "1", "rings", "")).orElseThrow());
+        assertEquals(List.of("nether"), cmd.tabComplete(user, "edit", List.of("areas", "edit", "go", "")).orElseThrow());
+        assertEquals(List.of("confirm"), cmd.tabComplete(user, "edit", List.of("areas", "edit", "discard", "c")).orElseThrow());
     }
 }
