@@ -3,7 +3,6 @@ package world.bentobox.boxed.commands;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -122,11 +121,13 @@ final class WorkshopDialogs {
      * @param go what to do with the name
      */
     static void showMakeName(Plugin plugin, User user, Workshop workshop, Consumer<String> go) {
+        String area = workshop.getArea();
+        String initial = area == null ? "" : area;
         DialogBase base = DialogBase.builder(user.getTranslationAsComponent(MAKE + "name-title", NO_VARIABLES))
                 .canCloseWithEscape(true)
                 .body(List.of(DialogBody.plainMessage(user.getTranslationAsComponent(MAKE + "name-body", NO_VARIABLES))))
                 .inputs(List.of(DialogInput.text(NAME, user.getTranslationAsComponent(MAKE + NAME, NO_VARIABLES))
-                        .initial(Objects.requireNonNullElse(workshop.getArea(), "")).maxLength(32).build()))
+                        .initial(initial).maxLength(32).build()))
                 .build();
         user.getPlayer().showDialog(Dialog.create(b -> b.empty().base(base).type(DialogType.confirmation(
                 button(plugin, user.getTranslationAsComponent(MAKE + "check", NO_VARIABLES), null,
