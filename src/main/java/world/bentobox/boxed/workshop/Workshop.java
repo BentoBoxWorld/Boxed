@@ -205,28 +205,8 @@ public class Workshop {
             return null;
         }
         Workshop workshop = new Workshop(config.getLong("seed"), config.getString(BIOMES_KEY), config.getString("area"));
-        ConfigurationSection c = config.getConfigurationSection(CENTRES_KEY);
-        if (c != null) {
-            for (String key : c.getKeys(false)) {
-                String[] xz = c.getString(key, "").split(",");
-                try {
-                    workshop.setCentre(Environment.valueOf(key.toUpperCase(Locale.ENGLISH)),
-                            Integer.parseInt(xz[0].trim()), Integer.parseInt(xz[1].trim()));
-                } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException _) {
-                    // A centre that cannot be read is left at 0,0
-                }
-            }
-        }
-        ConfigurationSection p = config.getConfigurationSection(PLAYERS_KEY);
-        if (p != null) {
-            for (String key : p.getKeys(false)) {
-                try {
-                    workshop.addPlayer(UUID.fromString(key), GameMode.valueOf(p.getString(key, "")));
-                } catch (IllegalArgumentException _) {
-                    // Not a player entry
-                }
-            }
-        }
+        workshop.loadCentres(config.getConfigurationSection(CENTRES_KEY));
+        workshop.loadPlayers(config.getConfigurationSection(PLAYERS_KEY));
         List<Spot> found = new ArrayList<>();
         for (Map<?, ?> map : config.getMapList(SPOTS_KEY)) {
             if (map.get("x") instanceof Number x && map.get("z") instanceof Number z
@@ -237,5 +217,33 @@ public class Workshop {
         }
         workshop.setSpots(found);
         return workshop;
+    }
+
+    private void loadCentres(@Nullable ConfigurationSection c) {
+        if (c == null) {
+            return;
+        }
+        for (String key : c.getKeys(false)) {
+            String[] xz = c.getString(key, "").split(",");
+            try {
+                setCentre(Environment.valueOf(key.toUpperCase(Locale.ENGLISH)), Integer.parseInt(xz[0].trim()),
+                        Integer.parseInt(xz[1].trim()));
+            } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException _) {
+                // A centre that cannot be read is left at 0,0
+            }
+        }
+    }
+
+    private void loadPlayers(@Nullable ConfigurationSection p) {
+        if (p == null) {
+            return;
+        }
+        for (String key : p.getKeys(false)) {
+            try {
+                addPlayer(UUID.fromString(key), GameMode.valueOf(p.getString(key, "")));
+            } catch (IllegalArgumentException _) {
+                // Not a player entry
+            }
+        }
     }
 }

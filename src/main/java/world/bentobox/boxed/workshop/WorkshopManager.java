@@ -378,11 +378,12 @@ public class WorkshopManager {
      * @return true once the player is there, false if there is no such place
      */
     public CompletableFuture<Boolean> select(Player player, int index) {
-        List<Workshop.Spot> spots = workshop == null ? List.of() : workshop.getSpots();
-        if (closing || index < 0 || index >= spots.size() || !spots.get(index).scored()) {
+        Workshop w = workshop;
+        List<Workshop.Spot> spots = w == null ? List.of() : w.getSpots();
+        if (w == null || closing || index < 0 || index >= spots.size() || !spots.get(index).scored()) {
             return CompletableFuture.completedFuture(false);
         }
-        workshop.setCentre(Environment.NORMAL, spots.get(index).x(), spots.get(index).z());
+        w.setCentre(Environment.NORMAL, spots.get(index).x(), spots.get(index).z());
         save();
         return enter(player, Environment.NORMAL);
     }

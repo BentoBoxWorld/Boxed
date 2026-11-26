@@ -9,8 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -271,7 +273,7 @@ class WorkshopManagerTest extends CommonTestSetup {
     void testAnUnfinishedSearchCarriesOnAfterARestart() throws IOException {
         twoSpots();
         // The third place has not been looked at, so its land is asked for
-        verify(workshopWorld, org.mockito.Mockito.atLeastOnce()).getChunkAtAsync(-160, 0);
+        verify(workshopWorld, atLeastOnce()).getChunkAtAsync(-160, 0);
         verify(workshopWorld, never()).getChunkAtAsync(0, 0);
     }
 
@@ -320,8 +322,8 @@ class WorkshopManagerTest extends CommonTestSetup {
         verify(mockPlayer).setWorldBorder(border);
         // The marker stays when the border is hidden
         manager.showCentre(mockPlayer, false);
-        verify(mockPlayer, org.mockito.Mockito.times(2)).setWorldBorder(null);
-        verify(mockPlayer, org.mockito.Mockito.times(2)).sendBlockChange(any(Location.class), any(BlockData.class));
+        verify(mockPlayer, times(2)).setWorldBorder(null);
+        verify(mockPlayer, times(2)).sendBlockChange(any(Location.class), any(BlockData.class));
     }
 
     @Test

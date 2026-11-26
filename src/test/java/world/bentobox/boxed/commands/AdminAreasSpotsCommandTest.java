@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -125,19 +126,20 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
         assertFalse(cmd.execute(user, "spots", List.of("4")));
         // The third place has not been looked at yet
         assertFalse(cmd.execute(user, "spots", List.of("3")));
-        verify(user, org.mockito.Mockito.times(3)).sendMessage(PREFIX + "unknown");
+        verify(user, times(3)).sendMessage(PREFIX + "unknown");
         verify(manager, never()).select(any(), anyInt());
     }
 
     @Test
     void testBorderOnAndOff() {
         // No border yet, so it is shown
-        org.mockito.Mockito.doAnswer(i -> when(mockPlayer.getWorldBorder()).thenReturn(mock(WorldBorder.class)))
+        WorldBorder shown = mock(WorldBorder.class);
+        doAnswer(i -> when(mockPlayer.getWorldBorder()).thenReturn(shown))
                 .when(manager).showCentre(mockPlayer, true);
         assertTrue(cmd.execute(user, "spots", List.of("border")));
         verify(user).sendMessage(PREFIX + "border-on");
         // Now there is one, so it is hidden
-        org.mockito.Mockito.doAnswer(i -> when(mockPlayer.getWorldBorder()).thenReturn(null)).when(manager)
+        doAnswer(i -> when(mockPlayer.getWorldBorder()).thenReturn(null)).when(manager)
                 .showCentre(mockPlayer, false);
         assertTrue(cmd.execute(user, "spots", List.of("BORDER")));
         verify(user).sendMessage(PREFIX + "border-off");
@@ -146,7 +148,7 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
     @Test
     void testBorderNeedsAPlace() {
         assertFalse(cmd.execute(user, "spots", List.of("border")));
-        verify(manager).showCentre(eq(mockPlayer), eq(true));
+        verify(manager).showCentre(mockPlayer, true);
         verify(user).sendMessage(PREFIX + "no-centre");
     }
 

@@ -54,7 +54,8 @@ public class AdminAreasSpotsCommand extends CompositeCommand {
             return false;
         }
         if (args.isEmpty()) {
-            return show(user, workshop.get());
+            show(user, workshop.get());
+            return true;
         }
         if (!user.isPlayer()) {
             user.sendMessage("general.errors.use-in-game");
@@ -73,15 +74,15 @@ public class AdminAreasSpotsCommand extends CompositeCommand {
     /**
      * Shows the places found so far: buttons for a player, a list for the console.
      */
-    private boolean show(User user, Workshop workshop) {
+    private void show(User user, Workshop workshop) {
         List<Workshop.Spot> spots = workshop.getSpots();
         if (spots.stream().noneMatch(Workshop.Spot::scored)) {
             user.sendMessage(PREFIX + "looking");
-            return true;
+            return;
         }
         if (user.isPlayer()) {
             WorkshopDialogs.showSpots(getPlugin(), user, workshop, number -> select(user, number), () -> border(user));
-            return true;
+            return;
         }
         int[] centre = workshop.getCentre(Environment.NORMAL);
         for (int i = 0; i < spots.size(); i++) {
@@ -98,7 +99,6 @@ public class AdminAreasSpotsCommand extends CompositeCommand {
         if (waiting > 0) {
             user.sendMessage(PREFIX + "more-coming", TextVariables.NUMBER, String.valueOf(waiting));
         }
-        return true;
     }
 
     /**
