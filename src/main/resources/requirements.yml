@@ -1,0 +1,526 @@
+# What a player needs inside their box to earn each advancement that grows the box.
+# /boxadmin areas check <area> uses this to play out how a box grows in an area and to
+# report where players get stuck and which advancements can never be earned there.
+#
+# This is a model, written by hand. It lists the raw resources an advancement comes down
+# to, not every crafting step, and some entries are simplified. Correct it for your server.
+#
+# Each advancement has a list of needs, and all of them must be met. A need is one of:
+#   block:<names>            a block in the box, e.g. block:iron_ore|deepslate_iron_ore
+#   biome:<names>            a biome in the box
+#   entity:<names>           a mob in the land or brought by a structure, see 'provides' below
+#   structure:<names>        a structure from the area's structures file
+#   nether-block:, nether-biome:, nether-entity:, nether-structure:
+#                            the same in the nether. These only count once the nether is open.
+#   after:<advancement>      another advancement earned first
+#   size:<number>            a box of at least this size
+#   never:<reason>           cannot be done in Boxed
+#   set:<name>               every need in the named set under 'sets'
+# Names can be separated by | to mean any of them, and can use * as a wildcard.
+# Add *<number> to ask for that many, e.g. block:iron_ore|deepslate_iron_ore*3
+# Put || between whole needs to mean either one will do.
+
+# The advancement that has to be earned before anything in the nether counts
+nether-advancement: minecraft:story/enter_the_nether
+
+# Mobs that turn up in any box, however small
+always:
+  - zombie
+  - skeleton
+  - spider
+  - creeper
+  - enderman
+  - witch
+  - slime
+  - phantom
+  - bat
+  - glow_squid
+  - wandering_trader
+
+# Things in the land that also count as something else. The mobs here are ones that spawn
+# in a biome or come with a structure, which a survey of the land's blocks cannot see.
+provides:
+  - structure:village/*/villagers/* -> entity:villager
+  - structure:village/*/zombie/villagers/* -> entity:zombie_villager
+  - structure:village/common/iron_golem -> entity:iron_golem
+  - structure:village/common/animals/cat_* -> entity:cat
+  - structure:village/common/animals/horses_* -> entity:horse
+  - structure:village/common/animals/cows_* -> entity:cow
+  - structure:village/common/animals/pigs_* -> entity:pig
+  - structure:village/common/animals/sheep_* -> entity:sheep
+  - structure:village/desert/camel_spawn -> entity:camel
+  - structure:boxed/frog -> entity:frog
+  - structure:boxed/parrot -> entity:parrot
+  - structure:boxed/axolotl -> entity:axolotl
+  - structure:boxed/polar_bear -> entity:polar_bear
+  - structure:boxed/pillager -> entity:pillager
+  - structure:boxed/allay -> entity:allay
+  - structure:boxed/bee -> entity:bee
+  - structure:pillager_outpost/* -> entity:pillager
+  - biome:swamp|mangrove_swamp -> entity:frog
+  - biome:jungle|sparse_jungle|bamboo_jungle -> entity:parrot
+  - biome:jungle|bamboo_jungle -> entity:ocelot
+  - biome:jungle|bamboo_jungle -> entity:panda
+  - biome:lush_caves -> entity:axolotl
+  - biome:*ocean|river -> entity:drowned
+  - biome:*ocean|river -> entity:cod
+  - biome:warm_ocean|lukewarm_ocean|deep_lukewarm_ocean -> entity:pufferfish
+  - biome:beach -> entity:turtle
+  - biome:frozen_peaks|jagged_peaks|snowy_slopes -> entity:goat
+  - biome:desert|snowy_plains|snowy_taiga|taiga|flower_forest|meadow|cherry_grove|grove -> entity:rabbit
+  - biome:forest|taiga|snowy_taiga|old_growth_pine_taiga|old_growth_spruce_taiga|grove|dark_forest -> entity:wolf
+  - biome:taiga|snowy_taiga|old_growth_pine_taiga|old_growth_spruce_taiga|grove -> entity:fox
+  - biome:savanna|savanna_plateau|windswept_savanna|plains|sunflower_plains -> entity:horse
+  - biome:plains|sunflower_plains|savanna|savanna_plateau|meadow -> entity:donkey
+  - biome:savanna*|windswept_*|jagged_peaks|meadow|cherry_grove -> entity:llama
+  - biome:savanna*|badlands|eroded_badlands|wooded_badlands -> entity:armadillo
+  - biome:mushroom_fields -> entity:mooshroom
+  - biome:snowy_plains|ice_spikes|frozen_ocean|deep_frozen_ocean -> entity:polar_bear
+  - block:bee_nest|beehive -> entity:bee
+  - block:short_grass|tall_grass -> entity:cow
+  - block:short_grass|tall_grass -> entity:sheep
+  - block:short_grass|tall_grass -> entity:pig
+  - block:short_grass|tall_grass -> entity:chicken
+  - nether-biome:nether_wastes|soul_sand_valley|basalt_deltas -> nether-entity:ghast
+  - nether-biome:nether_wastes|crimson_forest -> nether-entity:piglin
+  - nether-biome:crimson_forest -> nether-entity:hoglin
+  - nether-biome:basalt_deltas -> nether-entity:magma_cube
+  - nether-block:lava -> nether-entity:strider
+  - nether-structure:fortress/* -> nether-entity:blaze
+  - nether-structure:fortress/* -> nether-entity:wither_skeleton
+  - nether-structure:bastion/* -> nether-entity:piglin
+
+sets:
+  wood:
+    - block:*_log|*_stem
+  stone:
+    - block:stone|cobblestone|deepslate|cobbled_deepslate|blackstone
+  fuel:
+    - block:coal_ore|deepslate_coal_ore|*_log
+  iron:
+    - block:iron_ore|deepslate_iron_ore
+  gold:
+    - block:gold_ore|deepslate_gold_ore || nether-block:nether_gold_ore
+  copper:
+    - block:copper_ore|deepslate_copper_ore*3
+  redstone:
+    - block:redstone_ore|deepslate_redstone_ore
+  leather:
+    - entity:cow|horse|donkey|llama|mooshroom|rabbit || nether-entity:hoglin
+  glass:
+    - block:sand|red_sand
+  villager:
+    - entity:villager
+  bees:
+    - block:bee_nest|beehive || entity:bee
+  ghast:
+    - nether-entity:ghast
+  fortress:
+    - nether-structure:fortress/*
+  crying-obsidian:
+    - block:crying_obsidian || nether-block:crying_obsidian || structure:ruined_portal/* || nether-entity:piglin
+  explore-nether:
+    - nether-biome:nether_wastes
+    - nether-biome:soul_sand_valley
+    - nether-biome:crimson_forest
+    - nether-biome:warped_forest
+    - nether-biome:basalt_deltas
+  # Every biome the vanilla "Adventuring Time" advancement asks for
+  adventuring-time:
+    - biome:badlands
+    - biome:bamboo_jungle
+    - biome:beach
+    - biome:birch_forest
+    - biome:cherry_grove
+    - biome:cold_ocean
+    - biome:dark_forest
+    - biome:deep_cold_ocean
+    - biome:deep_dark
+    - biome:deep_frozen_ocean
+    - biome:deep_lukewarm_ocean
+    - biome:deep_ocean
+    - biome:desert
+    - biome:dripstone_caves
+    - biome:eroded_badlands
+    - biome:flower_forest
+    - biome:forest
+    - biome:frozen_ocean
+    - biome:frozen_peaks
+    - biome:frozen_river
+    - biome:grove
+    - biome:ice_spikes
+    - biome:jagged_peaks
+    - biome:jungle
+    - biome:lukewarm_ocean
+    - biome:lush_caves
+    - biome:mangrove_swamp
+    - biome:meadow
+    - biome:mushroom_fields
+    - biome:ocean
+    - biome:old_growth_birch_forest
+    - biome:old_growth_pine_taiga
+    - biome:old_growth_spruce_taiga
+    - biome:pale_garden
+    - biome:plains
+    - biome:river
+    - biome:savanna
+    - biome:savanna_plateau
+    - biome:snowy_beach
+    - biome:snowy_plains
+    - biome:snowy_slopes
+    - biome:snowy_taiga
+    - biome:sparse_jungle
+    - biome:stony_peaks
+    - biome:stony_shore
+    - biome:sunflower_plains
+    - biome:swamp
+    - biome:taiga
+    - biome:warm_ocean
+    - biome:windswept_forest
+    - biome:windswept_gravelly_hills
+    - biome:windswept_hills
+    - biome:windswept_savanna
+    - biome:wooded_badlands
+  bred-all-animals:
+    - entity:cow
+    - entity:sheep
+    - entity:pig
+    - entity:chicken
+    - entity:horse
+    - entity:donkey
+    - entity:wolf
+    - entity:cat
+    - entity:ocelot
+    - entity:rabbit
+    - entity:llama
+    - entity:turtle
+    - entity:panda
+    - entity:fox
+    - entity:bee
+    - entity:goat
+    - entity:axolotl
+    - entity:frog
+    - entity:camel
+    - entity:armadillo
+    - entity:mooshroom
+    - nether-entity:hoglin
+    - nether-entity:strider
+    - block:sniffer_egg|suspicious_sand
+
+advancements:
+  # ---- Story ----
+  story/mine_stone:
+    - set:wood
+    - set:stone
+  story/upgrade_tools:
+    - after:story/mine_stone
+  story/smelt_iron:
+    - after:story/upgrade_tools
+    - set:iron
+    - set:fuel
+  story/iron_tools:
+    - after:story/smelt_iron
+    - block:iron_ore|deepslate_iron_ore*3
+  story/obtain_armor:
+    - after:story/smelt_iron
+    - block:iron_ore|deepslate_iron_ore*5
+  story/deflect_arrow:
+    - after:story/smelt_iron
+    - entity:skeleton
+  story/lava_bucket:
+    - after:story/smelt_iron
+    - block:iron_ore|deepslate_iron_ore*3
+    - block:lava
+  story/mine_diamond:
+    - after:story/iron_tools
+    - block:diamond_ore|deepslate_diamond_ore
+  story/form_obsidian:
+    # Picking up obsidian takes a diamond pickaxe, or a chest in a ruined portal
+    - block:lava
+    - block:water
+    - block:diamond_ore|deepslate_diamond_ore*3 || structure:ruined_portal/*
+    - after:story/iron_tools
+  story/shiny_gear:
+    - after:story/mine_diamond
+    - block:diamond_ore|deepslate_diamond_ore*5
+  story/enchant_item:
+    - after:story/mine_diamond
+    - block:diamond_ore|deepslate_diamond_ore*5
+    - block:lava
+    - block:water
+    - block:sugar_cane
+    - block:lapis_ore|deepslate_lapis_ore
+    - set:leather
+  story/enter_the_nether:
+    # A portal can be cast with a bucket, so no diamonds are needed
+    - after:story/lava_bucket
+    - block:water
+    - block:gravel || structure:ruined_portal/*
+  story/cure_zombie_villager:
+    - after:nether/brew_potion
+    - set:gold
+    - block:oak_leaves|dark_oak_leaves
+    - block:sugar_cane
+    - block:brown_mushroom
+    - entity:villager|zombie_villager
+  story/follow_ender_eye:
+    - never:strongholds are switched off in Boxed
+  story/enter_the_end:
+    - never:there is no End in Boxed
+
+  # ---- Nether ----
+  nether/return_to_sender:
+    - set:ghast
+  nether/find_bastion:
+    - nether-structure:bastion/*
+  nether/loot_bastion:
+    - nether-structure:bastion/*
+  nether/find_fortress:
+    - set:fortress
+  nether/obtain_blaze_rod:
+    - nether-entity:blaze
+  nether/get_wither_skull:
+    - nether-entity:wither_skeleton
+  nether/summon_wither:
+    - after:nether/get_wither_skull
+    - nether-block:soul_sand|soul_soil*4
+  nether/brew_potion:
+    - after:nether/obtain_blaze_rod
+    - set:glass
+  nether/all_potions:
+    - after:nether/brew_potion
+    - nether-block:nether_wart
+    - set:redstone
+    - nether-block:glowstone
+    - set:gold
+    - block:sugar_cane
+    - block:brown_mushroom
+    - entity:pufferfish
+    - entity:turtle
+    - entity:rabbit
+    - entity:phantom
+    - nether-entity:magma_cube
+    - set:ghast
+  nether/all_effects:
+    - never:needs levitation from a shulker, and there is no End in Boxed
+  nether/create_beacon:
+    - after:nether/summon_wither
+    - set:glass
+    - block:lava
+    - block:water
+    - block:iron_ore|deepslate_iron_ore*81
+  nether/create_full_beacon:
+    - after:nether/create_beacon
+    - block:iron_ore|deepslate_iron_ore*1476
+  nether/charge_respawn_anchor:
+    - set:crying-obsidian
+    - nether-block:glowstone
+  nether/obtain_crying_obsidian:
+    - set:crying-obsidian
+  nether/distract_piglin:
+    - nether-entity:piglin
+    - set:gold
+  nether/explore_nether:
+    - set:explore-nether
+  nether/fast_travel:
+    - never:needs 7 km of travel in the overworld, which is more than a box can hold
+  nether/obtain_ancient_debris:
+    - after:story/mine_diamond
+    - nether-block:ancient_debris
+  nether/netherite_armor:
+    - after:story/shiny_gear
+    - nether-block:ancient_debris*16
+    - block:diamond_ore|deepslate_diamond_ore*24
+    - block:gold_ore|deepslate_gold_ore*16 || nether-block:nether_gold_ore*16
+  nether/ride_strider:
+    - nether-entity:strider
+    - nether-biome:warped_forest
+    - set:leather
+    - set:iron
+  nether/ride_strider_in_overworld_lava:
+    - after:nether/ride_strider
+    - block:lava
+  nether/uneasy_alliance:
+    - set:ghast
+  nether/use_lodestone:
+    - after:story/smelt_iron
+    - set:redstone
+
+  # ---- Adventure ----
+  adventure/kill_a_mob: []
+  adventure/kill_all_mobs:
+    - never:needs mobs from the End, and there is no End in Boxed
+  adventure/shoot_arrow:
+    - set:wood
+    - entity:spider
+    - entity:skeleton
+  adventure/sniper_duel:
+    - after:adventure/shoot_arrow
+    - size:25
+  adventure/bullseye:
+    - after:adventure/shoot_arrow
+    - set:redstone
+    - size:15
+  adventure/ol_betsy:
+    - after:story/smelt_iron
+    - entity:spider
+  adventure/whos_the_pillager_now:
+    - after:adventure/ol_betsy
+    - entity:pillager
+  adventure/two_birds_one_arrow:
+    - after:adventure/ol_betsy
+    - after:story/enchant_item
+    - entity:phantom
+  adventure/arbalistic:
+    - after:adventure/ol_betsy
+    - after:story/enchant_item
+  adventure/voluntary_exile:
+    - entity:pillager
+  adventure/hero_of_the_village:
+    - after:adventure/voluntary_exile
+    - set:villager
+  adventure/totem_of_undying:
+    # Evokers come with a raid
+    - after:adventure/hero_of_the_village
+  adventure/trade:
+    - entity:villager || block:emerald_ore|deepslate_emerald_ore
+  adventure/trade_at_world_height:
+    - after:adventure/trade
+  adventure/summon_iron_golem:
+    - block:iron_ore|deepslate_iron_ore*36
+    - block:pumpkin|carved_pumpkin
+    - after:story/smelt_iron
+  adventure/sleep_in_bed:
+    - set:wood
+    - entity:sheep|spider
+  adventure/throw_trident:
+    - entity:drowned
+  adventure/very_very_frightening:
+    - after:adventure/throw_trident
+    - after:story/enchant_item
+    - set:villager
+  adventure/lightning_rod_with_villager_no_fire:
+    - set:copper
+    - set:villager
+    - after:story/smelt_iron
+  adventure/spyglass_at_parrot:
+    - set:copper
+    - block:amethyst_cluster
+    - entity:parrot
+  adventure/spyglass_at_ghast:
+    - set:copper
+    - block:amethyst_cluster
+    - set:ghast
+  adventure/spyglass_at_dragon:
+    - never:there is no End in Boxed
+  adventure/play_jukebox_in_meadows:
+    - biome:meadow
+    - after:story/mine_diamond
+    - entity:creeper
+    - entity:skeleton
+  adventure/walk_on_powder_snow_with_leather_boots:
+    - block:powder_snow
+    - set:leather
+  adventure/honey_block_slide:
+    - set:bees
+    - set:glass
+  adventure/avoid_vibration:
+    - block:sculk_sensor|sculk_shrieker
+  adventure/kill_mob_near_sculk_catalyst:
+    - block:sculk_catalyst
+  adventure/fall_from_world_height:
+    - after:story/lava_bucket
+    - block:water
+  adventure/adventuring_time:
+    - set:adventuring-time
+
+  # ---- Husbandry ----
+  husbandry/plant_seed:
+    - block:short_grass|tall_grass|wheat|pumpkin|melon|beetroots || nether-block:nether_wart
+  husbandry/breed_an_animal:
+    - entity:cow|sheep|pig|chicken|horse|wolf|cat|rabbit|llama|goat|frog|camel
+  husbandry/bred_all_animals:
+    - set:bred-all-animals
+  husbandry/tame_an_animal:
+    - entity:wolf|cat|horse|donkey|llama|parrot|camel
+  husbandry/balanced_diet:
+    - never:needs chorus fruit, and there is no End in Boxed
+  husbandry/fishy_business:
+    - block:water
+    - entity:spider
+  husbandry/tactical_fishing:
+    - after:story/lava_bucket
+    - entity:cod|pufferfish
+  husbandry/axolotl_in_a_bucket:
+    - after:story/lava_bucket
+    - entity:axolotl
+  husbandry/kill_axolotl_target:
+    - entity:axolotl
+  husbandry/tadpole_in_a_bucket:
+    - after:story/lava_bucket
+    - entity:frog
+  husbandry/leash_all_frog_variants:
+    - entity:frog
+    - entity:slime
+    - biome:swamp|plains|forest|river|beach|taiga|meadow
+    - biome:jungle|sparse_jungle|bamboo_jungle|desert|badlands|savanna|mangrove_swamp|warm_ocean
+    - biome:snowy_plains|snowy_taiga|ice_spikes|frozen_peaks|jagged_peaks|snowy_slopes|grove|frozen_river|frozen_ocean|deep_dark
+  husbandry/froglights:
+    - entity:frog
+    - nether-entity:magma_cube
+    - biome:swamp|plains|forest|river|beach|taiga|meadow
+    - biome:jungle|sparse_jungle|bamboo_jungle|desert|badlands|savanna|mangrove_swamp|warm_ocean
+    - biome:snowy_plains|snowy_taiga|ice_spikes|frozen_peaks|jagged_peaks|snowy_slopes|grove|frozen_river|frozen_ocean|deep_dark
+  husbandry/make_a_sign_glow:
+    - set:wood
+    - entity:glow_squid
+  husbandry/complete_catalogue:
+    # All eleven kinds of cat. Stray cats only turn up around villagers.
+    - entity:cat
+    - set:villager
+  husbandry/safely_harvest_honey:
+    - set:bees
+    - set:glass
+  husbandry/silk_touch_nest:
+    - set:bees
+    - after:story/enchant_item
+  husbandry/wax_on:
+    - set:bees
+    - block:copper_ore|deepslate_copper_ore*9
+  husbandry/wax_off:
+    - after:husbandry/wax_on
+  husbandry/ride_a_boat_with_a_goat:
+    - entity:goat
+    - set:wood
+  husbandry/obtain_netherite_hoe:
+    - after:nether/obtain_ancient_debris
+    - nether-block:ancient_debris*4
+    - block:gold_ore|deepslate_gold_ore*4 || nether-block:nether_gold_ore*4
+    - block:diamond_ore|deepslate_diamond_ore*2
+  husbandry/allay_deliver_item_to_player:
+    - entity:allay
+  husbandry/allay_deliver_cake_to_note_block:
+    - entity:allay
+    - set:wood
+    - set:redstone
+    - block:sugar_cane
+    - entity:cow
+    - entity:chicken
+
+  # ---- End ----
+  end/dragon_breath:
+    - never:there is no End in Boxed
+  end/dragon_egg:
+    - never:there is no End in Boxed
+  end/elytra:
+    - never:there is no End in Boxed
+  end/enter_end_gateway:
+    - never:there is no End in Boxed
+  end/find_end_city:
+    - never:there is no End in Boxed
+  end/kill_dragon:
+    - never:there is no End in Boxed
+  end/levitate:
+    - never:there is no End in Boxed
+  end/respawn_dragon:
+    - never:there is no End in Boxed

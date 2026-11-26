@@ -74,6 +74,49 @@ public class TemplateChunk {
     }
 
     /**
+     * Something to do with each block of a chunk.
+     */
+    @FunctionalInterface
+    public interface BlockVisitor {
+        /**
+         * @param x x in the chunk, 0 to 15
+         * @param y world y
+         * @param z z in the chunk, 0 to 15
+         * @param data the block
+         */
+        void visit(int x, int y, int z, BlockData data);
+    }
+
+    /**
+     * Visits every block of the chunk that is not plain air.
+     * @param visitor called for each block
+     */
+    public void forEachBlock(BlockVisitor visitor) {
+        for (int section = 0; section < sections.length; section++) {
+            short[] blocks = sections[section];
+            BlockData same = blocks == null ? palette[uniform[section]] : null;
+            if (same == null || same.getMaterial() != Material.AIR) {
+                visitSection(visitor, minY + (section << 4), blocks, same);
+            }
+        }
+    }
+
+    private void visitSection(BlockVisitor visitor, int baseY, short[] blocks, BlockData same) {
+        int i = 0;
+        for (int y = 0; y < 16; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    BlockData data = same != null ? same : palette[blocks[i]];
+                    i++;
+                    if (data.getMaterial() != Material.AIR) {
+                        visitor.visit(x, baseY + y, z, data);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Finds the ground in a column: the highest block that can be stood on, ignoring trees.
      * @param x x in the chunk, 0 to 15
      * @param z z in the chunk, 0 to 15

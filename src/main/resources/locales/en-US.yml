@@ -603,6 +603,12 @@ boxed:
           parameters: '[x z]'
           in-use: '&c There is a box in use there. Delete the box first.'
           success: '&a The land of the box position at [xyz] is being put back. See the console for when it is done.'
+        check:
+          description: play out how a box grows in an area and report where players get stuck
+          parameters: <area>
+          started: '&a Surveying the land of [name]. This takes a few seconds...'
+          result: '&a [description]'
+          report: '&a The full report is in &e [file]'
     island:
       go:
         parameters: '[home number]'
