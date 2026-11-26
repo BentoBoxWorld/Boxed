@@ -158,14 +158,7 @@ public class Boxed extends GameModeAddon {
                     new File(getDataFolder(), AREAS_FOLDER + File.separator + "grid.yml"), settings.getSeed(),
                     this::logError);
         }
-        String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
-        for (Area area : areas.getAreas()) {
-            generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
-                    Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes(), area.centreX(), area.centreZ())));
-            generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
-                    Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes(), area.netherCentreX(),
-                            area.netherCentreZ())));
-        }
+        areas.getAreas().forEach(this::registerSeedGenerators);
 
         return true;
     }
@@ -272,7 +265,7 @@ public class Boxed extends GameModeAddon {
      * @param env environment
      * @return the template file for the area and environment
      */
-    File getTemplateFile(Area area, Environment env) {
+    public File getTemplateFile(Area area, Environment env) {
         return new File(getAreaFolder(area), env.name().toLowerCase(Locale.ENGLISH) + ".bxt");
     }
 
@@ -294,9 +287,7 @@ public class Boxed extends GameModeAddon {
         String seedWorldName = area.seedWorldName(worldName, env == Environment.NETHER);
         File file = getTemplateFile(area, env);
         int size = worldGen.getSize();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().enableComplexMapKeySerialization()
-                .disableHtmlEscaping().registerTypeAdapterFactory(new BentoboxTypeAdapterFactory(getPlugin()))
-                .create();
+        Gson gson = templateGson();
         Template template = openTemplate(file, gson, size, area.seed());
         if (template == null) {
             log("Building " + what + " from its seed world. This only happens once...");
@@ -364,6 +355,58 @@ public class Boxed extends GameModeAddon {
                 logError("Could not close a template: " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * Gives an area its land while the server is running. The land the area had before, if
+     * any, is closed.
+     * @param area area
+     * @param env environment
+     * @param file a finished template file
+     * @throws IOException if the file cannot be read
+     */
+    public void setLand(Area area, Environment env, File file) throws IOException {
+        close(areas.setTemplate(area, env, readTemplate(file)));
+    }
+
+    /**
+     * Closes the land of an area so that its files can be replaced.
+     * @param area area
+     */
+    public void clearLand(Area area) {
+        areas.removeTemplates(area).forEach(this::close);
+    }
+
+    /**
+     * @param file a template file
+     * @return the land in the file
+     * @throws IOException if the file cannot be read
+     */
+    public Template readTemplate(File file) throws IOException {
+        return new Template(file, templateGson(), this::logError);
+    }
+
+    /**
+     * @return gson that can read and write the blocks and entities of a template
+     */
+    public Gson templateGson() {
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().enableComplexMapKeySerialization()
+                .disableHtmlEscaping().registerTypeAdapterFactory(new BentoboxTypeAdapterFactory(getPlugin()))
+                .create();
+    }
+
+    /**
+     * Makes the generators of an area's seed worlds known, so that world management plugins
+     * can load them and the area's land can be rebuilt later.
+     * @param area area
+     */
+    public void registerSeedGenerators(Area area) {
+        String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
+        generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
+                Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes(), area.centreX(), area.centreZ())));
+        generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
+                Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes(), area.netherCentreX(),
+                        area.netherCentreZ())));
     }
 
     /**

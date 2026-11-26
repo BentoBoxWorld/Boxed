@@ -665,6 +665,34 @@ boxed:
             tooltip: '[biome]. [description]'
             border: Show or hide the border
             close: Close
+        make:
+          description: make the area being worked on into an area that players can use
+          parameters: '<name> [confirm]'
+          no-workshop: '&c No area is being worked on.'
+          busy: '&c The land is already being copied. Wait for it to finish.'
+          no-centre: '&c Pick the middle of the box first with &b /[label] areas spots'
+          invalid-name: '&c An area name can only have lower case letters, numbers and underscores.'
+          has-boxes: '&c Players have boxes in area [name], so its land cannot be replaced. Use another name.'
+          started: '&a Copying the land for area &e [name]&a. The server keeps running while this is done.'
+          progress: '&a Copying the land: [number]%'
+          checking: '&a The land is copied. Working out how far a box can grow in it. This takes about half a minute...'
+          result: '&a [description]'
+          confirm-how: '&a To make the area, type &b /[label] areas make [name] confirm'
+          confirm-how-replace: '&c Area [name] exists and its land will be replaced. &a To do it, type &b /[label] areas make [name] confirm'
+          not-prepared: '&c The land for [name] has not been copied yet. Run &b /[label] areas make [name] &c first.'
+          failed: '&c That did not work. See the console for the reason.'
+          success: '&a Area &e [name] &a is ready. Players can pick it now. The workshop has closed and its world is kept as the seed world of the area.'
+          dialog:
+            name-title: Make the area
+            name-body: Give the area a name of lower case letters, numbers and underscores. The land is copied and checked first, and you are shown the result before anything is made. Use the name of an area that has no boxes to replace its land.
+            name: Name
+            check: Copy and check
+            cancel: Cancel
+            confirm-title: 'Make area [name]?'
+            confirm-body: '[description] Players will be able to pick the area straight away. The workshop closes and you are sent out of it.'
+            confirm-body-replace: '[description] Area [name] exists and its land will be replaced. The workshop closes and you are sent out of it.'
+            make: Make it
+            not-yet: Not yet
         find:
           description: look through a seed for good places to start a box
           parameters: <area> [seed|random] [search radius]

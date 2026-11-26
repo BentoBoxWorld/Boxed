@@ -57,11 +57,11 @@ public class AdminAreasSpotsCommand extends CompositeCommand {
             show(user, workshop.get());
             return true;
         }
-        if (!user.isPlayer()) {
-            user.sendMessage("general.errors.use-in-game");
-            return false;
-        }
         if (BORDER.equalsIgnoreCase(args.get(0))) {
+            if (!user.isPlayer()) {
+                user.sendMessage("general.errors.use-in-game");
+                return false;
+            }
             return border(user);
         }
         if (!Util.isInteger(args.get(0), true)) {
@@ -115,7 +115,7 @@ public class AdminAreasSpotsCommand extends CompositeCommand {
             return false;
         }
         Workshop.Spot spot = spots.get(number - 1);
-        manager.select(user.getPlayer(), number - 1).whenComplete((ok, error) -> {
+        manager.select(user.isPlayer() ? user.getPlayer() : null, number - 1).whenComplete((ok, error) -> {
             if (error != null || !Boolean.TRUE.equals(ok)) {
                 user.sendMessage("boxed.commands.boxadmin.areas.edit.failed");
             } else {

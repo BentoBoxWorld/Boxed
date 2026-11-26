@@ -90,6 +90,7 @@ public class WorkshopManager {
     private final Map<UUID, GameMode> displaced = new HashMap<>();
     private Workshop workshop;
     private boolean closing;
+    private boolean busy;
 
     /**
      * @param addon Boxed
@@ -391,11 +392,11 @@ public class WorkshopManager {
 
     /**
      * Makes a place the middle of every box and takes the player there.
-     * @param player player who picked it
+     * @param player player who picked it, or null if it was picked from the console
      * @param index position of the place in the list of places found
      * @return true once the player is there, false if there is no such place
      */
-    public CompletableFuture<Boolean> select(Player player, int index) {
+    public CompletableFuture<Boolean> select(@Nullable Player player, int index) {
         Workshop w = workshop;
         List<Workshop.Spot> spots = w == null ? List.of() : w.getSpots();
         if (w == null || closing || index < 0 || index >= spots.size() || !spots.get(index).scored()) {
@@ -403,7 +404,8 @@ public class WorkshopManager {
         }
         w.setCentre(Environment.NORMAL, spots.get(index).x(), spots.get(index).z());
         save();
-        return enter(player, Environment.NORMAL);
+        // The console can pick a place but cannot go there
+        return player == null ? CompletableFuture.completedFuture(true) : enter(player, Environment.NORMAL);
     }
 
     /**
@@ -554,7 +556,36 @@ public class WorkshopManager {
      * @return completes with true when it has gone, or false if there was nothing to remove
      */
     public CompletableFuture<Boolean> discard() {
-        if (workshop == null || closing) {
+        return close(null);
+    }
+
+    /**
+     * Ends the workshop because its land has become an area. Everyone in it is sent out and
+     * its worlds are kept as the area's seed worlds, so the land can be built from them again
+     * with everything that was changed by hand.
+     * @param area the area that was made
+     * @return completes with true when the workshop has gone
+     */
+    public CompletableFuture<Boolean> keepAs(Area area) {
+        return close(area);
+    }
+
+    /**
+     * @return true if the workshop is in the middle of something that must not be interrupted
+     */
+    public boolean isBusy() {
+        return busy;
+    }
+
+    /**
+     * @param busy true while the workshop's land is being turned into an area
+     */
+    public void setBusy(boolean busy) {
+        this.busy = busy;
+    }
+
+    private CompletableFuture<Boolean> close(@Nullable Area keepAs) {
+        if (workshop == null || closing || (busy && keepAs == null)) {
             return CompletableFuture.completedFuture(false);
         }
         closing = true;
@@ -564,14 +595,15 @@ public class WorkshopManager {
         }
         CompletableFuture<Boolean> done = new CompletableFuture<>();
         CompletableFuture.allOf(moves.toArray(CompletableFuture[]::new)).whenComplete(
-                (v, error) -> Bukkit.getScheduler().runTask(addon.getPlugin(), () -> done.complete(remove())));
+                (v, error) -> Bukkit.getScheduler().runTask(addon.getPlugin(), () -> done.complete(remove(keepAs))));
         return done;
     }
 
     /**
-     * Unloads and deletes the worlds and forgets the workshop. Call on the main thread.
+     * Unloads the worlds and forgets the workshop. The worlds are deleted, or kept as the
+     * seed worlds of an area. Call on the main thread.
      */
-    private boolean remove() {
+    private boolean remove(@Nullable Area keepAs) {
         // Players who could not be sent anywhere better go to the server's spawn
         Location fallback = Bukkit.getWorlds().get(0).getSpawnLocation();
         List<File> folders = new ArrayList<>();
@@ -579,7 +611,7 @@ public class WorkshopManager {
         for (World world : worlds.values()) {
             List.copyOf(world.getPlayers()).forEach(p -> p.teleport(fallback));
             File folder = world.getWorldFolder();
-            if (Bukkit.unloadWorld(world, false)) {
+            if (Bukkit.unloadWorld(world, keepAs != null)) {
                 folders.add(folder);
             } else {
                 addon.logWarning("Could not unload " + world.getName() + ". Delete its folder when the server is stopped.");
@@ -599,8 +631,40 @@ public class WorkshopManager {
         } catch (IOException e) {
             addon.logError("Could not delete " + file + ": " + e.getMessage());
         }
-        Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> folders.forEach(this::delete));
+        busy = false;
+        Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> folders.forEach(f -> {
+            if (keepAs == null) {
+                delete(f);
+            } else {
+                keep(f, keepAs);
+            }
+        }));
         return unloaded;
+    }
+
+    /**
+     * Turns a workshop world into the seed world of an area.
+     */
+    private void keep(File folder, Area area) {
+        boolean nether = folder.getName().endsWith(NETHER);
+        File seed = new File(folder.getParentFile(), area.seedWorldName("", nether).substring(1));
+        // Be very sure of what is being replaced and what is being moved
+        if (!seed.getName().startsWith("seed") || !folder.getName().startsWith(WORLD)) {
+            return;
+        }
+        try {
+            if (seed.isDirectory()) {
+                try (Stream<Path> files = Files.walk(seed.toPath())) {
+                    for (Path path : files.sorted(Comparator.reverseOrder()).toList()) {
+                        Files.delete(path);
+                    }
+                }
+            }
+            Files.move(folder.toPath(), seed.toPath());
+        } catch (IOException e) {
+            addon.logWarning("Could not keep " + folder + " as the seed world of area " + area.id() + ": "
+                    + e.getMessage());
+        }
     }
 
     private void delete(File folder) {

@@ -25,6 +25,7 @@ import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
+import world.bentobox.boxed.workshop.AreaMaker;
 import world.bentobox.boxed.workshop.BiomeStyles;
 import world.bentobox.boxed.workshop.Workshop;
 
@@ -38,6 +39,8 @@ final class WorkshopDialogs {
 
     private static final String PREFIX = "boxed.commands.boxadmin.areas.edit.dialog.";
     private static final String SPOTS = "boxed.commands.boxadmin.areas.spots.dialog.";
+    private static final String MAKE = "boxed.commands.boxadmin.areas.make.dialog.";
+    private static final String NAME = "name";
     private static final String BORDER = "border";
     private static final String[] NO_VARIABLES = {};
     private static final String SEED = "seed";
@@ -107,6 +110,48 @@ final class WorkshopDialogs {
 
     private static ActionButton close(User user, String key) {
         return ActionButton.builder(text(user, key)).build();
+    }
+
+    /**
+     * Asks for the name of the area the workshop is to become.
+     * @param plugin plugin to schedule with
+     * @param user a player
+     * @param workshop the area being worked on
+     * @param go what to do with the name
+     */
+    static void showMakeName(Plugin plugin, User user, Workshop workshop, Consumer<String> go) {
+        DialogBase base = DialogBase.builder(user.getTranslationAsComponent(MAKE + "name-title", NO_VARIABLES))
+                .canCloseWithEscape(true)
+                .body(List.of(DialogBody.plainMessage(user.getTranslationAsComponent(MAKE + "name-body", NO_VARIABLES))))
+                .inputs(List.of(DialogInput.text(NAME, user.getTranslationAsComponent(MAKE + NAME, NO_VARIABLES))
+                        .initial(workshop.getArea() == null ? "" : workshop.getArea()).maxLength(32).build()))
+                .build();
+        user.getPlayer().showDialog(Dialog.create(b -> b.empty().base(base).type(DialogType.confirmation(
+                button(plugin, user.getTranslationAsComponent(MAKE + "check", NO_VARIABLES), null,
+                        view -> go.accept(view.getText(NAME))),
+                ActionButton.builder(user.getTranslationAsComponent(MAKE + "cancel", NO_VARIABLES)).build()))));
+    }
+
+    /**
+     * Shows how far a box can grow in the land that was copied and asks for the go-ahead.
+     * @param plugin plugin to schedule with
+     * @param user a player
+     * @param prepared the land
+     * @param replace true if an area of that name exists and its land will be replaced
+     * @param make what to do if the player says yes
+     */
+    static void showMakeConfirm(Plugin plugin, User user, AreaMaker.Prepared prepared, boolean replace,
+            Runnable make) {
+        DialogBase base = DialogBase
+                .builder(user.getTranslationAsComponent(MAKE + "confirm-title", TextVariables.NAME, prepared.name()))
+                .canCloseWithEscape(true)
+                .body(List.of(DialogBody.plainMessage(user.getTranslationAsComponent(
+                        MAKE + (replace ? "confirm-body-replace" : "confirm-body"), TextVariables.DESCRIPTION,
+                        prepared.summary(), TextVariables.NAME, prepared.name()))))
+                .build();
+        user.getPlayer().showDialog(Dialog.create(b -> b.empty().base(base).type(DialogType.confirmation(
+                button(plugin, user.getTranslationAsComponent(MAKE + "make", NO_VARIABLES), null, view -> make.run()),
+                ActionButton.builder(user.getTranslationAsComponent(MAKE + "not-yet", NO_VARIABLES)).build()))));
     }
 
     /**
