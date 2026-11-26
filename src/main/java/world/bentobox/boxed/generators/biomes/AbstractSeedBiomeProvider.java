@@ -33,6 +33,10 @@ import world.bentobox.boxed.Boxed;
 public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
 
     private static final String DEFAULT_BIOMES = "biomes.yml";
+    /**
+     * Below this depth the caves keep the biomes the seed gives them
+     */
+    private static final double CAVE_DEPTH = 0.2;
 
     private static final Map<Environment, String> ENV_MAP;
 
@@ -298,6 +302,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
      */
     private final AtomicReference<int[][]> centres = new AtomicReference<>();
     private final BiomeLayout layout;
+    private final AtomicReference<BiomePatches> patches = new AtomicReference<>(BiomePatches.NONE);
 
     protected AbstractSeedBiomeProvider(Boxed boxed, Environment env) {
         this(boxed, env, DEFAULT_BIOMES);
@@ -349,6 +354,15 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
             throw new IllegalArgumentException("There must be at least one spot");
         }
         this.centres.set(spots.stream().map(int[]::clone).toArray(int[][]::new));
+    }
+
+    /**
+     * Sets the patches of biome that go on top of everything else. Land that has already
+     * been generated does not change.
+     * @param list the patches, oldest first
+     */
+    public void setPatches(List<BiomePatch> list) {
+        this.patches.set(list.isEmpty() ? BiomePatches.NONE : new BiomePatches(list, this::parseBiome));
     }
 
     /**
@@ -893,6 +907,14 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
          *
          */
 
+        BiomePatches patched = patches.get();
+        if (!patched.isEmpty()) {
+            // The Nether has no cave biomes, so a patch there goes all the way down
+            Biome patch = patched.get(x, z, env == Environment.NORMAL && biomeParameterPoint.getDepth() > CAVE_DEPTH);
+            if (patch != null) {
+                return patch;
+            }
+        }
         int[] centre = nearestCentre(x, z);
         Biome result = layout.get(x - centre[0], z - centre[1]);
         if (result == null) {
@@ -901,7 +923,7 @@ public abstract class AbstractSeedBiomeProvider extends BiomeProvider {
         }
 
         // Caves
-        if (biomeParameterPoint.getDepth() > 0.2) {
+        if (biomeParameterPoint.getDepth() > CAVE_DEPTH) {
             result = getVanillaBiome(worldInfo, x, y, z, biomeParameterPoint, null);
         }
 

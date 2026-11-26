@@ -1,10 +1,12 @@
 package world.bentobox.boxed.reach;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -182,6 +184,13 @@ public class Requirements {
      */
     public List<Need> getNeeds(String advancement) {
         return needs.get(advancement);
+    }
+
+    /**
+     * @return the advancements the file lists
+     */
+    public Set<String> getAdvancements() {
+        return Collections.unmodifiableSet(needs.keySet());
     }
 
     /**

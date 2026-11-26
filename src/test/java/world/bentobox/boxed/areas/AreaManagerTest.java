@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import world.bentobox.boxed.generators.biomes.BiomePatch;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator;
 import world.bentobox.boxed.generators.template.Template;
 
@@ -131,6 +132,26 @@ class AreaManagerTest {
         assertTrue(AreaManager.isValidName("ice_2"));
         assertTrue(!AreaManager.isValidName("Ice Lands"));
         assertTrue(!AreaManager.isValidName(""));
+    }
+
+    @Test
+    void testPatchesOfBiome() throws Exception {
+        AreaManager am = manager("""
+                areas:
+                  icelands:
+                    seed: 7
+                    patches:
+                      - 40,-40,48,swamp
+                      - not a patch
+                    nether-patches:
+                      - 8,8,30,warped_forest
+                """);
+        assertEquals(List.of(new BiomePatch(40, -40, 48, "swamp")), am.getPatches("icelands", Environment.NORMAL));
+        assertEquals(List.of(new BiomePatch(8, 8, 30, "warped_forest")), am.getPatches("icelands", Environment.NETHER));
+        assertTrue(am.getPatches("default", Environment.NORMAL).isEmpty());
+        assertTrue(am.getPatches("nosuch", Environment.NETHER).isEmpty());
+        am.setPatches("default", Environment.NORMAL, List.of(new BiomePatch(0, 0, 20, "desert")));
+        assertEquals(List.of(new BiomePatch(0, 0, 20, "desert")), am.getPatches("default", Environment.NORMAL));
     }
 
     @Test

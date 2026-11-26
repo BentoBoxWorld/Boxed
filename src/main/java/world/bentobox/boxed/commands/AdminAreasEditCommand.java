@@ -126,7 +126,7 @@ public class AdminAreasEditCommand extends CompositeCommand {
      * @param seedText a seed, "random" or -1 for a random one, or blank or "same" for the seed
      *                 of the area being edited (random for a new area)
      * @param style name of a biome style, or "same" for the style of the area being edited
-     *              (the original style for a new area)
+     *              (the seed's own biomes for a new area)
      * @param areaId name of an existing area to start from, or "new"
      * @return true if work started
      */
@@ -152,7 +152,8 @@ public class AdminAreasEditCommand extends CompositeCommand {
         }
         String biomes;
         if (style == null || SAME.equalsIgnoreCase(style)) {
-            biomes = area == null ? BiomeStyles.file(addon.getDataFolder(), BiomeStyles.ORIGINAL) : area.biomes();
+            // A new area starts with the biomes the seed has. Patches of others are added by hand.
+            biomes = area == null ? newAreaStyle(addon) : area.biomes();
         } else {
             biomes = BiomeStyles.file(addon.getDataFolder(), style);
         }
@@ -170,6 +171,11 @@ public class AdminAreasEditCommand extends CompositeCommand {
         }
         user.sendMessage(PREFIX + "started", SEED_VAR, String.valueOf(seed), "[style]", BiomeStyles.name(biomes));
         return go(user, Environment.NORMAL);
+    }
+
+    private static String newAreaStyle(Boxed addon) {
+        String seedStyle = BiomeStyles.file(addon.getDataFolder(), BiomeStyles.SEED);
+        return seedStyle == null ? BiomeStyles.file(addon.getDataFolder(), BiomeStyles.ORIGINAL) : seedStyle;
     }
 
     private static Long parseSeed(String text, Area area) {

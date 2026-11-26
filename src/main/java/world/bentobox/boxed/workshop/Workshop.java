@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.bukkit.GameMode;
@@ -16,6 +17,8 @@ import org.bukkit.World.Environment;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.eclipse.jdt.annotation.Nullable;
+
+import world.bentobox.boxed.generators.biomes.BiomePatch;
 
 /**
  * An area that an admin is working on. It is saved every time it changes, so it is still
@@ -30,6 +33,7 @@ public class Workshop {
     private static final String CENTRES_KEY = "centres";
 
     private static final String SPOTS_KEY = "spots";
+    private static final String PATCHES_KEY = "patches";
 
     /**
      * A place that could be the middle of every box.
@@ -54,6 +58,7 @@ public class Workshop {
     private final Map<Environment, int[]> centres = new EnumMap<>(Environment.class);
     private final Map<UUID, GameMode> players = new HashMap<>();
     private final List<Spot> spots = new ArrayList<>();
+    private final Map<Environment, List<BiomePatch>> patches = new EnumMap<>(Environment.class);
 
     /**
      * @param seed world seed of the land
@@ -163,6 +168,22 @@ public class Workshop {
     }
 
     /**
+     * @param env dimension
+     * @return the patches of biome the admin has put on the land, oldest first
+     */
+    public List<BiomePatch> getPatches(Environment env) {
+        return List.copyOf(patches.getOrDefault(env, List.of()));
+    }
+
+    /**
+     * @param env dimension
+     * @param list the patches of biome on the land, oldest first
+     */
+    public void setPatches(Environment env, List<BiomePatch> list) {
+        patches.put(env, new ArrayList<>(list));
+    }
+
+    /**
      * @param file file to save to
      * @throws IOException if the file cannot be written
      */
@@ -184,6 +205,8 @@ public class Workshop {
             list.add(map);
         }
         config.set(SPOTS_KEY, list);
+        patches.forEach((env, p) -> config.set(PATCHES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH),
+                p.stream().map(BiomePatch::text).toList()));
         File parent = file.getParentFile();
         if (parent != null) {
             parent.mkdirs();
@@ -216,6 +239,7 @@ public class Workshop {
             }
         }
         workshop.setSpots(found);
+        workshop.loadPatches(config.getConfigurationSection(PATCHES_KEY));
         return workshop;
     }
 
@@ -230,6 +254,20 @@ public class Workshop {
                         Integer.parseInt(xz[1].trim()));
             } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException _) {
                 // A centre that cannot be read is left at 0,0
+            }
+        }
+    }
+
+    private void loadPatches(@Nullable ConfigurationSection p) {
+        if (p == null) {
+            return;
+        }
+        for (String key : p.getKeys(false)) {
+            try {
+                setPatches(Environment.valueOf(key.toUpperCase(Locale.ENGLISH)),
+                        p.getStringList(key).stream().map(BiomePatch::parse).filter(Objects::nonNull).toList());
+            } catch (IllegalArgumentException _) {
+                // Not a dimension
             }
         }
     }

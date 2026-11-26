@@ -73,6 +73,7 @@ public class AdminAreasCommand extends CompositeCommand {
         new AdminAreasEditCommand(this);
         new AdminAreasSpotsCommand(this);
         new AdminAreasMakeCommand(this);
+        new AdminAreasBiomeCommand(this);
     }
 
     @Override

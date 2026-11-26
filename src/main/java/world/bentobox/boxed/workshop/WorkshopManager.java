@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.IntConsumer;
 import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
@@ -31,6 +33,7 @@ import org.bukkit.WorldBorder;
 import org.bukkit.generator.BiomeProvider;
 import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
+import world.bentobox.boxed.reach.LandSurvey;
 import world.bentobox.boxed.reach.SpotFinder;
 import world.bentobox.boxed.reach.SpotFinder.Candidate;
 import world.bentobox.boxed.reach.SpotScorer;
@@ -43,6 +46,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
 import world.bentobox.boxed.generators.biomes.AbstractSeedBiomeProvider;
+import world.bentobox.boxed.generators.biomes.BiomePatch;
 import world.bentobox.boxed.generators.biomes.NetherSeedBiomeGenerator;
 import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedSeedChunkGenerator;
@@ -80,6 +84,16 @@ public class WorkshopManager {
     private static final int STAND_SEARCH = 5;
     private static final int NETHER_FLOOR = 32;
     private static final int NETHER_ROOF = 110;
+    /**
+     * Start of the name of a world that land is generated in to be copied, and then thrown away
+     */
+    private static final String SCRATCH = "_tmp_";
+    /**
+     * Biomes that are not for the overworld
+     */
+    private static final Set<String> OTHER_DIMENSIONS = Set.of("nether_wastes", "crimson_forest",
+            "warped_forest", "soul_sand_valley", "basalt_deltas", "the_end", "end_highlands", "end_midlands",
+            "small_end_islands", "end_barrens", "the_void");
 
     private final Boxed addon;
     private final File areasFolder;
@@ -115,6 +129,7 @@ public class WorkshopManager {
                 // Not a player entry
             }
         }
+        deleteScratchWorlds();
         workshop = Workshop.load(file);
         if (workshop == null) {
             return;
@@ -192,6 +207,11 @@ public class WorkshopManager {
                 copySeedWorld(area, Environment.NORMAL);
                 copySeedWorld(area, Environment.NETHER);
             }
+            if (seed == area.seed()) {
+                // Patches belong to places in the seed, so they only carry over with it
+                w.setPatches(Environment.NORMAL, addon.getAreas().getPatches(area.id(), Environment.NORMAL));
+                w.setPatches(Environment.NETHER, addon.getAreas().getPatches(area.id(), Environment.NETHER));
+            }
         }
         w.save(file);
         workshop = w;
@@ -239,14 +259,7 @@ public class WorkshopManager {
         if (world != null) {
             return world;
         }
-        int[] centre = workshop.getCentre(env);
-        AbstractSeedBiomeProvider provider = env == Environment.NETHER
-                ? new NetherSeedBiomeGenerator(addon, workshop.getBiomes(), centre[0], centre[1])
-                : new SeedBiomeGenerator(addon, workshop.getBiomes(), centre[0], centre[1]);
-        if (env == Environment.NORMAL && !workshop.getSpots().isEmpty()) {
-            // The biomes were laid out around every place that was found, and have to stay that way
-            provider.setCentres(workshop.getSpots().stream().map(s -> new int[] { s.x(), s.z() }).toList());
-        }
+        AbstractSeedBiomeProvider provider = newProvider(env);
         world = WorldCreator.name(worldName(env)).generator(new BoxedSeedChunkGenerator(addon, env, provider))
                 .environment(env).seed(workshop.getSeed()).createWorld();
         if (world == null) {
@@ -266,6 +279,129 @@ public class WorkshopManager {
             scan(workshop, world, provider);
         }
         return world;
+    }
+
+    /**
+     * Makes the biomes of a workshop world: the style laid out around every place that was
+     * found, with the admin's patches on top.
+     */
+    private AbstractSeedBiomeProvider newProvider(Environment env) {
+        int[] centre = workshop.getCentre(env);
+        AbstractSeedBiomeProvider provider = env == Environment.NETHER
+                ? new NetherSeedBiomeGenerator(addon, workshop.getBiomes(), centre[0], centre[1])
+                : new SeedBiomeGenerator(addon, workshop.getBiomes(), centre[0], centre[1]);
+        if (env == Environment.NORMAL && !workshop.getSpots().isEmpty()) {
+            // The biomes were laid out around every place that was found, and have to stay that way
+            provider.setCentres(workshop.getSpots().stream().map(s -> new int[] { s.x(), s.z() }).toList());
+        }
+        provider.setPatches(workshop.getPatches(env));
+        return provider;
+    }
+
+    /**
+     * @param env dimension
+     * @return the names of the biomes a patch can have in a dimension, in order. Empty if the
+     *         dimension's world has not been made.
+     */
+    public List<String> getPatchBiomes(Environment env) {
+        World world = worlds.get(env);
+        AbstractSeedBiomeProvider provider = biomes.get(env);
+        if (world == null || provider == null) {
+            return List.of();
+        }
+        // The overworld's list is every biome on the server, and those of other dimensions do not belong
+        return provider.getBiomes(world).stream().map(b -> b.getKey().getKey())
+                .filter(name -> env != Environment.NORMAL || !OTHER_DIMENSIONS.contains(name)).sorted().toList();
+    }
+
+    /**
+     * Puts a patch of biome on the land and makes the land under it again, so that it has the
+     * ground, plants and trees of the biome. Anything built there is lost.
+     * @param env dimension. Its world must have been made.
+     * @param patch the patch
+     * @return how many blocks changed. Completes on the main thread.
+     */
+    public CompletableFuture<Integer> addPatch(Environment env, BiomePatch patch) {
+        List<BiomePatch> list = new ArrayList<>(workshop.getPatches(env));
+        // The same patch again would change nothing, but putting it last makes it win
+        list.remove(patch);
+        list.add(patch);
+        return setPatches(env, list, patch);
+    }
+
+    /**
+     * Takes a patch of biome away and makes the land under it again.
+     * @param env dimension. Its world must have been made.
+     * @param index position of the patch in the list of patches
+     * @return how many blocks changed. Completes on the main thread.
+     */
+    public CompletableFuture<Integer> removePatch(Environment env, int index) {
+        List<BiomePatch> list = new ArrayList<>(workshop.getPatches(env));
+        BiomePatch patch = list.remove(index);
+        return setPatches(env, list, patch);
+    }
+
+    /**
+     * Changes the patches of a dimension and makes the land around one of them again.
+     */
+    private CompletableFuture<Integer> setPatches(Environment env, List<BiomePatch> list, BiomePatch changed) {
+        World target = worlds.get(env);
+        if (target == null || busy || closing) {
+            return CompletableFuture.failedFuture(new IllegalStateException("The workshop cannot be changed now"));
+        }
+        workshop.setPatches(env, list);
+        save();
+        // Land that is generated from now on has the new biomes
+        biomes.get(env).setPatches(list);
+        // Land that is already there is generated again in a world of its own and copied over
+        World scratch = WorldCreator.name(worldName(env) + SCRATCH + System.currentTimeMillis())
+                .generator(new BoxedSeedChunkGenerator(addon, env, newProvider(env))).environment(env)
+                .seed(workshop.getSeed()).createWorld();
+        if (scratch == null) {
+            return CompletableFuture.failedFuture(new IllegalStateException("Could not make a world to generate in"));
+        }
+        scratch.setAutoSave(false);
+        busy = true;
+        // One chunk more all round, so that trees on the edge are whole
+        int reach = changed.reach();
+        return new LandCopier(addon.getPlugin(), scratch, target)
+                .copy(((changed.x() - reach) >> 4) - 1, ((changed.z() - reach) >> 4) - 1,
+                        ((changed.x() + reach) >> 4) + 1, ((changed.z() + reach) >> 4) + 1)
+                .whenComplete((result, error) -> {
+                    busy = false;
+                    File folder = scratch.getWorldFolder();
+                    if (Bukkit.unloadWorld(scratch, false)) {
+                        Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> delete(folder));
+                    }
+                }).thenApply(LandCopier.Result::blocks);
+    }
+
+    /**
+     * Finds which biomes the box has in a dimension. The land of the box is generated if it
+     * has not been, which takes a while.
+     * @param env dimension. Its world must have been made.
+     * @param progress told the percentage done as it goes up
+     * @return a survey that holds the biomes. Completes on the main thread.
+     */
+    public CompletableFuture<LandSurvey> surveyBiomes(Environment env, IntConsumer progress) {
+        World world = worlds.get(env);
+        if (world == null || closing) {
+            return CompletableFuture.failedFuture(new IllegalStateException("There is no world to look at"));
+        }
+        int[] centre = workshop.getCentre(env);
+        return new BiomeSurveyor(world, centre[0], centre[1], addon.getSettings().getIslandDistance(), progress).run();
+    }
+
+    /**
+     * Worlds that land was being generated in when the server stopped are no use any more.
+     */
+    private void deleteScratchWorlds() {
+        World overWorld = addon.getOverWorld();
+        File[] left = overWorld == null ? null
+                : overWorld.getWorldFolder().listFiles((dir, name) -> name.startsWith(WORLD) && name.contains(SCRATCH));
+        if (left != null && left.length > 0) {
+            Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> List.of(left).forEach(this::delete));
+        }
     }
 
     /**
@@ -616,6 +752,13 @@ public class WorkshopManager {
             } else {
                 addon.logWarning("Could not unload " + world.getName() + ". Delete its folder when the server is stopped.");
                 unloaded = false;
+            }
+        }
+        // A world that was copied from an area and never gone to is only a folder
+        for (Environment env : List.of(Environment.NORMAL, Environment.NETHER)) {
+            File folder = worlds.containsKey(env) ? null : worldFolder(env);
+            if (folder != null && folder.isDirectory()) {
+                folders.add(folder);
             }
         }
         // Players who are away will find the world gone when they come back

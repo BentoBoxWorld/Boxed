@@ -1,5 +1,6 @@
 package world.bentobox.boxed.workshop;
 
+import world.bentobox.boxed.generators.biomes.BiomePatch;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,6 +26,22 @@ class WorkshopTest {
 
     @TempDir
     File folder;
+
+    @Test
+    void testPatchesAreSaved() throws IOException {
+        Workshop w = new Workshop(1L, "biomes/none.yml", null);
+        assertTrue(w.getPatches(Environment.NORMAL).isEmpty());
+        w.setPatches(Environment.NORMAL, List.of(new BiomePatch(40, -40, 48, "swamp"), new BiomePatch(0, 9, 20, "desert")));
+        w.setPatches(Environment.NETHER, List.of(new BiomePatch(8, 8, 30, "warped_forest")));
+        File file = new File(folder, "areas/workshop.yml");
+        w.save(file);
+
+        Workshop loaded = Workshop.load(file);
+        assertNotNull(loaded);
+        assertEquals(List.of(new BiomePatch(40, -40, 48, "swamp"), new BiomePatch(0, 9, 20, "desert")),
+                loaded.getPatches(Environment.NORMAL));
+        assertEquals(List.of(new BiomePatch(8, 8, 30, "warped_forest")), loaded.getPatches(Environment.NETHER));
+    }
 
     @Test
     void testSaveAndLoad() throws IOException {
