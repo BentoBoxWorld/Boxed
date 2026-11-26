@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Looks through the biomes of a seed for places where a box could start: wooded land with
- * water a short walk away. Looking up a biome is cheap, so a lot of ground can be covered.
+ * water a short walk away and no mountains close enough to block the view. Looking up a biome is cheap, so a lot of ground can be covered.
  * The best places are then looked at properly with a {@link SpotSurvey}.
  *
  * @author tastybento
@@ -41,6 +41,14 @@ public class SpotFinder {
     private static final int[] WATER_RINGS = { 32, 48, 64, 96, 128 };
     private static final int[][] DIRECTIONS = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 },
             { 0, -1 }, { 1, -1 } };
+    /**
+     * Mountains nearer than the last of these block the view from the start
+     */
+    private static final int[] MOUNTAIN_RINGS = { 32, 64, 96, 128 };
+    /**
+     * How much is taken off the rating of a place that has mountains next to it
+     */
+    private static final int MOUNTAIN_PENALTY = 50;
     /**
      * The best distance to water. Nearer and the box may start on a beach.
      */
@@ -86,6 +94,31 @@ public class SpotFinder {
     }
 
     /**
+     * @param biome biome name
+     * @return true if the biome is high, steep ground
+     */
+    public static boolean isMountain(String biome) {
+        return biome.contains("peaks") || biome.contains("slopes") || biome.contains("windswept")
+                || biome.equals("grove");
+    }
+
+    /**
+     * A box should start with a view of what can be reached. Mountains in the distance are
+     * good to see, but right next to the start they are a wall.
+     * @return true if there are mountains close enough to block the view
+     */
+    private boolean isMountainNear(int x, int z) {
+        for (int ring : MOUNTAIN_RINGS) {
+            for (int[] d : DIRECTIONS) {
+                if (isMountain(lookup.biomeAt(x + d[0] * ring, z + d[1] * ring))) {
+                    return true;
+                }
+            }
+        }
+        return isMountain(lookup.biomeAt(x, z));
+    }
+
+    /**
      * Searches a square of the seed.
      * @param radius how far from the middle of the seed to look, in blocks
      * @param step distance between the places tried. It is rounded to whole chunks.
@@ -100,7 +133,7 @@ public class SpotFinder {
         for (int x = -limit; x <= limit; x += grid) {
             for (int z = -limit; z <= limit; z += grid) {
                 String biome = lookup.biomeAt(x, z);
-                if (isWooded(biome) && isDryAround(x, z)) {
+                if (isWooded(biome) && isDryAround(x, z) && !isMountainNear(x, z)) {
                     int water = waterDistance(x, z);
                     found.add(new Candidate(x, z, biome, water, 0, waterRating(water)));
                 }
@@ -121,7 +154,8 @@ public class SpotFinder {
     public Candidate at(int x, int z) {
         int water = waterDistance(x, z);
         int land = landPercent(x, z);
-        return new Candidate(x, z, lookup.biomeAt(x, z), water, land, waterRating(water) + land / 2);
+        int rating = waterRating(water) + land / 2 - (isMountainNear(x, z) ? MOUNTAIN_PENALTY : 0);
+        return new Candidate(x, z, lookup.biomeAt(x, z), water, land, rating);
     }
 
     private static int waterRating(int water) {

@@ -75,8 +75,9 @@ class AdminAreasEditCommandTest extends CommonTestSetup {
         });
 
         // The command is /boxadmin areas edit
+        CompositeCommand top = mock(CompositeCommand.class);
         CompositeCommand parent = mock(CompositeCommand.class);
-        when(parent.getParent()).thenReturn(mock(CompositeCommand.class));
+        when(parent.getParent()).thenReturn(top);
         when(parent.getAddon()).thenReturn(addon);
         when(parent.getTopLabel()).thenReturn("boxadmin");
         when(parent.getPermissionPrefix()).thenReturn("");

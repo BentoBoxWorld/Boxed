@@ -37,8 +37,9 @@ class AdminAreasFindCommandTest extends CommonTestSetup {
                         new Area("icelands", 2L, "biomes.yml", "s.yml", 1, true, null, 0, 0, 0, 0, 0)));
 
         // The command is /boxadmin areas find
+        CompositeCommand top = mock(CompositeCommand.class);
         CompositeCommand parent = mock(CompositeCommand.class);
-        when(parent.getParent()).thenReturn(mock(CompositeCommand.class));
+        when(parent.getParent()).thenReturn(top);
         when(parent.getAddon()).thenReturn(addon);
         when(parent.getTopLabel()).thenReturn("boxadmin");
         when(parent.getPermissionPrefix()).thenReturn("");

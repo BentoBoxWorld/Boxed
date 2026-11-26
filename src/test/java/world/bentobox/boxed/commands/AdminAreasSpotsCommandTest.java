@@ -53,8 +53,9 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
         when(manager.get()).thenReturn(Optional.of(workshop));
 
         // The command is /boxadmin areas spots
+        CompositeCommand top = mock(CompositeCommand.class);
         CompositeCommand parent = mock(CompositeCommand.class);
-        when(parent.getParent()).thenReturn(mock(CompositeCommand.class));
+        when(parent.getParent()).thenReturn(top);
         when(parent.getAddon()).thenReturn(addon);
         when(parent.getTopLabel()).thenReturn("boxadmin");
         when(parent.getPermissionPrefix()).thenReturn("");

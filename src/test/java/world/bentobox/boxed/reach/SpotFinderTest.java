@@ -53,6 +53,33 @@ class SpotFinderTest {
         assertTrue(found.get(0).rating() >= found.get(1).rating());
     }
 
+    /**
+     * The same strip, with mountains across it north of z = -200
+     */
+    private static String stripWithMountains(int x, int z) {
+        return z < -200 && x >= 0 ? "jagged_peaks" : strip(x, z);
+    }
+
+    @Test
+    void testMountainsAreKeptInTheDistance() {
+        assertTrue(SpotFinder.isMountain("frozen_peaks"));
+        assertTrue(SpotFinder.isMountain("snowy_slopes"));
+        assertTrue(SpotFinder.isMountain("grove"));
+        assertTrue(SpotFinder.isMountain("windswept_hills"));
+        assertFalse(SpotFinder.isMountain("cherry_grove"));
+        assertFalse(SpotFinder.isMountain("meadow"));
+
+        SpotFinder finder = new SpotFinder(SpotFinderTest::stripWithMountains, 320);
+        List<Candidate> found = finder.find(1000, 16, 20, 100);
+        assertFalse(found.isEmpty());
+        for (Candidate c : found) {
+            // Nothing is offered within 128 blocks of the mountains
+            assertTrue(c.z() >= -72, c.toString());
+        }
+        // A place that is asked about by name is still described, but rated lower
+        assertTrue(finder.at(32, -150).rating() < finder.at(32, 0).rating());
+    }
+
     @Test
     void testPlacesAreKeptApart() {
         List<Candidate> found = new SpotFinder(SpotFinderTest::strip, 320).find(1000, 16, 50, 400);

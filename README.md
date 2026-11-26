@@ -221,7 +221,7 @@ You are then taken to the temporary world. While you are there:
 
 #### Picking the middle of the box
 
-As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. You can fly around while it works. You are told in chat when the first place is ready and when the search has finished. In between, progress is shown above the hotbar. The first ones arrive within a few seconds and there are up to thirteen.
+As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. It looks for wooded, dry land with water a short walk away and no mountains within about 130 blocks, so that a new player can see what there is to reach. You can fly around while it works. You are told in chat when the first place is ready and when the search has finished. In between, progress is shown above the hotbar. The first ones arrive within a few seconds and there are up to thirteen.
 
 Press **F** (the swap hands key), click the message, or run `/boxadmin areas spots`, to see the places as numbered buttons with their coordinates and scores. Hover over a button to see what the score is made of. The first place is always where the workshop started: 0,0, or the middle of the area you started from.
 
