@@ -70,6 +70,7 @@ public class AdminAreasCommand extends CompositeCommand {
         new Rebuild(this);
         new Clean(this);
         new Check(this);
+        new AdminAreasFindCommand(this);
     }
 
     @Override
