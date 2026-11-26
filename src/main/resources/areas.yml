@@ -11,8 +11,9 @@
 #   seed       - the world seed the land is generated from. The default area uses the seed
 #                in config.yml unless one is given here.
 #   centre     - the place in the seed that the middle of every box is taken from, as x,z.
-#                The default is 0,0. /boxadmin areas find <area> [seed|random] looks through
-#                a seed for good places to start and lists them with their scores.
+#                The default is 0,0. The workshop (/boxadmin areas edit) finds good
+#                places and lets you look at them. From the console,
+#                boxadmin areas find <area> [seed|random] lists them with scores.
 #   nether-centre - the same for the Nether. A fortress cannot be placed like other
 #                structures, so the Nether has to be taken from a place that has one.
 #                /boxadmin areas find lists places that do.
@@ -34,7 +35,8 @@
 # Admins can list areas with /boxadmin areas, visit one with /boxadmin areas tp <area>,
 # make one with /boxadmin areas create <name> [seed], build one again with
 # /boxadmin areas rebuild <area> [regenerate], check that one can be played to the end with
-# /boxadmin areas check <area> and look for a better place to start with /boxadmin areas find.
+# /boxadmin areas check <area>. The console can list good places to start with
+# boxadmin areas find.
 # /boxadmin areas edit opens the workshop, where a seed and a biome style can be tried out
 # in a temporary world.
 #

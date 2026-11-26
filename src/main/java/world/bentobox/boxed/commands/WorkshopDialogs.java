@@ -4,9 +4,11 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World.Environment;
+import org.bukkit.plugin.Plugin;
 
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.dialog.DialogResponseView;
@@ -19,6 +21,7 @@ import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput.Optio
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
+import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
@@ -34,6 +37,9 @@ import world.bentobox.boxed.workshop.Workshop;
 final class WorkshopDialogs {
 
     private static final String PREFIX = "boxed.commands.boxadmin.areas.edit.dialog.";
+    private static final String SPOTS = "boxed.commands.boxadmin.areas.spots.dialog.";
+    private static final String BORDER = "border";
+    private static final String[] NO_VARIABLES = {};
     private static final String SEED = "seed";
     private static final String STYLE = "style";
     private static final String AREA = "area";
@@ -51,10 +57,52 @@ final class WorkshopDialogs {
     }
 
     private ActionButton button(User user, String key, Consumer<DialogResponseView> action) {
+        return button(command.getPlugin(), text(user, key), null, action);
+    }
+
+    private static ActionButton button(Plugin plugin, Component label, Component tooltip,
+            Consumer<DialogResponseView> action) {
         // What a button does is run on the main thread, whichever thread the click arrives on
-        return ActionButton.builder(text(user, key)).action(DialogAction.customClick(
-                (view, audience) -> Bukkit.getScheduler().runTask(command.getPlugin(), () -> action.accept(view)),
-                ONCE)).build();
+        ActionButton.Builder builder = ActionButton.builder(label).action(DialogAction.customClick(
+                (view, audience) -> Bukkit.getScheduler().runTask(plugin, () -> action.accept(view)), ONCE));
+        return tooltip == null ? builder.build() : builder.tooltip(tooltip).build();
+    }
+
+    /**
+     * Shows the places found so far as numbered buttons. Clicking one makes it the middle of
+     * every box and takes the player there.
+     * @param plugin plugin to schedule with
+     * @param user a player
+     * @param workshop the area being worked on
+     * @param select what to do with the number of the place that is clicked, counting from 1
+     * @param border what to do when the border button is clicked
+     */
+    static void showSpots(Plugin plugin, User user, Workshop workshop, IntConsumer select, Runnable border) {
+        List<Workshop.Spot> spots = workshop.getSpots();
+        int[] centre = workshop.getCentre(Environment.NORMAL);
+        List<ActionButton> buttons = new ArrayList<>();
+        for (int i = 0; i < spots.size(); i++) {
+            Workshop.Spot spot = spots.get(i);
+            if (!spot.scored()) {
+                continue;
+            }
+            int number = i + 1;
+            boolean picked = workshop.hasCentre(Environment.NORMAL) && spot.x() == centre[0] && spot.z() == centre[1];
+            String[] variables = { TextVariables.NUMBER, String.valueOf(number), TextVariables.XYZ,
+                    spot.x() + "," + spot.z(), "[score]", String.valueOf(spot.score()), "[biome]", spot.biome(),
+                    TextVariables.DESCRIPTION, spot.description() };
+            buttons.add(button(plugin, user.getTranslationAsComponent(SPOTS + (picked ? "button-picked" : "button"), variables),
+                    user.getTranslationAsComponent(SPOTS + "tooltip", variables), view -> select.accept(number)));
+        }
+        buttons.add(button(plugin, user.getTranslationAsComponent(SPOTS + BORDER, NO_VARIABLES), null, view -> border.run()));
+        long waiting = spots.stream().filter(s -> !s.scored()).count();
+        DialogBase base = DialogBase.builder(user.getTranslationAsComponent(SPOTS + "title", NO_VARIABLES)).canCloseWithEscape(true)
+                .body(List.of(DialogBody.plainMessage(user.getTranslationAsComponent(
+                        SPOTS + (waiting > 0 ? "body-looking" : "body"), TextVariables.NUMBER, String.valueOf(waiting)))))
+                .build();
+        user.getPlayer().showDialog(Dialog.create(b -> b.empty().base(base).type(DialogType.multiAction(buttons)
+                .exitAction(ActionButton.builder(user.getTranslationAsComponent(SPOTS + "close", NO_VARIABLES)).build()).columns(2)
+                .build())));
     }
 
     private static ActionButton close(User user, String key) {

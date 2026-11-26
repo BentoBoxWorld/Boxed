@@ -8,8 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +24,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
+import org.bukkit.HeightMap;
+import org.bukkit.Chunk;
+import org.bukkit.WorldBorder;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -248,20 +255,143 @@ class WorkshopManagerTest extends CommonTestSetup {
         assertTrue(manager.sendOut(mockPlayer).join());
     }
 
+    private void twoSpots() throws IOException {
+        Workshop w = new Workshop(11L, "biomes.yml", null);
+        w.setSpots(List.of(new Workshop.Spot(0, 0, "plains", 90, "dry"), new Workshop.Spot(1280, -640, "forest", 95, "wood"),
+                new Workshop.Spot(-2560, 0, "taiga", -1, "")));
+        w.save(workshopFile);
+        Files.createDirectories(new File(worldFolder, "workshop").toPath());
+        // Land that is asked for never arrives, so the search waits
+        when(workshopWorld.getChunkAtAsync(anyInt(), anyInt())).thenReturn(new CompletableFuture<>());
+        manager.load();
+        when(workshopWorld.getChunkAtAsync(80, -40)).thenReturn(CompletableFuture.completedFuture(mock(Chunk.class)));
+        when(mockPlayer.teleportAsync(any())).thenReturn(CompletableFuture.completedFuture(true));
+        when(mockPlayer.getWorld()).thenReturn(workshopWorld);
+        // Ground at 70 with nothing on it
+        when(workshopWorld.getHighestBlockYAt(1280, -640, HeightMap.OCEAN_FLOOR)).thenReturn(70);
+        Block ground = mock(Block.class);
+        when(ground.getType()).thenReturn(Material.GRASS_BLOCK);
+        Block air = mock(Block.class);
+        when(air.getType()).thenReturn(Material.AIR);
+        when(air.isPassable()).thenReturn(true);
+        when(workshopWorld.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(air);
+        when(workshopWorld.getBlockAt(1280, 70, -640)).thenReturn(ground);
+    }
+
     @Test
-    void testStandingHeight() {
-        when(workshopWorld.getHighestBlockYAt(3, 4)).thenReturn(70);
-        assertEquals(71, WorkshopManager.standingHeight(workshopWorld, 3, 4));
-        // The Nether has a roof, so the floor is looked for under it
+    void testAnUnfinishedSearchCarriesOnAfterARestart() throws IOException {
+        twoSpots();
+        // The third place has not been looked at, so its land is asked for
+        verify(workshopWorld, atLeastOnce()).getChunkAtAsync(-160, 0);
+        verify(workshopWorld, never()).getChunkAtAsync(0, 0);
+    }
+
+    @Test
+    void testSelectMakesThePlaceTheMiddleAndGoesThere() throws IOException {
+        twoSpots();
+        assertTrue(manager.select(mockPlayer, 1).join());
+        Workshop saved = Workshop.load(workshopFile);
+        assertEquals(1280, saved.getCentre(Environment.NORMAL)[0]);
+        assertEquals(-640, saved.getCentre(Environment.NORMAL)[1]);
+        ArgumentCaptor<Location> to = ArgumentCaptor.forClass(Location.class);
+        verify(mockPlayer).teleportAsync(to.capture());
+        assertEquals(1280.5, to.getValue().getX());
+        assertEquals(71, to.getValue().getY());
+        assertEquals(-639.5, to.getValue().getZ());
+    }
+
+    @Test
+    void testSelectNeedsAPlaceThatHasBeenLookedAt() throws IOException {
+        twoSpots();
+        assertFalse(manager.select(mockPlayer, -1).join());
+        assertFalse(manager.select(mockPlayer, 2).join());
+        assertFalse(manager.select(mockPlayer, 3).join());
+        verify(mockPlayer, never()).teleportAsync(any());
+    }
+
+    @Test
+    void testCentreIsMarkedAndBordered() throws IOException {
+        twoSpots();
+        WorldBorder border = mock(WorldBorder.class);
+        mockedBukkit.when(Bukkit::createWorldBorder).thenReturn(border);
+        // Nothing is shown until a place has been picked
+        manager.showCentre(mockPlayer, true);
+        verify(mockPlayer).setWorldBorder(null);
+        verify(mockPlayer, never()).sendBlockChange(any(Location.class), any(BlockData.class));
+
+        manager.select(mockPlayer, 1).join();
+        manager.showCentre(mockPlayer, true);
+        ArgumentCaptor<Location> marker = ArgumentCaptor.forClass(Location.class);
+        verify(mockPlayer).sendBlockChange(marker.capture(), any(BlockData.class));
+        assertEquals(1280, marker.getValue().getX());
+        assertEquals(70, marker.getValue().getY());
+        verify(border).setCenter(1280, -640);
+        // The border is as wide as the land of an area
+        verify(border).setSize(new Settings().getIslandDistance() * 2D);
+        verify(mockPlayer).setWorldBorder(border);
+        // The marker stays when the border is hidden
+        manager.showCentre(mockPlayer, false);
+        verify(mockPlayer, times(2)).setWorldBorder(null);
+        verify(mockPlayer, times(2)).sendBlockChange(any(Location.class), any(BlockData.class));
+    }
+
+    @Test
+    void testStandingPlaceIsOnTheGroundUnderTheTrees() {
+        // A tree stands on the place: leaves down to 74, trunk down to 71, soil at 70
+        when(workshopWorld.getMinHeight()).thenReturn(-64);
+        when(workshopWorld.getHighestBlockYAt(anyInt(), anyInt(), any(HeightMap.class))).thenReturn(70);
+        when(workshopWorld.getHighestBlockYAt(16, 32, HeightMap.OCEAN_FLOOR)).thenReturn(76);
+        Block air = mock(Block.class);
+        when(air.getType()).thenReturn(Material.AIR);
+        when(air.isPassable()).thenReturn(true);
+        Block soil = mock(Block.class);
+        when(soil.getType()).thenReturn(Material.DIRT);
+        Block log = mock(Block.class);
+        when(log.getType()).thenReturn(Material.OAK_LOG);
+        Block leaves = mock(Block.class);
+        when(leaves.getType()).thenReturn(Material.OAK_LEAVES);
+        when(workshopWorld.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(air);
+        when(workshopWorld.getBlockAt(anyInt(), org.mockito.ArgumentMatchers.eq(70), anyInt())).thenReturn(soil);
+        for (int y = 71; y <= 73; y++) {
+            when(workshopWorld.getBlockAt(16, y, 32)).thenReturn(log);
+        }
+        for (int y = 74; y <= 76; y++) {
+            when(workshopWorld.getBlockAt(16, y, 32)).thenReturn(leaves);
+        }
+        assertEquals(70, WorkshopManager.groundHeight(workshopWorld, 16, 32));
+        // The trunk is in the way, so the player goes on the ground beside it
+        Location stand = WorkshopManager.standingPlace(workshopWorld, 16, 32);
+        assertEquals(71, stand.getY());
+        assertEquals(1, Math.max(stand.getBlockX() - 16, stand.getBlockZ() - 32));
+    }
+
+    @Test
+    void testStandingPlaceOverWaterIsTheSurface() {
+        when(workshopWorld.getMinHeight()).thenReturn(-64);
+        when(workshopWorld.getHighestBlockYAt(anyInt(), anyInt(), any(HeightMap.class))).thenReturn(40);
+        when(workshopWorld.getHighestBlockYAt(0, 0)).thenReturn(62);
+        Block sand = mock(Block.class);
+        when(sand.getType()).thenReturn(Material.SAND);
+        Block water = mock(Block.class);
+        when(water.getType()).thenReturn(Material.WATER);
+        when(water.isPassable()).thenReturn(true);
+        when(water.isLiquid()).thenReturn(true);
+        when(workshopWorld.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(water);
+        when(workshopWorld.getBlockAt(anyInt(), org.mockito.ArgumentMatchers.eq(40), anyInt())).thenReturn(sand);
+        assertEquals(63, WorkshopManager.standingPlace(workshopWorld, 0, 0).getY());
+    }
+
+    @Test
+    void testNetherGroundIsUnderTheRoof() {
         World nether = mock(World.class);
         when(nether.getEnvironment()).thenReturn(Environment.NETHER);
         Block air = mock(Block.class);
         when(air.getType()).thenReturn(Material.AIR);
         Block rock = mock(Block.class);
         when(rock.getType()).thenReturn(Material.NETHERRACK);
-        when(nether.getBlockAt(any(Integer.class), any(Integer.class), any(Integer.class))).thenReturn(rock);
+        when(nether.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(rock);
         when(nether.getBlockAt(3, 51, 4)).thenReturn(air);
         when(nether.getBlockAt(3, 52, 4)).thenReturn(air);
-        assertEquals(51, WorkshopManager.standingHeight(nether, 3, 4));
+        assertEquals(50, WorkshopManager.groundHeight(nether, 3, 4));
     }
 }

@@ -42,6 +42,7 @@ import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.reach.FortressSpot;
 import world.bentobox.boxed.reach.SpotFinder;
+import world.bentobox.boxed.reach.SpotScorer;
 import world.bentobox.boxed.reach.SpotFinder.Candidate;
 import world.bentobox.boxed.reach.SpotSurvey;
 
@@ -152,40 +153,14 @@ public class AdminAreasFindCommand extends CompositeCommand {
                 return;
             }
             Candidate spot = spots.get(index);
-            int reach = SpotSurvey.RADIUS >> 4;
-            int chunkX = spot.x() >> 4;
-            int chunkZ = spot.z() >> 4;
-            List<CompletableFuture<Chunk>> chunks = new ArrayList<>();
-            for (int x = -reach; x < reach; x++) {
-                for (int z = -reach; z < reach; z++) {
-                    chunks.add(world.getChunkAtAsync(chunkX + x, chunkZ + z));
-                }
-            }
-            CompletableFuture.allOf(chunks.toArray(CompletableFuture[]::new)).whenComplete((v, error) ->
-            // Chunks have to be read on the main thread
-            Bukkit.getScheduler().runTask(getPlugin(), () -> {
+            SpotScorer.score(getPlugin(), world, spot.x(), spot.z(), true).whenComplete((score, error) -> {
                 if (error != null) {
                     getAddon().logError("Could not generate the land at " + spot.x() + "," + spot.z() + ": " + error);
-                    survey(index + 1);
-                    return;
+                } else {
+                    scored.add(new Scored(spot, score));
                 }
-                List<ChunkSnapshot> snapshots = new ArrayList<>();
-                for (CompletableFuture<Chunk> chunk : chunks) {
-                    Chunk c = chunk.join();
-                    snapshots.add(c.getChunkSnapshot(true, false, false));
-                    world.unloadChunk(c.getX(), c.getZ(), false);
-                }
-                int minY = world.getMinHeight();
-                Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () -> {
-                    SpotSurvey spotSurvey = new SpotSurvey();
-                    snapshots.forEach(s -> spotSurvey.add(s, (s.getX() - chunkX) << 4, (s.getZ() - chunkZ) << 4, minY));
-                    SpotSurvey.Score score = spotSurvey.score();
-                    Bukkit.getScheduler().runTask(getPlugin(), () -> {
-                        scored.add(new Scored(spot, score));
-                        survey(index + 1);
-                    });
-                });
-            }));
+                survey(index + 1);
+            });
         }
 
         /**
@@ -456,7 +431,8 @@ public class AdminAreasFindCommand extends CompositeCommand {
     @Override
     public void setup() {
         this.setPermission("admin.areas.find");
-        this.setOnlyPlayer(false);
+        // Players use the area workshop, which searches by itself and lets them go and look
+        this.setOnlyConsole(true);
         this.setParametersHelp(PREFIX + "parameters");
         this.setDescription(PREFIX + "description");
     }
@@ -507,10 +483,11 @@ public class AdminAreasFindCommand extends CompositeCommand {
 
     @Override
     public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
-        if (args.size() == 3) {
-            return Optional.of(Util.tabLimit(List.of(RANDOM), args.get(2)));
+        int parameter = AdminAreasCommand.parameter(this, args);
+        if (parameter == 2) {
+            return Optional.of(Util.tabLimit(List.of(RANDOM), args.get(args.size() - 1)));
         }
-        if (args.size() > 3) {
+        if (parameter > 2) {
             return Optional.empty();
         }
         return Optional.of(Util.tabLimit(this.<Boxed>getAddon().getAreas().getAreas().stream().map(Area::id).toList(),

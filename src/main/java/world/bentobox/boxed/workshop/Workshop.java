@@ -3,7 +3,10 @@ package world.bentobox.boxed.workshop;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -26,11 +29,31 @@ public class Workshop {
     private static final String BIOMES_KEY = "biomes";
     private static final String CENTRES_KEY = "centres";
 
+    private static final String SPOTS_KEY = "spots";
+
+    /**
+     * A place that could be the middle of every box.
+     * @param x block x
+     * @param z block z
+     * @param biome the biome the seed has there
+     * @param score how good a start it gives out of 100, or -1 if its land has not been looked at yet
+     * @param description what the score is made of
+     */
+    public record Spot(int x, int z, String biome, int score, String description) {
+        /**
+         * @return true if the land has been looked at
+         */
+        public boolean scored() {
+            return score >= 0;
+        }
+    }
+
     private final long seed;
     private final String biomes;
     private final String area;
     private final Map<Environment, int[]> centres = new EnumMap<>(Environment.class);
     private final Map<UUID, GameMode> players = new HashMap<>();
+    private final List<Spot> spots = new ArrayList<>();
 
     /**
      * @param seed world seed of the land
@@ -83,6 +106,38 @@ public class Workshop {
     }
 
     /**
+     * @param env dimension
+     * @return true if a place has been picked for the middle of every box
+     */
+    public boolean hasCentre(Environment env) {
+        return centres.containsKey(env);
+    }
+
+    /**
+     * @return the places found so far that could be the middle of every box. Their order
+     *         never changes, so a place can be named by its position in the list.
+     */
+    public List<Spot> getSpots() {
+        return List.copyOf(spots);
+    }
+
+    /**
+     * @param found the places to choose from
+     */
+    public void setSpots(List<Spot> found) {
+        spots.clear();
+        spots.addAll(found);
+    }
+
+    /**
+     * @param index position in the list
+     * @param spot the place, now that its land has been looked at
+     */
+    public void setSpot(int index, Spot spot) {
+        spots.set(index, spot);
+    }
+
+    /**
      * Notes a player who has come in, and the game mode to give back when they leave.
      * @param uuid player
      * @param mode the game mode they had outside
@@ -118,6 +173,17 @@ public class Workshop {
         config.set("area", area);
         centres.forEach((env, c) -> config.set(CENTRES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH), c[0] + "," + c[1]));
         players.forEach((uuid, mode) -> config.set(PLAYERS_KEY + "." + uuid, mode.name()));
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Spot spot : spots) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("x", spot.x());
+            map.put("z", spot.z());
+            map.put("biome", spot.biome());
+            map.put("score", spot.score());
+            map.put("description", spot.description());
+            list.add(map);
+        }
+        config.set(SPOTS_KEY, list);
         File parent = file.getParentFile();
         if (parent != null) {
             parent.mkdirs();
@@ -139,28 +205,45 @@ public class Workshop {
             return null;
         }
         Workshop workshop = new Workshop(config.getLong("seed"), config.getString(BIOMES_KEY), config.getString("area"));
-        ConfigurationSection c = config.getConfigurationSection(CENTRES_KEY);
-        if (c != null) {
-            for (String key : c.getKeys(false)) {
-                String[] xz = c.getString(key, "").split(",");
-                try {
-                    workshop.setCentre(Environment.valueOf(key.toUpperCase(Locale.ENGLISH)),
-                            Integer.parseInt(xz[0].trim()), Integer.parseInt(xz[1].trim()));
-                } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException _) {
-                    // A centre that cannot be read is left at 0,0
-                }
+        workshop.loadCentres(config.getConfigurationSection(CENTRES_KEY));
+        workshop.loadPlayers(config.getConfigurationSection(PLAYERS_KEY));
+        List<Spot> found = new ArrayList<>();
+        for (Map<?, ?> map : config.getMapList(SPOTS_KEY)) {
+            if (map.get("x") instanceof Number x && map.get("z") instanceof Number z
+                    && map.get("score") instanceof Number score) {
+                found.add(new Spot(x.intValue(), z.intValue(), String.valueOf(map.get("biome")), score.intValue(),
+                        String.valueOf(map.get("description"))));
             }
         }
-        ConfigurationSection p = config.getConfigurationSection(PLAYERS_KEY);
-        if (p != null) {
-            for (String key : p.getKeys(false)) {
-                try {
-                    workshop.addPlayer(UUID.fromString(key), GameMode.valueOf(p.getString(key, "")));
-                } catch (IllegalArgumentException _) {
-                    // Not a player entry
-                }
-            }
-        }
+        workshop.setSpots(found);
         return workshop;
+    }
+
+    private void loadCentres(@Nullable ConfigurationSection c) {
+        if (c == null) {
+            return;
+        }
+        for (String key : c.getKeys(false)) {
+            String[] xz = c.getString(key, "").split(",");
+            try {
+                setCentre(Environment.valueOf(key.toUpperCase(Locale.ENGLISH)), Integer.parseInt(xz[0].trim()),
+                        Integer.parseInt(xz[1].trim()));
+            } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException _) {
+                // A centre that cannot be read is left at 0,0
+            }
+        }
+    }
+
+    private void loadPlayers(@Nullable ConfigurationSection p) {
+        if (p == null) {
+            return;
+        }
+        for (String key : p.getKeys(false)) {
+            try {
+                addPlayer(UUID.fromString(key), GameMode.valueOf(p.getString(key, "")));
+            } catch (IllegalArgumentException _) {
+                // Not a player entry
+            }
+        }
     }
 }
