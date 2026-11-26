@@ -72,6 +72,7 @@ public class AdminAreasCommand extends CompositeCommand {
         new Check(this);
         new AdminAreasFindCommand(this);
         new AdminAreasEditCommand(this);
+        new AdminAreasSpotsCommand(this);
     }
 
     @Override

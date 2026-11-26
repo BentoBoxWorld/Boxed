@@ -2,6 +2,7 @@ package world.bentobox.boxed.workshop;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,6 +47,26 @@ class WorkshopTest {
         assertEquals(GameMode.SURVIVAL, loaded.getPlayers().get(uuid));
         assertEquals(GameMode.SURVIVAL, loaded.removePlayer(uuid));
         assertNull(loaded.removePlayer(uuid));
+    }
+
+    @Test
+    void testSpotsAreSavedInOrder() throws IOException {
+        Workshop w = new Workshop(1L, "biomes.yml", null);
+        assertFalse(w.hasCentre(Environment.NORMAL));
+        w.setSpots(List.of(new Workshop.Spot(0, 0, "plains", 90, "dry land, wood at size 3"),
+                new Workshop.Spot(-1280, 640, "forest", -1, "")));
+        w.setCentre(Environment.NORMAL, 0, 0);
+        File file = new File(folder, "workshop.yml");
+        w.save(file);
+        Workshop loaded = Workshop.load(file);
+        assertNotNull(loaded);
+        assertTrue(loaded.hasCentre(Environment.NORMAL));
+        assertEquals(w.getSpots(), loaded.getSpots());
+        assertTrue(loaded.getSpots().get(0).scored());
+        assertFalse(loaded.getSpots().get(1).scored());
+        // A place is filled in when its land has been looked at
+        loaded.setSpot(1, new Workshop.Spot(-1280, 640, "forest", 77, "wet"));
+        assertEquals(77, loaded.getSpots().get(1).score());
     }
 
     @Test

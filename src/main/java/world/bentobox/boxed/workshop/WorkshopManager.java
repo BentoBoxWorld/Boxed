@@ -26,6 +26,14 @@ import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpawnCategory;
+import org.bukkit.Material;
+import org.bukkit.WorldBorder;
+import org.bukkit.generator.BiomeProvider;
+import world.bentobox.bentobox.api.localization.TextVariables;
+import world.bentobox.bentobox.api.user.User;
+import world.bentobox.boxed.reach.SpotFinder;
+import world.bentobox.boxed.reach.SpotFinder.Candidate;
+import world.bentobox.boxed.reach.SpotScorer;
 import org.eclipse.jdt.annotation.Nullable;
 
 import world.bentobox.boxed.Boxed;
@@ -50,6 +58,16 @@ public class WorkshopManager {
      */
     public static final String WORLD = "workshop";
     private static final String NETHER = "_nether";
+    private static final String SPOTS_PREFIX = "boxed.commands.boxadmin.areas.spots.";
+    /**
+     * How far from 0,0 places to start are looked for, in blocks
+     */
+    private static final int SCAN_RADIUS = 5000;
+    private static final int SCAN_STEP = 64;
+    /**
+     * How many places are looked at
+     */
+    private static final int SCAN_SPOTS = 12;
     private static final int NETHER_FLOOR = 32;
     private static final int NETHER_ROOF = 110;
 
@@ -214,6 +232,10 @@ public class WorkshopManager {
         AbstractSeedBiomeProvider provider = env == Environment.NETHER
                 ? new NetherSeedBiomeGenerator(addon, workshop.getBiomes(), centre[0], centre[1])
                 : new SeedBiomeGenerator(addon, workshop.getBiomes(), centre[0], centre[1]);
+        if (env == Environment.NORMAL && !workshop.getSpots().isEmpty()) {
+            // The biomes were laid out around every place that was found, and have to stay that way
+            provider.setCentres(workshop.getSpots().stream().map(s -> new int[] { s.x(), s.z() }).toList());
+        }
         world = WorldCreator.name(worldName(env)).generator(new BoxedSeedChunkGenerator(addon, env, provider))
                 .environment(env).seed(workshop.getSeed()).createWorld();
         if (world == null) {
@@ -229,6 +251,9 @@ public class WorkshopManager {
         }
         worlds.put(env, world);
         biomes.put(env, provider);
+        if (env == Environment.NORMAL) {
+            scan(workshop, world, provider);
+        }
         return world;
     }
 
@@ -246,7 +271,148 @@ public class WorkshopManager {
         int[] centre = workshop.getCentre(env);
         return world.getChunkAtAsync(centre[0] >> 4, centre[1] >> 4).thenCompose(chunk -> player
                 .teleportAsync(new Location(world, centre[0] + 0.5, standingHeight(world, centre[0], centre[1]),
-                        centre[1] + 0.5)));
+                        centre[1] + 0.5)))
+                .thenApply(ok -> {
+                    if (Boolean.TRUE.equals(ok)) {
+                        // The marker is sent after the player has the chunk, or it would be overwritten
+                        Bukkit.getScheduler().runTaskLater(addon.getPlugin(), () -> showCentre(player, true), 10L);
+                    }
+                    return ok;
+                });
+    }
+
+    /**
+     * Looks for places that could be the middle of every box. The seed's biomes are searched
+     * first, which needs no land. The chosen biomes are then laid out around every place
+     * found, and the land at each is generated and scored, one at a time. Players in the
+     * workshop are told as each one is ready.
+     */
+    private void scan(Workshop w, World world, AbstractSeedBiomeProvider provider) {
+        if (!w.getSpots().isEmpty()) {
+            // Carry on where the server stopped
+            scoreNext(w, world, false);
+            return;
+        }
+        BiomeProvider vanilla = world.vanillaBiomeProvider();
+        int seaLevel = world.getSeaLevel();
+        int land = addon.getSettings().getIslandDistance();
+        int[] start = w.getCentre(Environment.NORMAL);
+        SpotFinder finder = new SpotFinder((x, z) -> vanilla.getBiome(world, x, seaLevel, z).getKey().getKey(), land);
+        Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> {
+            // The place the workshop starts at is always the first choice. The others are kept
+            // far enough from it, and from each other, that their biomes do not overlap.
+            List<Workshop.Spot> found = new ArrayList<>();
+            found.add(unscored(finder.at(start[0], start[1])));
+            long apart = land * 4L;
+            for (Candidate c : finder.find(SCAN_RADIUS, SCAN_STEP, SCAN_SPOTS, land * 4)) {
+                long dx = (long) c.x() - start[0];
+                long dz = (long) c.z() - start[1];
+                if (dx * dx + dz * dz >= apart * apart) {
+                    found.add(unscored(c));
+                }
+            }
+            Bukkit.getScheduler().runTask(addon.getPlugin(), () -> {
+                if (workshop != w || closing) {
+                    return;
+                }
+                w.setSpots(found);
+                save();
+                provider.setCentres(found.stream().map(s -> new int[] { s.x(), s.z() }).toList());
+                scoreNext(w, world, false);
+            });
+        });
+    }
+
+    private static Workshop.Spot unscored(Candidate c) {
+        return new Workshop.Spot(c.x(), c.z(), c.biome(), -1, "");
+    }
+
+    /**
+     * Scores the next place that has not been looked at yet.
+     * @param told true if players have been told about a place since the scan last began
+     */
+    private void scoreNext(Workshop w, World world, boolean told) {
+        List<Workshop.Spot> spots = w.getSpots();
+        int index = 0;
+        while (index < spots.size() && spots.get(index).scored()) {
+            index++;
+        }
+        if (index == spots.size()) {
+            if (told) {
+                tell(SPOTS_PREFIX + "finished", spots.size());
+            }
+            return;
+        }
+        int i = index;
+        Workshop.Spot spot = spots.get(i);
+        SpotScorer.score(addon.getPlugin(), world, spot.x(), spot.z(), false).whenComplete((score, error) -> {
+            if (workshop != w || closing) {
+                return;
+            }
+            if (error != null) {
+                addon.logError("Could not generate the land at " + spot.x() + "," + spot.z() + ": " + error);
+            }
+            w.setSpot(i, new Workshop.Spot(spot.x(), spot.z(), spot.biome(), error == null ? score.score() : 0,
+                    error == null ? score.describe() : "?"));
+            save();
+            tell(SPOTS_PREFIX + "found", i + 1);
+            scoreNext(w, world, true);
+        });
+    }
+
+    /**
+     * Tells everyone in the workshop how the search is going.
+     */
+    private void tell(String message, int number) {
+        for (World world : worlds.values()) {
+            world.getPlayers().forEach(p -> User.getInstance(p).sendMessage(message, TextVariables.NUMBER,
+                    String.valueOf(number), TextVariables.LABEL, addon.getAdminCommand().map(c -> c.getTopLabel())
+                            .orElse("boxadmin")));
+        }
+    }
+
+    /**
+     * Makes a place the middle of every box and takes the player there.
+     * @param player player who picked it
+     * @param index position of the place in the list of places found
+     * @return true once the player is there, false if there is no such place
+     */
+    public CompletableFuture<Boolean> select(Player player, int index) {
+        List<Workshop.Spot> spots = workshop == null ? List.of() : workshop.getSpots();
+        if (closing || index < 0 || index >= spots.size() || !spots.get(index).scored()) {
+            return CompletableFuture.completedFuture(false);
+        }
+        workshop.setCentre(Environment.NORMAL, spots.get(index).x(), spots.get(index).z());
+        save();
+        return enter(player, Environment.NORMAL);
+    }
+
+    /**
+     * Shows a player where the middle of the box is, with a diamond block that only they can
+     * see, and how far the box can reach, with a world border that only they can see.
+     * Nothing is shown in a dimension where no place has been picked yet.
+     * @param player player in a workshop world
+     * @param border true to show the border, false to take it away
+     */
+    public void showCentre(Player player, boolean border) {
+        World world = player.getWorld();
+        if (workshop == null || !isWorkshopWorld(world) || !workshop.hasCentre(world.getEnvironment())) {
+            player.setWorldBorder(null);
+            return;
+        }
+        int[] centre = workshop.getCentre(world.getEnvironment());
+        player.sendBlockChange(
+                new Location(world, centre[0], standingHeight(world, centre[0], centre[1]) - 1D, centre[1]),
+                Material.DIAMOND_BLOCK.createBlockData());
+        if (border) {
+            WorldBorder limit = Bukkit.createWorldBorder();
+            limit.setCenter(centre[0], centre[1]);
+            limit.setSize(addon.getSettings().getIslandDistance() * 2D);
+            limit.setWarningDistance(0);
+            player.setWorldBorder(limit);
+        } else {
+            player.setWorldBorder(null);
+        }
     }
 
     /**

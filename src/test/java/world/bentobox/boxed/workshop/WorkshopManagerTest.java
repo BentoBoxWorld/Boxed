@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -21,6 +22,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.WorldBorder;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -246,6 +250,78 @@ class WorkshopManagerTest extends CommonTestSetup {
         when(im.getSpawnPoint(world)).thenReturn(spawn);
         when(mockPlayer.teleportAsync(spawn)).thenReturn(CompletableFuture.completedFuture(true));
         assertTrue(manager.sendOut(mockPlayer).join());
+    }
+
+    private void twoSpots() throws IOException {
+        Workshop w = new Workshop(11L, "biomes.yml", null);
+        w.setSpots(List.of(new Workshop.Spot(0, 0, "plains", 90, "dry"), new Workshop.Spot(1280, -640, "forest", 95, "wood"),
+                new Workshop.Spot(-2560, 0, "taiga", -1, "")));
+        w.save(workshopFile);
+        Files.createDirectories(new File(worldFolder, "workshop").toPath());
+        // Land that is asked for never arrives, so the search waits
+        when(workshopWorld.getChunkAtAsync(anyInt(), anyInt())).thenReturn(new CompletableFuture<>());
+        manager.load();
+        when(workshopWorld.getChunkAtAsync(80, -40)).thenReturn(CompletableFuture.completedFuture(mock(Chunk.class)));
+        when(mockPlayer.teleportAsync(any())).thenReturn(CompletableFuture.completedFuture(true));
+        when(mockPlayer.getWorld()).thenReturn(workshopWorld);
+        when(workshopWorld.getHighestBlockYAt(1280, -640)).thenReturn(70);
+    }
+
+    @Test
+    void testAnUnfinishedSearchCarriesOnAfterARestart() throws IOException {
+        twoSpots();
+        // The third place has not been looked at, so its land is asked for
+        verify(workshopWorld, org.mockito.Mockito.atLeastOnce()).getChunkAtAsync(-160, 0);
+        verify(workshopWorld, never()).getChunkAtAsync(0, 0);
+    }
+
+    @Test
+    void testSelectMakesThePlaceTheMiddleAndGoesThere() throws IOException {
+        twoSpots();
+        assertTrue(manager.select(mockPlayer, 1).join());
+        Workshop saved = Workshop.load(workshopFile);
+        assertEquals(1280, saved.getCentre(Environment.NORMAL)[0]);
+        assertEquals(-640, saved.getCentre(Environment.NORMAL)[1]);
+        ArgumentCaptor<Location> to = ArgumentCaptor.forClass(Location.class);
+        verify(mockPlayer).teleportAsync(to.capture());
+        assertEquals(1280.5, to.getValue().getX());
+        assertEquals(71, to.getValue().getY());
+        assertEquals(-639.5, to.getValue().getZ());
+    }
+
+    @Test
+    void testSelectNeedsAPlaceThatHasBeenLookedAt() throws IOException {
+        twoSpots();
+        assertFalse(manager.select(mockPlayer, -1).join());
+        assertFalse(manager.select(mockPlayer, 2).join());
+        assertFalse(manager.select(mockPlayer, 3).join());
+        verify(mockPlayer, never()).teleportAsync(any());
+    }
+
+    @Test
+    void testCentreIsMarkedAndBordered() throws IOException {
+        twoSpots();
+        WorldBorder border = mock(WorldBorder.class);
+        mockedBukkit.when(Bukkit::createWorldBorder).thenReturn(border);
+        // Nothing is shown until a place has been picked
+        manager.showCentre(mockPlayer, true);
+        verify(mockPlayer).setWorldBorder(null);
+        verify(mockPlayer, never()).sendBlockChange(any(Location.class), any(BlockData.class));
+
+        manager.select(mockPlayer, 1).join();
+        manager.showCentre(mockPlayer, true);
+        ArgumentCaptor<Location> marker = ArgumentCaptor.forClass(Location.class);
+        verify(mockPlayer).sendBlockChange(marker.capture(), any(BlockData.class));
+        assertEquals(1280, marker.getValue().getX());
+        assertEquals(70, marker.getValue().getY());
+        verify(border).setCenter(1280, -640);
+        // The border is as wide as the land of an area
+        verify(border).setSize(new Settings().getIslandDistance() * 2D);
+        verify(mockPlayer).setWorldBorder(border);
+        // The marker stays when the border is hidden
+        manager.showCentre(mockPlayer, false);
+        verify(mockPlayer, org.mockito.Mockito.times(2)).setWorldBorder(null);
+        verify(mockPlayer, org.mockito.Mockito.times(2)).sendBlockChange(any(Location.class), any(BlockData.class));
     }
 
     @Test

@@ -618,7 +618,7 @@ boxed:
           started: '&a Started work on an area with seed &e [seed] &a and the &e [style] &a biome style.'
           status: '&a An area is being worked on. Seed &e [seed]&a, biome style &e [style]&a, started from area &e [area]'
           ready: '&a The world is ready.'
-          welcome: '&a You are in the area workshop, in creative mode. Nothing here is permanent until the area is made.'
+          welcome: '&a You are in the area workshop, in creative mode. Places to start a box are being looked for. See them with &b /[label] areas spots'
           failed: '&c That did not work. See the console for the reason.'
           discard-confirm: '&c This deletes the area being worked on and its worlds. Type &b discard confirm &c to do it.'
           discarded: '&a The area that was being worked on has been removed.'
@@ -641,6 +641,29 @@ boxed:
             save-for-later: Save for later
             discard-title: Discard this area?
             discard-body: The temporary worlds and everything done in them will be deleted. Areas that are already made are not affected.
+        spots:
+          description: show the places found for the middle of the box, or pick one
+          parameters: '[number | border]'
+          looking: '&a Still looking for places to start a box. You will be told when one is found.'
+          found: '&a [number] prospective spawn points found. &e Click to see them.[run_command: /[label] areas spots][hover: Show the places found]'
+          finished: '&a The search has finished. [number] places were found. &e Click to see them.[run_command: /[label] areas spots][hover: Show the places found]'
+          entry: '&e [number]: &a [xyz] &7 score [score], [biome]. [description]'
+          entry-picked: '&e [number]: &a [xyz] &7 score [score], [biome]. [description] &b (picked)'
+          more-coming: '&7 [number] more are still being looked at.'
+          unknown: '&c There is no place with that number yet.'
+          selected: '&a Place [number] at &e [xyz] &a is now the middle of the box. The diamond block marks it and the border shows how far a box can grow. Hide the border with &b /[label] areas spots border'
+          no-centre: '&c Pick a place first.'
+          border-on: '&a The border is shown.'
+          border-off: '&a The border is hidden.'
+          dialog:
+            title: Places to start a box
+            body: Click a place to go there and make it the middle of every box. You can pick another at any time.
+            body-looking: Click a place to go there and make it the middle of every box. [number] more are still being looked at.
+            button: '[number]: [xyz] (score [score])'
+            button-picked: '> [number]: [xyz] (score [score]) <'
+            tooltip: '[biome]. [description]'
+            border: Show or hide the border
+            close: Close
         find:
           description: look through a seed for good places to start a box
           parameters: <area> [seed|random] [search radius]

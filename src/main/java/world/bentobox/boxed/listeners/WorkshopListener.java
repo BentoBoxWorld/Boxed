@@ -52,6 +52,8 @@ public class WorkshopListener implements Listener {
             manager.playerEntered(player, player.getGameMode());
             player.setGameMode(GameMode.CREATIVE);
         } else if (was && !is) {
+            // The border that shows the limit of the box does not belong anywhere else
+            player.setWorldBorder(null);
             GameMode mode = manager.playerLeft(player);
             player.setGameMode(mode == null ? Bukkit.getDefaultGameMode() : mode);
         }

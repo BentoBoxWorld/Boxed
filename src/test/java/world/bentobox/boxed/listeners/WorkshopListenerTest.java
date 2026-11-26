@@ -78,6 +78,8 @@ class WorkshopListenerTest extends CommonTestSetup {
         when(manager.playerLeft(mockPlayer)).thenReturn(GameMode.SPECTATOR);
         listener.onChangedWorld(new PlayerChangedWorldEvent(mockPlayer, workshopWorld));
         verify(mockPlayer).setGameMode(GameMode.SPECTATOR);
+        // The border that marks the box is taken away
+        verify(mockPlayer).setWorldBorder(null);
     }
 
     @Test

@@ -202,7 +202,7 @@ A good start does not mean the area can be finished. Run `/boxadmin areas check 
 
 ### The area workshop
 
-The workshop is a set of temporary worlds for trying out a seed and a biome style before they become an area. **It is not finished yet:** today it makes the worlds and lets you look around and build in them. Picking the middle of the box, placing structures and turning the result into an area are still to come.
+The workshop is a set of temporary worlds for trying out a seed and a biome style before they become an area. **It is not finished yet:** today it makes the worlds, finds good places to start and lets you pick one as the middle of the box. Placing structures and turning the result into an area are still to come.
 
 Run `/boxadmin areas edit`. A dialog box asks for:
 
@@ -216,6 +216,33 @@ You are then taken to the temporary world. While you are there:
 * The world is peaceful and nothing spawns, so nothing changes the land except you.
 * You can leave and come back. The workshop, and everything built in it, stays until you discard it, including over a server restart. There is one workshop at a time, and other admins can join it.
 * If you start from an existing area without changing its seed or biome style, the workshop starts as a copy of the land that area was built from, so changes made to it by hand are kept.
+
+#### Picking the middle of the box
+
+As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. You can fly around while it works. Each time a place is ready you are told in chat, for example "3 prospective spawn points found". The first ones arrive within a few seconds and there are up to thirteen.
+
+Click the message, or run `/boxadmin areas spots`, to see the places as numbered buttons with their coordinates and scores. Hover over a button to see what the score is made of. The first place is always where the workshop started: 0,0, or the middle of the area you started from.
+
+Clicking a button:
+
+* takes you there,
+* makes it the middle of every box,
+* puts a diamond block under your feet to mark it, and
+* sets a world border that shows how far a box can grow.
+
+Only you see the diamond block and the border, and neither changes the world. The border also stops you flying out, so hide it with the button in the dialog or `/boxadmin areas spots border` when you want to look further afield. You can pick another place at any time.
+
+The biome style is laid out around every place that was found, so each one looks exactly as a box there will look. This is why you pick from the places found and cannot use just anywhere: biomes are fixed when land is generated.
+
+| Command | Description |
+|---------|-------------|
+| `/boxadmin areas spots` | Shows the places found so far. |
+| `/boxadmin areas spots <number>` | Picks a place and takes you there. |
+| `/boxadmin areas spots border` | Shows or hides the border. |
+
+The permission is `boxed.admin.areas.spots`.
+
+#### Coming back and discarding
 
 Run `/boxadmin areas edit` again to go back to it, go to its Nether, or discard it. Discarding sends everyone inside to their box (or to spawn if they have none) and deletes the temporary worlds. Players who were inside but offline are sent to their box when they next join.
 

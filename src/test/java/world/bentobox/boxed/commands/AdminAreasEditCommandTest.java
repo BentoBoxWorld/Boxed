@@ -186,7 +186,7 @@ class AdminAreasEditCommandTest extends CommonTestSetup {
         when(user.getPlayer()).thenReturn(mockPlayer);
         when(manager.enter(mockPlayer, Environment.NORMAL)).thenReturn(CompletableFuture.completedFuture(true));
         assertTrue(cmd.execute(user, "edit", List.of("go")));
-        verify(user).sendMessage(PREFIX + "welcome");
+        verify(user).sendMessage(PREFIX + "welcome", "[label]", "boxadmin");
     }
 
     @Test

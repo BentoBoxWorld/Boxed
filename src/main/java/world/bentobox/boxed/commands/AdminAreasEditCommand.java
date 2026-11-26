@@ -213,7 +213,7 @@ public class AdminAreasEditCommand extends CompositeCommand {
             if (error != null || !Boolean.TRUE.equals(ok)) {
                 user.sendMessage(FAILED);
             } else {
-                user.sendMessage(PREFIX + "welcome");
+                user.sendMessage(PREFIX + "welcome", TextVariables.LABEL, getTopLabel());
             }
         });
         return true;
