@@ -102,11 +102,13 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
     }
 
     @Test
-    void testConsoleCannotPick() {
+    void testConsoleCanPickButHasNoBorder() {
         when(user.isPlayer()).thenReturn(false);
-        assertFalse(cmd.execute(user, "spots", List.of("1")));
+        when(manager.select(null, 0)).thenReturn(CompletableFuture.completedFuture(true));
+        assertTrue(cmd.execute(user, "spots", List.of("1")));
+        verify(user).sendMessage(PREFIX + "selected", "[number]", "1", "[xyz]", "0,0", "[label]", "boxadmin");
+        assertFalse(cmd.execute(user, "spots", List.of("border")));
         verify(user).sendMessage("general.errors.use-in-game");
-        verify(manager, never()).select(any(), anyInt());
     }
 
     @Test

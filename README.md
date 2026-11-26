@@ -80,6 +80,8 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `/boxadmin areas check <area>` | Plays out how a box grows in the area and reports where players get stuck. See [Checking that an area can be played](#checking-that-an-area-can-be-played). |
 | `boxadmin areas find <area> [seed\|random] [radius]` | Console only. Looks through a seed for good places to start a box. See [Finding a good place to start](#finding-a-good-place-to-start). |
 | `/boxadmin areas edit` | Opens the area workshop, where a new area is tried out in a temporary world. See [The area workshop](#the-area-workshop). |
+| `/boxadmin areas spots` | Shows the places the workshop found and picks the middle of the box. |
+| `/boxadmin areas make [name]` | Makes the workshop into an area that players can use, without a restart. |
 
 Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
 
@@ -204,7 +206,7 @@ A good start does not mean the area can be finished. Run `/boxadmin areas check 
 
 ### The area workshop
 
-The workshop is a set of temporary worlds for trying out a seed and a biome style before they become an area. **It is not finished yet:** today it makes the worlds, finds good places to start and lets you pick one as the middle of the box. Placing structures and turning the result into an area are still to come.
+The workshop is a set of temporary worlds for trying out a seed and a biome style before they become an area. It finds good places to start, lets you pick one as the middle of the box and shape the land, and then makes the area without a restart. **Not finished yet:** structures placed in the workshop are copied as blocks but are not recorded as structures, and the Nether is always taken from 0,0.
 
 Run `/boxadmin areas edit`. A dialog box asks for:
 
@@ -243,6 +245,29 @@ The biome style is laid out around every place that was found, so each one looks
 | `/boxadmin areas spots border` | Shows or hides the border. |
 
 The permission is `boxed.admin.areas.spots`.
+
+#### Making the area
+
+When you are happy with the land, run `/boxadmin areas make`. A dialog box asks for the name of the area. Then:
+
+1. **The land is copied.** This takes about half a minute and the server keeps running. Progress is shown above the hotbar.
+2. **The land is checked.** Boxed works out how far a box can grow in it, in the same way as `/boxadmin areas check`, and shows you the result, for example "The box grows to fill its land (size 320). 70 advancements earned for 415 points, 0 out of reach, 27 impossible".
+3. **You confirm, or not.** Nothing has been made yet. If you say "Not yet" you are back in the workshop and can change things and try again.
+
+When you confirm, the area exists straight away and players can pick it. There is no restart. Boxed:
+
+* writes the area to `areas.yml` with its seed, `centre`, `nether-centre` and biome style,
+* makes a blueprint bundle with the same name, copied from the first bundle, if there is not one already,
+* sends everyone out of the workshop, and
+* keeps the workshop's worlds as the seed worlds of the area, so `/boxadmin areas rebuild <area>` builds it again with everything you changed by hand.
+
+Anything you change after the land was copied is not in the area, so run `/boxadmin areas make` again if you change something.
+
+**Replacing an area.** Give the name of an area that already exists to replace its land. This is only allowed while no player has a box in it, because every box in an area must be the same. The area keeps its row, its structures file and its `requires` and `unlocks-next-at` settings. The default area can be replaced this way on a new server.
+
+From the console, type `boxadmin areas spots <number>` to pick the middle, `boxadmin areas make <name>` to copy and check the land, and `boxadmin areas make <name> confirm` to make the area.
+
+The permission is `boxed.admin.areas.make`.
 
 #### Coming back and discarding
 

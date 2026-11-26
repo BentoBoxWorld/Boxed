@@ -1,6 +1,7 @@
 package world.bentobox.boxed.areas;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -130,6 +131,45 @@ class AreaManagerTest {
         assertTrue(AreaManager.isValidName("ice_2"));
         assertTrue(!AreaManager.isValidName("Ice Lands"));
         assertTrue(!AreaManager.isValidName(""));
+    }
+
+    @Test
+    void testAreasCanBeAddedAndReplacedWhileRunning() throws Exception {
+        AreaManager am = manager("""
+                areas:
+                  icelands:
+                    seed: 7
+                    requires: default
+                    unlocks-next-at: 50
+                    enabled: false
+                """);
+        am.addPending("meadow");
+        Area meadow = am.put("meadow", 99L, "biomes/natural.yml", "structures-meadow.yml", new int[] { 160, -320 },
+                new int[] { 48, 64 });
+        // A new area gets the next free row, and boxes can be made in it straight away
+        assertEquals(2, meadow.row());
+        assertFalse(am.isPending("meadow"));
+        assertTrue(meadow.enabled());
+        assertEquals(160, meadow.centreX());
+        assertEquals(64, meadow.netherCentreZ());
+        assertSame(meadow, am.getArea("meadow"));
+        assertSame(meadow, am.getAreaAtRow(2));
+        assertSame(meadow, am.getAreaForBundle("meadow"));
+        // The row is remembered
+        assertEquals(2, YamlConfiguration.loadConfiguration(gridFile).getInt("rows.meadow"));
+
+        // An area that is replaced keeps its row and its rules
+        Area icelands = am.put("icelands", 8L, "biomes.yml", "s.yml", new int[] { 0, 0 }, new int[] { 0, 0 });
+        assertEquals(1, icelands.row());
+        assertEquals(8L, icelands.seed());
+        assertEquals("default", icelands.requires());
+        assertEquals(50, icelands.unlockSize());
+        assertFalse(icelands.enabled());
+
+        // The default area can be replaced too
+        Area def = am.put("default", 5L, "biomes.yml", "structures.yml", new int[] { 16, 16 }, new int[] { 0, 0 });
+        assertSame(def, am.getDefaultArea());
+        assertSame(def, am.getAreaAtRow(77));
     }
 
     @Test

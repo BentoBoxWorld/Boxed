@@ -42,7 +42,8 @@ public class AreaManager {
     private final Map<Integer, Area> areaByRow = new ConcurrentHashMap<>();
     private final Map<Integer, Map<Environment, Template>> templates = new ConcurrentHashMap<>();
     private final Set<String> pending = ConcurrentHashMap.newKeySet();
-    private final Area defaultArea;
+    private final java.util.function.Consumer<String> errorLog;
+    private Area defaultArea;
 
     /**
      * @param config the contents of areas.yml
@@ -53,6 +54,7 @@ public class AreaManager {
     public AreaManager(YamlConfiguration config, File gridFile, long defaultSeed,
             java.util.function.Consumer<String> errorLog) {
         this.gridFile = gridFile;
+        this.errorLog = errorLog;
         this.grid = YamlConfiguration.loadConfiguration(gridFile);
         ConfigurationSection section = config.getConfigurationSection("areas");
         List<String> ids = getIds(section, errorLog);
@@ -185,6 +187,36 @@ public class AreaManager {
     }
 
     /**
+     * Adds an area while the server is running, or replaces the settings of one. A new area
+     * is given the next free row. An area that is replaced keeps its row.
+     * @param id name of the area
+     * @param seed world seed its land was generated from
+     * @param biomes name of its biomes file
+     * @param structures name of its structures file
+     * @param centre block x and z of the place in the overworld seed that is the middle of every box
+     * @param netherCentre the same for the Nether
+     * @return the area
+     */
+    public Area put(String id, long seed, String biomes, String structures, int[] centre, int[] netherCentre) {
+        String path = ROWS + "." + id;
+        if (!grid.contains(path)) {
+            grid.set(path, nextFreeRow());
+            save(errorLog);
+        }
+        Area old = areas.get(id);
+        Area area = new Area(id, seed, biomes, structures, grid.getInt(path), old == null || old.enabled(),
+                old == null ? null : old.requires(), old == null ? 0 : old.unlockSize(), centre[0], centre[1],
+                netherCentre[0], netherCentre[1]);
+        areas.put(id, area);
+        areaByRow.put(area.row(), area);
+        pending.remove(id);
+        if (area.isDefault()) {
+            defaultArea = area;
+        }
+        return area;
+    }
+
+    /**
      * Notes an area that has been added to the config but will not exist until the server
      * restarts. Boxes cannot be made in it until then.
      * @param id name of the new area
@@ -261,6 +293,16 @@ public class AreaManager {
     public Template getTemplate(Area area, Environment env) {
         Map<Environment, Template> map = templates.get(area.row());
         return map == null ? null : map.get(env);
+    }
+
+    /**
+     * Takes away the land of an area so that it can be closed and replaced.
+     * @param area area
+     * @return the land it had
+     */
+    public List<Template> removeTemplates(Area area) {
+        Map<Environment, Template> map = templates.remove(area.row());
+        return map == null ? List.of() : List.copyOf(map.values());
     }
 
     /**

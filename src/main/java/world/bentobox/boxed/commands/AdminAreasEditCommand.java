@@ -230,6 +230,10 @@ public class AdminAreasEditCommand extends CompositeCommand {
             user.sendMessage(NONE, TextVariables.LABEL, getTopLabel());
             return false;
         }
+        if (manager.isBusy()) {
+            user.sendMessage("boxed.commands.boxadmin.areas.make.busy");
+            return false;
+        }
         manager.discard().thenAccept(clean -> user.sendMessage(PREFIX + (Boolean.TRUE.equals(clean) ? "discarded" : "discard-failed")));
         return true;
     }
