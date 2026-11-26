@@ -87,6 +87,12 @@ world:
     # Note that with a standard nether all players arrive at the same portal and entering a
     # portal will return them back to their areas.
     generate: true
+    # Spawn fortress mobs in the Nether. The Nether of a box is copied block by block, so the
+    # game does not know where its fortress is and would never spawn wither skeletons there.
+    # With this on, some of the mobs that spawn on nether bricks become wither skeletons,
+    # blazes and skeletons, as often as they would in a real fortress.
+    # Added since 3.5.0.
+    fortress-mobs: true
     # This option indicates if nether portals should be linked via dimensions.
     # Option will simulate vanilla portal mechanics that links portals together
     # or creates a new portal, if there is not a portal in that dimension.

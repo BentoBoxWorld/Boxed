@@ -86,8 +86,10 @@ provides:
   - nether-biome:crimson_forest -> nether-entity:hoglin
   - nether-biome:basalt_deltas -> nether-entity:magma_cube
   - nether-block:lava -> nether-entity:strider
-  - nether-structure:fortress/* -> nether-entity:blaze
-  - nether-structure:fortress/* -> nether-entity:wither_skeleton
+  # A fortress cannot be placed as a structure. It is part of the land, so it shows up as
+  # nether bricks, and its blaze spawners count as blazes without a rule here.
+  # Boxed spawns wither skeletons on nether bricks (world.nether.fortress-mobs in config.yml).
+  - nether-block:nether_bricks -> nether-entity:wither_skeleton
   - nether-structure:bastion/* -> nether-entity:piglin
 
 sets:
@@ -116,7 +118,7 @@ sets:
   ghast:
     - nether-entity:ghast
   fortress:
-    - nether-structure:fortress/*
+    - nether-block:nether_bricks
   crying-obsidian:
     - block:crying_obsidian || nether-block:crying_obsidian || structure:ruined_portal/* || nether-entity:piglin
   explore-nether:

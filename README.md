@@ -75,7 +75,7 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `/boxadmin areas` | Lists the areas with their row, seed and number of boxes. |
 | `/boxadmin areas tp <area>` | Takes you to the land where the area's next box will be, so you can look at it and place structures before any player has a box there. |
 | `/boxadmin areas create <name> [seed]` | Makes a new area and its blueprint bundle. Needs a restart. |
-| `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed, centre or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
+| `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed, centres or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
 | `/boxadmin areas clean [x z]` | Puts the land of the box position you are in (or the one at x, z) back the way it was. Use it after trying out structures in a position nobody has a box in. Positions with a box in use are refused. |
 | `/boxadmin areas check <area>` | Plays out how a box grows in the area and reports where players get stuck. See [Checking that an area can be played](#checking-that-an-area-can-be-played). |
 | `/boxadmin areas find <area> [seed\|random] [radius]` | Looks through a seed for good places to start a box. See [Finding a good place to start](#finding-a-good-place-to-start). |
@@ -182,7 +182,19 @@ The three best places are shown and the full list is written to `areas/<area>/sp
          dry land (100% dry), wood at size 4, water at size 14, stone at size 1, iron ore at size 2, coal at size 2
 ```
 
-To use a place, set the area's `seed` and `centre` in `areas.yml`, run `/boxadmin areas rebuild <area> regenerate` and restart the server. Boxes that players have already explored do not change, so do this before the area is in use. `centre` moves the overworld only. The Nether of an area is always taken from 0,0 of its seed.
+To use a place, set the area's `seed` and `centre` in `areas.yml`, run `/boxadmin areas rebuild <area> regenerate` and restart the server. Boxes that players have already explored do not change, so do this before the area is in use. `centre` moves the overworld only. The Nether has its own setting, `nether-centre`.
+
+#### The Nether fortress
+
+Blaze rods and wither skulls only come from a fortress, and a fortress cannot be placed with `/boxadmin place` the way a bastion can, because the game builds fortresses from code and not from structure files. The only way to give boxes a fortress is to take the Nether from a part of the seed that has one. The search does this for you: it finds the fortresses nearest the middle of the seed's Nether and, for each, lists a `nether-centre` on open ground a short way from a blaze spawner:
+
+```
+nether-centre: 272,128  (fortress at size 12, blaze spawner at size 34)
+```
+
+If you move the Nether, structures you placed there by hand (the bastion in the default `structures.yml`, for example) will need to be placed again to suit the new land.
+
+The Nether of a box is a copy, so the game does not know the fortress is there and would never spawn its mobs. Boxed does it instead: some of the mobs that spawn on nether bricks in the Nether become wither skeletons, blazes and skeletons, as often as they would in a real fortress. Blaze spawners are copied with the land and work as normal. Turn this off with `world.nether.fortress-mobs` in `config.yml`.
 
 A good start does not mean the area can be finished. Run `/boxadmin areas check <area>` after the restart to see how far a box there can grow.
 

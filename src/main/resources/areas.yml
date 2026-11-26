@@ -13,6 +13,9 @@
 #   centre     - the place in the seed that the middle of every box is taken from, as x,z.
 #                The default is 0,0. /boxadmin areas find <area> [seed|random] looks through
 #                a seed for good places to start and lists them with their scores.
+#   nether-centre - the same for the Nether. A fortress cannot be placed like other
+#                structures, so the Nether has to be taken from a place that has one.
+#                /boxadmin areas find lists places that do.
 #   biomes     - the file that says which biomes are placed around the middle of the area.
 #   structures - the file that lists the structures placed in each new box of this area.
 #   enabled    - set to false to stop new boxes being made in this area. Boxes already there
@@ -32,7 +35,7 @@
 # /boxadmin areas check <area> and look for a better place to start with /boxadmin areas find.
 #
 # The land of an area is built once, when the server first starts with the area in this
-# file, and saved in the areas folder. Changing an area's seed, centre or biomes afterwards does
+# file, and saved in the areas folder. Changing an area's seed, centres or biomes afterwards does
 # nothing until you run /boxadmin areas rebuild <area> regenerate and restart.
 # Boxes that players have already explored do not change.
 #

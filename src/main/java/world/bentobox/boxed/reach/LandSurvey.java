@@ -11,6 +11,8 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
 
+import world.bentobox.bentobox.blueprints.dataobjects.BlueprintCreatureSpawner;
+import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.ChestData;
 import world.bentobox.boxed.generators.chunks.AbstractBoxedChunkGenerator.EntityData;
 import world.bentobox.boxed.generators.template.Template;
 import world.bentobox.boxed.generators.template.TemplateChunk;
@@ -186,6 +188,7 @@ public class LandSurvey {
                     addBlocks(chunk, chunkX << 4, chunkZ << 4, nether, blockCounters);
                     addBiomes(template, chunkX, chunkZ, nether, biomeCounters);
                     addEntities(chunk, chunkX << 4, chunkZ << 4, nether);
+                    addSpawners(chunk, chunkX << 4, chunkZ << 4, nether);
                 }
             }
         }
@@ -224,6 +227,19 @@ public class LandSurvey {
         for (EntityData e : chunk.getEntities()) {
             add(nether ? Kind.NETHER_ENTITY : Kind.ENTITY, e.entity().getType().getKey().getKey(),
                     sizeFor(baseX + e.relativeLoc().getBlockX(), baseZ + e.relativeLoc().getBlockZ()), 1);
+        }
+    }
+
+    /**
+     * A spawner is as good as the mob it makes, so it is recorded as that mob.
+     */
+    private void addSpawners(TemplateChunk chunk, int baseX, int baseZ, boolean nether) {
+        for (ChestData tile : chunk.getChests()) {
+            BlueprintCreatureSpawner spawner = tile.chest().getCreatureSpawner();
+            if (spawner != null && spawner.getSpawnedType() != null) {
+                add(nether ? Kind.NETHER_ENTITY : Kind.ENTITY, spawner.getSpawnedType().getKey().getKey(),
+                        sizeFor(baseX + tile.relativeLoc().getBlockX(), baseZ + tile.relativeLoc().getBlockZ()), 1);
+            }
         }
     }
 
