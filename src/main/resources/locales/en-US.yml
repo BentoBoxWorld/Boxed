@@ -618,7 +618,7 @@ boxed:
           started: '&a Started work on an area with seed &e [seed] &a and the &e [style] &a biome style.'
           status: '&a An area is being worked on. Seed &e [seed]&a, biome style &e [style]&a, started from area &e [area]'
           ready: '&a The world is ready.'
-          welcome: '&a You are in the area workshop, in creative mode. Places to start a box are being looked for. See them with &b /[label] areas spots'
+          welcome: '&a You are in the area workshop, in creative mode. Places to start a box are being looked for. Press &b F &a(swap hands) to see them.'
           failed: '&c That did not work. See the console for the reason.'
           discard-confirm: '&c This deletes the area being worked on and its worlds. Type &b discard confirm &c to do it.'
           discarded: '&a The area that was being worked on has been removed.'
@@ -645,20 +645,21 @@ boxed:
           description: show the places found for the middle of the box, or pick one
           parameters: '[number | border]'
           looking: '&a Still looking for places to start a box. You will be told when one is found.'
-          found: '&a [number] prospective spawn points found. &e Click to see them.[run_command: /[label] areas spots][hover: Show the places found]'
-          finished: '&a The search has finished. [number] places were found. &e Click to see them.[run_command: /[label] areas spots][hover: Show the places found]'
+          found: '&a The first place to start is ready. Press &b F &a(swap hands) or click here to see the places as they are found.[run_command: /[label] areas spots][hover: Show the places found]'
+          finished: '&a The search has finished: [number] places. Press &b F &a(swap hands) or click here to see them.[run_command: /[label] areas spots][hover: Show the places found]'
+          progress: '&a Places to start: [number] of [total] ready. Press F to see them.'
           entry: '&e [number]: &a [xyz] &7 score [score], [biome]. [description]'
           entry-picked: '&e [number]: &a [xyz] &7 score [score], [biome]. [description] &b (picked)'
           more-coming: '&7 [number] more are still being looked at.'
           unknown: '&c There is no place with that number yet.'
-          selected: '&a Place [number] at &e [xyz] &a is now the middle of the box. The diamond block marks it and the border shows how far a box can grow. Hide the border with &b /[label] areas spots border'
+          selected: '&a Place [number] at &e [xyz] &a is now the middle of the box.'
           no-centre: '&c Pick a place first.'
           border-on: '&a The border is shown.'
           border-off: '&a The border is hidden.'
           dialog:
             title: Places to start a box
-            body: Click a place to go there and make it the middle of every box. You can pick another at any time.
-            body-looking: Click a place to go there and make it the middle of every box. [number] more are still being looked at.
+            body: Click a place to go there and make it the middle of every box. A diamond block marks the middle and the border shows how far a box can grow. Press F (swap hands) to open this again.
+            body-looking: Click a place to go there and make it the middle of every box. [number] more are still being looked at. Press F (swap hands) to open this again.
             button: '[number]: [xyz] (score [score])'
             button-picked: '> [number]: [xyz] (score [score]) <'
             tooltip: '[biome]. [description]'

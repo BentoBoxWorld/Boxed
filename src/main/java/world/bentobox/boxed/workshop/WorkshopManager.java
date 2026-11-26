@@ -34,6 +34,10 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.boxed.reach.SpotFinder;
 import world.bentobox.boxed.reach.SpotFinder.Candidate;
 import world.bentobox.boxed.reach.SpotScorer;
+import org.bukkit.HeightMap;
+import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import world.bentobox.bentobox.api.commands.CompositeCommand;
 import org.eclipse.jdt.annotation.Nullable;
 
 import world.bentobox.boxed.Boxed;
@@ -68,6 +72,12 @@ public class WorkshopManager {
      * How many places are looked at
      */
     private static final int SCAN_SPOTS = 12;
+    private static final String FOUND = "found";
+    private static final String TOTAL = "[total]";
+    /**
+     * How many blocks away from a place a player may be put to keep them out of a tree
+     */
+    private static final int STAND_SEARCH = 5;
     private static final int NETHER_FLOOR = 32;
     private static final int NETHER_ROOF = 110;
 
@@ -269,9 +279,8 @@ public class WorkshopManager {
             return CompletableFuture.completedFuture(false);
         }
         int[] centre = workshop.getCentre(env);
-        return world.getChunkAtAsync(centre[0] >> 4, centre[1] >> 4).thenCompose(chunk -> player
-                .teleportAsync(new Location(world, centre[0] + 0.5, standingHeight(world, centre[0], centre[1]),
-                        centre[1] + 0.5)))
+        return world.getChunkAtAsync(centre[0] >> 4, centre[1] >> 4)
+                .thenCompose(chunk -> player.teleportAsync(standingPlace(world, centre[0], centre[1])))
                 .thenApply(ok -> {
                     if (Boolean.TRUE.equals(ok)) {
                         // The marker is sent after the player has the chunk, or it would be overwritten
@@ -339,7 +348,7 @@ public class WorkshopManager {
         }
         if (index == spots.size()) {
             if (told) {
-                tell(SPOTS_PREFIX + "finished", spots.size());
+                tell(SPOTS_PREFIX + "finished", spots.size(), spots.size());
             }
             return;
         }
@@ -355,19 +364,28 @@ public class WorkshopManager {
             w.setSpot(i, new Workshop.Spot(spot.x(), spot.z(), spot.biome(), error == null ? score.score() : 0,
                     error == null ? score.describe() : "?"));
             save();
-            tell(SPOTS_PREFIX + "found", i + 1);
+            tell(SPOTS_PREFIX + FOUND, i + 1, spots.size());
             scoreNext(w, world, true);
         });
     }
 
     /**
-     * Tells everyone in the workshop how the search is going.
+     * Tells everyone in the workshop how the search is going. Chat is only used for the
+     * first place and the last; the ones in between are shown above the hotbar.
      */
-    private void tell(String message, int number) {
+    private void tell(String message, int number, int total) {
+        String label = addon.getAdminCommand().map(CompositeCommand::getTopLabel).orElse("boxadmin");
         for (World world : worlds.values()) {
-            world.getPlayers().forEach(p -> User.getInstance(p).sendMessage(message, TextVariables.NUMBER,
-                    String.valueOf(number), TextVariables.LABEL, addon.getAdminCommand().map(c -> c.getTopLabel())
-                            .orElse("boxadmin")));
+            for (Player p : world.getPlayers()) {
+                User user = User.getInstance(p);
+                if (message.endsWith(FOUND) && number > 1) {
+                    p.sendActionBar(user.getTranslationAsComponent(SPOTS_PREFIX + "progress", TextVariables.NUMBER,
+                            String.valueOf(number), TOTAL, String.valueOf(total)));
+                } else {
+                    user.sendMessage(message, TextVariables.NUMBER, String.valueOf(number), TOTAL,
+                            String.valueOf(total), TextVariables.LABEL, label);
+                }
+            }
         }
     }
 
@@ -403,7 +421,7 @@ public class WorkshopManager {
         }
         int[] centre = workshop.getCentre(world.getEnvironment());
         player.sendBlockChange(
-                new Location(world, centre[0], standingHeight(world, centre[0], centre[1]) - 1D, centre[1]),
+                new Location(world, centre[0], groundHeight(world, centre[0], centre[1]), centre[1]),
                 Material.DIAMOND_BLOCK.createBlockData());
         if (border) {
             WorldBorder limit = Bukkit.createWorldBorder();
@@ -417,20 +435,63 @@ public class WorkshopManager {
     }
 
     /**
-     * @return the height to put a player at so that they are standing on the ground
+     * Finds the ground at a place: the soil under any trees and the bed under any water.
+     * @return y of the ground block
      */
-    static int standingHeight(World world, int x, int z) {
-        if (world.getEnvironment() != Environment.NETHER) {
-            return world.getHighestBlockYAt(x, z) + 1;
+    static int groundHeight(World world, int x, int z) {
+        if (world.getEnvironment() == Environment.NETHER) {
+            // The Nether has a roof, so look for a floor with room above it instead
+            for (int y = NETHER_ROOF; y > NETHER_FLOOR; y--) {
+                if (world.getBlockAt(x, y, z).getType().isSolid() && world.getBlockAt(x, y + 1, z).getType().isAir()
+                        && world.getBlockAt(x, y + 2, z).getType().isAir()) {
+                    return y;
+                }
+            }
+            return 63;
         }
-        // The Nether has a roof, so look for a floor with room above it instead
-        for (int y = NETHER_ROOF; y > NETHER_FLOOR; y--) {
-            if (world.getBlockAt(x, y, z).getType().isSolid() && world.getBlockAt(x, y + 1, z).getType().isAir()
-                    && world.getBlockAt(x, y + 2, z).getType().isAir()) {
-                return y + 1;
+        int y = world.getHighestBlockYAt(x, z, HeightMap.OCEAN_FLOOR);
+        // Go down through trees to the soil they grow in
+        while (y > world.getMinHeight() && isTree(world.getBlockAt(x, y, z).getType())) {
+            y--;
+        }
+        return y;
+    }
+
+    private static boolean isTree(Material m) {
+        return Tag.LOGS.isTagged(m) || Tag.LEAVES.isTagged(m);
+    }
+
+    /**
+     * Finds somewhere to stand at a place: on the ground, under the trees, and next to a
+     * tree trunk if one is in the way. Over water it is the surface.
+     * @return where a player can be put
+     */
+    static Location standingPlace(World world, int x, int z) {
+        // The place is the corner of a chunk, so looking this way stays inside the chunk
+        for (int reach = 0; reach <= STAND_SEARCH; reach++) {
+            for (int dx = 0; dx <= reach; dx++) {
+                for (int dz = 0; dz <= reach; dz++) {
+                    Location at = Math.max(dx, dz) == reach ? openGround(world, x + dx, z + dz) : null;
+                    if (at != null) {
+                        return at;
+                    }
+                }
             }
         }
-        return 64;
+        return new Location(world, x + 0.5, world.getHighestBlockYAt(x, z) + 1D, z + 0.5);
+    }
+
+    /**
+     * @return a place to stand on the ground of a column, or null if something is in the way
+     */
+    @Nullable
+    private static Location openGround(World world, int x, int z) {
+        int y = groundHeight(world, x, z);
+        Block feet = world.getBlockAt(x, y + 1, z);
+        Block head = world.getBlockAt(x, y + 2, z);
+        return feet.isPassable() && head.isPassable() && !feet.isLiquid()
+                ? new Location(world, x + 0.5, y + 1D, z + 0.5)
+                : null;
     }
 
     /**

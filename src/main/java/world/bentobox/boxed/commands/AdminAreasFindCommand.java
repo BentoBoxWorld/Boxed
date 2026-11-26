@@ -431,7 +431,8 @@ public class AdminAreasFindCommand extends CompositeCommand {
     @Override
     public void setup() {
         this.setPermission("admin.areas.find");
-        this.setOnlyPlayer(false);
+        // Players use the area workshop, which searches by itself and lets them go and look
+        this.setOnlyConsole(true);
         this.setParametersHelp(PREFIX + "parameters");
         this.setDescription(PREFIX + "description");
     }

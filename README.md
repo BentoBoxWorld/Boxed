@@ -78,7 +78,7 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed, centres or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
 | `/boxadmin areas clean [x z]` | Puts the land of the box position you are in (or the one at x, z) back the way it was. Use it after trying out structures in a position nobody has a box in. Positions with a box in use are refused. |
 | `/boxadmin areas check <area>` | Plays out how a box grows in the area and reports where players get stuck. See [Checking that an area can be played](#checking-that-an-area-can-be-played). |
-| `/boxadmin areas find <area> [seed\|random] [radius]` | Looks through a seed for good places to start a box. See [Finding a good place to start](#finding-a-good-place-to-start). |
+| `boxadmin areas find <area> [seed\|random] [radius]` | Console only. Looks through a seed for good places to start a box. See [Finding a good place to start](#finding-a-good-place-to-start). |
 | `/boxadmin areas edit` | Opens the area workshop, where a new area is tried out in a temporary world. See [The area workshop](#the-area-workshop). |
 
 Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
@@ -168,6 +168,8 @@ An advancement that scores points but can never be earned is worth either removi
 
 ### Finding a good place to start
 
+**The easy way is [the area workshop](#the-area-workshop)**, which searches by itself and lets you go and look at each place. The command described here does the same search from the console and only writes a report.
+
 Every box in an area is a copy of the land around one place in the area's seed. By default that place is 0,0, so whether new players start in a forest or in the sea depends on the seed. `/boxadmin areas find <area> [seed|random] [radius]` finds better places for you:
 
 * with no seed it searches the seed the area already has, so you can see how the current place compares,
@@ -219,13 +221,13 @@ You are then taken to the temporary world. While you are there:
 
 #### Picking the middle of the box
 
-As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. You can fly around while it works. Each time a place is ready you are told in chat, for example "3 prospective spawn points found". The first ones arrive within a few seconds and there are up to thirteen.
+As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. You can fly around while it works. You are told in chat when the first place is ready and when the search has finished. In between, progress is shown above the hotbar. The first ones arrive within a few seconds and there are up to thirteen.
 
-Click the message, or run `/boxadmin areas spots`, to see the places as numbered buttons with their coordinates and scores. Hover over a button to see what the score is made of. The first place is always where the workshop started: 0,0, or the middle of the area you started from.
+Press **F** (the swap hands key), click the message, or run `/boxadmin areas spots`, to see the places as numbered buttons with their coordinates and scores. Hover over a button to see what the score is made of. The first place is always where the workshop started: 0,0, or the middle of the area you started from.
 
 Clicking a button:
 
-* takes you there,
+* takes you there, on the ground under any trees,
 * makes it the middle of every box,
 * puts a diamond block under your feet to mark it, and
 * sets a world border that shows how far a box can grow.

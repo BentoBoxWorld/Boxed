@@ -15,6 +15,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,7 @@ class WorkshopListenerTest extends CommonTestSetup {
     public void setUp() {
         super.setUp();
         when(addon.getPlugin()).thenReturn(plugin);
+        when(addon.getAdminCommand()).thenReturn(java.util.Optional.empty());
         when(manager.isWorkshopWorld(workshopWorld)).thenReturn(true);
         when(mockPlayer.getUniqueId()).thenReturn(uuid);
         when(mockPlayer.getGameMode()).thenReturn(GameMode.SURVIVAL);
@@ -142,6 +144,25 @@ class WorkshopListenerTest extends CommonTestSetup {
         verify(respawn).setRespawnLocation(location);
         runScheduled();
         verify(mockPlayer).setGameMode(GameMode.CREATIVE);
+    }
+
+    @Test
+    void testSwapHandsOpensThePlaces() {
+        when(mockPlayer.getWorld()).thenReturn(workshopWorld);
+        PlayerSwapHandItemsEvent e = mock(PlayerSwapHandItemsEvent.class);
+        when(e.getPlayer()).thenReturn(mockPlayer);
+        listener.onSwapHands(e);
+        verify(e).setCancelled(true);
+        mockedBukkit.verify(() -> Bukkit.dispatchCommand(mockPlayer, "boxadmin areas spots"));
+    }
+
+    @Test
+    void testSwapHandsElsewhereIsLeftAlone() {
+        when(mockPlayer.getWorld()).thenReturn(world);
+        PlayerSwapHandItemsEvent e = mock(PlayerSwapHandItemsEvent.class);
+        when(e.getPlayer()).thenReturn(mockPlayer);
+        listener.onSwapHands(e);
+        verify(e, never()).setCancelled(true);
     }
 
     @Test

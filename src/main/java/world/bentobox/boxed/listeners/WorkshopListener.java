@@ -15,7 +15,9 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
+import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.workshop.WorkshopManager;
 
@@ -73,6 +75,19 @@ public class WorkshopListener implements Listener {
             // The workshop they were in has gone
             player.setGameMode(mode);
             Bukkit.getScheduler().runTask(addon.getPlugin(), () -> manager.sendOut(player));
+        }
+    }
+
+    /**
+     * The swap hands key (F by default) opens the list of places in the workshop, so admins
+     * do not have to go back to chat for it.
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onSwapHands(PlayerSwapHandItemsEvent e) {
+        if (manager.isWorkshopWorld(e.getPlayer().getWorld())) {
+            e.setCancelled(true);
+            String label = addon.getAdminCommand().map(CompositeCommand::getTopLabel).orElse("boxadmin");
+            Bukkit.dispatchCommand(e.getPlayer(), label + " areas spots");
         }
     }
 
