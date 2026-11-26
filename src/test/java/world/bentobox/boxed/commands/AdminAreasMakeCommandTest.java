@@ -75,7 +75,7 @@ class AdminAreasMakeCommandTest extends CommonTestSetup {
     }
 
     private Prepared ready(String name) {
-        Prepared prepared = new Prepared(name, Map.of(), SUMMARY, workshop, new int[] { 0, 0 }, new int[] { 0, 0 });
+        Prepared prepared = new Prepared(name, Map.of(), SUMMARY, workshop, new AreaMaker.Centre(0, 0), new AreaMaker.Centre(0, 0));
         when(maker.prepare(eq(name), any())).thenAnswer(i -> {
             // The copying reports how far it has got
             java.util.function.IntConsumer progress = i.getArgument(1);

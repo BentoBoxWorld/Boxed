@@ -26,7 +26,7 @@ import world.bentobox.boxed.generators.template.Template;
  */
 public class AreaCheck {
 
-    private static final String REQUIREMENTS = "requirements.yml";
+    private static final String REQUIREMENTS_FILE = "requirements.yml";
 
     /**
      * What a check found.
@@ -59,10 +59,10 @@ public class AreaCheck {
         this.normal = normal;
         this.nether = nether;
         File folder = addon.getDataFolder();
-        if (!new File(folder, REQUIREMENTS).exists()) {
-            addon.saveResource(REQUIREMENTS, false);
+        if (!new File(folder, REQUIREMENTS_FILE).exists()) {
+            addon.saveResource(REQUIREMENTS_FILE, false);
         }
-        this.requirements = new Requirements(YamlConfiguration.loadConfiguration(new File(folder, REQUIREMENTS)),
+        this.requirements = new Requirements(YamlConfiguration.loadConfiguration(new File(folder, REQUIREMENTS_FILE)),
                 addon::logWarning);
         this.structures = structuresFile == null ? new YamlConfiguration()
                 : YamlConfiguration.loadConfiguration(new File(folder, structuresFile));

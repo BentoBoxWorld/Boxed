@@ -3,6 +3,7 @@ package world.bentobox.boxed.commands;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
@@ -41,6 +42,7 @@ final class WorkshopDialogs {
     private static final String SPOTS = "boxed.commands.boxadmin.areas.spots.dialog.";
     private static final String MAKE = "boxed.commands.boxadmin.areas.make.dialog.";
     private static final String NAME = "name";
+    private static final String CANCEL = "cancel";
     private static final String BORDER = "border";
     private static final String[] NO_VARIABLES = {};
     private static final String SEED = "seed";
@@ -124,12 +126,12 @@ final class WorkshopDialogs {
                 .canCloseWithEscape(true)
                 .body(List.of(DialogBody.plainMessage(user.getTranslationAsComponent(MAKE + "name-body", NO_VARIABLES))))
                 .inputs(List.of(DialogInput.text(NAME, user.getTranslationAsComponent(MAKE + NAME, NO_VARIABLES))
-                        .initial(workshop.getArea() == null ? "" : workshop.getArea()).maxLength(32).build()))
+                        .initial(Objects.requireNonNullElse(workshop.getArea(), "")).maxLength(32).build()))
                 .build();
         user.getPlayer().showDialog(Dialog.create(b -> b.empty().base(base).type(DialogType.confirmation(
                 button(plugin, user.getTranslationAsComponent(MAKE + "check", NO_VARIABLES), null,
                         view -> go.accept(view.getText(NAME))),
-                ActionButton.builder(user.getTranslationAsComponent(MAKE + "cancel", NO_VARIABLES)).build()))));
+                ActionButton.builder(user.getTranslationAsComponent(MAKE + CANCEL, NO_VARIABLES)).build()))));
     }
 
     /**
@@ -178,7 +180,7 @@ final class WorkshopDialogs {
         user.getPlayer().showDialog(Dialog.create(b -> b.empty().base(base).type(DialogType.confirmation(
                 button(user, "go", view -> command.start(user, view.getText(SEED), view.getText(STYLE),
                         view.getText(AREA))),
-                close(user, "cancel")))));
+                close(user, CANCEL)))));
     }
 
     /**
@@ -205,6 +207,6 @@ final class WorkshopDialogs {
         DialogBase base = DialogBase.builder(text(user, "discard-title")).canCloseWithEscape(true)
                 .body(List.of(DialogBody.plainMessage(text(user, "discard-body")))).build();
         user.getPlayer().showDialog(Dialog.create(b -> b.empty().base(base).type(DialogType.confirmation(
-                button(user, "discard", view -> command.discard(user)), close(user, "cancel")))));
+                button(user, "discard", view -> command.discard(user)), close(user, CANCEL)))));
     }
 }

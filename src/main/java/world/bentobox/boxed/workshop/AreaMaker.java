@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -52,7 +51,22 @@ public class AreaMaker {
      * @param netherCentre block x and z of the middle of the Nether land
      */
     public record Prepared(String name, Map<Environment, File> files, String summary, Workshop workshop,
-            int[] centre, int[] netherCentre) {
+            Centre centre, Centre netherCentre) {
+    }
+
+    /**
+     * The middle of the land in one dimension.
+     * @param x block x
+     * @param z block z
+     */
+    public record Centre(int x, int z) {
+        static Centre of(int[] xz) {
+            return new Centre(xz[0], xz[1]);
+        }
+
+        int[] xz() {
+            return new int[] { x, z };
+        }
     }
 
     private static final String STAGING = "workshop-build";
@@ -130,7 +144,8 @@ public class AreaMaker {
                                 p -> progress.accept(50 + p / 2)) : CompletableFuture.completedFuture(null))
                         .thenCompose(v -> check(name, files))
                         .thenApply(summary -> new Prepared(name, files, summary, workshop,
-                                workshop.getCentre(Environment.NORMAL), workshop.getCentre(Environment.NETHER)));
+                                Centre.of(workshop.getCentre(Environment.NORMAL)),
+                                Centre.of(workshop.getCentre(Environment.NETHER))));
         // Whatever happens, the workshop can be used again afterwards
         return result.whenComplete((p, error) -> manager.setBusy(false));
     }
@@ -216,10 +231,10 @@ public class AreaMaker {
         if (old != null && countBoxes(old) > 0) {
             throw new IOException("Area " + name + " has boxes in it");
         }
-        int[] centre = prepared.centre();
-        int[] netherCentre = prepared.netherCentre();
-        if (!Arrays.equals(centre, workshop.getCentre(Environment.NORMAL))
-                || !Arrays.equals(netherCentre, workshop.getCentre(Environment.NETHER))) {
+        int[] centre = prepared.centre().xz();
+        int[] netherCentre = prepared.netherCentre().xz();
+        if (!prepared.centre().equals(Centre.of(workshop.getCentre(Environment.NORMAL)))
+                || !prepared.netherCentre().equals(Centre.of(workshop.getCentre(Environment.NETHER)))) {
             throw new IOException("The middle of the box has moved since the land was copied");
         }
         File folder = addon.getDataFolder();

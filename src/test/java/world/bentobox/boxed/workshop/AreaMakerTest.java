@@ -109,21 +109,21 @@ class AreaMakerTest extends CommonTestSetup {
     @Test
     void testFinishRefusesLandFromAnotherWorkshop() {
         AreaMaker.Prepared prepared = new AreaMaker.Prepared("meadow", Map.of(), "", new Workshop(6L, "biomes.yml", null),
-                new int[] { 160, 320 }, new int[] { 0, 0 });
+                new AreaMaker.Centre(160, 320), new AreaMaker.Centre(0, 0));
         assertThrows(IOException.class, () -> maker.finish(prepared));
     }
 
     @Test
     void testFinishRefusesLandCopiedBeforeTheMiddleMoved() {
-        AreaMaker.Prepared prepared = new AreaMaker.Prepared("meadow", Map.of(), "", workshop, new int[] { 0, 0 },
-                new int[] { 0, 0 });
+        AreaMaker.Prepared prepared = new AreaMaker.Prepared("meadow", Map.of(), "", workshop, new AreaMaker.Centre(0, 0),
+                new AreaMaker.Centre(0, 0));
         assertThrows(IOException.class, () -> maker.finish(prepared));
     }
 
     @Test
     void testFinishRefusesAnAreaThatGotABoxMeanwhile() {
         AreaMaker.Prepared prepared = new AreaMaker.Prepared("icelands", Map.of(), "", workshop,
-                new int[] { 160, 320 }, new int[] { 0, 0 });
+                new AreaMaker.Centre(160, 320), new AreaMaker.Centre(0, 0));
         aBoxIn(icelands);
         assertThrows(IOException.class, () -> maker.finish(prepared));
     }

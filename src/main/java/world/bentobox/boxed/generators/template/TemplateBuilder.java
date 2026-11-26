@@ -181,20 +181,24 @@ public class TemplateBuilder {
             if (error != null) {
                 build.failure().compareAndSet(null, new IOException(error));
             } else {
-                try {
-                    for (int z = -size; z < size; z++) {
-                        capture(x, z, build.writer(), build.pool(), build.permits(), build.failure());
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    build.failure().compareAndSet(null, e);
-                } catch (RuntimeException e) {
-                    build.failure().compareAndSet(null, e);
-                }
-                build.progress().accept((x + size + 1) * 100 / (size * 2));
+                captureLoadedColumn(build, x);
             }
             captureColumn(build, x + 1);
         }));
+    }
+
+    private void captureLoadedColumn(AsyncBuild build, int x) {
+        try {
+            for (int z = -size; z < size; z++) {
+                capture(x, z, build.writer(), build.pool(), build.permits(), build.failure());
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            build.failure().compareAndSet(null, e);
+        } catch (RuntimeException e) {
+            build.failure().compareAndSet(null, e);
+        }
+        build.progress().accept((x + size + 1) * 100 / (size * 2));
     }
 
     /**
