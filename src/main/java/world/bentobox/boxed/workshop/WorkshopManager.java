@@ -38,6 +38,8 @@ import org.bukkit.WorldBorder;
 import org.bukkit.generator.BiomeProvider;
 import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
+import world.bentobox.boxed.reach.FortressFinder;
+import world.bentobox.boxed.reach.FortressSpot;
 import world.bentobox.boxed.reach.LandSurvey;
 import world.bentobox.boxed.reach.SpotFinder;
 import world.bentobox.boxed.reach.SpotFinder.Candidate;
@@ -295,6 +297,8 @@ public class WorkshopManager {
         biomes.put(env, provider);
         if (env == Environment.NORMAL) {
             scan(workshop, world, provider);
+        } else if (env == Environment.NETHER && workshop.getSpots(env).isEmpty()) {
+            scanNether(workshop, world, provider);
         }
         if (workshop.isToShow(env)) {
             showStructures(workshop, env, world);
@@ -314,6 +318,9 @@ public class WorkshopManager {
         if (env == Environment.NORMAL && !workshop.getSpots().isEmpty()) {
             // The biomes were laid out around every place that was found, and have to stay that way
             provider.setCentres(workshop.getSpots().stream().map(s -> new int[] { s.x(), s.z() }).toList());
+        }
+        if (env == Environment.NETHER && !workshop.getNetherLayout().isEmpty()) {
+            provider.setCentres(workshop.getNetherLayout());
         }
         provider.setPatches(workshop.getPatches(env));
         return provider;
@@ -678,6 +685,102 @@ public class WorkshopManager {
         });
     }
 
+    /**
+     * Looks for places in the Nether that give the box a fortress. A fortress cannot be
+     * placed like other structures, so it has to come with the land. The fortresses of the
+     * seed are found, the land around each is generated, and a place is picked on open
+     * ground just clear of a blaze spawner. The place the Nether started with is looked at
+     * too and is always first in the list. Nothing is saved until every place has been
+     * looked at, so a search that is cut short starts again.
+     */
+    private void scanNether(Workshop w, World world, AbstractSeedBiomeProvider provider) {
+        int[] start = w.getCentre(Environment.NETHER);
+        List<int[]> fortresses = FortressFinder.locate(world);
+        // The biomes are laid out around the start and around every fortress, and stay that way
+        // unless they are so close that the layouts would cut into each other
+        List<int[]> layout = new ArrayList<>();
+        layout.add(start);
+        long apart = addon.getSettings().getIslandDistance() * 4L;
+        for (int[] f : fortresses) {
+            int[] at = { f[0] << 4, f[1] << 4 };
+            if (layout.stream().allMatch(c -> Math.hypot((double) c[0] - at[0], (double) c[1] - at[1]) >= apart)) {
+                layout.add(at);
+            }
+        }
+        w.setNetherLayout(layout);
+        save();
+        provider.setCentres(layout);
+        List<Workshop.Spot> found = new ArrayList<>();
+        FortressFinder.look(addon.getPlugin(), world, start[0] >> 4, start[1] >> 4, false)
+                .whenComplete((land, error) -> {
+                    if (workshop != w || closing) {
+                        return;
+                    }
+                    found.add(error == null
+                            ? netherSpot(world, land.measure(start[0], start[1]),
+                                    land.nearestSpawner(start[0], start[1]))
+                            : netherSpot(world, new FortressSpot.Spot(start[0], start[1], Integer.MAX_VALUE,
+                                    Integer.MAX_VALUE), null));
+                    lookAtFortress(w, world, fortresses, 0, found);
+                });
+    }
+
+    private void lookAtFortress(Workshop w, World world, List<int[]> fortresses, int index, List<Workshop.Spot> found) {
+        if (index >= fortresses.size()) {
+            // The start stays first. The rest are in order of how soon the box reaches a spawner.
+            found.subList(1, found.size()).sort(Comparator.comparingInt(Workshop.Spot::score).reversed());
+            w.setNetherSpots(found);
+            save();
+            tell(SPOTS_PREFIX + "nether-finished", found.size(), found.size());
+            return;
+        }
+        int[] fortress = fortresses.get(index);
+        FortressFinder.look(addon.getPlugin(), world, fortress[0], fortress[1], false).whenComplete((land, error) -> {
+            if (workshop != w || closing) {
+                return;
+            }
+            if (error != null) {
+                addon.logError("Could not generate the fortress at chunk " + fortress[0] + "," + fortress[1] + ": " + error);
+            } else {
+                land.choose().filter(s -> found.stream().noneMatch(f -> f.x() == s.x() && f.z() == s.z()))
+                        .ifPresent(s -> found.add(netherSpot(world, s, land.nearestSpawner(s.x(), s.z()))));
+            }
+            lookAtFortress(w, world, fortresses, index + 1, found);
+        });
+    }
+
+    /**
+     * Writes up a place in the Nether. The score is highest when the box reaches a blaze
+     * spawner soon. A fortress is often walled in by netherrack or well above or below the
+     * place, so the write-up says which way the nearest spawner is and where.
+     * @param world the Nether
+     * @param spot the place
+     * @param spawner block x, z and y of the nearest blaze spawner, or null if there is none
+     */
+    static Workshop.Spot netherSpot(World world, FortressSpot.Spot spot, @Nullable int[] spawner) {
+        String biome = world.getBiome(spot.x(), NETHER_FLOOR + 32, spot.z()).getKey().getKey();
+        if (spawner == null || spot.spawnerSize() == Integer.MAX_VALUE) {
+            return new Workshop.Spot(spot.x(), spot.z(), biome, 0,
+                    spot.fortressSize() == Integer.MAX_VALUE ? "no fortress nearby"
+                            : "fortress at size " + spot.fortressSize() + ", but no blaze spawner nearby");
+        }
+        int blocks = (int) Math.round(Math.hypot((double) spawner[0] - spot.x(), (double) spawner[1] - spot.z()));
+        return new Workshop.Spot(spot.x(), spot.z(), biome, Math.max(1, 100 - spot.spawnerSize() / 2),
+                "fortress at size " + spot.fortressSize() + ", blaze spawner at size " + spot.spawnerSize() + ": "
+                        + blocks + " blocks " + compass(spawner[0] - spot.x(), spawner[1] - spot.z()) + " at "
+                        + spawner[0] + "," + spawner[2] + "," + spawner[1]);
+    }
+
+    /**
+     * @param dx blocks east
+     * @param dz blocks south
+     * @return the compass point that way, for example north-east
+     */
+    static String compass(int dx, int dz) {
+        String[] points = { "east", "south-east", "south", "south-west", "west", "north-west", "north", "north-east" };
+        return points[Math.floorMod((int) Math.round(Math.atan2(dz, dx) / (Math.PI / 4)), 8)];
+    }
+
     private static Workshop.Spot unscored(Candidate c) {
         return new Workshop.Spot(c.x(), c.z(), c.biome(), -1, "");
     }
@@ -742,15 +845,26 @@ public class WorkshopManager {
      * @return true once the player is there, false if there is no such place
      */
     public CompletableFuture<Boolean> select(@Nullable Player player, int index) {
+        return select(player, Environment.NORMAL, index);
+    }
+
+    /**
+     * Makes a place the middle of a dimension of every box and takes the player there.
+     * @param player player who picked it, or null if it was picked from the console
+     * @param env dimension
+     * @param index position of the place in the list of places found for the dimension
+     * @return true once the player is there, false if there is no such place
+     */
+    public CompletableFuture<Boolean> select(@Nullable Player player, Environment env, int index) {
         Workshop w = workshop;
-        List<Workshop.Spot> spots = w == null ? List.of() : w.getSpots();
+        List<Workshop.Spot> spots = w == null ? List.of() : w.getSpots(env);
         if (w == null || closing || index < 0 || index >= spots.size() || !spots.get(index).scored()) {
             return CompletableFuture.completedFuture(false);
         }
-        w.setCentre(Environment.NORMAL, spots.get(index).x(), spots.get(index).z());
+        w.setCentre(env, spots.get(index).x(), spots.get(index).z());
         save();
         // The console can pick a place but cannot go there
-        return player == null ? CompletableFuture.completedFuture(true) : enter(player, Environment.NORMAL);
+        return player == null ? CompletableFuture.completedFuture(true) : enter(player, env);
     }
 
     /**
@@ -767,9 +881,12 @@ public class WorkshopManager {
             return;
         }
         int[] centre = workshop.getCentre(world.getEnvironment());
-        player.sendBlockChange(
-                new Location(world, centre[0], groundHeight(world, centre[0], centre[1]), centre[1]),
-                Material.DIAMOND_BLOCK.createBlockData());
+        // A player who is far away does not have the land the marker goes on
+        if (world.isChunkLoaded(centre[0] >> 4, centre[1] >> 4)) {
+            player.sendBlockChange(
+                    new Location(world, centre[0], groundHeight(world, centre[0], centre[1]), centre[1]),
+                    Material.DIAMOND_BLOCK.createBlockData());
+        }
         if (border) {
             WorldBorder limit = Bukkit.createWorldBorder();
             limit.setCenter(centre[0], centre[1]);

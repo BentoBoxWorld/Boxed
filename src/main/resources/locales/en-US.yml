@@ -647,7 +647,11 @@ boxed:
             discard-body: The temporary worlds and everything done in them will be deleted. Areas that are already made are not affected.
         spots:
           description: show the places found for the middle of the box, or pick one
-          parameters: '[number | border]'
+          parameters: '[nether] [number | border]'
+          no-nether: '&c The workshop has no Nether.'
+          looking-nether: '&a Still looking for fortresses in the Nether. You will be told when the search has finished.'
+          nether-finished: '&a The search of the Nether has finished: [number] places. Press &b F &a(swap hands) in the Nether, or click here, to see them.[run_command: /[label] areas spots nether][hover: Show the places found in the Nether]'
+          selected-nether: '&a Place [number] at &e [xyz] &a is now the middle of the box in the Nether. &7 [description]'
           looking: '&a Still looking for places to start a box. You will be told when one is found.'
           found: '&a The first place to start is ready. Press &b F &a(swap hands) or click here to see the places as they are found.[run_command: /[label] areas spots][hover: Show the places found]'
           finished: '&a The search has finished: [number] places. Press &b F &a(swap hands) or click here to see them.[run_command: /[label] areas spots][hover: Show the places found]'
@@ -662,6 +666,8 @@ boxed:
           border-off: '&a The border is hidden.'
           dialog:
             title: Places to start a box
+            title-nether: Places for the middle of the Nether
+            body-nether: A fortress cannot be placed like other structures, so it has to come with the land. Click a place to go there and make it the middle of the Nether of every box. The first place is where the Nether started. Press F (swap hands) to open this again.
             body: Click a place to go there and make it the middle of every box. A diamond block marks the middle and the border shows how far a box can grow. Press F (swap hands) to open this again.
             body-looking: Click a place to go there and make it the middle of every box. [number] more are still being looked at. Press F (swap hands) to open this again.
             button: '[number]: [xyz] (score [score])'

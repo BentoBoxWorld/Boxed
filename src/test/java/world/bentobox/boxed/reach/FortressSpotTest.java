@@ -57,4 +57,15 @@ class FortressSpotTest {
         assertTrue(FortressSpot.choose(MIN, MAX, List.of(), List.of(), (x, z) -> 1).isEmpty());
         assertTrue(FortressSpot.choose(MIN, MAX, List.of(new int[] { 0, 0 }), List.of(), (x, z) -> 0).isEmpty());
     }
+
+    @Test
+    void testMeasuresAPlaceThatIsAlreadyPicked() {
+        FortressSpot.Spot spot = FortressSpot.at(0, 0, List.of(new int[] { 40, -10 }), List.of(new int[] { 5, 12 }));
+        assertEquals(LandSurvey.sizeFor(40, -10), spot.spawnerSize());
+        assertEquals(LandSurvey.sizeFor(5, 12), spot.fortressSize());
+        FortressSpot.Spot none = FortressSpot.at(16, 32, List.of(), List.of());
+        assertEquals(16, none.x());
+        assertEquals(Integer.MAX_VALUE, none.spawnerSize());
+        assertEquals(Integer.MAX_VALUE, none.fortressSize());
+    }
 }

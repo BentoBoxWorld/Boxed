@@ -64,6 +64,18 @@ public final class FortressSpot {
     }
 
     /**
+     * Measures a place that has already been picked.
+     * @param x block x
+     * @param z block z
+     * @param spawners block x and z of each blaze spawner
+     * @param bricks block x and z of each column that has fortress in it
+     * @return the place, with sizes of {@link Integer#MAX_VALUE} where there is nothing to reach
+     */
+    public static Spot at(int x, int z, List<int[]> spawners, List<int[]> bricks) {
+        return new Spot(x, z, nearest(spawners, x, z), nearest(bricks, x, z));
+    }
+
+    /**
      * @return the smallest box around a place that takes in one of the columns
      */
     private static int nearest(List<int[]> columns, int x, int z) {

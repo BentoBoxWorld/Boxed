@@ -64,6 +64,26 @@ class WorkshopTest {
     }
 
     @Test
+    void testNetherSpotsAndLayoutAreSaved() throws IOException {
+        Workshop w = new Workshop(5L, "biomes.yml", null);
+        assertTrue(w.getSpots(Environment.NETHER).isEmpty());
+        assertTrue(w.getNetherLayout().isEmpty());
+        Workshop.Spot fortress = new Workshop.Spot(1408, -160, "warped_forest", 84, "fortress at size 10");
+        w.setNetherSpots(List.of(fortress));
+        w.setSpots(List.of(new Workshop.Spot(0, 0, "plains", 90, "dry land")));
+        w.setNetherLayout(List.of(new int[] { 0, 0 }, new int[] { 1504, -160 }));
+        File file = new File(folder, "nether.yml");
+        w.save(file);
+        Workshop loaded = Workshop.load(file);
+        assertEquals(List.of(fortress), loaded.getSpots(Environment.NETHER));
+        assertEquals(loaded.getSpots(), loaded.getSpots(Environment.NORMAL));
+        assertEquals(1, loaded.getSpots().size());
+        assertEquals(2, loaded.getNetherLayout().size());
+        assertEquals(1504, loaded.getNetherLayout().get(1)[0]);
+        assertEquals(-160, loaded.getNetherLayout().get(1)[1]);
+    }
+
+    @Test
     void testSaveAndLoad() throws IOException {
         UUID uuid = UUID.randomUUID();
         Workshop w = new Workshop(-42L, "biomes/natural.yml", "icelands");

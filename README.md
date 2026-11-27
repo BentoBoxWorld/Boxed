@@ -208,7 +208,7 @@ A good start does not mean the area can be finished. Run `/boxadmin areas check 
 
 ### The area workshop
 
-The workshop is a set of temporary worlds for trying out a seed and a biome style before they become an area. It finds good places to start, lets you pick one as the middle of the box and shape the land, and then makes the area without a restart. **Not finished yet:** structures placed in the workshop are copied as blocks but are not recorded as structures, and the Nether is always taken from 0,0.
+The workshop is a set of temporary worlds for trying out a seed and a biome style before they become an area. It finds good places to start, lets you pick one as the middle of the box and shape the land, and then makes the area without a restart.
 
 Run `/boxadmin areas edit`. A dialog box asks for:
 
@@ -245,8 +245,21 @@ The biome style is laid out around every place that was found, so each one looks
 | `/boxadmin areas spots` | Shows the places found so far. |
 | `/boxadmin areas spots <number>` | Picks a place and takes you there. |
 | `/boxadmin areas spots border` | Shows or hides the border. |
+| `/boxadmin areas spots nether [number]` | The same for the Nether, from anywhere. |
 
 The permission is `boxed.admin.areas.spots`.
+
+#### Picking the middle of the Nether
+
+The Nether of a box is taken from 0,0 of the seed's Nether unless you say otherwise, and there is usually no fortress there. Blaze rods and wither skulls only come from a fortress, and a fortress cannot be placed like other structures (see [The Nether fortress](#the-nether-fortress)), so the middle of the Nether has to be moved to one.
+
+Go to the workshop's Nether with the button in `/boxadmin areas edit`. The first time, Boxed finds up to three fortresses in the seed, makes the land around each, and picks a place on open ground a short way from a blaze spawner. This takes about a minute and you are told when it has finished.
+
+Press **F** in the Nether, or run `/boxadmin areas spots` there, to see the places. Each says the box size that reaches the fortress and the box size that reaches a blaze spawner. A fortress is often walled in by netherrack, or well above or below where you stand, so each also says how far and which way the nearest blaze spawner is, with its coordinates, for example "31 blocks east at 1439,57,-164". Use `/tp` to go and look. The first place is always where the Nether started, so you can go back to it. Clicking a place takes you there, makes it the middle of the Nether of every box, and shows the diamond block and the border as in the overworld.
+
+Picking a place in the Nether does not move the overworld, and the other way round.
+
+If you use a biome style that lays out the Nether, it is laid out around the fortresses that are far enough from the start for the layouts not to overlap. A fortress close to the start keeps the start's layout.
 
 #### Adding biomes
 
