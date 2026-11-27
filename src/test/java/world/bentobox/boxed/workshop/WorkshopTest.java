@@ -44,6 +44,26 @@ class WorkshopTest {
     }
 
     @Test
+    void testStructuresAreSaved() throws IOException {
+        Workshop w = new Workshop(5L, "biomes/none.yml", "meadow");
+        assertTrue(w.getStructures(Environment.NORMAL).isEmpty());
+        assertFalse(w.isToShow(Environment.NORMAL));
+        PlacedStructure igloo = new PlacedStructure(100, 65, -40, "igloo/top",
+                org.bukkit.block.structure.StructureRotation.CLOCKWISE_90, org.bukkit.block.structure.Mirror.NONE, true);
+        w.setStructures(Environment.NORMAL, List.of(igloo));
+        w.setToShow(Environment.NORMAL, true);
+        w.setToShow(Environment.NETHER, true);
+        w.setToShow(Environment.NETHER, false);
+        File file = new File(folder, "structures.yml");
+        w.save(file);
+        Workshop loaded = Workshop.load(file);
+        assertEquals(List.of(igloo), loaded.getStructures(Environment.NORMAL));
+        assertTrue(loaded.getStructures(Environment.NETHER).isEmpty());
+        assertTrue(loaded.isToShow(Environment.NORMAL));
+        assertFalse(loaded.isToShow(Environment.NETHER));
+    }
+
+    @Test
     void testSaveAndLoad() throws IOException {
         UUID uuid = UUID.randomUUID();
         Workshop w = new Workshop(-42L, "biomes/natural.yml", "icelands");

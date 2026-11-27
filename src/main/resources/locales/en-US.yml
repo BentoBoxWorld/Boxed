@@ -569,6 +569,10 @@ boxed:
         unknown-rotation: '&c Cannot place: Unknown rotation type'
         unknown-mirror: '&c Cannot place: Unknown mirror type'
         saved: '&a Placed and saved to this area''s structures file'
+        saved-workshop: '&a Placed. Every box of the area will have it once the area is made. &b /[label] areas structures &a lists what is placed.'
+        no-undo: '&c There is nothing to undo.'
+        console: '&c From the console, structures can only be placed in the workshop, and x, y and z must be given.'
+        undo-failed: '&c Could not undo: the structure is not known any more.'
         failed: '&c Could not be saved to this area''s structures file. Check console for error'
         unknown: '&c Unknown parameter: [label]'
         undo-success: '&a Undone. Some changes cannot be undone.'
@@ -684,6 +688,15 @@ boxed:
           removing: '&a Taking away patch [number]. The land there is being made again...'
           no-patch: '&c There is no patch with that number.'
           done: '&a Done: [number] blocks changed. &b /[label] areas biome &a shows what the box has now.'
+        structures:
+          description: list the structures placed on the land being worked on, or take one away
+          parameters: '[remove <number>]'
+          none: '&a No structures have been placed. Stand in the workshop and use &b /[label] place <structure>'
+          header: '&a Structures placed on the land:'
+          entry: '&a [number]: &e [name] &7 at [xyz]'
+          no-structure: '&c There is no structure with that number.'
+          removing: '&a Taking away structure [number]. The land it stood on is being made again...'
+          removed: '&a Done. The structure has gone.'
         make:
           description: make the area being worked on into an area that players can use
           parameters: '<name> [confirm]'

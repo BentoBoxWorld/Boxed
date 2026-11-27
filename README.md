@@ -82,6 +82,7 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `/boxadmin areas edit` | Opens the area workshop, where a new area is tried out in a temporary world. See [The area workshop](#the-area-workshop). |
 | `/boxadmin areas spots` | Shows the places the workshop found and picks the middle of the box. |
 | `/boxadmin areas biome` | Shows the biomes of the box in the workshop and the ones it lacks, and puts patches of biome on the land. See [Adding biomes](#adding-biomes). |
+| `/boxadmin areas structures` | Lists the structures placed in the workshop and takes them away. See [Adding structures](#adding-structures). |
 | `/boxadmin areas make [name]` | Makes the workshop into an area that players can use, without a restart. |
 
 Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
@@ -278,6 +279,32 @@ Patches are kept with the area when it is made (`patches` and `nether-patches` i
 
 The permission is `boxed.admin.areas.biome`.
 
+#### Adding structures
+
+Structures such as village houses, igloos and bastion pieces are placed in the workshop with the same command as in the game world. Stand where one should go and run `/boxadmin place <structure>`, for example `/boxadmin place igloo/top ~ ground ~`. See [structures.yml](#structuresyml) for the rotation, mirror and height options.
+
+The structure appears on the land so you can see how it sits, and it is listed with the area being worked on. When the area is made, the list becomes the area's structures file, and every box gets the structures.
+
+Things to know:
+
+* **Mobs come later.** The workshop has no villagers, piglins or other mobs from structures. They are made when a player's box is made, unless you placed the structure with `NO_MOBS`.
+* **Biome patches do not remove structures.** When land is made again for a patch, the structures on it are put back.
+* **Only structures inside the box count.** If you move the middle of the box after placing structures, any that are now outside the box are left out when the area is made.
+* **Starting from an area brings its structures.** If you start the workshop from an area and keep its seed, its structures file is read and the structures are put on the land. Making the area again writes the file from what is in the workshop, so structures placed in the game world while the workshop was open are not kept.
+
+| Command | Description |
+|---------|-------------|
+| `/boxadmin place <structure> [x y z] [ROTATION] [MIRROR] [NO_MOBS]` | Places a structure where you stand, or at x, y, z. |
+| `/boxadmin place undo` | Takes away the structure placed last. |
+| `/boxadmin areas structures` | Lists the structures with their numbers. |
+| `/boxadmin areas structures remove <number>` | Takes one away. |
+
+Taking a structure away makes the land it stood on again, which takes a few seconds, so anything built by hand right there goes too.
+
+From the console, structures go in the workshop's overworld and x, y and z must be given.
+
+The permission for the list is `boxed.admin.areas.structures`.
+
 #### Making the area
 
 When you are happy with the land, run `/boxadmin areas make`. A dialog box asks for the name of the area. Then:
@@ -289,13 +316,14 @@ When you are happy with the land, run `/boxadmin areas make`. A dialog box asks 
 When you confirm, the area exists straight away and players can pick it. There is no restart. Boxed:
 
 * writes the area to `areas.yml` with its seed, `centre`, `nether-centre`, biome style and patches of biome,
+* writes the structures you placed to the area's structures file,
 * makes a blueprint bundle with the same name, copied from the first bundle, if there is not one already,
 * sends everyone out of the workshop, and
 * keeps the workshop's worlds as the seed worlds of the area, so `/boxadmin areas rebuild <area>` builds it again with everything you changed by hand.
 
 Anything you change after the land was copied is not in the area, so run `/boxadmin areas make` again if you change something.
 
-**Replacing an area.** Give the name of an area that already exists to replace its land. This is only allowed while no player has a box in it, because every box in an area must be the same. The area keeps its row, its structures file and its `requires` and `unlocks-next-at` settings. The default area can be replaced this way on a new server.
+**Replacing an area.** Give the name of an area that already exists to replace its land. This is only allowed while no player has a box in it, because every box in an area must be the same. The area keeps its row and its `requires` and `unlocks-next-at` settings. Its structures file is written again from the structures in the workshop. The default area can be replaced this way on a new server.
 
 From the console, type `boxadmin areas spots <number>` to pick the middle, `boxadmin areas make <name>` to copy and check the land, and `boxadmin areas make <name> confirm` to make the area.
 
@@ -359,6 +387,8 @@ Admins can place structures in-game using the `/boxadmin place` command:
 | `[NO_MOBS]` | Optional flag to suppress mob spawning from this structure |
 
 To undo the last placed structure: `/boxadmin place undo`
+
+The same command works in [the area workshop](#adding-structures), where the structure is listed with the area being worked on instead.
 
 The structure is saved to the structures file of the area you are in and will be placed in all future boxes of that area. You do not need to be in a box: use `/boxadmin areas tp <area>` to go to an area's land before anyone has a box there. Operators, and players with the Border addon's `boxed.border.bypass` permission, can walk around outside a box; other admins are put in spectator mode.
 

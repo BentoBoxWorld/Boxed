@@ -1,5 +1,14 @@
 package world.bentobox.boxed.commands;
 
+import world.bentobox.boxed.workshop.WorkshopManager;
+import world.bentobox.boxed.workshop.PlacedStructure;
+import org.bukkit.World.Environment;
+import org.bukkit.block.structure.StructureRotation;
+import org.bukkit.block.structure.Mirror;
+import java.util.concurrent.CompletableFuture;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.Material;
 import org.bukkit.HeightMap;
@@ -227,5 +236,88 @@ class AdminPlaceStructureCommandTest extends CommonTestSetup {
     void testNeverMessagesWhenValid() {
         cmd.canExecute(user, "place", List.of("igloo"));
         verify(user, never()).sendMessage(anyString());
+    }
+
+    private WorkshopManager inWorkshop() {
+        WorkshopManager manager = mock(WorkshopManager.class);
+        when(addon.getWorkshop()).thenReturn(manager);
+        when(manager.isWorkshopWorld(world)).thenReturn(true);
+        when(manager.getWorld(Environment.NORMAL)).thenReturn(world);
+        when(world.getEnvironment()).thenReturn(Environment.NORMAL);
+        when(user.isPlayer()).thenReturn(true);
+        when(user.getWorld()).thenReturn(world);
+        when(user.getLocation()).thenReturn(new Location(world, 10.5, 70, -20.5));
+        when(manager.placeStructure(any(), any()))
+                .thenReturn(true);
+        return manager;
+    }
+
+    @Test
+    void testInTheWorkshopTheStructureIsListedWithTheArea() {
+        var manager = inWorkshop();
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo", "~", "64", "5", "CLOCKWISE_90", "NONE", "NO_MOBS")));
+        assertTrue(cmd.execute(user, "place", List.of("igloo", "~", "64", "5", "CLOCKWISE_90", "NONE", "NO_MOBS")));
+        verify(manager).placeStructure(Environment.NORMAL,
+                new PlacedStructure(10, 64, 5, "igloo",
+                        StructureRotation.CLOCKWISE_90,
+                        Mirror.NONE, true));
+        verify(user).sendMessage("boxed.commands.boxadmin.place.saved-workshop", "[label]", "boxadmin");
+    }
+
+    @Test
+    void testInTheWorkshopWhereThePlayerStands() {
+        var manager = inWorkshop();
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo")));
+        assertTrue(cmd.execute(user, "place", List.of("igloo")));
+        verify(manager).placeStructure(Environment.NORMAL,
+                new PlacedStructure(10, 70, -21, "igloo",
+                        StructureRotation.NONE, Mirror.NONE,
+                        false));
+    }
+
+    @Test
+    void testInTheWorkshopThatCannotBeChanged() {
+        var manager = inWorkshop();
+        when(manager.placeStructure(any(), any()))
+                .thenReturn(false);
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo")));
+        assertFalse(cmd.execute(user, "place", List.of("igloo")));
+        verify(user).sendMessage("boxed.commands.boxadmin.place.failed");
+        when(manager.isBusy()).thenReturn(true);
+        assertFalse(cmd.execute(user, "place", List.of("igloo")));
+        verify(user).sendMessage("boxed.commands.boxadmin.areas.biome.busy");
+    }
+
+    @Test
+    void testUndoInTheWorkshopTakesAwayTheLastStructure() {
+        var manager = inWorkshop();
+        assertFalse(cmd.execute(user, "place", List.of("undo")));
+        verify(user).sendMessage("boxed.commands.boxadmin.place.no-undo");
+        var igloo = new PlacedStructure(1, 2, 3, "igloo",
+                StructureRotation.NONE, Mirror.NONE, false);
+        when(manager.getStructures(Environment.NORMAL)).thenReturn(List.of(igloo, igloo));
+        when(manager.removeStructure(Environment.NORMAL, 1))
+                .thenReturn(CompletableFuture.completedFuture(5));
+        assertTrue(cmd.execute(user, "place", List.of("undo")));
+        verify(manager).removeStructure(Environment.NORMAL, 1);
+        verify(user).sendMessage("boxed.commands.boxadmin.areas.structures.removed");
+    }
+
+    @Test
+    void testTheConsoleWorksOnTheWorkshopAndMustSayWhere() {
+        var manager = inWorkshop();
+        when(user.isPlayer()).thenReturn(false);
+        assertTrue(cmd.canExecute(user, "place", List.of("igloo", "1", "2", "3")));
+        assertTrue(cmd.execute(user, "place", List.of("igloo", "1", "2", "3")));
+        verify(manager).placeStructure(Environment.NORMAL,
+                new PlacedStructure(1, 2, 3, "igloo",
+                        StructureRotation.NONE, Mirror.NONE,
+                        false));
+        assertFalse(cmd.execute(user, "place", List.of("igloo")));
+        assertFalse(cmd.execute(user, "place", List.of("igloo", "~", "2", "3")));
+        // With no workshop there is nowhere for the console to place anything
+        when(manager.getWorld(Environment.NORMAL)).thenReturn(null);
+        assertFalse(cmd.execute(user, "place", List.of("igloo", "1", "2", "3")));
+        verify(user, times(3)).sendMessage("boxed.commands.boxadmin.place.console");
     }
 }
