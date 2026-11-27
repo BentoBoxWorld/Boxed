@@ -187,66 +187,77 @@ final class LandCopier {
      * Makes the changes, a few milliseconds each tick. Call on the main thread.
      */
     private void apply(CompletableFuture<Result> result) {
-        new BukkitRunnable() {
-            private int block;
-            private int biome;
-            private int state;
-            private final Set<Long> recoloured = new HashSet<>();
+        new Applier(result).runTaskTimer(plugin, 1L, 1L);
+    }
 
-            /**
-             * Makes changes until the time is up: blocks first, then biomes, then what is in
-             * chests and the like.
-             */
-            private void step(long stop) {
-                if (setBlocks(stop) && setBiomes(stop)) {
-                    while (state < states.size() && System.nanoTime() < stop) {
-                        BlockState s = states.get(state++);
-                        s.copy(new Location(to, s.getX(), s.getY(), s.getZ())).update(true, false);
-                    }
+    /**
+     * Makes the changes that were found, picking up each tick where it left off.
+     */
+    private final class Applier extends BukkitRunnable {
+        private final CompletableFuture<Result> result;
+
+        Applier(CompletableFuture<Result> result) {
+            this.result = result;
+        }
+
+        private int block;
+        private int biome;
+        private int state;
+        private final Set<Long> recoloured = new HashSet<>();
+
+        /**
+         * Makes changes until the time is up: blocks first, then biomes, then what is in
+         * chests and the like.
+         */
+        private void step(long stop) {
+            if (setBlocks(stop) && setBiomes(stop)) {
+                while (state < states.size() && System.nanoTime() < stop) {
+                    BlockState s = states.get(state++);
+                    s.copy(new Location(to, s.getX(), s.getY(), s.getZ())).update(true, false);
                 }
             }
+        }
 
-            /**
-             * @return true when every block has been set
-             */
-            private boolean setBlocks(long stop) {
-                // Blocks go in without physics: this is a copy of land that is already settled
-                while (block < blocks.size() && System.nanoTime() < stop) {
-                    BlockChange c = blocks.get(block++);
-                    to.getBlockAt(c.x(), c.y(), c.z()).setBlockData(c.data(), false);
-                }
-                return block == blocks.size();
+        /**
+         * @return true when every block has been set
+         */
+        private boolean setBlocks(long stop) {
+            // Blocks go in without physics: this is a copy of land that is already settled
+            while (block < blocks.size() && System.nanoTime() < stop) {
+                BlockChange c = blocks.get(block++);
+                to.getBlockAt(c.x(), c.y(), c.z()).setBlockData(c.data(), false);
             }
+            return block == blocks.size();
+        }
 
-            /**
-             * @return true when every biome has been set
-             */
-            private boolean setBiomes(long stop) {
-                while (biome < biomes.size() && System.nanoTime() < stop) {
-                    BiomeChange c = biomes.get(biome++);
-                    to.setBiome(c.x(), c.y(), c.z(), c.biome());
-                    recoloured.add(((long) (c.x() >> 4) << 32) | ((c.z() >> 4) & 0xFFFFFFFFL));
-                }
-                return biome == biomes.size();
+        /**
+         * @return true when every biome has been set
+         */
+        private boolean setBiomes(long stop) {
+            while (biome < biomes.size() && System.nanoTime() < stop) {
+                BiomeChange c = biomes.get(biome++);
+                to.setBiome(c.x(), c.y(), c.z(), c.biome());
+                recoloured.add(((long) (c.x() >> 4) << 32) | ((c.z() >> 4) & 0xFFFFFFFFL));
             }
+            return biome == biomes.size();
+        }
 
-            @Override
-            public void run() {
-                long stop = System.nanoTime() + BUDGET;
-                try {
-                    step(stop);
-                } catch (RuntimeException e) {
-                    cancel();
-                    result.completeExceptionally(e);
-                    return;
-                }
-                if (state == states.size() && biome == biomes.size() && block == blocks.size()) {
-                    cancel();
-                    // Players only see the new colours of grass and water when the chunk is sent again
-                    recoloured.forEach(key -> to.refreshChunk((int) (key >> 32), key.intValue()));
-                    result.complete(new Result(blocks.size(), biomes.size()));
-                }
+        @Override
+        public void run() {
+            long stop = System.nanoTime() + BUDGET;
+            try {
+                step(stop);
+            } catch (RuntimeException e) {
+                cancel();
+                result.completeExceptionally(e);
+                return;
             }
-        }.runTaskTimer(plugin, 1L, 1L);
+            if (state == states.size() && biome == biomes.size() && block == blocks.size()) {
+                cancel();
+                // Players only see the new colours of grass and water when the chunk is sent again
+                recoloured.forEach(key -> to.refreshChunk((int) (key >> 32), key.intValue()));
+                result.complete(new Result(blocks.size(), biomes.size()));
+            }
+        }
     }
 }
