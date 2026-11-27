@@ -68,6 +68,20 @@ public final class FortressFinder {
         }
 
         /**
+         * @return true if a column of the Nether has solid ground with room to stand on it
+         */
+        private static boolean isOpen(ChunkSnapshot s, int x, int z) {
+            for (int y = NETHER_FLOOR; y < NETHER_ROOF; y++) {
+                Material floor = s.getBlockType(x, y, z);
+                if (floor.isSolid() && !isBrick(floor) && s.getBlockType(x, y + 1, z).isAir()
+                        && s.getBlockType(x, y + 2, z).isAir()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * @param x block x
          * @param z block z
          * @return how near a place on this land is to a blaze spawner and to the fortress.
@@ -179,20 +193,6 @@ public final class FortressFinder {
     private static boolean hasBricks(ChunkSnapshot s, int x, int z) {
         for (int y = NETHER_FLOOR; y < NETHER_ROOF; y++) {
             if (isBrick(s.getBlockType(x, y, z))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return true if a column of the Nether has solid ground with room to stand on it
-     */
-    private static boolean isOpen(ChunkSnapshot s, int x, int z) {
-        for (int y = NETHER_FLOOR; y < NETHER_ROOF; y++) {
-            Material floor = s.getBlockType(x, y, z);
-            if (floor.isSolid() && !isBrick(floor) && s.getBlockType(x, y + 1, z).isAir()
-                    && s.getBlockType(x, y + 2, z).isAir()) {
                 return true;
             }
         }

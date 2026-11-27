@@ -167,7 +167,8 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
     private void netherSpots() {
         workshop.setNetherSpots(List.of(new Workshop.Spot(0, 0, "nether_wastes", 0, "no fortress nearby"),
                 new Workshop.Spot(1408, -160, "warped_forest", 84, "fortress at size 10, blaze spawner at size 32")));
-        when(manager.getWorld(Environment.NETHER)).thenReturn(mock(World.class));
+        World netherWorld = mock(World.class);
+        when(manager.getWorld(Environment.NETHER)).thenReturn(netherWorld);
     }
 
     @Test
@@ -203,7 +204,8 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
         when(user.isPlayer()).thenReturn(false);
         assertFalse(cmd.execute(user, "spots", List.of("nether")));
         verify(user).sendMessage(PREFIX + "no-nether");
-        when(manager.getWorld(Environment.NETHER)).thenReturn(mock(World.class));
+        World netherWorld = mock(World.class);
+        when(manager.getWorld(Environment.NETHER)).thenReturn(netherWorld);
         assertTrue(cmd.execute(user, "spots", List.of("nether")));
         verify(user).sendMessage(PREFIX + "looking-nether");
     }
