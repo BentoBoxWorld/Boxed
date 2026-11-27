@@ -74,7 +74,8 @@ class WorkshopManagerTest extends CommonTestSetup {
     @BeforeEach
     public void setUp() {
         super.setUp();
-        when(addon.getAreas()).thenReturn(mock(AreaManager.class));
+        AreaManager areaManager = mock(AreaManager.class);
+        when(addon.getAreas()).thenReturn(areaManager);
         File data = new File(folder, "data");
         worldFolder = new File(folder, "boxed_world");
         workshopFile = new File(data, "areas/workshop.yml");

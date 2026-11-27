@@ -52,7 +52,7 @@ public class AreaManager {
     private final Map<Integer, Area> areaByRow = new ConcurrentHashMap<>();
     private final Map<Integer, Map<Environment, Template>> templates = new ConcurrentHashMap<>();
     private final Set<String> pending = ConcurrentHashMap.newKeySet();
-    private final Map<String, Map<Environment, List<BiomePatch>>> patches = new ConcurrentHashMap<>();
+    private final Map<String, Map<Environment, List<BiomePatch>>> patchesByArea = new ConcurrentHashMap<>();
     private final java.util.function.Consumer<String> errorLog;
     private Area defaultArea;
 
@@ -239,7 +239,7 @@ public class AreaManager {
      * @return the patches of biome that were put on the area's land by hand, oldest first
      */
     public List<BiomePatch> getPatches(String id, Environment env) {
-        return patches.getOrDefault(id, Map.of()).getOrDefault(env, List.of());
+        return patchesByArea.getOrDefault(id, Map.of()).getOrDefault(env, List.of());
     }
 
     /**
@@ -248,7 +248,7 @@ public class AreaManager {
      * @param list the patches of biome on the area's land, oldest first
      */
     public void setPatches(String id, Environment env, List<BiomePatch> list) {
-        patches.computeIfAbsent(id, k -> new ConcurrentHashMap<>()).put(env, List.copyOf(list));
+        patchesByArea.computeIfAbsent(id, k -> new ConcurrentHashMap<>()).put(env, List.copyOf(list));
     }
 
     /**

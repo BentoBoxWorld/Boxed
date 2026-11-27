@@ -58,7 +58,7 @@ final class LandCopier {
     private record BiomeChange(int x, int y, int z, Biome biome) {
     }
 
-    private record Source(ChunkSnapshot snapshot, BlockState[] states) {
+    private record Source(ChunkSnapshot snapshot, List<BlockState> states) {
     }
 
     private final Plugin plugin;
@@ -99,7 +99,7 @@ final class LandCopier {
             for (int z = minZ; z <= maxZ; z++) {
                 // Chunks are read as they arrive, which is on the main thread, before they can unload
                 sources.add(from.getChunkAtAsync(x, z)
-                        .thenApply(c -> new Source(c.getChunkSnapshot(false, true, false), c.getTileEntities())));
+                        .thenApply(c -> new Source(c.getChunkSnapshot(false, true, false), List.of(c.getTileEntities()))));
                 // The chunks that are changed have to stay loaded until the end: a biome
                 // cannot be set in a chunk that is not
                 int chunkX = x;
@@ -124,7 +124,7 @@ final class LandCopier {
                     for (int i = 0; i < sources.size(); i++) {
                         Source source = sources.get(i).join();
                         compare(source.snapshot(), targets.get(i).join());
-                        states.addAll(List.of(source.states()));
+                        states.addAll(source.states());
                     }
                 } catch (RuntimeException e) {
                     Bukkit.getScheduler().runTask(plugin, () -> result.completeExceptionally(e));
@@ -189,24 +189,38 @@ final class LandCopier {
             private int state;
             private final Set<Long> recoloured = new HashSet<>();
 
+            /**
+             * Makes changes until the time is up: blocks first, then biomes, then what is in
+             * chests and the like.
+             */
+            private void step(long stop) {
+                // Blocks go in without physics: this is a copy of land that is already settled
+                while (block < blocks.size() && System.nanoTime() < stop) {
+                    BlockChange c = blocks.get(block++);
+                    to.getBlockAt(c.x(), c.y(), c.z()).setBlockData(c.data(), false);
+                }
+                if (block < blocks.size()) {
+                    return;
+                }
+                while (biome < biomes.size() && System.nanoTime() < stop) {
+                    BiomeChange c = biomes.get(biome++);
+                    to.setBiome(c.x(), c.y(), c.z(), c.biome());
+                    recoloured.add(((long) (c.x() >> 4) << 32) | ((c.z() >> 4) & 0xFFFFFFFFL));
+                }
+                if (biome < biomes.size()) {
+                    return;
+                }
+                while (state < states.size() && System.nanoTime() < stop) {
+                    BlockState s = states.get(state++);
+                    s.copy(new Location(to, s.getX(), s.getY(), s.getZ())).update(true, false);
+                }
+            }
+
             @Override
             public void run() {
                 long stop = System.nanoTime() + BUDGET;
                 try {
-                    // Blocks go in without physics: this is a copy of land that is already settled
-                    while (block < blocks.size() && System.nanoTime() < stop) {
-                        BlockChange c = blocks.get(block++);
-                        to.getBlockAt(c.x(), c.y(), c.z()).setBlockData(c.data(), false);
-                    }
-                    while (block == blocks.size() && biome < biomes.size() && System.nanoTime() < stop) {
-                        BiomeChange c = biomes.get(biome++);
-                        to.setBiome(c.x(), c.y(), c.z(), c.biome());
-                        recoloured.add(((long) (c.x() >> 4) << 32) | ((c.z() >> 4) & 0xFFFFFFFFL));
-                    }
-                    while (biome == biomes.size() && state < states.size() && System.nanoTime() < stop) {
-                        BlockState s = states.get(state++);
-                        s.copy(new Location(to, s.getX(), s.getY(), s.getZ())).update(true, false);
-                    }
+                    step(stop);
                 } catch (RuntimeException e) {
                     cancel();
                     result.completeExceptionally(e);
