@@ -255,7 +255,7 @@ The Nether of a box is taken from 0,0 of the seed's Nether unless you say otherw
 
 Go to the workshop's Nether with the button in `/boxadmin areas edit`. The first time, Boxed finds up to three fortresses in the seed, makes the land around each, and picks a place on open ground a short way from a blaze spawner. This takes about a minute and you are told when it has finished.
 
-Press **F** in the Nether, or run `/boxadmin areas spots` there, to see the places. Each says the box size that reaches the fortress and the box size that reaches a blaze spawner. The first place is always where the Nether started, so you can go back to it. Clicking a place takes you there, makes it the middle of the Nether of every box, and shows the diamond block and the border as in the overworld.
+Press **F** in the Nether, or run `/boxadmin areas spots` there, to see the places. Each says the box size that reaches the fortress and the box size that reaches a blaze spawner. A fortress is often walled in by netherrack, or well above or below where you stand, so each also says how far and which way the nearest blaze spawner is, with its coordinates, for example "31 blocks east at 1439,57,-164". Use `/tp` to go and look. The first place is always where the Nether started, so you can go back to it. Clicking a place takes you there, makes it the middle of the Nether of every box, and shows the diamond block and the border as in the overworld.
 
 Picking a place in the Nether does not move the overworld, and the other way round.
 

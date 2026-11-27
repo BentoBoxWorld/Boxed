@@ -651,7 +651,7 @@ boxed:
           no-nether: '&c The workshop has no Nether.'
           looking-nether: '&a Still looking for fortresses in the Nether. You will be told when the search has finished.'
           nether-finished: '&a The search of the Nether has finished: [number] places. Press &b F &a(swap hands) in the Nether, or click here, to see them.[run_command: /[label] areas spots nether][hover: Show the places found in the Nether]'
-          selected-nether: '&a Place [number] at &e [xyz] &a is now the middle of the box in the Nether.'
+          selected-nether: '&a Place [number] at &e [xyz] &a is now the middle of the box in the Nether. &7 [description]'
           looking: '&a Still looking for places to start a box. You will be told when one is found.'
           found: '&a The first place to start is ready. Press &b F &a(swap hands) or click here to see the places as they are found.[run_command: /[label] areas spots][hover: Show the places found]'
           finished: '&a The search has finished: [number] places. Press &b F &a(swap hands) or click here to see them.[run_command: /[label] areas spots][hover: Show the places found]'

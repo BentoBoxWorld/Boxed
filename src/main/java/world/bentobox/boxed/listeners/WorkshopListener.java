@@ -31,6 +31,11 @@ import world.bentobox.boxed.workshop.WorkshopManager;
  */
 public class WorkshopListener implements Listener {
 
+    /**
+     * How long after a player joins the marker is sent, in ticks
+     */
+    private static final long MARKER_DELAY = 40L;
+
     private final Boxed addon;
     private final WorkshopManager manager;
     private final Map<UUID, Location> deaths = new HashMap<>();
@@ -68,6 +73,13 @@ public class WorkshopListener implements Listener {
             // They were here when they left, or the server was stopped
             manager.playerEntered(player, Bukkit.getDefaultGameMode());
             player.setGameMode(GameMode.CREATIVE);
+            // The block that marks the middle is only shown to the player, so it has gone. It
+            // is sent again once they have the land, or the land would overwrite it.
+            Bukkit.getScheduler().runTaskLater(addon.getPlugin(), () -> {
+                if (player.isOnline()) {
+                    manager.showCentre(player, false);
+                }
+            }, MARKER_DELAY);
             return;
         }
         GameMode mode = manager.takeDisplaced(player.getUniqueId());

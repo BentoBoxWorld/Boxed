@@ -112,6 +112,18 @@ class WorkshopListenerTest extends CommonTestSetup {
     }
 
     @Test
+    void testJoiningInsideShowsTheMarkerAgain() {
+        when(mockPlayer.getWorld()).thenReturn(workshopWorld);
+        when(mockPlayer.isOnline()).thenReturn(true);
+        listener.onJoin(new PlayerJoinEvent(mockPlayer, net.kyori.adventure.text.Component.empty()));
+        org.mockito.ArgumentCaptor<Runnable> later = org.mockito.ArgumentCaptor.forClass(Runnable.class);
+        verify(sch).runTaskLater(any(), later.capture(), org.mockito.ArgumentMatchers.eq(40L));
+        later.getValue().run();
+        // The marker comes back, but not the border, which they may have hidden
+        verify(manager).showCentre(mockPlayer, false);
+    }
+
+    @Test
     void testJoiningAfterTheWorkshopWentSendsThePlayerOut() {
         when(mockPlayer.getWorld()).thenReturn(world);
         when(manager.takeDisplaced(uuid)).thenReturn(GameMode.SURVIVAL);

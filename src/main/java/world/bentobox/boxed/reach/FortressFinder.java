@@ -19,6 +19,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.generator.structure.Structure;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.StructureSearchResult;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Finds the fortresses of a Nether and looks at the land around them, so that
@@ -48,7 +49,7 @@ public final class FortressFinder {
      * What is on a square of Nether land.
      * @param chunkX chunk x of its middle
      * @param chunkZ chunk z of its middle
-     * @param spawners block x and z of each blaze spawner
+     * @param spawners block x, z and y of each blaze spawner
      * @param bricks block x and z of each column that has fortress in it
      * @param snapshots the chunks, by {@link FortressFinder#key(int, int)}
      */
@@ -79,6 +80,25 @@ public final class FortressFinder {
                 }
             }
             return false;
+        }
+
+        /**
+         * @param x block x
+         * @param z block z
+         * @return block x, z and y of the blaze spawner nearest a place, or null if the land has none
+         */
+        @Nullable
+        public int[] nearestSpawner(int x, int z) {
+            int[] nearest = null;
+            long best = Long.MAX_VALUE;
+            for (int[] s : spawners) {
+                long d = (long) (s[0] - x) * (s[0] - x) + (long) (s[1] - z) * (s[1] - z);
+                if (d < best) {
+                    best = d;
+                    nearest = s;
+                }
+            }
+            return nearest == null ? null : nearest.clone();
         }
 
         /**
@@ -174,7 +194,7 @@ public final class FortressFinder {
     private static void addBlazeSpawners(Chunk chunk, List<int[]> spawners) {
         for (BlockState tile : chunk.getTileEntities()) {
             if (tile instanceof CreatureSpawner spawner && spawner.getSpawnedType() == EntityType.BLAZE) {
-                spawners.add(new int[] { tile.getX(), tile.getZ() });
+                spawners.add(new int[] { tile.getX(), tile.getZ(), tile.getY() });
             }
         }
     }

@@ -716,8 +716,11 @@ public class WorkshopManager {
                     if (workshop != w || closing) {
                         return;
                     }
-                    found.add(netherSpot(world, error == null ? land.measure(start[0], start[1])
-                            : new FortressSpot.Spot(start[0], start[1], Integer.MAX_VALUE, Integer.MAX_VALUE)));
+                    found.add(error == null
+                            ? netherSpot(world, land.measure(start[0], start[1]),
+                                    land.nearestSpawner(start[0], start[1]))
+                            : netherSpot(world, new FortressSpot.Spot(start[0], start[1], Integer.MAX_VALUE,
+                                    Integer.MAX_VALUE), null));
                     lookAtFortress(w, world, fortresses, 0, found);
                 });
     }
@@ -740,7 +743,7 @@ public class WorkshopManager {
                 addon.logError("Could not generate the fortress at chunk " + fortress[0] + "," + fortress[1] + ": " + error);
             } else {
                 land.choose().filter(s -> found.stream().noneMatch(f -> f.x() == s.x() && f.z() == s.z()))
-                        .ifPresent(s -> found.add(netherSpot(world, s)));
+                        .ifPresent(s -> found.add(netherSpot(world, s, land.nearestSpawner(s.x(), s.z()))));
             }
             lookAtFortress(w, world, fortresses, index + 1, found);
         });
@@ -748,17 +751,34 @@ public class WorkshopManager {
 
     /**
      * Writes up a place in the Nether. The score is highest when the box reaches a blaze
-     * spawner soon.
+     * spawner soon. A fortress is often walled in by netherrack or well above or below the
+     * place, so the write-up says which way the nearest spawner is and where.
+     * @param world the Nether
+     * @param spot the place
+     * @param spawner block x, z and y of the nearest blaze spawner, or null if there is none
      */
-    static Workshop.Spot netherSpot(World world, FortressSpot.Spot spot) {
+    static Workshop.Spot netherSpot(World world, FortressSpot.Spot spot, @Nullable int[] spawner) {
         String biome = world.getBiome(spot.x(), NETHER_FLOOR + 32, spot.z()).getKey().getKey();
-        if (spot.spawnerSize() == Integer.MAX_VALUE) {
+        if (spawner == null || spot.spawnerSize() == Integer.MAX_VALUE) {
             return new Workshop.Spot(spot.x(), spot.z(), biome, 0,
                     spot.fortressSize() == Integer.MAX_VALUE ? "no fortress nearby"
                             : "fortress at size " + spot.fortressSize() + ", but no blaze spawner nearby");
         }
+        int blocks = (int) Math.round(Math.hypot((double) spawner[0] - spot.x(), (double) spawner[1] - spot.z()));
         return new Workshop.Spot(spot.x(), spot.z(), biome, Math.max(1, 100 - spot.spawnerSize() / 2),
-                "fortress at size " + spot.fortressSize() + ", blaze spawner at size " + spot.spawnerSize());
+                "fortress at size " + spot.fortressSize() + ", blaze spawner at size " + spot.spawnerSize() + ": "
+                        + blocks + " blocks " + compass(spawner[0] - spot.x(), spawner[1] - spot.z()) + " at "
+                        + spawner[0] + "," + spawner[2] + "," + spawner[1]);
+    }
+
+    /**
+     * @param dx blocks east
+     * @param dz blocks south
+     * @return the compass point that way, for example north-east
+     */
+    static String compass(int dx, int dz) {
+        String[] points = { "east", "south-east", "south", "south-west", "west", "north-west", "north", "north-east" };
+        return points[Math.floorMod((int) Math.round(Math.atan2(dz, dx) / (Math.PI / 4)), 8)];
     }
 
     private static Workshop.Spot unscored(Candidate c) {
@@ -861,9 +881,12 @@ public class WorkshopManager {
             return;
         }
         int[] centre = workshop.getCentre(world.getEnvironment());
-        player.sendBlockChange(
-                new Location(world, centre[0], groundHeight(world, centre[0], centre[1]), centre[1]),
-                Material.DIAMOND_BLOCK.createBlockData());
+        // A player who is far away does not have the land the marker goes on
+        if (world.isChunkLoaded(centre[0] >> 4, centre[1] >> 4)) {
+            player.sendBlockChange(
+                    new Location(world, centre[0], groundHeight(world, centre[0], centre[1]), centre[1]),
+                    Material.DIAMOND_BLOCK.createBlockData());
+        }
         if (border) {
             WorldBorder limit = Bukkit.createWorldBorder();
             limit.setCenter(centre[0], centre[1]);

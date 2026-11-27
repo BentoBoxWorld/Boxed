@@ -217,17 +217,32 @@ class WorkshopManagerTest extends CommonTestSetup {
         World nether = mock(World.class, org.mockito.Mockito.RETURNS_DEEP_STUBS);
         when(nether.getBiome(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt(),
                 org.mockito.ArgumentMatchers.anyInt()).getKey().getKey()).thenReturn("warped_forest");
-        Workshop.Spot good = WorkshopManager.netherSpot(nether, new FortressSpot.Spot(1408, -160, 32, 10));
-        assertEquals(new Workshop.Spot(1408, -160, "warped_forest", 84,
-                "fortress at size 10, blaze spawner at size 32"), good);
+        // The spawner is 30 blocks east and 40 north of the place, at y 70
+        Workshop.Spot good = WorkshopManager.netherSpot(nether, new FortressSpot.Spot(1408, -160, 40, 10),
+                new int[] { 1438, -200, 70 });
+        assertEquals(new Workshop.Spot(1408, -160, "warped_forest", 80,
+                "fortress at size 10, blaze spawner at size 40: 50 blocks north-east at 1438,70,-200"), good);
         // The further the spawner, the lower the score, but a place with one always beats a place without
-        assertEquals(1, WorkshopManager.netherSpot(nether, new FortressSpot.Spot(0, 0, 300, 10)).score());
+        assertEquals(1, WorkshopManager.netherSpot(nether, new FortressSpot.Spot(0, 0, 300, 10),
+                new int[] { 300, 0, 64 }).score());
         Workshop.Spot bricks = WorkshopManager.netherSpot(nether,
-                new FortressSpot.Spot(0, 0, Integer.MAX_VALUE, 40));
+                new FortressSpot.Spot(0, 0, Integer.MAX_VALUE, 40), null);
         assertEquals(0, bricks.score());
         assertEquals("fortress at size 40, but no blaze spawner nearby", bricks.description());
-        assertEquals("no fortress nearby", WorkshopManager
-                .netherSpot(nether, new FortressSpot.Spot(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE)).description());
+        assertEquals("no fortress nearby", WorkshopManager.netherSpot(nether,
+                new FortressSpot.Spot(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE), null).description());
+    }
+
+    @Test
+    void testCompassPoints() {
+        assertEquals("north", WorkshopManager.compass(0, -10));
+        assertEquals("south", WorkshopManager.compass(1, 10));
+        assertEquals("east", WorkshopManager.compass(10, 0));
+        assertEquals("west", WorkshopManager.compass(-10, 2));
+        assertEquals("north-east", WorkshopManager.compass(10, -10));
+        assertEquals("south-west", WorkshopManager.compass(-7, 9));
+        assertEquals("north-west", WorkshopManager.compass(-9, -7));
+        assertEquals("south-east", WorkshopManager.compass(8, 8));
     }
 
     @Test
@@ -438,15 +453,20 @@ class WorkshopManagerTest extends CommonTestSetup {
         verify(mockPlayer, never()).sendBlockChange(any(Location.class), any(BlockData.class));
 
         manager.select(mockPlayer, 1).join();
+        // The marker is not sent while the land it goes on is not loaded
+        manager.showCentre(mockPlayer, true);
+        verify(mockPlayer, never()).sendBlockChange(any(Location.class), any(BlockData.class));
+        when(workshopWorld.isChunkLoaded(80, -40)).thenReturn(true);
         manager.showCentre(mockPlayer, true);
         ArgumentCaptor<Location> marker = ArgumentCaptor.forClass(Location.class);
         verify(mockPlayer).sendBlockChange(marker.capture(), any(BlockData.class));
         assertEquals(1280, marker.getValue().getX());
         assertEquals(70, marker.getValue().getY());
-        verify(border).setCenter(1280, -640);
+        // The border was shown both times
+        verify(border, times(2)).setCenter(1280, -640);
         // The border is as wide as the land of an area
-        verify(border).setSize(new Settings().getIslandDistance() * 2D);
-        verify(mockPlayer).setWorldBorder(border);
+        verify(border, times(2)).setSize(new Settings().getIslandDistance() * 2D);
+        verify(mockPlayer, times(2)).setWorldBorder(border);
         // The marker stays when the border is hidden
         manager.showCentre(mockPlayer, false);
         verify(mockPlayer, times(2)).setWorldBorder(null);

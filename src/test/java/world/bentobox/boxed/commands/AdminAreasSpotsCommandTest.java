@@ -107,7 +107,8 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
         when(user.isPlayer()).thenReturn(false);
         when(manager.select(null, Environment.NORMAL, 0)).thenReturn(CompletableFuture.completedFuture(true));
         assertTrue(cmd.execute(user, "spots", List.of("1")));
-        verify(user).sendMessage(PREFIX + "selected", "[number]", "1", "[xyz]", "0,0", "[label]", "boxadmin");
+        verify(user).sendMessage(PREFIX + "selected", "[number]", "1", "[xyz]", "0,0", "[label]", "boxadmin",
+                "[description]", "dry land");
         assertFalse(cmd.execute(user, "spots", List.of("border")));
         verify(user).sendMessage("general.errors.use-in-game");
     }
@@ -116,7 +117,8 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
     void testPick() {
         when(manager.select(mockPlayer, Environment.NORMAL, 1)).thenReturn(CompletableFuture.completedFuture(true));
         assertTrue(cmd.execute(user, "spots", List.of("2")));
-        verify(user).sendMessage(PREFIX + "selected", "[number]", "2", "[xyz]", "1280,-640", "[label]", "boxadmin");
+        verify(user).sendMessage(PREFIX + "selected", "[number]", "2", "[xyz]", "1280,-640", "[label]", "boxadmin",
+                "[description]", "wood at size 2");
     }
 
     @Test
@@ -181,7 +183,7 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
         when(manager.select(null, Environment.NETHER, 1)).thenReturn(CompletableFuture.completedFuture(true));
         assertTrue(cmd.execute(user, "spots", List.of("NETHER", "2")));
         verify(user).sendMessage(PREFIX + "selected-nether", "[number]", "2", "[xyz]", "1408,-160", "[label]",
-                "boxadmin");
+                "boxadmin", "[description]", "fortress at size 10, blaze spawner at size 32");
         assertFalse(cmd.execute(user, "spots", List.of("nether", "2", "3")));
     }
 

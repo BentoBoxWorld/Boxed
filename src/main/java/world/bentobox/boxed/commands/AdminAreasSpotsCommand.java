@@ -133,7 +133,8 @@ public class AdminAreasSpotsCommand extends CompositeCommand {
                 user.sendMessage("boxed.commands.boxadmin.areas.edit.failed");
             } else {
                 user.sendMessage(PREFIX + (env == Environment.NETHER ? "selected-nether" : "selected"), TextVariables.NUMBER, String.valueOf(number), TextVariables.XYZ,
-                        spot.x() + "," + spot.z(), TextVariables.LABEL, getTopLabel());
+                        spot.x() + "," + spot.z(), TextVariables.LABEL, getTopLabel(), TextVariables.DESCRIPTION,
+                        spot.description());
             }
         });
         return true;
