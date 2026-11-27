@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -29,6 +30,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpawnCategory;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.structure.Structure;
+import world.bentobox.boxed.listeners.NewAreaListener;
+import world.bentobox.boxed.objects.ToBePlacedStructures.StructureRecord;
 import org.bukkit.WorldBorder;
 import org.bukkit.generator.BiomeProvider;
 import world.bentobox.bentobox.api.localization.TextVariables;
@@ -88,6 +93,11 @@ public class WorkshopManager {
      * Start of the name of a world that land is generated in to be copied, and then thrown away
      */
     private static final String SCRATCH = "_tmp_";
+    private static final String CANNOT_CHANGE = "The workshop cannot be changed now";
+    /**
+     * How far a structure is taken to reach from where it starts if it cannot be measured
+     */
+    private static final int DEFAULT_REACH = 48;
     /**
      * Biomes that are not for the overworld
      */
@@ -211,6 +221,14 @@ public class WorkshopManager {
                 // Patches belong to places in the seed, so they only carry over with it
                 w.setPatches(Environment.NORMAL, addon.getAreas().getPatches(area.id(), Environment.NORMAL));
                 w.setPatches(Environment.NETHER, addon.getAreas().getPatches(area.id(), Environment.NETHER));
+                // So do the structures. They are put in the worlds when the worlds are made.
+                YamlConfiguration listed = YamlConfiguration
+                        .loadConfiguration(new File(addon.getDataFolder(), area.structures()));
+                for (Environment env : List.of(Environment.NORMAL, Environment.NETHER)) {
+                    List<PlacedStructure> list = readStructures(listed, env, w.getCentre(env));
+                    w.setStructures(env, list);
+                    w.setToShow(env, !list.isEmpty());
+                }
             }
         }
         w.save(file);
@@ -277,6 +295,9 @@ public class WorkshopManager {
         biomes.put(env, provider);
         if (env == Environment.NORMAL) {
             scan(workshop, world, provider);
+        }
+        if (workshop.isToShow(env)) {
+            showStructures(workshop, env, world);
         }
         return world;
     }
@@ -345,15 +366,31 @@ public class WorkshopManager {
      * Changes the patches of a dimension and makes the land around one of them again.
      */
     private CompletableFuture<Integer> setPatches(Environment env, List<BiomePatch> list, BiomePatch changed) {
-        World target = worlds.get(env);
-        if (target == null || busy || closing) {
-            return CompletableFuture.failedFuture(new IllegalStateException("The workshop cannot be changed now"));
+        if (worlds.get(env) == null || busy || closing) {
+            return CompletableFuture.failedFuture(new IllegalStateException(CANNOT_CHANGE));
         }
         workshop.setPatches(env, list);
         save();
         // Land that is generated from now on has the new biomes
         biomes.get(env).setPatches(list);
-        // Land that is already there is generated again in a world of its own and copied over
+        return remake(env, changed.x(), changed.z(), changed.reach());
+    }
+
+    /**
+     * Makes the land around a place again as the seed and the biomes have it, then puts back
+     * the structures that stand there. The land is generated in a world of its own and
+     * copied over, because land cannot be generated again where it is.
+     * @param env dimension
+     * @param x block x of the place
+     * @param z block z of the place
+     * @param reach how far from the place the land is made again
+     * @return how many blocks changed. Completes on the main thread.
+     */
+    private CompletableFuture<Integer> remake(Environment env, int x, int z, int reach) {
+        World target = worlds.get(env);
+        if (target == null || busy || closing) {
+            return CompletableFuture.failedFuture(new IllegalStateException(CANNOT_CHANGE));
+        }
         World scratch = WorldCreator.name(worldName(env) + SCRATCH + System.currentTimeMillis())
                 .generator(new BoxedSeedChunkGenerator(addon, env, newProvider(env))).environment(env)
                 .seed(workshop.getSeed()).createWorld();
@@ -362,18 +399,190 @@ public class WorkshopManager {
         }
         scratch.setAutoSave(false);
         busy = true;
+        Workshop w = workshop;
         // One chunk more all round, so that trees on the edge are whole
-        int reach = changed.reach();
-        return new LandCopier(addon.getPlugin(), scratch, target)
-                .copy(((changed.x() - reach) >> 4) - 1, ((changed.z() - reach) >> 4) - 1,
-                        ((changed.x() + reach) >> 4) + 1, ((changed.z() + reach) >> 4) + 1)
+        int minX = ((x - reach) >> 4) - 1;
+        int minZ = ((z - reach) >> 4) - 1;
+        int maxX = ((x + reach) >> 4) + 1;
+        int maxZ = ((z + reach) >> 4) + 1;
+        return new LandCopier(addon.getPlugin(), scratch, target).copy(minX, minZ, maxX, maxZ)
                 .whenComplete((result, error) -> {
                     busy = false;
                     File folder = scratch.getWorldFolder();
                     if (Bukkit.unloadWorld(scratch, false)) {
                         Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> delete(folder));
                     }
+                    if (error == null && workshop == w && worlds.get(env) == target) {
+                        // The copy took away any structure that stood on this land
+                        w.getStructures(env).stream()
+                                .filter(s -> touches(s, minX << 4, minZ << 4, (maxX << 4) + 15, (maxZ << 4) + 15))
+                                .forEach(s -> put(target, s));
+                    }
                 }).thenApply(LandCopier.Result::blocks);
+    }
+
+    /**
+     * @param env dimension
+     * @return the structures the admin has put on the land, oldest first
+     */
+    public List<PlacedStructure> getStructures(Environment env) {
+        return workshop == null ? List.of() : workshop.getStructures(env);
+    }
+
+    /**
+     * Puts a structure on the land and lists it, so that every box of the area gets it. A
+     * structure listed at the same block is replaced. The structure's mobs are not made
+     * here: they come when a box is made.
+     * @param env dimension. Its world must have been made.
+     * @param structure the structure
+     * @return false if there is no such structure or the workshop cannot be changed now
+     */
+    public boolean placeStructure(Environment env, PlacedStructure structure) {
+        World world = worlds.get(env);
+        if (world == null || busy || closing || !put(world, structure)) {
+            return false;
+        }
+        List<PlacedStructure> list = new ArrayList<>(workshop.getStructures(env));
+        list.removeIf(structure::samePlace);
+        list.add(structure);
+        workshop.setStructures(env, list);
+        save();
+        return true;
+    }
+
+    /**
+     * Takes a structure off the list and makes the land it stood on again.
+     * @param env dimension. Its world must have been made.
+     * @param index position of the structure in the list of structures
+     * @return how many blocks changed. Completes on the main thread.
+     */
+    public CompletableFuture<Integer> removeStructure(Environment env, int index) {
+        if (worlds.get(env) == null || busy || closing) {
+            return CompletableFuture.failedFuture(new IllegalStateException(CANNOT_CHANGE));
+        }
+        List<PlacedStructure> list = new ArrayList<>(workshop.getStructures(env));
+        PlacedStructure removed = list.remove(index);
+        workshop.setStructures(env, list);
+        save();
+        return remake(env, removed.x(), removed.z(), reach(removed));
+    }
+
+    /**
+     * Lists the structures as a structures file has them: places are measured from the
+     * middle of the box. Structures outside the box are left out, which happens when the
+     * middle is moved after they were placed.
+     * @return the list, with a section for each dimension that has structures
+     */
+    public YamlConfiguration getStructuresConfig() {
+        YamlConfiguration config = new YamlConfiguration();
+        if (workshop == null) {
+            return config;
+        }
+        int distance = addon.getSettings().getIslandDistance();
+        for (Environment env : List.of(Environment.NORMAL, Environment.NETHER)) {
+            int[] origin = origin(workshop.getCentre(env));
+            for (PlacedStructure s : workshop.getStructures(env)) {
+                if (Math.abs(s.x() - origin[0]) <= distance && Math.abs(s.z() - origin[1]) <= distance) {
+                    config.set(env.name().toLowerCase(Locale.ENGLISH) + "." + s.key(origin[0], origin[1]), s.value());
+                }
+            }
+        }
+        return config;
+    }
+
+    /**
+     * Reads one dimension of a structures file.
+     */
+    private static List<PlacedStructure> readStructures(YamlConfiguration config, Environment env, int[] centre) {
+        var section = config.getConfigurationSection(env.name().toLowerCase(Locale.ENGLISH));
+        if (section == null) {
+            return List.of();
+        }
+        int[] origin = origin(centre);
+        List<PlacedStructure> list = new ArrayList<>();
+        for (String key : section.getKeys(false)) {
+            PlacedStructure s = PlacedStructure.of(key, section.getString(key, ""), origin[0], origin[1]);
+            if (s != null) {
+                list.add(s);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * The middle of a box in the game world is the corner of a chunk, so that is the place
+     * structures are measured from here too.
+     */
+    private static int[] origin(int[] centre) {
+        return new int[] { (centre[0] >> 4) << 4, (centre[1] >> 4) << 4 };
+    }
+
+    /**
+     * Places a structure in a world, without its mobs. Call on the main thread.
+     * @return false if there is no such structure
+     */
+    private boolean put(World world, PlacedStructure s) {
+        Structure structure = load(s);
+        if (structure == null) {
+            addon.logWarning("There is no structure called " + s.name());
+            return false;
+        }
+        Location at = new Location(world, s.x(), s.y(), s.z());
+        structure.place(at, false, s.rotation(), s.mirror(), -1, 1F, new Random());
+        NewAreaListener.removeJigsaw(
+                new StructureRecord(s.name(), NamespacedKey.MINECRAFT + ":" + s.name(), at, s.rotation(), s.mirror(), true, Map.of()));
+        return true;
+    }
+
+    @Nullable
+    private static Structure load(PlacedStructure s) {
+        NamespacedKey key = NamespacedKey.fromString(s.name());
+        return key == null ? null : Bukkit.getStructureManager().loadStructure(key);
+    }
+
+    /**
+     * @return how far the structure can reach from where it starts, whichever way it is turned
+     */
+    private static int reach(PlacedStructure s) {
+        Structure structure = load(s);
+        return structure == null ? DEFAULT_REACH
+                : Math.max(structure.getSize().getBlockX(), structure.getSize().getBlockZ());
+    }
+
+    private static boolean touches(PlacedStructure s, int minX, int minZ, int maxX, int maxZ) {
+        int reach = reach(s);
+        return s.x() + reach >= minX && s.x() - reach <= maxX && s.z() + reach >= minZ && s.z() - reach <= maxZ;
+    }
+
+    /**
+     * Puts the listed structures in a world that does not have them yet, which is so when
+     * work starts from an area. The land under each is loaded first, without stopping the
+     * server.
+     */
+    private void showStructures(Workshop w, Environment env, World world) {
+        List<CompletableFuture<Void>> all = new ArrayList<>();
+        for (PlacedStructure s : w.getStructures(env)) {
+            int reach = reach(s);
+            List<CompletableFuture<?>> chunks = new ArrayList<>();
+            for (int x = (s.x() - reach) >> 4; x <= (s.x() + reach) >> 4; x++) {
+                for (int z = (s.z() - reach) >> 4; z <= (s.z() + reach) >> 4; z++) {
+                    chunks.add(world.getChunkAtAsync(x, z));
+                }
+            }
+            all.add(CompletableFuture.allOf(chunks.toArray(CompletableFuture[]::new)).thenRun(() -> {
+                if (workshop == w && worlds.get(env) == world) {
+                    put(world, s);
+                }
+            }));
+        }
+        CompletableFuture.allOf(all.toArray(CompletableFuture[]::new)).whenComplete((v, error) -> {
+            if (error != null) {
+                addon.logError("Could not put the structures in the workshop: " + error);
+            } else if (workshop == w) {
+                w.setToShow(env, false);
+                save();
+            }
+        });
     }
 
     /**

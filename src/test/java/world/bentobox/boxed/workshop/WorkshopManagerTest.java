@@ -36,6 +36,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.block.structure.Mirror;
+import org.bukkit.block.structure.StructureRotation;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -153,6 +156,59 @@ class WorkshopManagerTest extends CommonTestSetup {
         assertTrue(w.getPatches(Environment.NETHER).isEmpty());
         assertEquals("land", Files.readString(new File(worldFolder, "workshop/region/r.0.0.mca").toPath()));
         assertFalse(new File(worldFolder, "workshop/session.lock").exists());
+    }
+
+    @Test
+    void testStartFromAnAreaListsItsStructures() throws IOException {
+        File data = addon.getDataFolder();
+        Files.createDirectories(data.toPath());
+        Files.writeString(new File(data, "s.yml").toPath(),
+                "normal:\n  20,65,-8: igloo/top,CLOCKWISE_90,NONE,NO_MOBS\nnether:\n  1,40,2: bastion/x\n");
+        // The middle is not on the corner of a chunk, but structures are measured from one
+        Area area = new Area("icelands", 99L, "biomes.yml", "s.yml", 1, true, null, 0, 85, -30, 0, 0);
+        Workshop w = manager.start(99L, "other.yml", area);
+        assertEquals(List.of(new PlacedStructure(100, 65, -40, "igloo/top", StructureRotation.CLOCKWISE_90,
+                Mirror.NONE, true)), w.getStructures(Environment.NORMAL));
+        assertEquals(1, w.getStructures(Environment.NETHER).size());
+        // They are not in the worlds yet
+        assertTrue(w.isToShow(Environment.NORMAL));
+        // Written back, they are as they were
+        YamlConfiguration config = manager.getStructuresConfig();
+        assertEquals("igloo/top,CLOCKWISE_90,NONE,NO_MOBS", config.getString("normal.20,65,-8"));
+        assertEquals("bastion/x,NONE,NONE", config.getString("nether.1,40,2"));
+    }
+
+    @Test
+    void testStructuresOutsideTheBoxAreNotWritten() throws IOException {
+        Workshop w = manager.start(5L, "biomes.yml", null);
+        int distance = addon.getSettings().getIslandDistance();
+        w.setStructures(Environment.NORMAL, List.of(
+                new PlacedStructure(distance, 65, 0, "igloo/top", StructureRotation.NONE, Mirror.NONE, false),
+                new PlacedStructure(distance + 1, 65, 0, "igloo/top", StructureRotation.NONE, Mirror.NONE, false)));
+        YamlConfiguration config = manager.getStructuresConfig();
+        assertEquals(1, config.getConfigurationSection("normal").getKeys(false).size());
+        assertTrue(config.contains("normal." + distance + ",65,0"));
+        assertFalse(config.contains("nether"));
+    }
+
+    @Test
+    void testAChangedSeedHasNoStructures() throws IOException {
+        File data = addon.getDataFolder();
+        Files.createDirectories(data.toPath());
+        Files.writeString(new File(data, "s.yml").toPath(), "normal:\n  20,65,-8: igloo/top\n");
+        Area area = new Area("icelands", 99L, "biomes.yml", "s.yml", 1, true, null, 0, 0, 0, 0, 0);
+        Workshop w = manager.start(100L, "biomes.yml", area);
+        assertTrue(w.getStructures(Environment.NORMAL).isEmpty());
+        assertFalse(w.isToShow(Environment.NORMAL));
+    }
+
+    @Test
+    void testNothingCanBePlacedWithoutAWorld() throws IOException {
+        manager.start(5L, "biomes.yml", null);
+        assertFalse(manager.placeStructure(Environment.NORMAL,
+                new PlacedStructure(0, 65, 0, "igloo/top", StructureRotation.NONE, Mirror.NONE, false)));
+        assertTrue(manager.removeStructure(Environment.NORMAL, 0).isCompletedExceptionally());
+        assertTrue(manager.getStructures(Environment.NORMAL).isEmpty());
     }
 
     @Test

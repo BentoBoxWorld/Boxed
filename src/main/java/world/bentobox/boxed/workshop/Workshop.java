@@ -3,6 +3,7 @@ package world.bentobox.boxed.workshop;
 import java.io.File;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.GameMode;
@@ -17,6 +19,8 @@ import org.bukkit.World.Environment;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.eclipse.jdt.annotation.Nullable;
+
+import com.google.common.base.Enums;
 
 import world.bentobox.boxed.generators.biomes.BiomePatch;
 
@@ -34,6 +38,8 @@ public class Workshop {
 
     private static final String SPOTS_KEY = "spots";
     private static final String PATCHES_KEY = "patches";
+    private static final String STRUCTURES_KEY = "structures";
+    private static final String SHOW_KEY = "structures-to-show";
 
     /**
      * A place that could be the middle of every box.
@@ -59,6 +65,8 @@ public class Workshop {
     private final Map<UUID, GameMode> players = new HashMap<>();
     private final List<Spot> spots = new ArrayList<>();
     private final Map<Environment, List<BiomePatch>> patches = new EnumMap<>(Environment.class);
+    private final Map<Environment, List<PlacedStructure>> structures = new EnumMap<>(Environment.class);
+    private final Set<Environment> toShow = EnumSet.noneOf(Environment.class);
 
     /**
      * @param seed world seed of the land
@@ -184,6 +192,43 @@ public class Workshop {
     }
 
     /**
+     * @param env dimension
+     * @return the structures the admin has put on the land, oldest first
+     */
+    public List<PlacedStructure> getStructures(Environment env) {
+        return List.copyOf(structures.getOrDefault(env, List.of()));
+    }
+
+    /**
+     * @param env dimension
+     * @param list the structures on the land, oldest first
+     */
+    public void setStructures(Environment env, List<PlacedStructure> list) {
+        structures.put(env, new ArrayList<>(list));
+    }
+
+    /**
+     * @param env dimension
+     * @return true if the structures of the dimension are listed but have not been put in
+     *         its world yet. This is so when work starts from an area.
+     */
+    public boolean isToShow(Environment env) {
+        return toShow.contains(env);
+    }
+
+    /**
+     * @param env dimension
+     * @param show true if the structures of the dimension still have to be put in its world
+     */
+    public void setToShow(Environment env, boolean show) {
+        if (show) {
+            toShow.add(env);
+        } else {
+            toShow.remove(env);
+        }
+    }
+
+    /**
      * @param file file to save to
      * @throws IOException if the file cannot be written
      */
@@ -207,6 +252,9 @@ public class Workshop {
         config.set(SPOTS_KEY, list);
         patches.forEach((env, p) -> config.set(PATCHES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH),
                 p.stream().map(BiomePatch::text).toList()));
+        structures.forEach((env, p) -> config.set(STRUCTURES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH),
+                p.stream().map(PlacedStructure::text).toList()));
+        config.set(SHOW_KEY, toShow.stream().map(Environment::name).toList());
         File parent = file.getParentFile();
         if (parent != null) {
             parent.mkdirs();
@@ -240,6 +288,10 @@ public class Workshop {
         }
         workshop.setSpots(found);
         workshop.loadPatches(config.getConfigurationSection(PATCHES_KEY));
+        workshop.loadStructures(config.getConfigurationSection(STRUCTURES_KEY));
+        for (String name : config.getStringList(SHOW_KEY)) {
+            Enums.getIfPresent(Environment.class, name).toJavaUtil().ifPresent(workshop.toShow::add);
+        }
         return workshop;
     }
 
@@ -269,6 +321,17 @@ public class Workshop {
             } catch (IllegalArgumentException _) {
                 // Not a dimension
             }
+        }
+    }
+
+    private void loadStructures(@Nullable ConfigurationSection p) {
+        if (p == null) {
+            return;
+        }
+        for (String key : p.getKeys(false)) {
+            Enums.getIfPresent(Environment.class, key.toUpperCase(Locale.ENGLISH)).toJavaUtil()
+                    .ifPresent(env -> setStructures(env,
+                            p.getStringList(key).stream().map(PlacedStructure::parse).filter(Objects::nonNull).toList()));
         }
     }
 

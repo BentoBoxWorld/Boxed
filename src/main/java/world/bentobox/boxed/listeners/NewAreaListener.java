@@ -575,7 +575,8 @@ public class NewAreaListener implements Listener {
         }
 
         for (String vector : section.getKeys(false)) {
-            String[] nameParts = section.getString(vector).split(",");
+            // Old files have a space before NO_MOBS where there should be a comma
+            String[] nameParts = section.getString(vector).replace(" NO_MOBS", ",NO_MOBS").split(",");
             String name = nameParts[0].strip();
             StructureRotation rotation = nameParts.length > 1
                     ? Enums.getIfPresent(StructureRotation.class, nameParts[1].strip().toUpperCase(Locale.ENGLISH)).or(
@@ -671,7 +672,7 @@ public class NewAreaListener implements Listener {
         if (b.getType().equals(Material.JIGSAW)) {
             processJigsaw(b, structureRotation, pasteMobs);
         } else if (b.getType().equals(Material.STRUCTURE_BLOCK)) {
-            processStructureBlock(b);
+            processStructureBlock(b, pasteMobs);
         }
         // Set water blocks for underwater ruins
         if (underwater && b.getType().equals(Material.AIR)) {
@@ -684,7 +685,7 @@ public class NewAreaListener implements Listener {
      * 
      * @param b The structure block.
      */
-    private static void processStructureBlock(Block b) {
+    private static void processStructureBlock(Block b, boolean pasteMobs) {
         // I would like to read the data from the block and do something with it!
         String data = Util.getMetaData().nmsData(b);
         if (data.isEmpty()) {
@@ -693,7 +694,7 @@ public class NewAreaListener implements Listener {
         BoxedStructureBlock bsb = gson.fromJson(data, BoxedStructureBlock.class);
         b.setType(Material.STRUCTURE_VOID);
         Enums.getIfPresent(EntityType.class, bsb.getMetadata().toUpperCase(Locale.ENGLISH)).toJavaUtil()
-                .ifPresent(type -> b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type));
+                .filter(type -> pasteMobs).ifPresent(type -> b.getWorld().spawnEntity(b.getRelative(BlockFace.UP).getLocation(), type));
         if (bsb.getMetadata().contains("chest")) {
             Block downBlock = b.getRelative(BlockFace.DOWN);
             if (downBlock.getType().equals(Material.CHEST)) {

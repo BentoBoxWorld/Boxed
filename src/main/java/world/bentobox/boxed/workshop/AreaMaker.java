@@ -183,9 +183,9 @@ public class AreaMaker {
             normal = addon.readTemplate(files.get(Environment.NORMAL));
             nether = files.containsKey(Environment.NETHER) ? addon.readTemplate(files.get(Environment.NETHER)) : null;
             Area existing = addon.getAreas().getArea(name);
-            // A new area has no structures yet, and starts with the default area's blueprint. An
-            // area that is being replaced keeps its own.
-            check = new AreaCheck(addon, normal, nether, existing == null ? null : existing.structures(),
+            // The structures are the ones placed in the workshop. A new area starts with the
+            // default area's blueprint, and one that is being replaced keeps its own.
+            check = new AreaCheck(addon, normal, nether, manager.getStructuresConfig(),
                     existing == null ? addon.getAreas().getDefaultArea() : existing);
         } catch (IOException e) {
             return CompletableFuture.failedFuture(e);
@@ -241,10 +241,7 @@ public class AreaMaker {
         }
         File folder = addon.getDataFolder();
         String structures = old == null ? "structures-" + name + ".yml" : old.structures();
-        File structuresFile = new File(folder, structures);
-        if (!structuresFile.exists()) {
-            Files.writeString(structuresFile.toPath(), "# This file is written by the /boxadmin place command\n");
-        }
+        writeStructures(new File(folder, structures));
         // The settings are written first, so that a restart finds the land that matches them
         File areasFile = new File(folder, "areas.yml");
         YamlConfiguration config = YamlConfiguration.loadConfiguration(areasFile);
@@ -281,6 +278,25 @@ public class AreaMaker {
         }
         manager.keepAs(area);
         return area;
+    }
+
+    /**
+     * Writes the structures placed in the workshop to the area's structures file. They take
+     * the place of any that were listed before, which stood on the land as it was.
+     */
+    private void writeStructures(File file) throws IOException {
+        YamlConfiguration listed = manager.getStructuresConfig();
+        YamlConfiguration config = file.exists() ? YamlConfiguration.loadConfiguration(file) : new YamlConfiguration();
+        config.options().setHeader(List.of("This file is written by the /boxadmin place command"));
+        for (Environment env : List.of(Environment.NORMAL, Environment.NETHER)) {
+            String key = env.name().toLowerCase(Locale.ENGLISH);
+            config.set(key, null);
+            var section = listed.getConfigurationSection(key);
+            if (section != null) {
+                section.getKeys(false).forEach(k -> config.set(key + "." + k, section.getString(k)));
+            }
+        }
+        config.save(file);
     }
 
     /**

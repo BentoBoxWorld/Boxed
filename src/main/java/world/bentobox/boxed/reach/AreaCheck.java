@@ -56,6 +56,20 @@ public class AreaCheck {
      */
     public AreaCheck(Boxed addon, Template normal, @Nullable Template nether, @Nullable String structuresFile,
             Area blueprintArea) {
+        this(addon, normal, nether, structuresFile == null ? new YamlConfiguration()
+                : YamlConfiguration.loadConfiguration(new File(addon.getDataFolder(), structuresFile)), blueprintArea);
+    }
+
+    /**
+     * Collects what a check needs. Call on the main thread.
+     * @param addon Boxed
+     * @param normal the overworld land
+     * @param nether the Nether land, or null if there is none
+     * @param structures the structures placed in each new box, as a structures file has them
+     * @param blueprintArea the area whose starter blueprint new boxes will be given
+     */
+    public AreaCheck(Boxed addon, Template normal, @Nullable Template nether, YamlConfiguration structures,
+            Area blueprintArea) {
         this.normal = normal;
         this.nether = nether;
         File folder = addon.getDataFolder();
@@ -64,8 +78,7 @@ public class AreaCheck {
         }
         this.requirements = new Requirements(YamlConfiguration.loadConfiguration(new File(folder, REQUIREMENTS_FILE)),
                 addon::logWarning);
-        this.structures = structuresFile == null ? new YamlConfiguration()
-                : YamlConfiguration.loadConfiguration(new File(folder, structuresFile));
+        this.structures = structures;
         this.scores = getScores(folder);
         this.starter = getStarterBlocks(addon, blueprintArea);
         this.startSize = Math.max(1, addon.getSettings().getIslandProtectionRange());
