@@ -402,11 +402,15 @@ public class Boxed extends GameModeAddon {
      */
     public void registerSeedGenerators(Area area) {
         String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
-        generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
-                Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes(), area.centreX(), area.centreZ())));
-        generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
-                Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes(), area.netherCentreX(),
-                        area.netherCentreZ())));
+        SeedBiomeGenerator normal = new SeedBiomeGenerator(this, area.biomes(), area.centreX(), area.centreZ());
+        normal.setPatches(areas.getPatches(area.id(), Environment.NORMAL));
+        NetherSeedBiomeGenerator nether = new NetherSeedBiomeGenerator(this, area.biomes(), area.netherCentreX(),
+                area.netherCentreZ());
+        nether.setPatches(areas.getPatches(area.id(), Environment.NETHER));
+        generatorMaps.put(area.seedWorldName(worldName, false),
+                new BoxedSeedChunkGenerator(this, Environment.NORMAL, normal));
+        generatorMaps.put(area.seedWorldName(worldName, true),
+                new BoxedSeedChunkGenerator(this, Environment.NETHER, nether));
     }
 
     /**

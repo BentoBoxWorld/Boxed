@@ -22,6 +22,11 @@ public final class BiomeStyles {
      */
     public static final String ORIGINAL = "original";
     /**
+     * Name of the style that leaves the land with the biomes the seed gives it. New areas
+     * start with this.
+     */
+    public static final String SEED = "none";
+    /**
      * Folder that holds the other styles
      */
     public static final String FOLDER = "biomes";

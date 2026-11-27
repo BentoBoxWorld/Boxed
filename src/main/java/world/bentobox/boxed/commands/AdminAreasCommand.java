@@ -1,6 +1,5 @@
 package world.bentobox.boxed.commands;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.EnumMap;
 import java.util.Comparator;
@@ -9,9 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -19,16 +16,13 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import world.bentobox.bentobox.api.commands.CompositeCommand;
 import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
-import world.bentobox.bentobox.blueprints.Blueprint;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBundle;
 import world.bentobox.bentobox.managers.BlueprintsManager;
 import world.bentobox.bentobox.util.Util;
@@ -36,7 +30,6 @@ import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
 import world.bentobox.boxed.areas.AreaLocationStrategy;
 import world.bentobox.boxed.areas.AreaManager;
-import world.bentobox.boxed.areas.BoxHeight;
 import world.bentobox.boxed.generators.template.Template;
 import world.bentobox.boxed.reach.AreaCheck;
 import world.bentobox.boxed.reach.ReachReport;
@@ -52,7 +45,6 @@ public class AdminAreasCommand extends CompositeCommand {
     private static final String PREFIX = "boxed.commands.boxadmin.areas.";
 
     private static final String AREAS = "areas.";
-    private static final String REQUIREMENTS = "requirements.yml";
     private static final String UNKNOWN_AREA = PREFIX + "unknown-area";
 
     public AdminAreasCommand(CompositeCommand parent) {
@@ -73,6 +65,7 @@ public class AdminAreasCommand extends CompositeCommand {
         new AdminAreasEditCommand(this);
         new AdminAreasSpotsCommand(this);
         new AdminAreasMakeCommand(this);
+        new AdminAreasBiomeCommand(this);
     }
 
     @Override

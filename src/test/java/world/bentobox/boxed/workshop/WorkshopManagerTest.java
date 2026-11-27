@@ -1,5 +1,7 @@
 package world.bentobox.boxed.workshop;
 
+import world.bentobox.boxed.generators.biomes.BiomePatch;
+import world.bentobox.boxed.areas.AreaManager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -72,6 +74,8 @@ class WorkshopManagerTest extends CommonTestSetup {
     @BeforeEach
     public void setUp() {
         super.setUp();
+        AreaManager areaManager = mock(AreaManager.class);
+        when(addon.getAreas()).thenReturn(areaManager);
         File data = new File(folder, "data");
         worldFolder = new File(folder, "boxed_world");
         workshopFile = new File(data, "areas/workshop.yml");
@@ -140,7 +144,13 @@ class WorkshopManagerTest extends CommonTestSetup {
         mockedBukkit.when(() -> Bukkit.getWorld("boxed_world/seed_icelands_nether")).thenReturn(null);
         Area area = new Area("icelands", 99L, "biomes.yml", "s.yml", 1, true, null, 0, 0, 0, 0, 0);
 
-        manager.start(99L, "biomes.yml", area);
+        // The patches of biome that were put on the area come too
+        AreaManager areas = addon.getAreas();
+        when(areas.getPatches("icelands", Environment.NORMAL)).thenReturn(List.of(new BiomePatch(8, 8, 48, "swamp")));
+
+        Workshop w = manager.start(99L, "biomes.yml", area);
+        assertEquals(List.of(new BiomePatch(8, 8, 48, "swamp")), w.getPatches(Environment.NORMAL));
+        assertTrue(w.getPatches(Environment.NETHER).isEmpty());
         assertEquals("land", Files.readString(new File(worldFolder, "workshop/region/r.0.0.mca").toPath()));
         assertFalse(new File(worldFolder, "workshop/session.lock").exists());
     }
@@ -218,6 +228,25 @@ class WorkshopManagerTest extends CommonTestSetup {
         assertNull(manager.takeDisplaced(away));
         // And it is remembered over a restart until then
         manager.start(12L, "biomes.yml", null);
+    }
+
+    @Test
+    void testDiscardDeletesLandThatWasCopiedButNeverLoaded() throws IOException {
+        manager.start(11L, "biomes.yml", null);
+        manager.getWorld(Environment.NORMAL);
+        // The Nether was copied from an area and nobody went there
+        File nether = new File(worldFolder, "workshop_nether/region");
+        Files.createDirectories(nether.toPath());
+        Files.writeString(new File(nether, "r.0.0.mca").toPath(), "land");
+
+        CompletableFuture<Boolean> done = manager.discard();
+        runScheduled();
+        assertTrue(done.join());
+        // The folders are deleted off the main thread. It is the last thing that is started.
+        ArgumentCaptor<Runnable> task = ArgumentCaptor.forClass(Runnable.class);
+        verify(sch, atLeastOnce()).runTaskAsynchronously(any(), task.capture());
+        task.getValue().run();
+        assertFalse(new File(worldFolder, "workshop_nether").exists());
     }
 
     @Test

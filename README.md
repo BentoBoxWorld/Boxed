@@ -81,6 +81,7 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `boxadmin areas find <area> [seed\|random] [radius]` | Console only. Looks through a seed for good places to start a box. See [Finding a good place to start](#finding-a-good-place-to-start). |
 | `/boxadmin areas edit` | Opens the area workshop, where a new area is tried out in a temporary world. See [The area workshop](#the-area-workshop). |
 | `/boxadmin areas spots` | Shows the places the workshop found and picks the middle of the box. |
+| `/boxadmin areas biome` | Shows the biomes of the box in the workshop and the ones it lacks, and puts patches of biome on the land. See [Adding biomes](#adding-biomes). |
 | `/boxadmin areas make [name]` | Makes the workshop into an area that players can use, without a restart. |
 
 Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
@@ -212,7 +213,7 @@ Run `/boxadmin areas edit`. A dialog box asks for:
 
 * **Area** - a new area, or an existing one to start from.
 * **Seed** - leave it empty for a random seed, or to keep the seed of the area you picked. `-1` is always a random seed.
-* **Biome style** - see [Biome styles](#biome-styles).
+* **Biome style** - see [Biome styles](#biome-styles). A new area starts with the biomes the seed has (the `none` style), and you add the ones that are missing by hand. See [Adding biomes](#adding-biomes).
 
 You are then taken to the temporary world. While you are there:
 
@@ -246,6 +247,37 @@ The biome style is laid out around every place that was found, so each one looks
 
 The permission is `boxed.admin.areas.spots`.
 
+#### Adding biomes
+
+A box is small, so the land the seed gives it rarely has every biome that players need. Start from the seed's own biomes, see what is missing, and add patches where they suit the land.
+
+Run `/boxadmin areas biome` to see what the box has. The first time, the land of the whole box is made, which takes up to a minute. The report has two parts:
+
+* **Biomes in the box**, each with the box size that first reaches it. `swamp (157)` means a player's box has to grow to size 157 before it takes in any swamp.
+* **Biomes that are not in the box**, each with what it is wanted for: the mob it brings (`swamp or mangrove_swamp - frog`) or the advancement that asks for it. These come from `requirements.yml`.
+
+To add a biome, stand where it should go and run `/boxadmin areas biome add <biome> [radius]`. This puts a round patch of the biome there, 48 blocks in radius unless you say otherwise (8 to 160). The edge wanders, so it does not look drawn with a compass. The land under the patch is then made again so that it has the ground, plants and trees of the biome. This takes a few seconds.
+
+Things to know:
+
+* **Anything built under a patch is lost,** and so is anything built within about 40 blocks of its edge. Add biomes first and build afterwards.
+* **The shape of the land stays.** A patch changes the surface, not the hills. Desert on a wooded hill gives a sandy hill with cactus. Ocean on a hill does not give a sea. Put biomes where they suit the lay of the land.
+* **Cave biomes go underground.** A patch of `lush_caves`, `dripstone_caves` or `deep_dark` only changes the caves, and a patch of any other biome only changes the surface. So both can be in the same place.
+* **Where patches overlap, the newest wins.**
+* **Patches work in the Nether too.** Stand in the workshop's Nether and use a Nether biome.
+
+`/boxadmin areas biome` also lists the patches with their numbers. `/boxadmin areas biome remove <number>` takes one away and makes the land again as it was.
+
+Patches are kept with the area when it is made (`patches` and `nether-patches` in `areas.yml`), and they come back if you start the workshop from that area again with the same seed.
+
+| Command | Description |
+|---------|-------------|
+| `/boxadmin areas biome` | Lists the patches, the biomes in the box and the biomes it lacks. |
+| `/boxadmin areas biome add <biome> [radius] [x z]` | Puts a patch where you stand, or at x, z. |
+| `/boxadmin areas biome remove <number>` | Takes a patch away. |
+
+The permission is `boxed.admin.areas.biome`.
+
 #### Making the area
 
 When you are happy with the land, run `/boxadmin areas make`. A dialog box asks for the name of the area. Then:
@@ -256,7 +288,7 @@ When you are happy with the land, run `/boxadmin areas make`. A dialog box asks 
 
 When you confirm, the area exists straight away and players can pick it. There is no restart. Boxed:
 
-* writes the area to `areas.yml` with its seed, `centre`, `nether-centre` and biome style,
+* writes the area to `areas.yml` with its seed, `centre`, `nether-centre`, biome style and patches of biome,
 * makes a blueprint bundle with the same name, copied from the first bundle, if there is not one already,
 * sends everyone out of the workshop, and
 * keeps the workshop's worlds as the seed worlds of the area, so `/boxadmin areas rebuild <area>` builds it again with everything you changed by hand.
@@ -293,7 +325,7 @@ A box is small, so Boxed lays chosen biomes out around the middle of it to give 
 | `natural` | `biomes/natural.yml` | The same biomes as `original`, with the edges blended so that there are no straight lines. |
 | `rings` | `biomes/rings.yml` | Biomes in rings around the middle, the same all the way round. |
 | `random` | `biomes/random.yml` | Patches of biomes picked at random from a list. |
-| `none` | `biomes/none.yml` | No chosen biomes. Every box has the biomes the seed has at that place. |
+| `none` | `biomes/none.yml` | No chosen biomes. Every box has the biomes the seed has at that place. New areas made in the workshop start with this, and biomes are added as patches. |
 
 To make your own style, copy one of the files in the `biomes` folder, give it a new name and change it. It then appears in the workshop under that name. An area uses a style through its `biomes` setting in `areas.yml`, for example `biomes: biomes/natural.yml`.
 

@@ -630,7 +630,7 @@ boxed:
             new-area: A new area
             seed: Seed
             style: Biome style
-            same-style: Same as the area (original for a new area)
+            same-style: Same as the area (the seed's own biomes for a new area)
             go: Go
             cancel: Cancel
             status-title: Area in progress
@@ -665,6 +665,25 @@ boxed:
             tooltip: '[biome]. [description]'
             border: Show or hide the border
             close: Close
+        biome:
+          description: show the biomes of the box being worked on, or put a patch of biome on the land
+          parameters: '[add <biome> [radius] [x z] | remove <number>]'
+          busy: '&c The land is being worked on. Wait for it to finish.'
+          looking: '&a Looking at the biomes of the box. This takes a minute the first time, while the land is made...'
+          progress: '&a Looking at the biomes: [number]%'
+          present: '&a Biomes in the box, and the box size that reaches each:'
+          present-list: '&7 [description]'
+          missing: '&a Not in the box, and what each is wanted for:'
+          missing-entry: '&e [biome] &7 - [description]'
+          nothing-missing: '&a The box has every biome the advancements want.'
+          how: '&a To add one, stand where it should go and type &b /[label] areas biome add <biome> [radius]'
+          patch: '&a Patch [number]: &e [biome]&a, [radius] blocks around [xyz]'
+          unknown-biome: '&c There is no biome with that name in this dimension.'
+          where: '&c Stand in the workshop where the patch should go, or give x and z.'
+          adding: '&a Putting &e [biome] &a within [radius] blocks of [xyz]. The land there is being made again, so anything built on it will go...'
+          removing: '&a Taking away patch [number]. The land there is being made again...'
+          no-patch: '&c There is no patch with that number.'
+          done: '&a Done: [number] blocks changed. &b /[label] areas biome &a shows what the box has now.'
         make:
           description: make the area being worked on into an area that players can use
           parameters: '<name> [confirm]'

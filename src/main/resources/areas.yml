@@ -20,6 +20,9 @@
 #   biomes     - the file that says which biomes are placed around the middle of the area.
 #                biomes.yml is the original style. The biomes folder has others, for
 #                example biomes/natural.yml, and you can add your own there.
+#   patches    - round patches of biome put on top of the others, as a list of
+#                x,z,radius,biome in seed world blocks. /boxadmin areas biome writes these
+#                in the workshop. nether-patches is the same for the Nether.
 #   structures - the file that lists the structures placed in each new box of this area.
 #   enabled    - set to false to stop new boxes being made in this area. Boxes already there
 #                are not affected. Default is true.

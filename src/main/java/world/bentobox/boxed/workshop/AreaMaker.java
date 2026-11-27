@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -21,6 +22,7 @@ import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
 import world.bentobox.boxed.areas.AreaManager;
 import world.bentobox.boxed.commands.AdminAreasCommand;
+import world.bentobox.boxed.generators.biomes.BiomePatch;
 import world.bentobox.boxed.generators.template.Template;
 import world.bentobox.boxed.generators.template.TemplateBuilder;
 import world.bentobox.boxed.reach.AreaCheck;
@@ -251,6 +253,10 @@ public class AreaMaker {
         config.set(AREAS + name + ".nether-centre", netherCentre[0] + "," + netherCentre[1]);
         config.set(AREAS + name + ".biomes", workshop.getBiomes());
         config.set(AREAS + name + ".structures", structures);
+        List<BiomePatch> patches = workshop.getPatches(Environment.NORMAL);
+        List<BiomePatch> netherPatches = workshop.getPatches(Environment.NETHER);
+        config.set(AREAS + name + "." + AreaManager.PATCHES, texts(patches));
+        config.set(AREAS + name + "." + AreaManager.NETHER_PATCHES, texts(netherPatches));
         config.save(areasFile);
 
         if (old != null) {
@@ -258,6 +264,8 @@ public class AreaMaker {
         }
         Area area = addon.getAreas().put(name, workshop.getSeed(), workshop.getBiomes(), structures, centre,
                 netherCentre);
+        addon.getAreas().setPatches(name, Environment.NORMAL, patches);
+        addon.getAreas().setPatches(name, Environment.NETHER, netherPatches);
         Files.createDirectories(addon.getAreaFolder(area).toPath());
         for (Map.Entry<Environment, File> en : prepared.files().entrySet()) {
             File file = addon.getTemplateFile(area, en.getKey());
@@ -273,6 +281,14 @@ public class AreaMaker {
         }
         manager.keepAs(area);
         return area;
+    }
+
+    /**
+     * @return patches as they are written in areas.yml, or null to leave the setting out
+     */
+    @Nullable
+    private static List<String> texts(List<BiomePatch> patches) {
+        return patches.isEmpty() ? null : patches.stream().map(BiomePatch::text).toList();
     }
 
     /**

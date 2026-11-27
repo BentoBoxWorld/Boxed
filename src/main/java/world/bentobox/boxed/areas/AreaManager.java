@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -18,6 +19,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import world.bentobox.boxed.generators.biomes.BiomePatch;
 import world.bentobox.boxed.generators.template.Template;
 
 /**
@@ -35,6 +37,14 @@ public class AreaManager {
 
     private static final Pattern VALID_ID = Pattern.compile("[a-z0-9_]+");
     private static final String ROWS = "rows";
+    /**
+     * Where an area's overworld patches of biome are kept in areas.yml
+     */
+    public static final String PATCHES = "patches";
+    /**
+     * Where an area's Nether patches of biome are kept in areas.yml
+     */
+    public static final String NETHER_PATCHES = "nether-patches";
 
     private final File gridFile;
     private final YamlConfiguration grid;
@@ -42,6 +52,7 @@ public class AreaManager {
     private final Map<Integer, Area> areaByRow = new ConcurrentHashMap<>();
     private final Map<Integer, Map<Environment, Template>> templates = new ConcurrentHashMap<>();
     private final Set<String> pending = ConcurrentHashMap.newKeySet();
+    private final Map<String, Map<Environment, List<BiomePatch>>> patchesByArea = new ConcurrentHashMap<>();
     private final java.util.function.Consumer<String> errorLog;
     private Area defaultArea;
 
@@ -78,6 +89,8 @@ public class AreaManager {
                     requires, Math.max(0, s.getInt("unlocks-next-at", 0)), centre[0], centre[1], netherCentre[0], netherCentre[1]);
             areas.put(id, area);
             areaByRow.put(area.row(), area);
+            setPatches(id, Environment.NORMAL, readPatches(s, PATCHES));
+            setPatches(id, Environment.NETHER, readPatches(s, NETHER_PATCHES));
         }
         defaultArea = areas.get(Area.DEFAULT);
         if (changed) {
@@ -214,6 +227,28 @@ public class AreaManager {
             defaultArea = area;
         }
         return area;
+    }
+
+    private static List<BiomePatch> readPatches(ConfigurationSection s, String key) {
+        return s.getStringList(key).stream().map(BiomePatch::parse).filter(Objects::nonNull).toList();
+    }
+
+    /**
+     * @param id name of an area
+     * @param env dimension
+     * @return the patches of biome that were put on the area's land by hand, oldest first
+     */
+    public List<BiomePatch> getPatches(String id, Environment env) {
+        return patchesByArea.getOrDefault(id, Map.of()).getOrDefault(env, List.of());
+    }
+
+    /**
+     * @param id name of an area
+     * @param env dimension
+     * @param list the patches of biome on the area's land, oldest first
+     */
+    public void setPatches(String id, Environment env, List<BiomePatch> list) {
+        patchesByArea.computeIfAbsent(id, k -> new ConcurrentHashMap<>()).put(env, List.copyOf(list));
     }
 
     /**
