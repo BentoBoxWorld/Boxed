@@ -152,12 +152,16 @@ final class LandCopier {
             }
         }
         for (int y = minY; y < maxY; y += 4) {
-            for (int x = 0; x < 16; x += 4) {
-                for (int z = 0; z < 16; z += 4) {
-                    Biome biome = source.getBiome(x, y, z);
-                    if (!biome.equals(target.getBiome(x, y, z))) {
-                        biomes.add(new BiomeChange(blockX + x, y, blockZ + z, biome));
-                    }
+            compareBiomes(source, target, blockX, y, blockZ);
+        }
+    }
+
+    private void compareBiomes(ChunkSnapshot source, ChunkSnapshot target, int blockX, int y, int blockZ) {
+        for (int x = 0; x < 16; x += 4) {
+            for (int z = 0; z < 16; z += 4) {
+                Biome biome = source.getBiome(x, y, z);
+                if (!biome.equals(target.getBiome(x, y, z))) {
+                    biomes.add(new BiomeChange(blockX + x, y, blockZ + z, biome));
                 }
             }
         }
@@ -194,26 +198,36 @@ final class LandCopier {
              * chests and the like.
              */
             private void step(long stop) {
+                if (setBlocks(stop) && setBiomes(stop)) {
+                    while (state < states.size() && System.nanoTime() < stop) {
+                        BlockState s = states.get(state++);
+                        s.copy(new Location(to, s.getX(), s.getY(), s.getZ())).update(true, false);
+                    }
+                }
+            }
+
+            /**
+             * @return true when every block has been set
+             */
+            private boolean setBlocks(long stop) {
                 // Blocks go in without physics: this is a copy of land that is already settled
                 while (block < blocks.size() && System.nanoTime() < stop) {
                     BlockChange c = blocks.get(block++);
                     to.getBlockAt(c.x(), c.y(), c.z()).setBlockData(c.data(), false);
                 }
-                if (block < blocks.size()) {
-                    return;
-                }
+                return block == blocks.size();
+            }
+
+            /**
+             * @return true when every biome has been set
+             */
+            private boolean setBiomes(long stop) {
                 while (biome < biomes.size() && System.nanoTime() < stop) {
                     BiomeChange c = biomes.get(biome++);
                     to.setBiome(c.x(), c.y(), c.z(), c.biome());
                     recoloured.add(((long) (c.x() >> 4) << 32) | ((c.z() >> 4) & 0xFFFFFFFFL));
                 }
-                if (biome < biomes.size()) {
-                    return;
-                }
-                while (state < states.size() && System.nanoTime() < stop) {
-                    BlockState s = states.get(state++);
-                    s.copy(new Location(to, s.getX(), s.getY(), s.getZ())).update(true, false);
-                }
+                return biome == biomes.size();
             }
 
             @Override
