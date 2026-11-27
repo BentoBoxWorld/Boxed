@@ -50,7 +50,8 @@ public class AdminAreasStructuresCommand extends CompositeCommand {
         Environment env = environment(user, manager);
         List<PlacedStructure> list = manager.getStructures(env);
         if (args.isEmpty()) {
-            return list(user, list);
+            list(user, list);
+            return true;
         }
         if (args.size() != 2 || !REMOVE.equalsIgnoreCase(args.get(0)) || !Util.isInteger(args.get(1), true)) {
             this.showHelp(this, user);
@@ -85,10 +86,10 @@ public class AdminAreasStructuresCommand extends CompositeCommand {
                 && user.getWorld().getEnvironment() == Environment.NETHER ? Environment.NETHER : Environment.NORMAL;
     }
 
-    private boolean list(User user, List<PlacedStructure> list) {
+    private void list(User user, List<PlacedStructure> list) {
         if (list.isEmpty()) {
             user.sendMessage(PREFIX + "none", TextVariables.LABEL, getTopLabel());
-            return true;
+            return;
         }
         user.sendMessage(PREFIX + "header");
         for (int i = 0; i < list.size(); i++) {
@@ -96,7 +97,6 @@ public class AdminAreasStructuresCommand extends CompositeCommand {
             user.sendMessage(PREFIX + "entry", TextVariables.NUMBER, String.valueOf(i + 1), TextVariables.NAME,
                     s.name(), TextVariables.XYZ, s.x() + "," + s.y() + "," + s.z());
         }
-        return true;
     }
 
     @Override

@@ -20,6 +20,7 @@ import java.util.Stack;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World.Environment;
+import org.eclipse.jdt.annotation.Nullable;
 import world.bentobox.boxed.workshop.PlacedStructure;
 import world.bentobox.boxed.workshop.WorkshopManager;
 import org.bukkit.Material;
@@ -264,33 +265,15 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             return executeInWorkshop(user, workshop, user.getWorld(), args);
         }
         if (!user.isPlayer()) {
-            // The console has no place of its own, so it works on the overworld of the workshop
-            World world = workshop == null ? null : workshop.getWorld(Environment.NORMAL);
-            if (world == null || (args.size() < 4 && !isUndo(args)) || args.contains("~")) {
-                user.sendMessage("boxed.commands.boxadmin.place.console");
-                return false;
-            }
-            return executeInWorkshop(user, workshop, world, args);
+            return executeFromConsole(user, workshop, args);
         }
-        if (args.size() == 1 && args.get(0).equalsIgnoreCase("undo")) {
+        if (isUndo(args)) {
             return undoLastPlacement(user);
         }
 
         NamespacedKey tag = NamespacedKey.fromString(args.get(0).toLowerCase(Locale.ENGLISH));
         Structure s = Bukkit.getStructureManager().loadStructure(tag);
-        int x = args.size() == 1 || args.get(1).equals("~") ? user.getLocation().getBlockX()
-                : Integer.parseInt(args.get(1).trim());
-        int z = args.size() == 1 || args.get(3).equals("~") ? user.getLocation().getBlockZ()
-                : Integer.parseInt(args.get(3).trim());
-        int y;
-        if (args.size() == 1 || args.get(2).equals("~")) {
-            y = user.getLocation().getBlockY();
-        } else if (isGroundLevel(args.get(2))) {
-            y = groundLevel(user.getWorld(), x, z, args.get(2));
-        } else {
-            y = Integer.parseInt(args.get(2).trim());
-        }
-        Location spot = new Location(user.getWorld(), x, y, z);
+        Location spot = target(user.getLocation(), args);
         Map<Vector, BlockData> removedBlocks = new HashMap<>();
         BlockTransformer store = (region, xx, yy, zz, current, state) -> {
             // Store the state
@@ -315,6 +298,58 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
     }
 
     /**
+     * The console has no place of its own, so it works on the overworld of the workshop and
+     * has to say where.
+     */
+    private boolean executeFromConsole(User user, @Nullable WorkshopManager workshop, List<String> args) {
+        World world = workshop == null ? null : workshop.getWorld(Environment.NORMAL);
+        if (world == null || (args.size() < 4 && !isUndo(args)) || args.contains("~")) {
+            user.sendMessage("boxed.commands.boxadmin.place.console");
+            return false;
+        }
+        return executeInWorkshop(user, workshop, world, args);
+    }
+
+    /**
+     * Works out where a structure goes.
+     * @param at where the one placing it is, which is used for coordinates given as ~ or not given
+     * @param args the command's arguments: the structure, then maybe x, y and z
+     * @return the block the structure starts at
+     */
+    private static Location target(Location at, List<String> args) {
+        boolean here = args.size() == 1;
+        int x = here || args.get(1).equals("~") ? at.getBlockX() : Integer.parseInt(args.get(1).trim());
+        int z = here || args.get(3).equals("~") ? at.getBlockZ() : Integer.parseInt(args.get(3).trim());
+        int y;
+        if (here || args.get(2).equals("~")) {
+            y = at.getBlockY();
+        } else if (isGroundLevel(args.get(2))) {
+            y = groundLevel(at.getWorld(), x, z, args.get(2));
+        } else {
+            y = Integer.parseInt(args.get(2).trim());
+        }
+        return new Location(at.getWorld(), x, y, z);
+    }
+
+    private boolean undoInWorkshop(User user, WorkshopManager workshop, Environment env) {
+        int count = workshop.getStructures(env).size();
+        if (count == 0) {
+            user.sendMessage("boxed.commands.boxadmin.place.no-undo");
+            return false;
+        }
+        user.sendMessage(STRUCTURES + "removing", TextVariables.NUMBER, String.valueOf(count));
+        workshop.removeStructure(env, count - 1).whenComplete((changed, error) -> {
+            if (error != null) {
+                getAddon().logError("Could not make the land again: " + error);
+                user.sendMessage("boxed.commands.boxadmin.areas.edit.failed");
+            } else {
+                user.sendMessage(STRUCTURES + "removed");
+            }
+        });
+        return true;
+    }
+
+    /**
      * In the workshop a structure is put on the land and listed with the area being worked
      * on. It goes into the area's structures file when the area is made.
      */
@@ -325,35 +360,11 @@ public class AdminPlaceStructureCommand extends CompositeCommand {
             return false;
         }
         if (isUndo(args)) {
-            int count = workshop.getStructures(env).size();
-            if (count == 0) {
-                user.sendMessage("boxed.commands.boxadmin.place.no-undo");
-                return false;
-            }
-            user.sendMessage(STRUCTURES + "removing", TextVariables.NUMBER, String.valueOf(count));
-            workshop.removeStructure(env, count - 1).whenComplete((changed, error) -> {
-                if (error != null) {
-                    getAddon().logError("Could not make the land again: " + error);
-                    user.sendMessage("boxed.commands.boxadmin.areas.edit.failed");
-                } else {
-                    user.sendMessage(STRUCTURES + "removed");
-                }
-            });
-            return true;
+            return undoInWorkshop(user, workshop, env);
         }
         // The console always gives every coordinate
-        Location at = user.isPlayer() ? user.getLocation() : new Location(world, 0, 0, 0);
-        int x = args.size() == 1 || args.get(1).equals("~") ? at.getBlockX() : Integer.parseInt(args.get(1).trim());
-        int z = args.size() == 1 || args.get(3).equals("~") ? at.getBlockZ() : Integer.parseInt(args.get(3).trim());
-        int y;
-        if (args.size() == 1 || args.get(2).equals("~")) {
-            y = at.getBlockY();
-        } else if (isGroundLevel(args.get(2))) {
-            y = groundLevel(world, x, z, args.get(2));
-        } else {
-            y = Integer.parseInt(args.get(2).trim());
-        }
-        if (!workshop.placeStructure(env, new PlacedStructure(x, y, z, args.get(0), sr, mirror, noMobs))) {
+        Location spot = target(user.isPlayer() ? user.getLocation() : new Location(world, 0, 0, 0), args);
+        if (!workshop.placeStructure(env, new PlacedStructure(spot.getBlockX(), spot.getBlockY(), spot.getBlockZ(), args.get(0), sr, mirror, noMobs))) {
             user.sendMessage("boxed.commands.boxadmin.place.failed");
             return false;
         }
