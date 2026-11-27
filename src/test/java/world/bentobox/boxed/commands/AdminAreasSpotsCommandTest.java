@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.World.Environment;
+import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -104,7 +105,7 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
     @Test
     void testConsoleCanPickButHasNoBorder() {
         when(user.isPlayer()).thenReturn(false);
-        when(manager.select(null, 0)).thenReturn(CompletableFuture.completedFuture(true));
+        when(manager.select(null, Environment.NORMAL, 0)).thenReturn(CompletableFuture.completedFuture(true));
         assertTrue(cmd.execute(user, "spots", List.of("1")));
         verify(user).sendMessage(PREFIX + "selected", "[number]", "1", "[xyz]", "0,0", "[label]", "boxadmin");
         assertFalse(cmd.execute(user, "spots", List.of("border")));
@@ -113,14 +114,14 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
 
     @Test
     void testPick() {
-        when(manager.select(mockPlayer, 1)).thenReturn(CompletableFuture.completedFuture(true));
+        when(manager.select(mockPlayer, Environment.NORMAL, 1)).thenReturn(CompletableFuture.completedFuture(true));
         assertTrue(cmd.execute(user, "spots", List.of("2")));
         verify(user).sendMessage(PREFIX + "selected", "[number]", "2", "[xyz]", "1280,-640", "[label]", "boxadmin");
     }
 
     @Test
     void testPickThatFails() {
-        when(manager.select(mockPlayer, 0)).thenReturn(CompletableFuture.completedFuture(false));
+        when(manager.select(mockPlayer, Environment.NORMAL, 0)).thenReturn(CompletableFuture.completedFuture(false));
         assertTrue(cmd.execute(user, "spots", List.of("1")));
         verify(user).sendMessage("boxed.commands.boxadmin.areas.edit.failed");
     }
@@ -132,7 +133,7 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
         // The third place has not been looked at yet
         assertFalse(cmd.execute(user, "spots", List.of("3")));
         verify(user, times(3)).sendMessage(PREFIX + "unknown");
-        verify(manager, never()).select(any(), anyInt());
+        verify(manager, never()).select(any(), any(), anyInt());
     }
 
     @Test
@@ -159,7 +160,58 @@ class AdminAreasSpotsCommandTest extends CommonTestSetup {
 
     @Test
     void testTabComplete() {
-        assertEquals(List.of("border", "1", "2"), cmd.tabComplete(user, "spots", List.of("areas", "spots", "")).orElseThrow());
+        assertEquals(List.of("border", "nether", "1", "2"), cmd.tabComplete(user, "spots", List.of("areas", "spots", "")).orElseThrow());
         assertEquals(List.of("2"), cmd.tabComplete(user, "spots", List.of("areas", "spots", "2")).orElseThrow());
+    }
+
+    private void netherSpots() {
+        workshop.setNetherSpots(List.of(new Workshop.Spot(0, 0, "nether_wastes", 0, "no fortress nearby"),
+                new Workshop.Spot(1408, -160, "warped_forest", 84, "fortress at size 10, blaze spawner at size 32")));
+        when(manager.getWorld(Environment.NETHER)).thenReturn(mock(World.class));
+    }
+
+    @Test
+    void testTheNetherHasItsOwnPlaces() {
+        netherSpots();
+        when(user.isPlayer()).thenReturn(false);
+        assertTrue(cmd.execute(user, "spots", List.of("nether")));
+        verify(user).sendMessage(PREFIX + "entry", "[number]", "2", "[xyz]", "1408,-160", "[score]", "84", "[biome]",
+                "warped_forest", "[description]", "fortress at size 10, blaze spawner at size 32");
+        when(manager.select(null, Environment.NETHER, 1)).thenReturn(CompletableFuture.completedFuture(true));
+        assertTrue(cmd.execute(user, "spots", List.of("NETHER", "2")));
+        verify(user).sendMessage(PREFIX + "selected-nether", "[number]", "2", "[xyz]", "1408,-160", "[label]",
+                "boxadmin");
+        assertFalse(cmd.execute(user, "spots", List.of("nether", "2", "3")));
+    }
+
+    @Test
+    void testAPlayerInTheNetherPicksForTheNether() {
+        netherSpots();
+        World nether = mock(World.class);
+        when(nether.getEnvironment()).thenReturn(Environment.NETHER);
+        when(user.getWorld()).thenReturn(nether);
+        when(manager.isWorkshopWorld(nether)).thenReturn(true);
+        when(manager.select(mockPlayer, Environment.NETHER, 1)).thenReturn(CompletableFuture.completedFuture(true));
+        assertTrue(cmd.execute(user, "spots", List.of("2")));
+        verify(manager).select(mockPlayer, Environment.NETHER, 1);
+        assertEquals(List.of("border", "nether", "1", "2"),
+                cmd.tabComplete(user, "spots", List.of("areas", "spots", "")).orElseThrow());
+    }
+
+    @Test
+    void testTheNetherIsStillBeingSearchedOrIsNotThere() {
+        when(user.isPlayer()).thenReturn(false);
+        assertFalse(cmd.execute(user, "spots", List.of("nether")));
+        verify(user).sendMessage(PREFIX + "no-nether");
+        when(manager.getWorld(Environment.NETHER)).thenReturn(mock(World.class));
+        assertTrue(cmd.execute(user, "spots", List.of("nether")));
+        verify(user).sendMessage(PREFIX + "looking-nether");
+    }
+
+    @Test
+    void testTabCompleteAfterNether() {
+        netherSpots();
+        assertEquals(List.of("1", "2"),
+                cmd.tabComplete(user, "spots", List.of("areas", "spots", "nether", "")).orElseThrow());
     }
 }

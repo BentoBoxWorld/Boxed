@@ -2,6 +2,7 @@ package world.bentobox.boxed.workshop;
 
 import world.bentobox.boxed.generators.biomes.BiomePatch;
 import world.bentobox.boxed.areas.AreaManager;
+import world.bentobox.boxed.reach.FortressSpot;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -209,6 +210,38 @@ class WorkshopManagerTest extends CommonTestSetup {
                 new PlacedStructure(0, 65, 0, "igloo/top", StructureRotation.NONE, Mirror.NONE, false)));
         assertTrue(manager.removeStructure(Environment.NORMAL, 0).isCompletedExceptionally());
         assertTrue(manager.getStructures(Environment.NORMAL).isEmpty());
+    }
+
+    @Test
+    void testNetherPlacesAreWrittenUp() {
+        World nether = mock(World.class, org.mockito.Mockito.RETURNS_DEEP_STUBS);
+        when(nether.getBiome(org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyInt(),
+                org.mockito.ArgumentMatchers.anyInt()).getKey().getKey()).thenReturn("warped_forest");
+        Workshop.Spot good = WorkshopManager.netherSpot(nether, new FortressSpot.Spot(1408, -160, 32, 10));
+        assertEquals(new Workshop.Spot(1408, -160, "warped_forest", 84,
+                "fortress at size 10, blaze spawner at size 32"), good);
+        // The further the spawner, the lower the score, but a place with one always beats a place without
+        assertEquals(1, WorkshopManager.netherSpot(nether, new FortressSpot.Spot(0, 0, 300, 10)).score());
+        Workshop.Spot bricks = WorkshopManager.netherSpot(nether,
+                new FortressSpot.Spot(0, 0, Integer.MAX_VALUE, 40));
+        assertEquals(0, bricks.score());
+        assertEquals("fortress at size 40, but no blaze spawner nearby", bricks.description());
+        assertEquals("no fortress nearby", WorkshopManager
+                .netherSpot(nether, new FortressSpot.Spot(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE)).description());
+    }
+
+    @Test
+    void testPickingANetherPlaceMovesOnlyTheNethersMiddle() throws IOException {
+        Workshop w = manager.start(5L, "biomes.yml", null);
+        w.setNetherSpots(List.of(new Workshop.Spot(0, 0, "nether_wastes", 0, "no fortress nearby"),
+                new Workshop.Spot(1408, -160, "warped_forest", 84, "fortress")));
+        assertTrue(manager.select(null, Environment.NETHER, 1).join());
+        assertEquals(1408, w.getCentre(Environment.NETHER)[0]);
+        assertEquals(-160, w.getCentre(Environment.NETHER)[1]);
+        assertEquals(0, w.getCentre(Environment.NORMAL)[0]);
+        assertFalse(manager.select(null, Environment.NETHER, 2).join());
+        // It is saved
+        assertEquals(1408, Workshop.load(workshopFile).getCentre(Environment.NETHER)[0]);
     }
 
     @Test

@@ -38,6 +38,8 @@ public class Workshop {
 
     private static final String SPOTS_KEY = "spots";
     private static final String PATCHES_KEY = "patches";
+    private static final String NETHER_SPOTS_KEY = "nether-spots";
+    private static final String NETHER_LAYOUT_KEY = "nether-layout";
     private static final String STRUCTURES_KEY = "structures";
     private static final String SHOW_KEY = "structures-to-show";
 
@@ -64,6 +66,8 @@ public class Workshop {
     private final Map<Environment, int[]> centres = new EnumMap<>(Environment.class);
     private final Map<UUID, GameMode> players = new HashMap<>();
     private final List<Spot> spots = new ArrayList<>();
+    private final List<Spot> netherSpots = new ArrayList<>();
+    private final List<int[]> netherLayout = new ArrayList<>();
     private final Map<Environment, List<BiomePatch>> patches = new EnumMap<>(Environment.class);
     private final Map<Environment, List<PlacedStructure>> structures = new EnumMap<>(Environment.class);
     private final Set<Environment> toShow = EnumSet.noneOf(Environment.class);
@@ -132,6 +136,39 @@ public class Workshop {
      */
     public List<Spot> getSpots() {
         return List.copyOf(spots);
+    }
+
+    /**
+     * @param env dimension
+     * @return the places found so far that could be the middle of the dimension's land. In
+     *         the Nether these are places that give the box a fortress.
+     */
+    public List<Spot> getSpots(Environment env) {
+        return env == Environment.NETHER ? List.copyOf(netherSpots) : getSpots();
+    }
+
+    /**
+     * @param found the places in the Nether to choose from
+     */
+    public void setNetherSpots(List<Spot> found) {
+        netherSpots.clear();
+        netherSpots.addAll(found);
+    }
+
+    /**
+     * @return the places the Nether's biomes are laid out around, as block x and z. Empty
+     *         until the Nether has been searched.
+     */
+    public List<int[]> getNetherLayout() {
+        return netherLayout.stream().map(int[]::clone).toList();
+    }
+
+    /**
+     * @param centres the places the Nether's biomes are laid out around, as block x and z
+     */
+    public void setNetherLayout(List<int[]> centres) {
+        netherLayout.clear();
+        centres.forEach(c -> netherLayout.add(c.clone()));
     }
 
     /**
@@ -239,17 +276,9 @@ public class Workshop {
         config.set("area", area);
         centres.forEach((env, c) -> config.set(CENTRES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH), c[0] + "," + c[1]));
         players.forEach((uuid, mode) -> config.set(PLAYERS_KEY + "." + uuid, mode.name()));
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (Spot spot : spots) {
-            Map<String, Object> map = new LinkedHashMap<>();
-            map.put("x", spot.x());
-            map.put("z", spot.z());
-            map.put("biome", spot.biome());
-            map.put("score", spot.score());
-            map.put("description", spot.description());
-            list.add(map);
-        }
-        config.set(SPOTS_KEY, list);
+        config.set(SPOTS_KEY, toMaps(spots));
+        config.set(NETHER_SPOTS_KEY, toMaps(netherSpots));
+        config.set(NETHER_LAYOUT_KEY, netherLayout.stream().map(c -> c[0] + "," + c[1]).toList());
         patches.forEach((env, p) -> config.set(PATCHES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH),
                 p.stream().map(BiomePatch::text).toList()));
         structures.forEach((env, p) -> config.set(STRUCTURES_KEY + "." + env.name().toLowerCase(Locale.ENGLISH),
@@ -278,21 +307,48 @@ public class Workshop {
         Workshop workshop = new Workshop(config.getLong("seed"), config.getString(BIOMES_KEY), config.getString("area"));
         workshop.loadCentres(config.getConfigurationSection(CENTRES_KEY));
         workshop.loadPlayers(config.getConfigurationSection(PLAYERS_KEY));
-        List<Spot> found = new ArrayList<>();
-        for (Map<?, ?> map : config.getMapList(SPOTS_KEY)) {
-            if (map.get("x") instanceof Number x && map.get("z") instanceof Number z
-                    && map.get("score") instanceof Number score) {
-                found.add(new Spot(x.intValue(), z.intValue(), String.valueOf(map.get("biome")), score.intValue(),
-                        String.valueOf(map.get("description"))));
+        workshop.setSpots(fromMaps(config.getMapList(SPOTS_KEY)));
+        workshop.setNetherSpots(fromMaps(config.getMapList(NETHER_SPOTS_KEY)));
+        for (String text : config.getStringList(NETHER_LAYOUT_KEY)) {
+            String[] xz = text.split(",");
+            try {
+                workshop.netherLayout.add(new int[] { Integer.parseInt(xz[0].trim()), Integer.parseInt(xz[1].trim()) });
+            } catch (NumberFormatException | ArrayIndexOutOfBoundsException _) {
+                // Not a place
             }
         }
-        workshop.setSpots(found);
         workshop.loadPatches(config.getConfigurationSection(PATCHES_KEY));
         workshop.loadStructures(config.getConfigurationSection(STRUCTURES_KEY));
         for (String name : config.getStringList(SHOW_KEY)) {
             Enums.getIfPresent(Environment.class, name).toJavaUtil().ifPresent(workshop.toShow::add);
         }
         return workshop;
+    }
+
+    private static List<Map<String, Object>> toMaps(List<Spot> spots) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Spot spot : spots) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("x", spot.x());
+            map.put("z", spot.z());
+            map.put("biome", spot.biome());
+            map.put("score", spot.score());
+            map.put("description", spot.description());
+            list.add(map);
+        }
+        return list;
+    }
+
+    private static List<Spot> fromMaps(List<Map<?, ?>> maps) {
+        List<Spot> found = new ArrayList<>();
+        for (Map<?, ?> map : maps) {
+            if (map.get("x") instanceof Number x && map.get("z") instanceof Number z
+                    && map.get("score") instanceof Number score) {
+                found.add(new Spot(x.intValue(), z.intValue(), String.valueOf(map.get("biome")), score.intValue(),
+                        String.valueOf(map.get("description"))));
+            }
+        }
+        return found;
     }
 
     private void loadCentres(@Nullable ConfigurationSection c) {
