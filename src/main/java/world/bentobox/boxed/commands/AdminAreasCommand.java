@@ -30,6 +30,7 @@ import world.bentobox.bentobox.api.localization.TextVariables;
 import world.bentobox.bentobox.api.user.User;
 import world.bentobox.bentobox.blueprints.Blueprint;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBundle;
+import world.bentobox.bentobox.managers.BlueprintsManager;
 import world.bentobox.bentobox.util.Util;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
@@ -37,10 +38,8 @@ import world.bentobox.boxed.areas.AreaLocationStrategy;
 import world.bentobox.boxed.areas.AreaManager;
 import world.bentobox.boxed.areas.BoxHeight;
 import world.bentobox.boxed.generators.template.Template;
-import world.bentobox.boxed.reach.GrowthSimulator;
-import world.bentobox.boxed.reach.LandSurvey;
+import world.bentobox.boxed.reach.AreaCheck;
 import world.bentobox.boxed.reach.ReachReport;
-import world.bentobox.boxed.reach.Requirements;
 
 /**
  * Admin command that lists the areas. Its sub-commands visit an area, make a new one and
@@ -70,6 +69,10 @@ public class AdminAreasCommand extends CompositeCommand {
         new Rebuild(this);
         new Clean(this);
         new Check(this);
+        new AdminAreasFindCommand(this);
+        new AdminAreasEditCommand(this);
+        new AdminAreasSpotsCommand(this);
+        new AdminAreasMakeCommand(this);
     }
 
     @Override
@@ -96,6 +99,61 @@ public class AdminAreasCommand extends CompositeCommand {
             }
         }
         return true;
+    }
+
+    /**
+     * Works out which parameter of a command is being typed. BentoBox gives tab completion
+     * everything typed after the top command, so the labels of the commands on the way down
+     * (for example "areas" and "find") come before the parameters.
+     * @param command the command being completed
+     * @param args everything typed after the top command
+     * @return 1 for the first parameter, 2 for the second and so on
+     */
+    static int parameter(CompositeCommand command, List<String> args) {
+        int labels = 0;
+        for (CompositeCommand c = command; c.getParent() != null; c = c.getParent()) {
+            labels++;
+        }
+        return args.size() - labels;
+    }
+
+    /**
+     * Makes the blueprint bundle that players pick to get a box in an area, if there is not
+     * one already. It starts with the same blueprints as an existing bundle. The default
+     * bundle is not always called "default", so the first bundle that has an overworld
+     * blueprint is used.
+     * @param addon Boxed
+     * @param name name of the area
+     */
+    public static void createBundle(Boxed addon, String name) {
+        BlueprintsManager manager = addon.getPlugin().getBlueprintsManager();
+        if (manager.getBlueprintBundles(addon).containsKey(name)) {
+            return;
+        }
+        BlueprintBundle source = manager.getBlueprintBundles(addon).values().stream()
+                .filter(b -> b.getBlueprint(World.Environment.NORMAL) != null)
+                .min(Comparator.comparingInt(BlueprintBundle::getSlot)).orElse(null);
+        BlueprintBundle bundle = new BlueprintBundle();
+        bundle.setUniqueId(name);
+        bundle.setDisplayName(Util.prettifyText(name));
+        bundle.setDescription(List.of("A box in the " + Util.prettifyText(name) + " area"));
+        Map<World.Environment, String> blueprints = new EnumMap<>(World.Environment.class);
+        if (source != null) {
+            bundle.setIcon(source.getIcon());
+            for (World.Environment env : World.Environment.values()) {
+                if (source.getBlueprint(env) != null) {
+                    blueprints.put(env, source.getBlueprint(env));
+                }
+            }
+        } else {
+            // The blueprints that come with Boxed
+            blueprints.put(World.Environment.NORMAL, "island");
+            blueprints.put(World.Environment.NETHER, "nether");
+        }
+        bundle.setBlueprints(blueprints);
+        bundle.setSlot(manager.getBlueprintBundles(addon).size());
+        manager.addBlueprintBundle(addon, bundle);
+        manager.saveBlueprintBundle(addon, bundle);
     }
 
     private static Optional<List<String>> areaNames(Boxed addon, List<String> args) {
@@ -238,33 +296,7 @@ public class AdminAreasCommand extends CompositeCommand {
             config.set(AREAS + name + ".structures", structures);
             config.save(areasFile);
 
-            // A bundle with the same name is how players choose the area
-            // Start with the same blueprints as an existing bundle. The default bundle is not
-            // always called "default", so use the first bundle that has an overworld blueprint.
-            BlueprintBundle source = getPlugin().getBlueprintsManager().getBlueprintBundles(addon).values().stream()
-                    .filter(b -> b.getBlueprint(World.Environment.NORMAL) != null)
-                    .min(Comparator.comparingInt(BlueprintBundle::getSlot)).orElse(null);
-            BlueprintBundle bundle = new BlueprintBundle();
-            bundle.setUniqueId(name);
-            bundle.setDisplayName(Util.prettifyText(name));
-            bundle.setDescription(List.of("A box in the " + Util.prettifyText(name) + " area"));
-            Map<World.Environment, String> blueprints = new EnumMap<>(World.Environment.class);
-            if (source != null) {
-                bundle.setIcon(source.getIcon());
-                for (World.Environment env : World.Environment.values()) {
-                    if (source.getBlueprint(env) != null) {
-                        blueprints.put(env, source.getBlueprint(env));
-                    }
-                }
-            } else {
-                // The blueprints that come with Boxed
-                blueprints.put(World.Environment.NORMAL, "island");
-                blueprints.put(World.Environment.NETHER, "nether");
-            }
-            bundle.setBlueprints(blueprints);
-            bundle.setSlot(getPlugin().getBlueprintsManager().getBlueprintBundles(addon).size());
-            getPlugin().getBlueprintsManager().addBlueprintBundle(addon, bundle);
-            getPlugin().getBlueprintsManager().saveBlueprintBundle(addon, bundle);
+            createBundle(addon, name);
 
             // Boxes cannot be made in it until the land is built on the next start
             addon.getAreas().addPending(name);
@@ -314,8 +346,8 @@ public class AdminAreasCommand extends CompositeCommand {
 
         @Override
         public Optional<List<String>> tabComplete(User user, String alias, List<String> args) {
-            if (args.size() == 2) {
-                return Optional.of(Util.tabLimit(List.of(REGENERATE), args.get(1)));
+            if (parameter(this, args) == 2) {
+                return Optional.of(Util.tabLimit(List.of(REGENERATE), args.get(args.size() - 1)));
             }
             return areaNames(getAddon(), args);
         }
@@ -394,34 +426,14 @@ public class AdminAreasCommand extends CompositeCommand {
             }
             Template nether = addon.getAreas().getTemplate(area, Environment.NETHER);
             // Everything is read on the main thread. Only the survey of the land runs off it.
-            File folder = addon.getDataFolder();
-            if (!new File(folder, REQUIREMENTS).exists()) {
-                addon.saveResource(REQUIREMENTS, false);
-            }
-            Requirements requirements = new Requirements(
-                    YamlConfiguration.loadConfiguration(new File(folder, REQUIREMENTS)), addon::logWarning);
-            YamlConfiguration structures = YamlConfiguration.loadConfiguration(new File(folder, area.structures()));
-            Map<String, Integer> scores = getScores(folder);
-            Map<Vector, String> starter = getStarterBlocks(addon, area);
-            int radius = normal.getSize() * 16;
-            int startSize = Math.max(1, addon.getSettings().getIslandProtectionRange());
+            AreaCheck check = new AreaCheck(addon, normal, nether, area.structures(), area);
             File report = new File(addon.getAreaFolder(area), "reachability.txt");
             user.sendMessage(PREFIX + "check.started", TextVariables.NAME, area.id());
             Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () -> {
-                LandSurvey survey = new LandSurvey(radius);
-                survey.addTemplate(normal, false);
-                if (nether != null) {
-                    survey.addTemplate(nether, true);
-                }
-                survey.addBlueprint(starter);
-                survey.addStructures(structures.getConfigurationSection("normal"), false);
-                survey.addStructures(structures.getConfigurationSection("nether"), true);
-                requirements.applyTo(survey);
-                GrowthSimulator.Result result = new GrowthSimulator(survey, requirements, scores, startSize).run();
-                String summary = ReachReport.summary(result);
+                AreaCheck.Outcome outcome = check.run();
                 String written;
                 try {
-                    Files.write(report.toPath(), ReachReport.lines(area.id(), survey, result));
+                    Files.write(report.toPath(), ReachReport.lines(area.id(), outcome.survey(), outcome.result()));
                     written = report.getPath();
                 } catch (IOException e) {
                     addon.logError("Could not write " + report + ": " + e.getMessage());
@@ -429,39 +441,12 @@ public class AdminAreasCommand extends CompositeCommand {
                 }
                 String path = written;
                 Bukkit.getScheduler().runTask(getPlugin(), () -> {
-                    addon.log("Area " + area.id() + ": " + summary);
-                    user.sendMessage(PREFIX + "check.result", TextVariables.DESCRIPTION, summary);
+                    addon.log("Area " + area.id() + ": " + outcome.summary());
+                    user.sendMessage(PREFIX + "check.result", TextVariables.DESCRIPTION, outcome.summary());
                     user.sendMessage(PREFIX + "check.report", "[file]", path);
                 });
             });
             return true;
-        }
-
-        /**
-         * @return how much each advancement grows the box, from advancements.yml
-         */
-        private static Map<String, Integer> getScores(File folder) {
-            Map<String, Integer> scores = new HashMap<>();
-            ConfigurationSection adv = YamlConfiguration.loadConfiguration(new File(folder, "advancements.yml"))
-                    .getConfigurationSection("advancements");
-            if (adv != null) {
-                adv.getKeys(false).forEach(k -> scores.put(k.contains(":") ? k : "minecraft:" + k, adv.getInt(k)));
-            }
-            return scores;
-        }
-
-        /**
-         * @return the starter blocks of an area, by position relative to the centre of the box
-         */
-        private static Map<Vector, String> getStarterBlocks(Boxed addon, Area area) {
-            Map<Vector, String> starter = new HashMap<>();
-            Blueprint bp = new BoxHeight(addon).getBlueprint(area);
-            if (bp != null) {
-                Vector bedrock = bp.getBedrock() == null ? new Vector() : bp.getBedrock();
-                Stream.of(bp.getBlocks(), bp.getAttached()).filter(Objects::nonNull).forEach(
-                        m -> m.forEach((pos, block) -> starter.put(pos.clone().subtract(bedrock), block.getBlockData())));
-            }
-            return starter;
         }
 
         @Override

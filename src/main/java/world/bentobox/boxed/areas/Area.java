@@ -13,10 +13,15 @@ package world.bentobox.boxed.areas;
  * @param unlockSize the size a player's box in this area must reach to unlock the areas that
  *                   require it. Each area sets its own, so some can be harder than others.
  *                   0 means that just having a box in the area is enough.
+ * @param centreX block x in the overworld seed world that the middle of every box is taken from
+ * @param centreZ block z in the overworld seed world that the middle of every box is taken from
+ * @param netherCentreX block x in the Nether seed world that the middle of every box is taken from
+ * @param netherCentreZ block z in the Nether seed world that the middle of every box is taken from
  * @author tastybento
  */
 public record Area(String id, long seed, String biomes, String structures, int row, boolean enabled,
-        String requires, int unlockSize) {
+        String requires, int unlockSize, int centreX, int centreZ,
+        int netherCentreX, int netherCentreZ) {
 
     /**
      * Name of the area that always exists

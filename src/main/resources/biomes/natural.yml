@@ -1,0 +1,79 @@
+# The original layout with the edges between biomes blended, so there are no straight lines.
+# blend is how many blocks the edges wander. See biomes.yml for how the lists work.
+blend: 28
+distribution:
+  overworld:
+    north-east:
+    - 0.05:CUSTOM
+    - 0.1:DESERT
+    - 0.2:SAVANNA
+    - 0.5:SPARSE_JUNGLE
+    - 0.65:JUNGLE
+    - 0.8:BAMBOO_JUNGLE
+    - 1.0:MANGROVE_SWAMP
+    south-east:
+    - 0.05:CUSTOM
+    - 0.8:SUNFLOWER_PLAINS
+    - 0.2:FLOWER_FOREST
+    - 0.3:SAVANNA
+    - 0.4:BEACH
+    - 0.5:COLD_OCEAN
+    north-west:
+    - 0.05:CUSTOM
+    - 0.8:WARM_OCEAN
+    - 1.5:COLD_OCEAN
+    - 2.0:OCEAN
+    south-west:
+    - 0.04:CUSTOM
+    - 0.05:DARK_FOREST
+    - 0.06:BIRCH_FOREST
+    - 0.07:FOREST
+    - 0.09:OLD_GROWTH_PINE_TAIGA
+    - 0.12:TAIGA
+    - 0.25:SNOWY_BEACH
+    - 0.3:FROZEN_OCEAN
+    - 0.5:ICE_SPIKES
+    - 0.7:TAIGA
+    - 1.1:SNOWY_PLAINS
+    - 2.1:SNOWY_TAIGA
+  nether:
+    north-east:
+    - 0.1:CUSTOM
+    - 0.14:CRIMSON_FOREST
+    - 0.26:NETHER_WASTES
+    - 0.51:WARPED_FOREST
+    - 0.76:NETHER_WASTES
+    - 1.1:CRIMSON_FOREST
+    - 1.36:SOUL_SAND_VALLEY
+    - 1.6:BASALT_DELTAS
+    - 2.1:NETHER_WASTES
+    south-east:
+    - 0.03:CUSTOM
+    - 0.05:CRIMSON_FOREST
+    - 0.23:NETHER_WASTES
+    - 0.48:WARPED_FOREST
+    - 0.70:NETHER_WASTES
+    - 1.0:CRIMSON_FOREST
+    - 1.2:SOUL_SAND_VALLEY
+    - 1.9:BASALT_DELTAS
+    - 2.0:NETHER_WASTES
+    north-west:
+    - 0.10:CUSTOM
+    - 0.15:CRIMSON_FOREST
+    - 0.20:NETHER_WASTES
+    - 0.3:WARPED_FOREST
+    - 0.5:NETHER_WASTES
+    - 1.0:CRIMSON_FOREST
+    - 1.25:SOUL_SAND_VALLEY
+    - 1.5:BASALT_DELTAS
+    - 2.0:NETHER_WASTES
+    south-west:
+    - 0.03:CUSTOM
+    - 0.11:CRIMSON_FOREST
+    - 0.22:NETHER_WASTES
+    - 0.51:WARPED_FOREST
+    - 0.73:NETHER_WASTES
+    - 1.1:CRIMSON_FOREST
+    - 1.26:SOUL_SAND_VALLEY
+    - 1.54:BASALT_DELTAS
+    - 2.1:NETHER_WASTES

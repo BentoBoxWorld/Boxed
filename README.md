@@ -75,9 +75,13 @@ You can also do the same by hand: add the area to `areas.yml` and make a bluepri
 | `/boxadmin areas` | Lists the areas with their row, seed and number of boxes. |
 | `/boxadmin areas tp <area>` | Takes you to the land where the area's next box will be, so you can look at it and place structures before any player has a box there. |
 | `/boxadmin areas create <name> [seed]` | Makes a new area and its blueprint bundle. Needs a restart. |
-| `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
+| `/boxadmin areas rebuild <area> [regenerate]` | Builds the area's land again at the next restart. With `regenerate` the seed worlds are thrown away first, which is needed after changing the area's seed, centres or biomes. Without it, the land is rebuilt from the seed worlds as they are, which keeps changes made to them by hand. |
 | `/boxadmin areas clean [x z]` | Puts the land of the box position you are in (or the one at x, z) back the way it was. Use it after trying out structures in a position nobody has a box in. Positions with a box in use are refused. |
 | `/boxadmin areas check <area>` | Plays out how a box grows in the area and reports where players get stuck. See [Checking that an area can be played](#checking-that-an-area-can-be-played). |
+| `boxadmin areas find <area> [seed\|random] [radius]` | Console only. Looks through a seed for good places to start a box. See [Finding a good place to start](#finding-a-good-place-to-start). |
+| `/boxadmin areas edit` | Opens the area workshop, where a new area is tried out in a temporary world. See [The area workshop](#the-area-workshop). |
+| `/boxadmin areas spots` | Shows the places the workshop found and picks the middle of the box. |
+| `/boxadmin areas make [name]` | Makes the workshop into an area that players can use, without a restart. |
 
 Areas can be chained so that a player's box in one area has to reach a certain size before the next area is unlocked, and can be closed to new boxes:
 
@@ -164,16 +168,146 @@ What each advancement needs is set in `requirements.yml`, which is written to th
 
 An advancement that scores points but can never be earned is worth either removing from `advancements.yml` or making possible, for example by placing a structure with `/boxadmin place`.
 
+### Finding a good place to start
 
-### biomes.yml
-The player's land has biomes and they are defined here. It's not possible to define where the biomes are right now, only what affect they have on the terrain.
+**The easy way is [the area workshop](#the-area-workshop)**, which searches by itself and lets you go and look at each place. The command described here does the same search from the console and only writes a report.
 
-* height: the default height is 8. Lower numbers will produce lower land, higher higher land.
-* scale: this is how smooth the land will be. Smaller numbers are more jagged, larger numbers are flatter.
+Every box in an area is a copy of the land around one place in the area's seed. By default that place is 0,0, so whether new players start in a forest or in the sea depends on the seed. `/boxadmin areas find <area> [seed|random] [radius]` finds better places for you:
 
-Setting ocean biomes to higher height numbers will result in the ocean floor being above the sea level and creating land.
+* with no seed it searches the seed the area already has, so you can see how the current place compares,
+* with a seed it searches that seed, and with `random` it picks a new seed,
+* `radius` is how far from 0,0 to search in blocks. The default is 5000.
 
-A lot of these numbers are rough guesses right now and if you come up with better values, please share them!
+The search looks for dry, wooded land with a river or the sea a short walk away. It then generates the land around the best dozen places in a temporary world, which is deleted afterwards, and gives each a score out of 100. The score is highest when the middle is dry land and a small box already holds logs, water at the surface, stone near the surface, iron ore and coal. The area's biomes file is used, so the land is what a box there would really have. It takes around 10 seconds.
+
+The three best places are shown and the full list is written to `areas/<area>/spots.txt`:
+
+```
+100/100  centre: 1664,1536  (forest, river or sea about 32 blocks away, 92% land)
+         dry land (100% dry), wood at size 4, water at size 14, stone at size 1, iron ore at size 2, coal at size 2
+```
+
+To use a place, set the area's `seed` and `centre` in `areas.yml`, run `/boxadmin areas rebuild <area> regenerate` and restart the server. Boxes that players have already explored do not change, so do this before the area is in use. `centre` moves the overworld only. The Nether has its own setting, `nether-centre`.
+
+#### The Nether fortress
+
+Blaze rods and wither skulls only come from a fortress, and a fortress cannot be placed with `/boxadmin place` the way a bastion can, because the game builds fortresses from code and not from structure files. The only way to give boxes a fortress is to take the Nether from a part of the seed that has one. The search does this for you: it finds the fortresses nearest the middle of the seed's Nether and, for each, lists a `nether-centre` on open ground a short way from a blaze spawner:
+
+```
+nether-centre: 272,128  (fortress at size 12, blaze spawner at size 34)
+```
+
+If you move the Nether, structures you placed there by hand (the bastion in the default `structures.yml`, for example) will need to be placed again to suit the new land.
+
+The Nether of a box is a copy, so the game does not know the fortress is there and would never spawn its mobs. Boxed does it instead: some of the mobs that spawn on nether bricks in the Nether become wither skeletons, blazes and skeletons, as often as they would in a real fortress. Blaze spawners are copied with the land and work as normal. Turn this off with `world.nether.fortress-mobs` in `config.yml`.
+
+A good start does not mean the area can be finished. Run `/boxadmin areas check <area>` after the restart to see how far a box there can grow.
+
+
+### The area workshop
+
+The workshop is a set of temporary worlds for trying out a seed and a biome style before they become an area. It finds good places to start, lets you pick one as the middle of the box and shape the land, and then makes the area without a restart. **Not finished yet:** structures placed in the workshop are copied as blocks but are not recorded as structures, and the Nether is always taken from 0,0.
+
+Run `/boxadmin areas edit`. A dialog box asks for:
+
+* **Area** - a new area, or an existing one to start from.
+* **Seed** - leave it empty for a random seed, or to keep the seed of the area you picked. `-1` is always a random seed.
+* **Biome style** - see [Biome styles](#biome-styles).
+
+You are then taken to the temporary world. While you are there:
+
+* Everyone who comes in is put in creative mode and gets their old game mode back when they leave. If you switch to survival and die, you come back where you died, in creative mode.
+* The world is peaceful and nothing spawns, so nothing changes the land except you.
+* You can leave and come back. The workshop, and everything built in it, stays until you discard it, including over a server restart. There is one workshop at a time, and other admins can join it.
+* If you start from an existing area without changing its seed or biome style, the workshop starts as a copy of the land that area was built from, so changes made to it by hand are kept.
+
+#### Picking the middle of the box
+
+As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. It looks for wooded, dry land with water a short walk away and no mountains within about 130 blocks, so that a new player can see what there is to reach. You can fly around while it works. You are told in chat when the first place is ready and when the search has finished. In between, progress is shown above the hotbar. The first ones arrive within a few seconds and there are up to thirteen.
+
+Press **F** (the swap hands key), click the message, or run `/boxadmin areas spots`, to see the places as numbered buttons with their coordinates and scores. Hover over a button to see what the score is made of. The first place is always where the workshop started: 0,0, or the middle of the area you started from.
+
+Clicking a button:
+
+* takes you there, on the ground under any trees,
+* makes it the middle of every box,
+* puts a diamond block under your feet to mark it, and
+* sets a world border that shows how far a box can grow.
+
+Only you see the diamond block and the border, and neither changes the world. The border also stops you flying out, so hide it with the button in the dialog or `/boxadmin areas spots border` when you want to look further afield. You can pick another place at any time.
+
+The biome style is laid out around every place that was found, so each one looks exactly as a box there will look. This is why you pick from the places found and cannot use just anywhere: biomes are fixed when land is generated.
+
+| Command | Description |
+|---------|-------------|
+| `/boxadmin areas spots` | Shows the places found so far. |
+| `/boxadmin areas spots <number>` | Picks a place and takes you there. |
+| `/boxadmin areas spots border` | Shows or hides the border. |
+
+The permission is `boxed.admin.areas.spots`.
+
+#### Making the area
+
+When you are happy with the land, run `/boxadmin areas make`. A dialog box asks for the name of the area. Then:
+
+1. **The land is copied.** This takes about half a minute and the server keeps running. Progress is shown above the hotbar.
+2. **The land is checked.** Boxed works out how far a box can grow in it, in the same way as `/boxadmin areas check`, and shows you the result, for example "The box grows to fill its land (size 320). 70 advancements earned for 415 points, 0 out of reach, 27 impossible".
+3. **You confirm, or not.** Nothing has been made yet. If you say "Not yet" you are back in the workshop and can change things and try again.
+
+When you confirm, the area exists straight away and players can pick it. There is no restart. Boxed:
+
+* writes the area to `areas.yml` with its seed, `centre`, `nether-centre` and biome style,
+* makes a blueprint bundle with the same name, copied from the first bundle, if there is not one already,
+* sends everyone out of the workshop, and
+* keeps the workshop's worlds as the seed worlds of the area, so `/boxadmin areas rebuild <area>` builds it again with everything you changed by hand.
+
+Anything you change after the land was copied is not in the area, so run `/boxadmin areas make` again if you change something.
+
+**Replacing an area.** Give the name of an area that already exists to replace its land. This is only allowed while no player has a box in it, because every box in an area must be the same. The area keeps its row, its structures file and its `requires` and `unlocks-next-at` settings. The default area can be replaced this way on a new server.
+
+From the console, type `boxadmin areas spots <number>` to pick the middle, `boxadmin areas make <name>` to copy and check the land, and `boxadmin areas make <name> confirm` to make the area.
+
+The permission is `boxed.admin.areas.make`.
+
+#### Coming back and discarding
+
+Run `/boxadmin areas edit` again to go back to it, go to its Nether, or discard it. Discarding sends everyone inside to their box (or to spawn if they have none) and deletes the temporary worlds. Players who were inside but offline are sent to their box when they next join.
+
+Everything can also be typed, which is the only way from the console:
+
+| Command | Description |
+|---------|-------------|
+| `/boxadmin areas edit start <seed\|random\|same> [biome style\|same] [area]` | Starts work on an area. `same` keeps the seed or biome style of the area named. |
+| `/boxadmin areas edit go [nether]` | Goes to the area being worked on. From the console it just makes the world. |
+| `/boxadmin areas edit discard confirm` | Throws away the area being worked on. |
+
+The permission is `boxed.admin.areas.edit`.
+
+### Biome styles
+
+A box is small, so Boxed lays chosen biomes out around the middle of it to give players variety: snow, ice, desert, jungle and their plants and animals, all within reach. A biome style is a file that says how. The styles that come with Boxed are:
+
+| Style | File | What it does |
+|-------|------|--------------|
+| `original` | `biomes.yml` | Each quarter of the box (north-east, south-east, north-west, south-west) has its own list of biomes by distance from the middle. The edges between biomes are straight. |
+| `natural` | `biomes/natural.yml` | The same biomes as `original`, with the edges blended so that there are no straight lines. |
+| `rings` | `biomes/rings.yml` | Biomes in rings around the middle, the same all the way round. |
+| `random` | `biomes/random.yml` | Patches of biomes picked at random from a list. |
+| `none` | `biomes/none.yml` | No chosen biomes. Every box has the biomes the seed has at that place. |
+
+To make your own style, copy one of the files in the `biomes` folder, give it a new name and change it. It then appears in the workshop under that name. An area uses a style through its `biomes` setting in `areas.yml`, for example `biomes: biomes/natural.yml`.
+
+A style file has a `distribution` section with a part for the `overworld` and a part for the `nether`. Each part uses one of:
+
+* `north-east`, `south-east`, `north-west` and `south-west` - a list for each quarter of the box.
+* `rings` - one list used all the way round.
+* `patches` - a `size` in blocks and a list of `biomes`. Each patch gets one of the biomes at random. The patch in the middle always gets the first in the list. List a biome twice to make it twice as common.
+
+The lists for quarters and rings are entries of `distance:BIOME`. The distance is a fraction of the area's radius (`world.area-radius` in `config.yml`), so `1.0` is the edge of the biggest possible box, and biomes can be set as far as `2.0`. `CUSTOM` means "leave the biome the seed has".
+
+`blend` at the top of the file is how many blocks the edges between biomes wander. `0`, or leaving it out, gives straight edges.
+
+Biomes are fixed when the land is generated. Changing a style does nothing to an area that is already built until you run `/boxadmin areas rebuild <area> regenerate` and restart.
 
 ### structures.yml
 This file records which Minecraft structures should be placed in each new player's box when their area is first created. Structures are stored relative to the island center and are placed in overworld (`normal`) and nether sections.

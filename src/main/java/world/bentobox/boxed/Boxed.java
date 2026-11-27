@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -63,7 +64,11 @@ import world.bentobox.boxed.generators.template.TemplateChunk;
 import world.bentobox.boxed.listeners.AdvancementListener;
 import world.bentobox.boxed.listeners.BoxCleaner;
 import world.bentobox.boxed.listeners.EnderPearlListener;
+import world.bentobox.boxed.listeners.FortressMobsListener;
 import world.bentobox.boxed.listeners.NewAreaListener;
+import world.bentobox.boxed.listeners.WorkshopListener;
+import world.bentobox.boxed.workshop.BiomeStyles;
+import world.bentobox.boxed.workshop.WorkshopManager;
 
 /**
  * Main Boxed class - provides a survival game inside a box
@@ -94,6 +99,7 @@ public class Boxed extends GameModeAddon {
     private BoxCleaner boxCleaner;
     private AbstractBoxedChunkGenerator netherGen;
     private AreaManager areas;
+    private WorkshopManager workshop;
 
 
     private final Config<Settings> configObject = new Config<>(this, Settings.class);
@@ -108,6 +114,10 @@ public class Boxed extends GameModeAddon {
         saveDefaultConfig();
         // Load settings from config.yml. This will check if there are any issues with it too.
         loadSettings();
+        // The biome styles that come with Boxed. Admins add their own to the same folder.
+        for (String style : List.of("natural", "rings", "random", "none")) {
+            saveResource(BiomeStyles.FOLDER + "/" + style + ".yml", false);
+        }
 
         // Register commands
         playerCommand = new DefaultPlayerCommand(this) {};
@@ -148,13 +158,7 @@ public class Boxed extends GameModeAddon {
                     new File(getDataFolder(), AREAS_FOLDER + File.separator + "grid.yml"), settings.getSeed(),
                     this::logError);
         }
-        String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
-        for (Area area : areas.getAreas()) {
-            generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
-                    Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes())));
-            generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
-                    Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes())));
-        }
+        areas.getAreas().forEach(this::registerSeedGenerators);
 
         return true;
     }
@@ -184,10 +188,15 @@ public class Boxed extends GameModeAddon {
         // Register listeners
         this.registerListener(new AdvancementListener(this));
         this.registerListener(new EnderPearlListener(this));
+        this.registerListener(new FortressMobsListener(this));
         newAreaListener = new NewAreaListener(this);
         this.registerListener(newAreaListener);
         boxCleaner = new BoxCleaner(this);
         this.registerListener(boxCleaner);
+        // An area that was being worked on when the server stopped is still there
+        workshop = new WorkshopManager(this);
+        workshop.load();
+        this.registerListener(new WorkshopListener(this, workshop));
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);
@@ -229,10 +238,10 @@ public class Boxed extends GameModeAddon {
         // Get the land of every area ready before the game worlds ask for it
         for (Area area : areas.getAreas()) {
             boolean regenerate = checkRebuildRequest(area);
-            loadTemplate(area, worldName, Environment.NORMAL, settings.getSeedX(), settings.getSeedZ(), regenerate);
+            loadTemplate(area, worldName, Environment.NORMAL, area.centreX(), area.centreZ(), regenerate);
             if (settings.isNetherGenerate()) {
-                loadTemplate(area, worldName, Environment.NETHER, settings.getNetherSeedX(),
-                        settings.getNetherSeedZ(), regenerate);
+                loadTemplate(area, worldName, Environment.NETHER, area.netherCentreX(), area.netherCentreZ(),
+                        regenerate);
             }
         }
         // Create overworld
@@ -256,7 +265,7 @@ public class Boxed extends GameModeAddon {
      * @param env environment
      * @return the template file for the area and environment
      */
-    File getTemplateFile(Area area, Environment env) {
+    public File getTemplateFile(Area area, Environment env) {
         return new File(getAreaFolder(area), env.name().toLowerCase(Locale.ENGLISH) + ".bxt");
     }
 
@@ -278,9 +287,7 @@ public class Boxed extends GameModeAddon {
         String seedWorldName = area.seedWorldName(worldName, env == Environment.NETHER);
         File file = getTemplateFile(area, env);
         int size = worldGen.getSize();
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().enableComplexMapKeySerialization()
-                .disableHtmlEscaping().registerTypeAdapterFactory(new BentoboxTypeAdapterFactory(getPlugin()))
-                .create();
+        Gson gson = templateGson();
         Template template = openTemplate(file, gson, size, area.seed());
         if (template == null) {
             log("Building " + what + " from its seed world. This only happens once...");
@@ -351,6 +358,58 @@ public class Boxed extends GameModeAddon {
     }
 
     /**
+     * Gives an area its land while the server is running. The land the area had before, if
+     * any, is closed.
+     * @param area area
+     * @param env environment
+     * @param file a finished template file
+     * @throws IOException if the file cannot be read
+     */
+    public void setLand(Area area, Environment env, File file) throws IOException {
+        close(areas.setTemplate(area, env, readTemplate(file)));
+    }
+
+    /**
+     * Closes the land of an area so that its files can be replaced.
+     * @param area area
+     */
+    public void clearLand(Area area) {
+        areas.removeTemplates(area).forEach(this::close);
+    }
+
+    /**
+     * @param file a template file
+     * @return the land in the file
+     * @throws IOException if the file cannot be read
+     */
+    public Template readTemplate(File file) throws IOException {
+        return new Template(file, templateGson(), this::logError);
+    }
+
+    /**
+     * @return gson that can read and write the blocks and entities of a template
+     */
+    public Gson templateGson() {
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().enableComplexMapKeySerialization()
+                .disableHtmlEscaping().registerTypeAdapterFactory(new BentoboxTypeAdapterFactory(getPlugin()))
+                .create();
+    }
+
+    /**
+     * Makes the generators of an area's seed worlds known, so that world management plugins
+     * can load them and the area's land can be rebuilt later.
+     * @param area area
+     */
+    public void registerSeedGenerators(Area area) {
+        String worldName = settings.getWorldName().toLowerCase(Locale.ENGLISH);
+        generatorMaps.put(area.seedWorldName(worldName, false), new BoxedSeedChunkGenerator(this,
+                Environment.NORMAL, new SeedBiomeGenerator(this, area.biomes(), area.centreX(), area.centreZ())));
+        generatorMaps.put(area.seedWorldName(worldName, true), new BoxedSeedChunkGenerator(this,
+                Environment.NETHER, new NetherSeedBiomeGenerator(this, area.biomes(), area.netherCentreX(),
+                        area.netherCentreZ())));
+    }
+
+    /**
      * @return the cleaner that puts the land of deleted boxes back
      */
     public BoxCleaner getBoxCleaner() {
@@ -362,6 +421,13 @@ public class Boxed extends GameModeAddon {
      */
     public AreaManager getAreas() {
         return areas;
+    }
+
+    /**
+     * @return the workshop, where admins make new areas
+     */
+    public WorkshopManager getWorkshop() {
+        return workshop;
     }
 
     /**

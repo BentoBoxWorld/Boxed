@@ -173,6 +173,13 @@ public class Settings implements WorldSettings {
     @ConfigEntry(path = "world.nether.generate")
     private boolean netherGenerate = true;
 
+    @ConfigComment("Spawn fortress mobs in the Nether. The Nether of a box is copied block by block, so the")
+    @ConfigComment("game does not know where its fortress is and would never spawn wither skeletons there.")
+    @ConfigComment("With this on, some of the mobs that spawn on nether bricks become wither skeletons,")
+    @ConfigComment("blazes and skeletons, as often as they would in a real fortress.")
+    @ConfigEntry(path = "world.nether.fortress-mobs", since = "3.5.0")
+    private boolean netherFortressMobs = true;
+
     @ConfigComment("This option indicates if nether portals should be linked via dimensions.")
     @ConfigComment("Option will simulate vanilla portal mechanics that links portals together")
     @ConfigComment("or creates a new portal, if there is not a portal in that dimension.")
@@ -638,6 +645,20 @@ public class Settings implements WorldSettings {
     @Override
     public boolean isNetherGenerate() {
         return netherGenerate;
+    }
+
+    /**
+     * @return true if fortress mobs are spawned on nether bricks in the Nether
+     */
+    public boolean isNetherFortressMobs() {
+        return netherFortressMobs;
+    }
+
+    /**
+     * @param netherFortressMobs true to spawn fortress mobs on nether bricks in the Nether
+     */
+    public void setNetherFortressMobs(boolean netherFortressMobs) {
+        this.netherFortressMobs = netherFortressMobs;
     }
 
     /**

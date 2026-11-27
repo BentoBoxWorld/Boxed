@@ -7,12 +7,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import org.bukkit.Bukkit;
 
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -37,6 +40,7 @@ import org.bukkit.entity.Villager;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Colorable;
+import org.bukkit.plugin.Plugin;
 
 import com.google.gson.Gson;
 
@@ -119,6 +123,118 @@ public class TemplateBuilder {
                 throw new IOException("Could not build " + file.getName(), failure.get());
             }
         }
+    }
+
+    /**
+     * Builds the template file while the server keeps running. A column of chunks is
+     * captured each time the server has them ready, so no tick is held up for long. The
+     * chunks are left for the server to unload, which saves them.
+     * @param file file to make
+     * @param seed seed to record in the file
+     * @param plugin plugin to schedule with
+     * @param progress told the percentage done as it goes up, on the main thread
+     * @return completes on the main thread when the file is in place, or with the reason it could not be made
+     */
+    public CompletableFuture<Void> buildAsync(File file, long seed, Plugin plugin, IntConsumer progress) {
+        CompletableFuture<Void> result = new CompletableFuture<>();
+        int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+        TemplateFile.Writer writer;
+        try {
+            writer = new TemplateFile.Writer(file, size, seed);
+        } catch (IOException e) {
+            result.completeExceptionally(e);
+            return result;
+        }
+        ExecutorService pool = Executors.newFixedThreadPool(threads, r -> {
+            Thread t = new Thread(r, "Boxed template builder");
+            t.setDaemon(true);
+            return t;
+        });
+        AsyncBuild build = new AsyncBuild(file, writer, pool, new Semaphore(size * 4), new AtomicReference<>(), plugin,
+                progress, result);
+        captureColumn(build, -size);
+        return result;
+    }
+
+    /**
+     * What a build that runs alongside the server carries from one column to the next
+     */
+    private record AsyncBuild(File file, TemplateFile.Writer writer, ExecutorService pool, Semaphore permits,
+            AtomicReference<Exception> failure, Plugin plugin, IntConsumer progress, CompletableFuture<Void> result) {
+    }
+
+    /**
+     * Captures one column of chunks when the server has them, then moves on to the next.
+     */
+    private void captureColumn(AsyncBuild build, int x) {
+        if (x >= size || build.failure().get() != null) {
+            finishAsync(build);
+            return;
+        }
+        List<CompletableFuture<Chunk>> chunks = new ArrayList<>();
+        for (int z = -size; z < size; z++) {
+            chunks.add(world.getChunkAtAsync(centerX + x, centerZ + z));
+        }
+        CompletableFuture.allOf(chunks.toArray(CompletableFuture[]::new)).whenComplete((v, error) ->
+        // Chunks have to be read on the main thread
+        Bukkit.getScheduler().runTask(build.plugin(), () -> {
+            if (error != null) {
+                build.failure().compareAndSet(null, new IOException(error));
+            } else {
+                captureLoadedColumn(build, x);
+            }
+            captureColumn(build, x + 1);
+        }));
+    }
+
+    private void captureLoadedColumn(AsyncBuild build, int x) {
+        try {
+            for (int z = -size; z < size; z++) {
+                capture(x, z, build.writer(), build.pool(), build.permits(), build.failure());
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            build.failure().compareAndSet(null, e);
+        } catch (RuntimeException e) {
+            build.failure().compareAndSet(null, e);
+        }
+        build.progress().accept((x + size + 1) * 100 / (size * 2));
+    }
+
+    /**
+     * Waits for the last chunks to be compressed, off the main thread, and closes the file.
+     */
+    private void finishAsync(AsyncBuild build) {
+        Bukkit.getScheduler().runTaskAsynchronously(build.plugin(), () -> {
+            build.pool().shutdown();
+            try {
+                if (!build.pool().awaitTermination(10, TimeUnit.MINUTES)) {
+                    build.failure().compareAndSet(null, new IOException("Timed out compressing chunks"));
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                build.failure().compareAndSet(null, e);
+            }
+            build.pool().shutdownNow();
+            try {
+                if (build.failure().get() != null) {
+                    build.writer().abort();
+                } else {
+                    build.writer().close();
+                }
+            } catch (IOException e) {
+                build.failure().compareAndSet(null, e);
+            }
+            Exception failed = build.failure().get();
+            Bukkit.getScheduler().runTask(build.plugin(), () -> {
+                if (failed == null) {
+                    build.result().complete(null);
+                } else {
+                    build.result().completeExceptionally(
+                            new IOException("Could not build " + build.file().getName(), failed));
+                }
+            });
+        });
     }
 
     private void captureAll(File file, TemplateFile.Writer writer, ExecutorService pool, Semaphore permits,

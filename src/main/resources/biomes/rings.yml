@@ -1,0 +1,25 @@
+# Biomes in rings around the middle of the box, the same all the way round.
+# Each entry is distance:BIOME. The distance is a fraction of the area's radius, so 1.0 is the
+# edge of the biggest possible box. CUSTOM means "leave the biome the seed has".
+# blend is how many blocks the edges between biomes wander. 0 makes perfect circles.
+blend: 16
+distribution:
+  overworld:
+    rings:
+    - 0.1:CUSTOM
+    - 0.25:FOREST
+    - 0.4:PLAINS
+    - 0.55:DESERT
+    - 0.7:JUNGLE
+    - 0.85:TAIGA
+    - 1.0:SNOWY_PLAINS
+    - 2.0:OCEAN
+  nether:
+    rings:
+    - 0.1:CUSTOM
+    - 0.3:CRIMSON_FOREST
+    - 0.5:NETHER_WASTES
+    - 0.7:WARPED_FOREST
+    - 0.85:SOUL_SAND_VALLEY
+    - 1.0:BASALT_DELTAS
+    - 2.0:NETHER_WASTES

@@ -609,6 +609,102 @@ boxed:
           started: '&a Surveying the land of [name]. This takes a few seconds...'
           result: '&a [description]'
           report: '&a The full report is in &e [file]'
+        edit:
+          description: work on a new area, or change one, in a temporary world
+          parameters: '[start <seed|random|same> [biome style] [area] | go [nether] | discard confirm]'
+          none: '&c No area is being worked on. Start one with &b /[label] areas edit'
+          exists: '&c An area is already being worked on. Finish it or discard it first.'
+          unknown-style: '&c There is no biome style with that name. Styles: &e [styles]'
+          started: '&a Started work on an area with seed &e [seed] &a and the &e [style] &a biome style.'
+          status: '&a An area is being worked on. Seed &e [seed]&a, biome style &e [style]&a, started from area &e [area]'
+          ready: '&a The world is ready.'
+          welcome: '&a You are in the area workshop, in creative mode. Places to start a box are being looked for. Press &b F &a(swap hands) to see them.'
+          failed: '&c That did not work. See the console for the reason.'
+          discard-confirm: '&c This deletes the area being worked on and its worlds. Type &b discard confirm &c to do it.'
+          discarded: '&a The area that was being worked on has been removed.'
+          discard-failed: '&c The area was removed, but a world could not be unloaded. See the console.'
+          dialog:
+            start-title: Work on an area
+            start-body: Pick an area to change, or make a new one. Leave the seed empty for a random seed, or to keep the seed of the area you picked.
+            area: Area
+            new-area: A new area
+            seed: Seed
+            style: Biome style
+            same-style: Same as the area (original for a new area)
+            go: Go
+            cancel: Cancel
+            status-title: Area in progress
+            status-body: 'Seed: [seed]. Biome style: [style]. Started from area: [area]'
+            go-overworld: Go to the overworld
+            go-nether: Go to the Nether
+            discard: Discard it
+            save-for-later: Save for later
+            discard-title: Discard this area?
+            discard-body: The temporary worlds and everything done in them will be deleted. Areas that are already made are not affected.
+        spots:
+          description: show the places found for the middle of the box, or pick one
+          parameters: '[number | border]'
+          looking: '&a Still looking for places to start a box. You will be told when one is found.'
+          found: '&a The first place to start is ready. Press &b F &a(swap hands) or click here to see the places as they are found.[run_command: /[label] areas spots][hover: Show the places found]'
+          finished: '&a The search has finished: [number] places. Press &b F &a(swap hands) or click here to see them.[run_command: /[label] areas spots][hover: Show the places found]'
+          progress: '&a Places to start: [number] of [total] ready. Press F to see them.'
+          entry: '&e [number]: &a [xyz] &7 score [score], [biome]. [description]'
+          entry-picked: '&e [number]: &a [xyz] &7 score [score], [biome]. [description] &b (picked)'
+          more-coming: '&7 [number] more are still being looked at.'
+          unknown: '&c There is no place with that number yet.'
+          selected: '&a Place [number] at &e [xyz] &a is now the middle of the box.'
+          no-centre: '&c Pick a place first.'
+          border-on: '&a The border is shown.'
+          border-off: '&a The border is hidden.'
+          dialog:
+            title: Places to start a box
+            body: Click a place to go there and make it the middle of every box. A diamond block marks the middle and the border shows how far a box can grow. Press F (swap hands) to open this again.
+            body-looking: Click a place to go there and make it the middle of every box. [number] more are still being looked at. Press F (swap hands) to open this again.
+            button: '[number]: [xyz] (score [score])'
+            button-picked: '> [number]: [xyz] (score [score]) <'
+            tooltip: '[biome]. [description]'
+            border: Show or hide the border
+            close: Close
+        make:
+          description: make the area being worked on into an area that players can use
+          parameters: '<name> [confirm]'
+          no-workshop: '&c No area is being worked on.'
+          busy: '&c The land is already being copied. Wait for it to finish.'
+          no-centre: '&c Pick the middle of the box first with &b /[label] areas spots'
+          invalid-name: '&c An area name can only have lower case letters, numbers and underscores.'
+          has-boxes: '&c Players have boxes in area [name], so its land cannot be replaced. Use another name.'
+          started: '&a Copying the land for area &e [name]&a. The server keeps running while this is done.'
+          progress: '&a Copying the land: [number]%'
+          checking: '&a The land is copied. Working out how far a box can grow in it. This takes about half a minute...'
+          result: '&a [description]'
+          confirm-how: '&a To make the area, type &b /[label] areas make [name] confirm'
+          confirm-how-replace: '&c Area [name] exists and its land will be replaced. &a To do it, type &b /[label] areas make [name] confirm'
+          not-prepared: '&c The land for [name] has not been copied yet. Run &b /[label] areas make [name] &c first.'
+          failed: '&c That did not work. See the console for the reason.'
+          success: '&a Area &e [name] &a is ready. Players can pick it now. The workshop has closed and its world is kept as the seed world of the area.'
+          dialog:
+            name-title: Make the area
+            name-body: Give the area a name of lower case letters, numbers and underscores. The land is copied and checked first, and you are shown the result before anything is made. Use the name of an area that has no boxes to replace its land.
+            name: Name
+            check: Copy and check
+            cancel: Cancel
+            confirm-title: 'Make area [name]?'
+            confirm-body: '[description] Players will be able to pick the area straight away. The workshop closes and you are sent out of it.'
+            confirm-body-replace: '[description] Area [name] exists and its land will be replaced. The workshop closes and you are sent out of it.'
+            make: Make it
+            not-yet: Not yet
+        find:
+          description: look through a seed for good places to start a box
+          parameters: <area> [seed|random] [search radius]
+          invalid-radius: '&c The search radius must be a whole number from [min] to [max]'
+          running: '&c A search is already running. Wait for it to finish.'
+          started: '&a Searching seed [seed] for good places to start a box. This takes a minute or two...'
+          none: '&c No dry, wooded land was found. Try another seed or a bigger search radius.'
+          failed: '&c The search could not be run. Check the console for the error'
+          result: '&e [xyz] &a scores [number]: &7 [description]'
+          nether: '&a Nether: &e nether-centre: [xyz] &a gives every box a fortress, with a blaze spawner at size [number]'
+          report: '&a The full list is in &e [file]'
+          how-to: '&a To use a place, set &e seed: [seed] &a and &e centre: x,z &a for [name] in areas.yml, run &e /boxadmin areas rebuild [name] regenerate &a and restart.'
     island:
       go:
         parameters: '[home number]'
