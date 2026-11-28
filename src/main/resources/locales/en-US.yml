@@ -9,6 +9,22 @@ boxed:
     Islands: Boxes
     an-island: a box
     islands: boxes
+  # Books in blueprints. A book whose first page is only a tag, such as [welcome], is given
+  # the text here when a box is made. [name] is the player's name and a line that is only
+  # [page] starts a new page. Add signed: false to leave a book and quill that can be edited.
+  # An area with its own blueprint can have its own book: give the book another tag.
+  books:
+    welcome:
+      title: Boxed
+      author: tastybento
+      text: |
+        Welcome to Boxed!
+
+        Complete advancements to expand your box!
+
+        Play alone or as a team.
+
+        Use enderpearls to move your box around, but take care!
   areas:
     errors:
       not-ready: '&c That area is new and will be ready after the server restarts.'

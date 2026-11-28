@@ -119,6 +119,30 @@ Notes:
 
 There is one blueprint "island" that is used to generate the tree, chest and blocks below down to y = 5. The default height of the surface is about y = 65, so the blueprint has to be about 60 blocks tall. If you make any good blueprints, please share them!
 
+### The book in the chest
+
+The starter chest holds a book that tells new players how the game works. Its text is not in the blueprint. It is in the locale file, `locales/en-US.yml`, under `boxed.books.welcome`, so it can be changed and translated without touching the blueprint:
+
+```yaml
+boxed:
+  books:
+    welcome:
+      title: Boxed
+      author: tastybento
+      text: |
+        Welcome to Boxed!
+
+        Complete advancements to expand your box!
+        [page]
+        This is on the second page.
+```
+
+* The text can use the same colours and formatting as other messages. `[name]` is the player's name.
+* It is spread over as many pages as it needs. A line that is only `[page]` starts a new page.
+* The book is signed, so players cannot edit it. Add `signed: false` to give a book and quill instead.
+
+To give an area its own book, put a book in that area's blueprint with a first page that is only a tag of your choosing, such as `[desert]`, and add `boxed.books.desert` to the locale file. A book without a tag, or with a tag that has no text, is left as it is. Requires BentoBox 3.25.0 or later.
+
 ### advancements.yml
 This file contains all the advancements and how much your box should grow if you get one. The file can contain custom advancements if you have them.
 
