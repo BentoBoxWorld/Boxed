@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/elder_guardian",
+  "display": {
+    "icon": {
+      "id": "minecraft:sponge"
+    },
+    "title": "Out to Dry",
+    "description": "Dry a wet sponge",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "sponge": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:sponge"
+          }
+        ]
+      }
+    }
+  }
+}

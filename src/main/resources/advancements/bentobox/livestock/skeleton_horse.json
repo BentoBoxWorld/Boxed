@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:livestock/ready_for_battle",
+  "display": {
+    "icon": {
+      "id": "minecraft:bone"
+    },
+    "title": "Stalhorse",
+    "description": "Command a skeletal horse",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "skeleton_horse": {
+      "trigger": "minecraft:started_riding",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:vehicle": {
+              "minecraft:entity_type": "minecraft:skeleton_horse"
+            }
+          }
+        }
+      }
+    }
+  }
+}

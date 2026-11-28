@@ -1,0 +1,276 @@
+{
+  "parent": "bentobox:building/stonecutter",
+  "display": {
+    "icon": {
+      "id": "minecraft:andesite_wall"
+    },
+    "title": "Wallaholic: Build 'Em All!",
+    "description": "Craft every type of wall",
+    "frame": "goal"
+  },
+  "criteria": {
+    "cobblestone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:cobblestone_wall"
+          }
+        ]
+      }
+    },
+    "mossy_cobblestone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mossy_cobblestone_wall"
+          }
+        ]
+      }
+    },
+    "brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:brick_wall"
+          }
+        ]
+      }
+    },
+    "prismarine": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:prismarine_wall"
+          }
+        ]
+      }
+    },
+    "red_sandstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:red_sandstone_wall"
+          }
+        ]
+      }
+    },
+    "mossy_stone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mossy_stone_brick_wall"
+          }
+        ]
+      }
+    },
+    "granite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:granite_wall"
+          }
+        ]
+      }
+    },
+    "stone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:stone_brick_wall"
+          }
+        ]
+      }
+    },
+    "mud_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mud_brick_wall"
+          }
+        ]
+      }
+    },
+    "nether_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:nether_brick_wall"
+          }
+        ]
+      }
+    },
+    "andesite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:andesite_wall"
+          }
+        ]
+      }
+    },
+    "red_nether_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:red_nether_brick_wall"
+          }
+        ]
+      }
+    },
+    "sandstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:sandstone_wall"
+          }
+        ]
+      }
+    },
+    "end_stone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:end_stone_brick_wall"
+          }
+        ]
+      }
+    },
+    "diorite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:diorite_wall"
+          }
+        ]
+      }
+    },
+    "blackstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:blackstone_wall"
+          }
+        ]
+      }
+    },
+    "polished_blackstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_blackstone_wall"
+          }
+        ]
+      }
+    },
+    "polished_blackstone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_blackstone_brick_wall"
+          }
+        ]
+      }
+    },
+    "cobbled_deepslate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:cobbled_deepslate_wall"
+          }
+        ]
+      }
+    },
+    "polished_deepslate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_deepslate_wall"
+          }
+        ]
+      }
+    },
+    "deepslate_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:deepslate_brick_wall"
+          }
+        ]
+      }
+    },
+    "deepslate_tile": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:deepslate_tile_wall"
+          }
+        ]
+      }
+    },
+    "tuff": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:tuff_wall"
+          }
+        ]
+      }
+    },
+    "polished_tuff": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_tuff_wall"
+          }
+        ]
+      }
+    },
+    "tuff_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:tuff_brick_wall"
+          }
+        ]
+      }
+    },
+    "resin_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:resin_brick_wall"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 55
+  }
+}

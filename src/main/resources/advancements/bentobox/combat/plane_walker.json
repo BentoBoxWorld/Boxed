@@ -1,0 +1,59 @@
+{
+  "parent": "bentobox:combat/kill_monster",
+  "display": {
+    "icon": {
+      "id": "minecraft:ender_pearl"
+    },
+    "title": "No escape",
+    "description": "Kill an enderman in all three dimensions",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "overworld": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:enderman",
+            "minecraft:location": {
+              "dimension": "minecraft:overworld"
+            }
+          }
+        }
+      }
+    },
+    "nether": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:enderman",
+            "minecraft:location": {
+              "dimension": "minecraft:the_nether"
+            }
+          }
+        }
+      }
+    },
+    "end": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:enderman",
+            "minecraft:location": {
+              "dimension": "minecraft:the_end"
+            }
+          }
+        }
+      }
+    }
+  }
+}

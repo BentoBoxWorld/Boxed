@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:nether/magma_cube",
+  "display": {
+    "icon": {
+      "id": "minecraft:potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:fire_resistance"
+        }
+      }
+    },
+    "title": "Stayin' Frosty",
+    "description": "Drink a potion of Fire Resistance",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "fire_resist": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "effects": {
+          "minecraft:fire_resistance": {}
+        }
+      }
+    }
+  }
+}

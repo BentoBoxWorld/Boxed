@@ -1,0 +1,34 @@
+{
+  "parent": "bentobox:caving/spyglass_parrot",
+  "display": {
+    "icon": {
+      "id": "minecraft:ghast_tear"
+    },
+    "title": {
+      "translate": "advancements.adventure.spyglass_at_ghast.title"
+    },
+    "description": "Look at a ghast through a spyglass",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "spyglass_at_ghast": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "looking_at": {
+                "minecraft:entity_type": "minecraft:ghast"
+              }
+            }
+          },
+          "entity": "this"
+        },
+        "item": {
+          "items": "minecraft:spyglass"
+        }
+      }
+    }
+  }
+}

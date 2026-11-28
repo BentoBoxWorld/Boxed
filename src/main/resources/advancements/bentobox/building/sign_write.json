@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:building/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_sign"
+    },
+    "title": "Message in a Block",
+    "description": "Craft and place a sign",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "sign": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "#minecraft:all_signs"
+            }
+          }
+        }
+      }
+    }
+  }
+}

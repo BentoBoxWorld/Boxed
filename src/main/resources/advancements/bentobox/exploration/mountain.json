@@ -1,0 +1,107 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:stone"
+    },
+    "title": "Mountain Climber",
+    "description": "Enter a mountain biome",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "meadow": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:meadow"
+            }
+          }
+        }
+      }
+    },
+    "grove": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:grove"
+            }
+          }
+        }
+      }
+    },
+    "snowy_slopes": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:snowy_slopes"
+            }
+          }
+        }
+      }
+    },
+    "jagged_peaks": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:jagged_peaks"
+            }
+          }
+        }
+      }
+    },
+    "frozen_peaks": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:frozen_peaks"
+            }
+          }
+        }
+      }
+    },
+    "stony_peaks": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:stony_peaks"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "meadow",
+      "grove",
+      "snowy_slopes",
+      "jagged_peaks",
+      "frozen_peaks",
+      "stony_peaks"
+    ]
+  ]
+}

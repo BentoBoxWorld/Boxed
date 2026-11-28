@@ -1,0 +1,27 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:redstone"
+    },
+    "title": "Redstone",
+    "description": "Power the world",
+    "background": "minecraft:block/hopper_inside",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "redstone": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:redstone_wire"
+            }
+          }
+        }
+      }
+    }
+  }
+}

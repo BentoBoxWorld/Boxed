@@ -1,0 +1,143 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:crying_obsidian"
+    },
+    "title": "Ruin Restoration",
+    "description": "Repair a ruined portal and enter it",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "portal": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal",
+              "block": {
+                "blocks": "minecraft:nether_portal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "portal_desert": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_desert",
+              "block": {
+                "blocks": "minecraft:nether_portal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "portal_jungle": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_jungle",
+              "block": {
+                "blocks": "minecraft:nether_portal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "portal_mountain": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_mountain",
+              "block": {
+                "blocks": "minecraft:nether_portal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "portal_nether": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_nether",
+              "block": {
+                "blocks": "minecraft:nether_portal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "portal_ocean": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_ocean",
+              "block": {
+                "blocks": "minecraft:nether_portal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "portal_swamp": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_swamp",
+              "block": {
+                "blocks": "minecraft:nether_portal"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "portal",
+      "portal_desert",
+      "portal_jungle",
+      "portal_mountain",
+      "portal_nether",
+      "portal_ocean",
+      "portal_swamp"
+    ]
+  ]
+}

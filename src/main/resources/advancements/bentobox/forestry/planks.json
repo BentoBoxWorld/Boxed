@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:acacia_planks"
+    },
+    "title": "Planking",
+    "description": "Craft wooden planks",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "planks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:planks"
+          }
+        ]
+      }
+    }
+  }
+}

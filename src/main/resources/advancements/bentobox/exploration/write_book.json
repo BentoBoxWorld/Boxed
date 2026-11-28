@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/book_and_quill",
+  "display": {
+    "icon": {
+      "id": "minecraft:written_book"
+    },
+    "title": "Novelist",
+    "description": "Write a book",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "written_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:written_book"
+          }
+        ]
+      }
+    }
+  }
+}

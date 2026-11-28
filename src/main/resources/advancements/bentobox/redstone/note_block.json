@@ -1,0 +1,35 @@
+{
+  "parent": "bentobox:redstone/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:note_block"
+    },
+    "title": "Musician",
+    "description": "Tune a note block",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tune": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:custom",
+                  "stat": "minecraft:tune_noteblock",
+                  "value": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

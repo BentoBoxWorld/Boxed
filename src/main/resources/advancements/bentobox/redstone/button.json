@@ -1,0 +1,65 @@
+{
+  "parent": "bentobox:redstone/lever_use",
+  "display": {
+    "icon": {
+      "id": "minecraft:stone_button"
+    },
+    "title": "Timed Trigger",
+    "description": "Press a button",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "not_sneaking": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:player",
+            "minecraft:flags": {
+              "is_sneaking": false
+            }
+          }
+        },
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "#minecraft:buttons"
+            }
+          }
+        }
+      }
+    },
+    "sneaking": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:player",
+            "minecraft:flags": {
+              "is_sneaking": true
+            }
+          }
+        },
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "#minecraft:buttons"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "not_sneaking",
+      "sneaking"
+    ]
+  ]
+}

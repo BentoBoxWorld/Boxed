@@ -1,0 +1,20 @@
+{
+  "parent": "bentobox:nether_structures/brewing_stand",
+  "display": {
+    "icon": {
+      "id": "minecraft:potion"
+    },
+    "title": {
+      "translate": "advancements.nether.brew_potion.title"
+    },
+    "description": {
+      "translate": "advancements.nether.brew_potion.description"
+    },
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "potion": {
+      "trigger": "minecraft:brewed_potion"
+    }
+  }
+}

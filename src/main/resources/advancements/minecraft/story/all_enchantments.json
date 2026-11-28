@@ -1,0 +1,1530 @@
+{
+  "parent": "minecraft:story/buy_book",
+  "display": {
+    "icon": {
+      "id": "minecraft:enchanted_book"
+    },
+    "title": "Enchanter Extraordinaire",
+    "description": "Collect every enchantment",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "aqua_affinity": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:aqua_affinity"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "bane_of_arthropods": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:bane_of_arthropods"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "binding_curse": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:binding_curse"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "blast_protection": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:blast_protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "channeling": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:channeling"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "depth_strider": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:depth_strider"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "efficiency": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:efficiency"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "feather_falling": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:feather_falling"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fire_aspect": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:fire_aspect"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fire_protection": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:fire_protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "flame": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:flame"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fortune": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:fortune"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "frost_walker": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:frost_walker"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "impaling": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:impaling"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "infinity": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:infinity"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "knockback": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:knockback"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "looting": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:looting"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "loyalty": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:loyalty"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "luck_of_the_sea": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:luck_of_the_sea"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "lure": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:lure"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "mending": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:mending"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "multishot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:multishot"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "piercing": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:piercing"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "power": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:power"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "projectile_protection": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:projectile_protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "protection": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "punch": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:punch"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "quick_charge": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:quick_charge"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "respiration": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:respiration"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "riptide": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:riptide"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "sharpness": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:sharpness"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "silk_touch": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:silk_touch"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "smite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:smite"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "soul_speed": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:soul_speed"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "sweeping_edge": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:sweeping_edge"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "swift_sneak": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:swift_sneak"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "thorns": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:thorns"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "unbreaking": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:unbreaking"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "vanishing_curse": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:vanishing_curse"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "wind_burst": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:wind_burst"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "breach": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:breach"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "density": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:density"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "aqua_affinity_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:aqua_affinity"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "bane_of_arthropods_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:bane_of_arthropods"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "binding_curse_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:binding_curse"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "blast_protection_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:blast_protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "channeling_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:channeling"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "depth_strider_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:depth_strider"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "efficiency_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:efficiency"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "feather_falling_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:feather_falling"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fire_aspect_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:fire_aspect"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fire_protection_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:fire_protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "flame_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:flame"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fortune_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:fortune"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "frost_walker_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:frost_walker"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "impaling_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:impaling"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "infinity_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:infinity"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "knockback_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:knockback"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "looting_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:looting"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "loyalty_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:loyalty"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "luck_of_the_sea_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:luck_of_the_sea"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "lure_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:lure"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "mending_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:mending"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "multishot_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:multishot"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "piercing_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:piercing"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "power_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:power"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "projectile_protection_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:projectile_protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "protection_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:protection"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "punch_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:punch"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "quick_charge_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:quick_charge"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "respiration_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:respiration"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "riptide_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:riptide"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "sharpness_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:sharpness"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "silk_touch_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:silk_touch"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "smite_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:smite"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "soul_speed_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:soul_speed"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "sweeping_edge_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:sweeping_edge"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "swift_sneak_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:swift_sneak"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "thorns_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:thorns"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "unbreaking_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:unbreaking"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "vanishing_curse_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:vanishing_curse"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "wind_burst_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:wind_burst"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "breach_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:breach"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "density_book": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:stored_enchantments": [
+                {
+                  "enchantments": "minecraft:density"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "aqua_affinity",
+      "aqua_affinity_book"
+    ],
+    [
+      "bane_of_arthropods",
+      "bane_of_arthropods_book"
+    ],
+    [
+      "binding_curse",
+      "binding_curse_book"
+    ],
+    [
+      "blast_protection",
+      "blast_protection_book"
+    ],
+    [
+      "channeling",
+      "channeling_book"
+    ],
+    [
+      "depth_strider",
+      "depth_strider_book"
+    ],
+    [
+      "efficiency",
+      "efficiency_book"
+    ],
+    [
+      "feather_falling",
+      "feather_falling_book"
+    ],
+    [
+      "fire_aspect",
+      "fire_aspect_book"
+    ],
+    [
+      "fire_protection",
+      "fire_protection_book"
+    ],
+    [
+      "flame",
+      "flame_book"
+    ],
+    [
+      "fortune",
+      "fortune_book"
+    ],
+    [
+      "frost_walker",
+      "frost_walker_book"
+    ],
+    [
+      "impaling",
+      "impaling_book"
+    ],
+    [
+      "infinity",
+      "infinity_book"
+    ],
+    [
+      "knockback",
+      "knockback_book"
+    ],
+    [
+      "looting",
+      "looting_book"
+    ],
+    [
+      "loyalty",
+      "loyalty_book"
+    ],
+    [
+      "luck_of_the_sea",
+      "luck_of_the_sea_book"
+    ],
+    [
+      "lure",
+      "lure_book"
+    ],
+    [
+      "mending",
+      "mending_book"
+    ],
+    [
+      "multishot",
+      "multishot_book"
+    ],
+    [
+      "piercing",
+      "piercing_book"
+    ],
+    [
+      "power",
+      "power_book"
+    ],
+    [
+      "projectile_protection",
+      "projectile_protection_book"
+    ],
+    [
+      "protection",
+      "protection_book"
+    ],
+    [
+      "punch",
+      "punch_book"
+    ],
+    [
+      "quick_charge",
+      "quick_charge_book"
+    ],
+    [
+      "respiration",
+      "respiration_book"
+    ],
+    [
+      "riptide",
+      "riptide_book"
+    ],
+    [
+      "sharpness",
+      "sharpness_book"
+    ],
+    [
+      "silk_touch",
+      "silk_touch_book"
+    ],
+    [
+      "smite",
+      "smite_book"
+    ],
+    [
+      "soul_speed",
+      "soul_speed_book"
+    ],
+    [
+      "sweeping_edge",
+      "sweeping_edge_book"
+    ],
+    [
+      "swift_sneak",
+      "swift_sneak_book"
+    ],
+    [
+      "thorns",
+      "thorns_book"
+    ],
+    [
+      "unbreaking",
+      "unbreaking_book"
+    ],
+    [
+      "vanishing_curse",
+      "vanishing_curse_book"
+    ],
+    [
+      "wind_burst",
+      "wind_burst_book"
+    ],
+    [
+      "breach",
+      "breach_book"
+    ],
+    [
+      "density",
+      "density_book"
+    ]
+  ],
+  "rewards": {
+    "experience": 300
+  }
+}

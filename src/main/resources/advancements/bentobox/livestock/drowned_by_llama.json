@@ -1,0 +1,30 @@
+{
+  "parent": "bentobox:livestock/llama",
+  "display": {
+    "icon": {
+      "id": "minecraft:slime_ball"
+    },
+    "title": "Wow. How Did You Even Do That?",
+    "description": "Drown in a llama's spit",
+    "frame": "goal"
+  },
+  "criteria": {
+    "killed_by": {
+      "trigger": "minecraft:entity_killed_player",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#bentobox:llamas"
+          }
+        },
+        "killing_blow": {
+          "direct_entity": {
+            "minecraft:entity_type": "minecraft:llama_spit"
+          }
+        }
+      }
+    }
+  }
+}

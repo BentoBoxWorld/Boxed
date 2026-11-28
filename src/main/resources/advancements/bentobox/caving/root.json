@@ -1,0 +1,100 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:iron_pickaxe"
+    },
+    "title": "Caving",
+    "description": "Down we go!",
+    "background": "minecraft:block/stone",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "level": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {
+              "type": "minecraft:inverted",
+              "term": {
+                "type": "minecraft:any_of",
+                "terms": [
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:deep_ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:frozen_ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:deep_frozen_ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:cold_ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:deep_cold_ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:warm_ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:lukewarm_ocean"
+                    }
+                  },
+                  {
+                    "type": "minecraft:location_check",
+                    "predicate": {
+                      "biomes": "minecraft:deep_lukewarm_ocean"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "minecraft:location": {
+                  "position": {
+                    "y": {
+                      "max": 50
+                    }
+                  },
+                  "dimension": "minecraft:overworld"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

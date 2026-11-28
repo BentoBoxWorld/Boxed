@@ -1,0 +1,40 @@
+{
+  "parent": "bentobox:ocean/boat",
+  "display": {
+    "icon": {
+      "id": "minecraft:diamond_boots",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "Water Walker",
+    "description": "Use Depth Strider to speed through water",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "water": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:equipment": {
+              "feet": {
+                "items": "#bentobox:boots",
+                "predicates": {
+                  "minecraft:enchantments": [
+                    {
+                      "enchantments": "minecraft:depth_strider"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "blocks": "minecraft:water"
+      }
+    }
+  }
+}

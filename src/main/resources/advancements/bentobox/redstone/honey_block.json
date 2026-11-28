@@ -1,0 +1,16 @@
+{
+  "parent": "bentobox:redstone/slime_block",
+  "display": {
+    "icon": {
+      "id": "minecraft:honey_block"
+    },
+    "title": "...And Slide!",
+    "description": "Slide down a honey block",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "honey_block": {
+      "trigger": "minecraft:slide_down_block"
+    }
+  }
+}

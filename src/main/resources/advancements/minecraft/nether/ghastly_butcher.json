@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:nether/return_to_sender",
+  "display": {
+    "icon": {
+      "id": "minecraft:cooked_beef"
+    },
+    "title": "Ghastly Butcher",
+    "description": "Use a ghast to kill an animal",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "ghast_cannon": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#bentobox:animals"
+          }
+        },
+        "killing_blow": {
+          "direct_entity": {
+            "minecraft:entity_type": "minecraft:fireball"
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 250
+  }
+}

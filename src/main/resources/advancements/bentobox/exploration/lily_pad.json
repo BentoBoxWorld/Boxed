@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:exploration/swamp_find",
+  "display": {
+    "icon": {
+      "id": "minecraft:lily_pad"
+    },
+    "title": "Swampy Path",
+    "description": "Replant a lily pad",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lily_pad": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:lily_pad"
+            }
+          }
+        }
+      }
+    }
+  }
+}

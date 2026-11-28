@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:caving/mineshaft",
+  "display": {
+    "icon": {
+      "id": "minecraft:string"
+    },
+    "title": "Spiderbane",
+    "description": "Kill a cave spider",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cave_spider": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:cave_spider"
+          }
+        }
+      }
+    }
+  }
+}

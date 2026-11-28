@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:livestock/best_friends_forever",
+  "display": {
+    "icon": {
+      "id": "minecraft:saddle"
+    },
+    "title": "Saddle Up",
+    "description": "Tame a horse",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "horse": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#bentobox:horses"
+          }
+        }
+      }
+    }
+  }
+}

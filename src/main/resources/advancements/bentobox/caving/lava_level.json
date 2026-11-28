@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:caving/deepslate",
+  "display": {
+    "icon": {
+      "id": "minecraft:lava_bucket"
+    },
+    "title": "Subterranean Lava Surfer",
+    "description": "Go so deep that lava seeps into open spaces",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lava": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "position": {
+                "y": {
+                  "max": -54
+                }
+              },
+              "dimension": "minecraft:overworld"
+            }
+          }
+        }
+      }
+    }
+  }
+}

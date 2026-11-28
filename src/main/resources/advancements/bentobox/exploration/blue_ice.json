@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/packed_ice",
+  "display": {
+    "icon": {
+      "id": "minecraft:blue_ice"
+    },
+    "title": "Deep Freeze",
+    "description": "Collect some blue ice",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "blue_ice": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:blue_ice"
+          }
+        ]
+      }
+    }
+  }
+}

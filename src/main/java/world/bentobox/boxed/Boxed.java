@@ -45,6 +45,7 @@ import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBundle;
 import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.hooks.WorldManagementHook;
 import world.bentobox.bentobox.managers.island.NewIslandLocationStrategy;
+import world.bentobox.boxed.advancements.BuiltInAdvancements;
 import world.bentobox.boxed.areas.Area;
 import world.bentobox.boxed.areas.AreaLocationStrategy;
 import world.bentobox.boxed.areas.AreaManager;
@@ -197,6 +198,10 @@ public class Boxed extends GameModeAddon {
         workshop = new WorkshopManager(this);
         workshop.load();
         this.registerListener(new WorkshopListener(this, workshop));
+        // The advancements that come with Boxed, so that no data pack is needed
+        BuiltInAdvancements builtIn = new BuiltInAdvancements(this);
+        this.registerListener(builtIn);
+        log("Registered " + builtIn.register() + " advancements of Boxed's own");
 
         // Register placeholders
         PlaceholdersManager phManager  = new PlaceholdersManager(this);

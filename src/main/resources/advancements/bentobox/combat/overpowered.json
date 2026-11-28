@@ -1,0 +1,24 @@
+{
+  "parent": "bentobox:combat/golden_apple",
+  "display": {
+    "icon": {
+      "id": "minecraft:enchanted_golden_apple"
+    },
+    "title": "Supercharged",
+    "description": "Eat an enchanted golden apple",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "overpowered": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:enchanted_golden_apple"
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 50
+  }
+}

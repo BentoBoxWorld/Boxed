@@ -1,0 +1,152 @@
+{
+  "parent": "bentobox:village/start_raid",
+  "display": {
+    "icon": {
+      "id": "minecraft:end_stone_bricks"
+    },
+    "title": "A Long Way from the Outpost...",
+    "description": "Start a raid in the End",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "raid_nether": {
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#minecraft:raiders",
+            "minecraft:equipment": {
+              "head": {
+                "components": {
+                  "minecraft:banner_patterns": [
+                    {
+                      "color": "cyan",
+                      "pattern": "minecraft:rhombus"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:stripe_bottom"
+                    },
+                    {
+                      "color": "gray",
+                      "pattern": "minecraft:stripe_center"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:border"
+                    },
+                    {
+                      "color": "black",
+                      "pattern": "minecraft:stripe_middle"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:half_horizontal"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:circle"
+                    },
+                    {
+                      "color": "black",
+                      "pattern": "minecraft:border"
+                    }
+                  ],
+                  "minecraft:item_name": {
+                    "translate": "block.minecraft.ominous_banner"
+                  }
+                },
+                "items": "minecraft:white_banner"
+              }
+            }
+          }
+        },
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "dimension": "minecraft:the_nether"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:player_killed_entity"
+    },
+    "raid_end": {
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#minecraft:raiders",
+            "minecraft:equipment": {
+              "head": {
+                "components": {
+                  "minecraft:banner_patterns": [
+                    {
+                      "color": "cyan",
+                      "pattern": "minecraft:rhombus"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:stripe_bottom"
+                    },
+                    {
+                      "color": "gray",
+                      "pattern": "minecraft:stripe_center"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:border"
+                    },
+                    {
+                      "color": "black",
+                      "pattern": "minecraft:stripe_middle"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:half_horizontal"
+                    },
+                    {
+                      "color": "light_gray",
+                      "pattern": "minecraft:circle"
+                    },
+                    {
+                      "color": "black",
+                      "pattern": "minecraft:border"
+                    }
+                  ],
+                  "minecraft:item_name": {
+                    "translate": "block.minecraft.ominous_banner"
+                  }
+                },
+                "items": "minecraft:white_banner"
+              }
+            }
+          }
+        },
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "dimension": "minecraft:the_end"
+            }
+          }
+        }
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "requirements": [
+    [
+      "raid_nether",
+      "raid_end"
+    ]
+  ],
+  "rewards": {
+    "experience": 400
+  }
+}

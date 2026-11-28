@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/lush_cave",
+  "display": {
+    "icon": {
+      "id": "minecraft:axolotl_bucket"
+    },
+    "title": {
+      "translate": "advancements.husbandry.axolotl_in_a_bucket.title"
+    },
+    "description": "Catch an axolotl in a bucket",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "axolotl_bucket": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:axolotl_bucket"
+        }
+      }
+    }
+  }
+}

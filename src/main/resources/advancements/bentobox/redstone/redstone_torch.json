@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:redstone_torch"
+    },
+    "title": "Powerful Light",
+    "description": "Craft and place a redstone torch",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "redstone_torch": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:redstone_torch"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:nether_structures/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:bone_block"
+    },
+    "title": "Deceased Beast",
+    "description": "Climb around a nether fossil",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bastion": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:nether_fossil"
+            }
+          }
+        }
+      }
+    }
+  }
+}

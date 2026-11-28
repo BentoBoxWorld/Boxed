@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:redstone/detector_rail",
+  "display": {
+    "icon": {
+      "id": "minecraft:tnt"
+    },
+    "title": "BOOM",
+    "description": "Craft TNT",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tnt": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:tnt"
+          }
+        ]
+      }
+    }
+  }
+}

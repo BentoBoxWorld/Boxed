@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:exploration/desert",
+  "display": {
+    "icon": {
+      "id": "minecraft:rotten_flesh"
+    },
+    "title": "Petrified",
+    "description": "Kill a husk",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "husk": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:husk"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/poke_poke",
+  "display": {
+    "icon": {
+      "id": "minecraft:iron_axe"
+    },
+    "title": "The Chopping Block",
+    "description": "Access axes",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "axe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:axes"
+          }
+        ]
+      }
+    }
+  }
+}

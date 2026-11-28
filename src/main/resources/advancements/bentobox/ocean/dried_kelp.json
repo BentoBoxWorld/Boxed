@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:ocean/kelp",
+  "display": {
+    "icon": {
+      "id": "minecraft:dried_kelp"
+    },
+    "title": "Speed-Eating",
+    "description": "Eat dried kelp",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "dried_kelp": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:dried_kelp"
+        }
+      }
+    }
+  }
+}

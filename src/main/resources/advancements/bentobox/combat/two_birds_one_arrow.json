@@ -1,0 +1,42 @@
+{
+  "parent": "bentobox:combat/ol_betsy",
+  "display": {
+    "icon": {
+      "id": "minecraft:arrow"
+    },
+    "title": {
+      "translate": "advancements.adventure.two_birds_one_arrow.title"
+    },
+    "description": "Kill two phantoms with a piercing arrow",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "two_birds": {
+      "trigger": "minecraft:killed_by_arrow",
+      "conditions": {
+        "fired_from_weapon": {
+          "items": "minecraft:crossbow"
+        },
+        "victims": [
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:phantom"
+            }
+          },
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:phantom"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 65
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:story/fire_aspect",
+  "display": {
+    "icon": {
+      "id": "minecraft:netherite_sword"
+    },
+    "title": "Overkill",
+    "description": "Deal 9.5 hearts of damage with a melee weapon",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "overkill": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "damage": {
+          "dealt": {
+            "min": 19
+          },
+          "type": {
+            "direct_entity": {
+              "minecraft:entity_type": "minecraft:player"
+            }
+          }
+        },
+        "entity": {
+          "type": "minecraft:inverted",
+          "term": {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:parrot"
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 50
+  }
+}

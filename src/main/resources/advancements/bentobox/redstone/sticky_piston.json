@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/piston",
+  "display": {
+    "icon": {
+      "id": "minecraft:sticky_piston"
+    },
+    "title": "...Pull...",
+    "description": "Craft and place a sticky piston",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "sticky_piston": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:sticky_piston"
+            }
+          }
+        }
+      }
+    }
+  }
+}

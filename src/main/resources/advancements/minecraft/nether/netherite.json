@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:nether/obtain_ancient_debris",
+  "display": {
+    "icon": {
+      "id": "minecraft:netherite_ingot"
+    },
+    "title": "A Step Above",
+    "description": "Use netherite to power up your gear",
+    "frame": "goal"
+  },
+  "criteria": {
+    "netherite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:netherite_gear"
+          }
+        ]
+      }
+    }
+  }
+}

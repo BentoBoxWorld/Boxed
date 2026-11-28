@@ -1,0 +1,39 @@
+{
+  "parent": "bentobox:building/copper_block",
+  "display": {
+    "icon": {
+      "id": "minecraft:honeycomb"
+    },
+    "title": {
+      "translate": "advancements.husbandry.wax_on.title"
+    },
+    "description": "Wax a copper block with honeycomb",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "wax_copper": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {
+              "type": "minecraft:location_check",
+              "predicate": {
+                "block": {
+                  "blocks": "minecraft:copper_block"
+                }
+              }
+            },
+            {
+              "type": "minecraft:match_tool",
+              "predicate": {
+                "items": "minecraft:honeycomb"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:exploration/slime",
+  "display": {
+    "icon": {
+      "id": "minecraft:spruce_planks"
+    },
+    "title": "Toil and Trouble",
+    "description": "Enter a witch's hut",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "witch_hut": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:swamp_hut"
+            }
+          }
+        }
+      }
+    }
+  }
+}

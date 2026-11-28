@@ -1,0 +1,74 @@
+{
+  "parent": "bentobox:combat/bow",
+  "display": {
+    "icon": {
+      "id": "minecraft:skeleton_skull"
+    },
+    "title": {
+      "translate": "advancements.adventure.sniper_duel.title"
+    },
+    "description": "Kill a skeleton from at least 50 meters away",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "skeleton": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:skeleton",
+            "minecraft:distance": {
+              "horizontal": {
+                "min": 50
+              }
+            }
+          }
+        },
+        "killing_blow": {
+          "tags": [
+            {
+              "id": "#minecraft:is_projectile",
+              "expected": true
+            }
+          ]
+        }
+      }
+    },
+    "stray": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:stray",
+            "minecraft:distance": {
+              "horizontal": {
+                "min": 50
+              }
+            }
+          }
+        },
+        "killing_blow": {
+          "tags": [
+            {
+              "id": "#minecraft:is_projectile",
+              "expected": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "skeleton",
+      "stray"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  }
+}

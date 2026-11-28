@@ -1,0 +1,39 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_fence_gate"
+    },
+    "title": "Livestock",
+    "description": "E I E I O",
+    "background": "minecraft:block/hay_block_top",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bred": {
+      "trigger": "minecraft:bred_animals"
+    },
+    "kill_animal": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#bentobox:animals"
+          }
+        }
+      }
+    },
+    "tame_animal": {
+      "trigger": "minecraft:tame_animal"
+    }
+  },
+  "requirements": [
+    [
+      "bred",
+      "kill_animal",
+      "tame_animal"
+    ]
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:caving/axolotl_bucket",
+  "display": {
+    "icon": {
+      "id": "minecraft:tropical_fish_bucket"
+    },
+    "title": {
+      "translate": "advancements.husbandry.kill_axolotl_target.title"
+    },
+    "description": "Team up with an axolotl and win a fight",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "kill_axolotl_target": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "source": {
+          "type": "minecraft:entity_properties",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:axolotl"
+          },
+          "entity": "this"
+        }
+      }
+    }
+  }
+}

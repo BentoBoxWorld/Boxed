@@ -1,0 +1,35 @@
+{
+  "parent": "bentobox:ocean/drowned",
+  "display": {
+    "icon": {
+      "id": "minecraft:trident"
+    },
+    "title": {
+      "translate": "advancements.adventure.throw_trident.title"
+    },
+    "description": {
+      "translate": "advancements.adventure.throw_trident.description"
+    },
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "throw_trident": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "damage": {
+          "type": {
+            "tags": [
+              {
+                "id": "#minecraft:is_projectile",
+                "expected": true
+              }
+            ],
+            "direct_entity": {
+              "minecraft:entity_type": "minecraft:trident"
+            }
+          }
+        }
+      }
+    }
+  }
+}

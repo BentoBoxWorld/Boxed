@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:hopper"
+    },
+    "title": "Moving Storage",
+    "description": "Move your items with a hopper",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "hopper": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:hopper"
+            }
+          }
+        }
+      }
+    }
+  }
+}

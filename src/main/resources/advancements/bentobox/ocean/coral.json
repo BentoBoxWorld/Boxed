@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/green_in_the_blue",
+  "display": {
+    "icon": {
+      "id": "minecraft:fire_coral"
+    },
+    "title": "Cooorrraallll",
+    "description": "Collect some coral",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "coral": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:corals"
+          }
+        ]
+      }
+    }
+  }
+}

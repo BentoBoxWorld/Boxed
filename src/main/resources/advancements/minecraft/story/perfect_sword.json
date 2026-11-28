@@ -1,0 +1,152 @@
+{
+  "parent": "minecraft:story/mending",
+  "display": {
+    "icon": {
+      "id": "minecraft:netherite_sword",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "Master Knight",
+    "description": "Create a perfect sword",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "sharp_sword": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:netherite_sword",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:sharpness",
+                  "levels": 5
+                },
+                {
+                  "enchantments": "minecraft:knockback",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:fire_aspect",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:looting",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:sweeping_edge",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:unbreaking",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:mending",
+                  "levels": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "smite_sword": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:netherite_sword",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:smite",
+                  "levels": 5
+                },
+                {
+                  "enchantments": "minecraft:knockback",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:fire_aspect",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:looting",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:sweeping_edge",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:unbreaking",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:mending",
+                  "levels": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "bane_sword": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:netherite_sword",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:bane_of_arthropods",
+                  "levels": 5
+                },
+                {
+                  "enchantments": "minecraft:knockback",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:fire_aspect",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:looting",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:sweeping_edge",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:unbreaking",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:mending",
+                  "levels": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "sharp_sword",
+      "smite_sword",
+      "bane_sword"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

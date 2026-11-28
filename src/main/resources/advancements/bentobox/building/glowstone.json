@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:building/shroomlight",
+  "display": {
+    "icon": {
+      "id": "minecraft:glowstone"
+    },
+    "title": "Glowstone Guru",
+    "description": "Light up the area with glowstone",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "glowstone": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:glowstone"
+            }
+          }
+        }
+      }
+    }
+  }
+}

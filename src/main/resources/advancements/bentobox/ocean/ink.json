@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:ink_sac"
+    },
+    "title": "Splat!",
+    "description": "Collect some ink",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "ink_sac": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:ink_sac"
+          }
+        ]
+      }
+    }
+  }
+}

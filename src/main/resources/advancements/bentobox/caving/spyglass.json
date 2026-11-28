@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:caving/amethyst_shard",
+  "display": {
+    "icon": {
+      "id": "minecraft:spyglass"
+    },
+    "title": "I Spy",
+    "description": "Use a spyglass to see things far away",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "spyglass": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:spyglass"
+        }
+      }
+    }
+  }
+}

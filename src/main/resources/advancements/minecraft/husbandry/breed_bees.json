@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:dandelion"
+    },
+    "title": "The Bee's Knees",
+    "description": "Breed two bees",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "breed_bee": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "parent": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:bee"
+          }
+        }
+      }
+    }
+  }
+}

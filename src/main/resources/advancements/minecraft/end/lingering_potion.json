@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:end/dragon_breath",
+  "display": {
+    "icon": {
+      "id": "minecraft:lingering_potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:healing"
+        }
+      }
+    },
+    "title": "Watch Your Step",
+    "description": "Brew a lingering potion",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lingering_potion": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:lingering_potion"
+          }
+        ]
+      }
+    }
+  }
+}

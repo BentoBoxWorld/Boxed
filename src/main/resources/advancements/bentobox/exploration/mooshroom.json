@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:exploration/mushroom_fields_in",
+  "display": {
+    "icon": {
+      "id": "minecraft:red_mushroom"
+    },
+    "title": "Mootated",
+    "description": "Murder a mutated cow",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "kill_mooshroom": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:mooshroom"
+          }
+        }
+      }
+    }
+  }
+}

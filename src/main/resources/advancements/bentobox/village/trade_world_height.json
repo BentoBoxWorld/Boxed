@@ -1,0 +1,33 @@
+{
+  "parent": "bentobox:village/complete_trade",
+  "display": {
+    "icon": {
+      "id": "minecraft:nether_star"
+    },
+    "title": {
+      "translate": "advancements.adventure.trade_at_world_height.title"
+    },
+    "description": "Trade with a villager at the build height limit",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "trade": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "predicate": {
+            "minecraft:location": {
+              "position": {
+                "y": {
+                  "min": 319
+                }
+              }
+            }
+          },
+          "entity": "this"
+        }
+      }
+    }
+  }
+}

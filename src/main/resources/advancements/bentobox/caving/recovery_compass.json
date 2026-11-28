@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/enter_ancient_city",
+  "display": {
+    "icon": {
+      "id": "minecraft:recovery_compass"
+    },
+    "title": "Lost Soul Locator",
+    "description": "Craft a recovery compass to find the site of your death",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "recovery_compass": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:recovery_compass"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:building/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:torch"
+    },
+    "title": "Flame Keeper!",
+    "description": "Light up the area with torches",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "torch": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:torch"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "bentobox:caving/glow_lichen",
+  "display": {
+    "icon": {
+      "id": "minecraft:red_mushroom"
+    },
+    "title": "Mycologists Unite!",
+    "description": "Gather both types of mushroom",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "brown": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:brown_mushroom"
+          }
+        ]
+      }
+    },
+    "red": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:red_mushroom"
+          }
+        ]
+      }
+    }
+  }
+}

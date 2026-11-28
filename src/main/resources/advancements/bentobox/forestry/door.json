@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/planks",
+  "display": {
+    "icon": {
+      "id": "minecraft:mangrove_door"
+    },
+    "title": "Knock on Wood",
+    "description": "Craft a wooden door",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "door": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:wooden_doors"
+          }
+        ]
+      }
+    }
+  }
+}

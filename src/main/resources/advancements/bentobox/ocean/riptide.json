@@ -1,0 +1,37 @@
+{
+  "parent": "bentobox:ocean/frost_walker",
+  "display": {
+    "icon": {
+      "id": "minecraft:trident",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "Pulled out to Sea",
+    "description": "Get caught in a riptide",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "riptide": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:trident",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:riptide",
+                  "levels": {
+                    "min": 1,
+                    "max": 3
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

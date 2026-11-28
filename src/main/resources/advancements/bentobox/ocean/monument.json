@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:ocean/ocean_ruins",
+  "display": {
+    "icon": {
+      "id": "minecraft:prismarine"
+    },
+    "title": "Out of Your Comfort Zone",
+    "description": "Enter an ocean monument",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "monument": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:monument"
+            }
+          }
+        }
+      }
+    }
+  }
+}

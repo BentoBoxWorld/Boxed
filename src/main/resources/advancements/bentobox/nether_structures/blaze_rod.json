@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:nether_structures/fortress",
+  "display": {
+    "icon": {
+      "id": "minecraft:blaze_rod"
+    },
+    "title": {
+      "translate": "advancements.nether.obtain_blaze_rod.title"
+    },
+    "description": "Relieve a blaze of its rod",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "blaze_rod": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:blaze_rod"
+          }
+        ]
+      }
+    }
+  }
+}

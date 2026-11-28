@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:exploration/mountain",
+  "display": {
+    "icon": {
+      "id": "minecraft:jukebox"
+    },
+    "title": {
+      "translate": "advancements.adventure.play_jukebox_in_meadows.title"
+    },
+    "description": "Make the meadows come alive with the sound of music from a jukebox",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "play_jukebox_in_meadows": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "biomes": "minecraft:meadow",
+            "block": {
+              "blocks": "minecraft:jukebox",
+              "state": {
+                "has_record": "true"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

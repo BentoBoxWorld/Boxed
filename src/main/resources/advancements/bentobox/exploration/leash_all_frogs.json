@@ -1,0 +1,70 @@
+{
+  "parent": "bentobox:exploration/tadpole_bucket",
+  "display": {
+    "description": "Get each frog variant on a lead",
+    "icon": {
+      "id": "minecraft:lead"
+    },
+    "title": {
+      "translate": "advancements.husbandry.leash_all_frog_variants.title"
+    },
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cold": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:frog",
+            "minecraft:components": {
+              "minecraft:frog/variant": "minecraft:cold"
+            }
+          }
+        },
+        "item": {
+          "items": "minecraft:lead"
+        }
+      }
+    },
+    "temperate": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:frog",
+            "minecraft:components": {
+              "minecraft:frog/variant": "minecraft:temperate"
+            }
+          }
+        },
+        "item": {
+          "items": "minecraft:lead"
+        }
+      }
+    },
+    "warm": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:frog",
+            "minecraft:components": {
+              "minecraft:frog/variant": "minecraft:warm"
+            }
+          }
+        },
+        "item": {
+          "items": "minecraft:lead"
+        }
+      }
+    }
+  }
+}

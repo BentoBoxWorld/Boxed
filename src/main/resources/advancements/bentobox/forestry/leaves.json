@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/sapling",
+  "display": {
+    "icon": {
+      "id": "minecraft:dark_oak_leaves"
+    },
+    "title": "Hedge Fund",
+    "description": "Collect some leaves",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "leaves": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:leaves"
+          }
+        ]
+      }
+    }
+  }
+}

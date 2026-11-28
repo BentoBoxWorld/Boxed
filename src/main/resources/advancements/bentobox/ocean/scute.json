@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/turtle_egg",
+  "display": {
+    "icon": {
+      "id": "minecraft:turtle_scute"
+    },
+    "title": "Come out of Your Shell",
+    "description": "Pick up a scute",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "scute": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:turtle_scute"
+          }
+        ]
+      }
+    }
+  }
+}

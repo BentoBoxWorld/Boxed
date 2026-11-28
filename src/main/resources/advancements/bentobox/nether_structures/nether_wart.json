@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:nether_structures/blaze_rod",
+  "display": {
+    "icon": {
+      "id": "minecraft:nether_wart"
+    },
+    "title": "Basis to Brew",
+    "description": "Collect nether wart",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "nether_wart": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:nether_wart"
+          }
+        ]
+      }
+    }
+  }
+}

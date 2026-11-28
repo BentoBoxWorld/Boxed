@@ -1,0 +1,291 @@
+{
+  "parent": "minecraft:husbandry/plant_all_seeds",
+  "display": {
+    "icon": {
+      "id": "minecraft:vine"
+    },
+    "title": "Master of the Field",
+    "description": "Plant everything that grows",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "wheat_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:wheat_seeds"
+          }
+        }
+      }
+    },
+    "pumpkin_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:pumpkin_seeds"
+          }
+        }
+      }
+    },
+    "melon_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:melon_seeds"
+          }
+        }
+      }
+    },
+    "beetroot_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:beetroot_seeds"
+          }
+        }
+      }
+    },
+    "potato": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:potato"
+          }
+        }
+      }
+    },
+    "carrot": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:carrot"
+          }
+        }
+      }
+    },
+    "oak_sapling": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:oak_sapling"
+          }
+        }
+      }
+    },
+    "spruce_sapling": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:spruce_sapling"
+          }
+        }
+      }
+    },
+    "birch_sapling": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:birch_sapling"
+          }
+        }
+      }
+    },
+    "jungle_sapling": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:jungle_sapling"
+          }
+        }
+      }
+    },
+    "acacia_sapling": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:acacia_sapling"
+          }
+        }
+      }
+    },
+    "dark_oak_sapling": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:dark_oak_sapling"
+          }
+        }
+      }
+    },
+    "chorus_flower": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:chorus_flower"
+          }
+        }
+      }
+    },
+    "cactus": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:cactus"
+          }
+        }
+      }
+    },
+    "vine": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:vine"
+          }
+        }
+      }
+    },
+    "sugar_cane": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:sugar_cane"
+          }
+        }
+      }
+    },
+    "kelp": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:kelp"
+          }
+        }
+      }
+    },
+    "bamboo": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:bamboo"
+          }
+        }
+      }
+    },
+    "cocoa_beans": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:cocoa_beans"
+          }
+        }
+      }
+    },
+    "nether_wart": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:nether_wart"
+          }
+        }
+      }
+    },
+    "sweet_berries": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:sweet_berries"
+          }
+        }
+      }
+    },
+    "weeping_vines": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:weeping_vines"
+          }
+        }
+      }
+    },
+    "twisting_vines": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:twisting_vines"
+          }
+        }
+      }
+    },
+    "glow_berries": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:glow_berries"
+          }
+        }
+      }
+    },
+    "mangrove_propagule": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:mangrove_propagule"
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 150
+  }
+}

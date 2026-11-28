@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/coral_block",
+  "display": {
+    "icon": {
+      "id": "minecraft:dead_bubble_coral_block"
+    },
+    "title": "Sun-Dried",
+    "description": "Kill coral",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "dead_coral": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:dead_corals"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:story/upgrade_tools",
+  "display": {
+    "icon": {
+      "id": "minecraft:furnace"
+    },
+    "title": "Hot Topic",
+    "description": "Make a furnace",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "furnace": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:furnace"
+          }
+        ]
+      }
+    }
+  }
+}

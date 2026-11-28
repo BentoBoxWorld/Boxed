@@ -1,0 +1,73 @@
+{
+  "parent": "bentobox:combat/bow",
+  "display": {
+    "icon": {
+      "id": "minecraft:crossbow"
+    },
+    "title": {
+      "translate": "advancements.adventure.ol_betsy.title"
+    },
+    "description": "Shoot an arrow from a crossbow",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "arrow": {
+      "trigger": "minecraft:shot_crossbow",
+      "conditions": {
+        "item": {
+          "items": "minecraft:crossbow",
+          "predicates": {
+            "minecraft:charged_projectiles": {
+              "contains": [
+                {
+                  "items": "minecraft:arrow"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "tipped_arrow": {
+      "trigger": "minecraft:shot_crossbow",
+      "conditions": {
+        "item": {
+          "items": "minecraft:crossbow",
+          "predicates": {
+            "minecraft:charged_projectiles": {
+              "contains": [
+                {
+                  "items": "minecraft:tipped_arrow"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "spectral_arrow": {
+      "trigger": "minecraft:shot_crossbow",
+      "conditions": {
+        "item": {
+          "items": "minecraft:crossbow",
+          "predicates": {
+            "minecraft:charged_projectiles": {
+              "contains": [
+                {
+                  "items": "minecraft:spectral_arrow"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "arrow",
+      "tipped_arrow",
+      "spectral_arrow"
+    ]
+  ]
+}

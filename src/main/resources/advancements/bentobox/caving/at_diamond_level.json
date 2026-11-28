@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:caving/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:diamond_ore"
+    },
+    "title": "Dazzling Diamonds",
+    "description": "Descend deep enough to find diamonds",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "16": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "position": {
+                "y": {
+                  "max": 16
+                }
+              },
+              "dimension": "minecraft:overworld"
+            }
+          }
+        }
+      }
+    }
+  }
+}

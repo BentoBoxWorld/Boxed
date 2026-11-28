@@ -1,0 +1,536 @@
+{
+  "parent": "bentobox:building/all_walls",
+  "display": {
+    "icon": {
+      "id": "minecraft:stone_brick_stairs"
+    },
+    "title": "Master Staircrafter",
+    "description": "Craft every type of stair",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "cut_copper": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:cut_copper_stairs"
+          }
+        ]
+      }
+    },
+    "exposed_cut_copper": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:exposed_cut_copper_stairs"
+          }
+        ]
+      }
+    },
+    "weathered_cut_copper": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:weathered_cut_copper_stairs"
+          }
+        ]
+      }
+    },
+    "oxidized_cut_copper": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:oxidized_cut_copper_stairs"
+          }
+        ]
+      }
+    },
+    "purpur": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:purpur_stairs"
+          }
+        ]
+      }
+    },
+    "cobblestone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:cobblestone_stairs"
+          }
+        ]
+      }
+    },
+    "brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:brick_stairs"
+          }
+        ]
+      }
+    },
+    "stone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:stone_brick_stairs"
+          }
+        ]
+      }
+    },
+    "mud_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mud_brick_stairs"
+          }
+        ]
+      }
+    },
+    "nether_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:nether_brick_stairs"
+          }
+        ]
+      }
+    },
+    "sandstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:sandstone_stairs"
+          }
+        ]
+      }
+    },
+    "oak": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:oak_stairs"
+          }
+        ]
+      }
+    },
+    "spruce": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:spruce_stairs"
+          }
+        ]
+      }
+    },
+    "birch": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:birch_stairs"
+          }
+        ]
+      }
+    },
+    "jungle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:jungle_stairs"
+          }
+        ]
+      }
+    },
+    "acacia": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:acacia_stairs"
+          }
+        ]
+      }
+    },
+    "dark_oak": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dark_oak_stairs"
+          }
+        ]
+      }
+    },
+    "mangrove": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mangrove_stairs"
+          }
+        ]
+      }
+    },
+    "crimson": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:crimson_stairs"
+          }
+        ]
+      }
+    },
+    "warped": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:warped_stairs"
+          }
+        ]
+      }
+    },
+    "quartz": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:quartz_stairs"
+          }
+        ]
+      }
+    },
+    "prismarine": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:prismarine_stairs"
+          }
+        ]
+      }
+    },
+    "prismarine_bricks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:prismarine_brick_stairs"
+          }
+        ]
+      }
+    },
+    "dark_prismarine": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dark_prismarine_stairs"
+          }
+        ]
+      }
+    },
+    "red_sandstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:red_sandstone_stairs"
+          }
+        ]
+      }
+    },
+    "polished_granite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_granite_stairs"
+          }
+        ]
+      }
+    },
+    "smooth_red_sandstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:smooth_red_sandstone_stairs"
+          }
+        ]
+      }
+    },
+    "mossy_stone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mossy_stone_brick_stairs"
+          }
+        ]
+      }
+    },
+    "polished_diorite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_diorite_stairs"
+          }
+        ]
+      }
+    },
+    "mossy_cobblestone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mossy_cobblestone_stairs"
+          }
+        ]
+      }
+    },
+    "end_stone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:end_stone_brick_stairs"
+          }
+        ]
+      }
+    },
+    "stone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:stone_stairs"
+          }
+        ]
+      }
+    },
+    "smooth_sandstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:smooth_sandstone_stairs"
+          }
+        ]
+      }
+    },
+    "smooth_quartz": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:smooth_quartz_stairs"
+          }
+        ]
+      }
+    },
+    "granite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:granite_stairs"
+          }
+        ]
+      }
+    },
+    "andesite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:andesite_stairs"
+          }
+        ]
+      }
+    },
+    "red_nether_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:red_nether_brick_stairs"
+          }
+        ]
+      }
+    },
+    "polished_andesite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_andesite_stairs"
+          }
+        ]
+      }
+    },
+    "diorite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:diorite_stairs"
+          }
+        ]
+      }
+    },
+    "cobbled_deepslate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:cobbled_deepslate_stairs"
+          }
+        ]
+      }
+    },
+    "polished_deepslate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_deepslate_stairs"
+          }
+        ]
+      }
+    },
+    "deepslate_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:deepslate_brick_stairs"
+          }
+        ]
+      }
+    },
+    "deepslate_tile": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:deepslate_tile_stairs"
+          }
+        ]
+      }
+    },
+    "blackstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:blackstone_stairs"
+          }
+        ]
+      }
+    },
+    "polished_blackstone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_blackstone_stairs"
+          }
+        ]
+      }
+    },
+    "polished_blackstone_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_blackstone_brick_stairs"
+          }
+        ]
+      }
+    },
+    "cherry": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:cherry_stairs"
+          }
+        ]
+      }
+    },
+    "bamboo": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bamboo_stairs"
+          }
+        ]
+      }
+    },
+    "bamboo_mosaic": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bamboo_mosaic_stairs"
+          }
+        ]
+      }
+    },
+    "tuff_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:tuff_brick_stairs"
+          }
+        ]
+      }
+    },
+    "polished_tuff": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:polished_tuff_stairs"
+          }
+        ]
+      }
+    },
+    "resin_brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:resin_brick_stairs"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 115
+  }
+}

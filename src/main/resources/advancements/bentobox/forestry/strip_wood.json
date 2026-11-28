@@ -1,0 +1,37 @@
+{
+  "parent": "bentobox:forestry/wood",
+  "display": {
+    "icon": {
+      "id": "minecraft:stripped_spruce_wood"
+    },
+    "title": "Lost Its Bark",
+    "description": "Strip a wood block of its bark",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "strip_wood": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {
+              "type": "minecraft:match_tool",
+              "predicate": {
+                "items": "#minecraft:axes"
+              }
+            },
+            {
+              "type": "minecraft:location_check",
+              "predicate": {
+                "block": {
+                  "blocks": "#bentobox:stripped_woods"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

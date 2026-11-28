@@ -1,0 +1,44 @@
+{
+  "parent": "minecraft:nether/soul_sand",
+  "display": {
+    "icon": {
+      "id": "minecraft:golden_boots",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "Soul Assistance",
+    "description": "Wear down your soles with Soul Speed",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "soul_speed": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:stepping_on": {
+              "block": {
+                "blocks": "#minecraft:soul_speed_blocks"
+              }
+            },
+            "minecraft:equipment": {
+              "feet": {
+                "items": "#bentobox:boots",
+                "predicates": {
+                  "minecraft:enchantments": [
+                    {
+                      "enchantments": "minecraft:soul_speed"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/husk",
+  "display": {
+    "icon": {
+      "id": "minecraft:dead_bush"
+    },
+    "title": "Sticky",
+    "description": "Obtain a dead bush",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "dead_bush": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_bush"
+          }
+        ]
+      }
+    }
+  }
+}

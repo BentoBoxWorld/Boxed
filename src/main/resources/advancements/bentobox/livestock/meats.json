@@ -1,0 +1,64 @@
+{
+  "parent": "bentobox:livestock/meat",
+  "display": {
+    "icon": {
+      "id": "minecraft:porkchop"
+    },
+    "title": "Slaughterhouse",
+    "description": "Gather each type of meat",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "porkchop": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:porkchop"
+          }
+        ]
+      }
+    },
+    "beef": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:beef"
+          }
+        ]
+      }
+    },
+    "chicken": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:chicken"
+          }
+        ]
+      }
+    },
+    "rabbit": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:rabbit"
+          }
+        ]
+      }
+    },
+    "mutton": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mutton"
+          }
+        ]
+      }
+    }
+  }
+}

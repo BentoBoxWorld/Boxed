@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:story/buy_book",
+  "display": {
+    "icon": {
+      "id": "minecraft:anvil"
+    },
+    "title": "Customization",
+    "description": "Craft and place an anvil",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "anvil": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:anvil"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_door"
+    },
+    "title": "Villages",
+    "description": "Hrrmm",
+    "background": "minecraft:block/oak_planks",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "desert": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_desert"
+            }
+          }
+        }
+      }
+    },
+    "plains": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_plains"
+            }
+          }
+        }
+      }
+    },
+    "savanna": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_savanna"
+            }
+          }
+        }
+      }
+    },
+    "snowy": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_snowy"
+            }
+          }
+        }
+      }
+    },
+    "taiga": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_taiga"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "desert",
+      "plains",
+      "savanna",
+      "snowy",
+      "taiga"
+    ]
+  ]
+}

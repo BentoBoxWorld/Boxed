@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/dispenser",
+  "display": {
+    "icon": {
+      "id": "minecraft:observer"
+    },
+    "title": "Observe This!",
+    "description": "Assign an observer to give updates on a block",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "observer": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:observer"
+            }
+          }
+        }
+      }
+    }
+  }
+}

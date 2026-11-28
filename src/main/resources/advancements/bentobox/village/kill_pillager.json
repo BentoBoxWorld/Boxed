@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:village/pillager_outpost",
+  "display": {
+    "icon": {
+      "id": "minecraft:arrow"
+    },
+    "title": {
+      "translate": "advancements.adventure.whos_the_pillager_now.title"
+    },
+    "description": "Give a pillager a taste of their own medicine",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "kill_pillager": {
+      "trigger": "minecraft:killed_by_arrow",
+      "conditions": {
+        "fired_from_weapon": {
+          "items": "minecraft:crossbow"
+        },
+        "victims": [
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:pillager"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

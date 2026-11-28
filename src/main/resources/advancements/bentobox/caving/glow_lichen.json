@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:glow_lichen"
+    },
+    "title": "Glow Lichen Gatherer",
+    "description": "Harvest some glow lichen",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lichen": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:glow_lichen"
+          }
+        ]
+      }
+    }
+  }
+}

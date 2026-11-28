@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:sand"
+    },
+    "title": "Bone Dry",
+    "description": "Enter a desert biome",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "desert": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:desert"
+            }
+          }
+        }
+      }
+    }
+  }
+}

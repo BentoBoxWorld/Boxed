@@ -1,0 +1,92 @@
+{
+  "parent": "minecraft:husbandry/plant_seed",
+  "display": {
+    "icon": {
+      "id": "minecraft:beetroot_seeds"
+    },
+    "title": "Green Thumb",
+    "description": "Plant everything you can in tilled ground",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "wheat_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:wheat"
+            }
+          }
+        }
+      }
+    },
+    "pumpkin_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:pumpkin_stem"
+            }
+          }
+        }
+      }
+    },
+    "melon_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:melon_stem"
+            }
+          }
+        }
+      }
+    },
+    "beetroot_seeds": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:beetroots"
+            }
+          }
+        }
+      }
+    },
+    "potato": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:potatoes"
+            }
+          }
+        }
+      }
+    },
+    "carrot": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:carrots"
+            }
+          }
+        }
+      }
+    }
+  }
+}

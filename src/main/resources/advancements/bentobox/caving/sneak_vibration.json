@@ -1,0 +1,18 @@
+{
+  "parent": "bentobox:caving/deep_dark",
+  "display": {
+    "icon": {
+      "id": "minecraft:sculk_sensor"
+    },
+    "title": {
+      "translate": "advancements.adventure.avoid_vibration.title"
+    },
+    "description": "Sneak near a sculk sensor or warden to prevent it from detecting you",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "avoid_vibration": {
+      "trigger": "minecraft:avoid_vibration"
+    }
+  }
+}

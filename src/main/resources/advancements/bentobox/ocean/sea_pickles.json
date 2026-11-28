@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:sea_pickle"
+    },
+    "title": "Do You Want Pickles on That?",
+    "description": "Obtain a sea pickle",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "sea_pickle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:sea_pickle"
+          }
+        ]
+      }
+    }
+  }
+}

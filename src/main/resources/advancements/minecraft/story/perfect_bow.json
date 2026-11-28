@@ -1,0 +1,93 @@
+{
+  "parent": "minecraft:story/mending",
+  "display": {
+    "icon": {
+      "id": "minecraft:bow",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "Master Sniper",
+    "description": "Create a perfect bow",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "perfect_bow_infinity": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bow",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:power",
+                  "levels": 5
+                },
+                {
+                  "enchantments": "minecraft:punch",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:flame",
+                  "levels": 1
+                },
+                {
+                  "enchantments": "minecraft:infinity",
+                  "levels": 1
+                },
+                {
+                  "enchantments": "minecraft:unbreaking",
+                  "levels": 3
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "perfect_bow_mending": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bow",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:power",
+                  "levels": 5
+                },
+                {
+                  "enchantments": "minecraft:punch",
+                  "levels": 2
+                },
+                {
+                  "enchantments": "minecraft:flame",
+                  "levels": 1
+                },
+                {
+                  "enchantments": "minecraft:mending",
+                  "levels": 1
+                },
+                {
+                  "enchantments": "minecraft:unbreaking",
+                  "levels": 3
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "perfect_bow_infinity",
+      "perfect_bow_mending"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

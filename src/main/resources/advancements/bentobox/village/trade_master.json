@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:village/complete_trade",
+  "display": {
+    "icon": {
+      "id": "minecraft:diamond"
+    },
+    "title": "Artisan",
+    "description": "Trade with a master level villager",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "jungle": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:nbt": "{VillagerData:{level:5}}"
+          }
+        }
+      }
+    }
+  }
+}

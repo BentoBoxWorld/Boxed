@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/fishy_business",
+  "display": {
+    "icon": {
+      "id": "minecraft:cod_bucket"
+    },
+    "title": {
+      "translate": "advancements.husbandry.tactical_fishing.title"
+    },
+    "description": "Catch a fish... without a fishing rod!",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "fish_bucket": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "#bentobox:fish_buckets"
+        }
+      }
+    }
+  }
+}

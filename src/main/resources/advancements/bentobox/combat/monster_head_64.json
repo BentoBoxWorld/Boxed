@@ -1,0 +1,28 @@
+{
+  "parent": "bentobox:combat/monster_head",
+  "display": {
+    "icon": {
+      "id": "minecraft:zombie_head"
+    },
+    "title": "Guillotine Gatherer",
+    "description": "Have a stack of any one skull type in your inventory",
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "heads": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:heads",
+            "count": 64
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 750
+  }
+}

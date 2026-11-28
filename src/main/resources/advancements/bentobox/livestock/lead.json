@@ -1,0 +1,28 @@
+{
+  "parent": "bentobox:livestock/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:lead"
+    },
+    "title": "Follow the Leader",
+    "description": "Attach a mob to a lead",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lead": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "item": {
+          "items": "minecraft:lead"
+        },
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#bentobox:leadable"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/repeater",
+  "display": {
+    "icon": {
+      "id": "minecraft:comparator"
+    },
+    "title": "(Don't) Compare Yourself",
+    "description": "Compare a signal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "comparator": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:comparator"
+            }
+          }
+        }
+      }
+    }
+  }
+}

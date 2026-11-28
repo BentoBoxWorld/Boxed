@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/ink",
+  "display": {
+    "icon": {
+      "id": "minecraft:glow_ink_sac"
+    },
+    "title": "Natural Light",
+    "description": "Collect some glowing ink from a glow squid",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "glow_ink": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:glow_ink_sac"
+          }
+        ]
+      }
+    }
+  }
+}

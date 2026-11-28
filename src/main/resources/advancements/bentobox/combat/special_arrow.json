@@ -1,0 +1,39 @@
+{
+  "parent": "bentobox:combat/bow",
+  "display": {
+    "icon": {
+      "id": "minecraft:tipped_arrow"
+    },
+    "title": "Magic injection",
+    "description": "Obtain a spectral or tipped arrow",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tipped": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:tipped_arrow"
+          }
+        ]
+      }
+    },
+    "spectral": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:spectral_arrow"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "tipped",
+      "spectral"
+    ]
+  ]
+}

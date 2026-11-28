@@ -1,0 +1,41 @@
+{
+  "parent": "bentobox:building/lightning_rod",
+  "display": {
+    "icon": {
+      "id": "minecraft:emerald"
+    },
+    "title": {
+      "translate": "advancements.adventure.lightning_rod_with_villager_no_fire.title"
+    },
+    "description": "Protect a villager from an undesired shock without starting a fire",
+    "frame": "goal"
+  },
+  "criteria": {
+    "lightning_villager": {
+      "trigger": "minecraft:lightning_strike",
+      "conditions": {
+        "lightning": {
+          "type": "minecraft:entity_properties",
+          "predicate": {
+            "minecraft:distance": {
+              "absolute": {
+                "max": 30
+              }
+            },
+            "minecraft:type_specific/lightning": {
+              "blocks_set_on_fire": 0
+            }
+          },
+          "entity": "this"
+        },
+        "bystander": {
+          "type": "minecraft:entity_properties",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:villager"
+          },
+          "entity": "this"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:ocean/bubble_column",
+  "display": {
+    "icon": {
+      "id": "minecraft:cod"
+    },
+    "title": "Swimming with the Dolphins",
+    "description": "Speed through the water with dolphins",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "dolphins_grace": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "effects": {
+          "minecraft:dolphins_grace": {}
+        }
+      }
+    }
+  }
+}

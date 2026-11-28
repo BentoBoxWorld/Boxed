@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/jungle_in",
+  "display": {
+    "icon": {
+      "id": "minecraft:jungle_log"
+    },
+    "title": "Disappearing Rainforests",
+    "description": "Chop down a jungle tree, you inconsiderate monster",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "jungle_log": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:jungle_log"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "parent": "bentobox:nether_structures/brew_potion",
+  "display": {
+    "icon": {
+      "id": "minecraft:redstone"
+    },
+    "title": "Long-Lasting Liquid",
+    "description": "Use redstone dust to make a potion longer",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "night_vision": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_night_vision"
+        }
+      }
+    },
+    "invisibility": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_invisibility"
+        }
+      }
+    },
+    "leaping": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_leaping"
+        }
+      }
+    },
+    "fire_resistance": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_fire_resistance"
+        }
+      }
+    },
+    "swiftness": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_swiftness"
+        }
+      }
+    },
+    "slowness": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_slowness"
+        }
+      }
+    },
+    "turtle_master": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_turtle_master"
+        }
+      }
+    },
+    "water_breathing": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_water_breathing"
+        }
+      }
+    },
+    "poison": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_poison"
+        }
+      }
+    },
+    "regeneration": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_regeneration"
+        }
+      }
+    },
+    "strength": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_strength"
+        }
+      }
+    },
+    "weakness": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_weakness"
+        }
+      }
+    },
+    "slow_falling": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:long_slow_falling"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "night_vision",
+      "invisibility",
+      "leaping",
+      "fire_resistance",
+      "swiftness",
+      "slowness",
+      "turtle_master",
+      "water_breathing",
+      "poison",
+      "regeneration",
+      "strength",
+      "weakness",
+      "slow_falling"
+    ]
+  ]
+}

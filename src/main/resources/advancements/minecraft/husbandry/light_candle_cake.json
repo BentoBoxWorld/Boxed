@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:husbandry/silk_touch_nest",
+  "display": {
+    "icon": {
+      "id": "minecraft:candle"
+    },
+    "title": "Happy Birthday!",
+    "description": "Put a candle on a cake and light it",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "light_cake": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {
+              "type": "minecraft:match_tool",
+              "predicate": {
+                "items": "#minecraft:candles"
+              }
+            },
+            {
+              "type": "minecraft:location_check",
+              "predicate": {
+                "block": {
+                  "blocks": "#minecraft:candle_cakes"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

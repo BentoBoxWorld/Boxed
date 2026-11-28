@@ -1,0 +1,115 @@
+{
+  "parent": "bentobox:collection/coral",
+  "display": {
+    "icon": {
+      "id": "minecraft:horn_coral_fan"
+    },
+    "title": "Coral Fans",
+    "description": "Collect all 10 coral fan types"
+  },
+  "criteria": {
+    "tube": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:tube_coral_fan"
+          }
+        ]
+      }
+    },
+    "brain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:brain_coral_fan"
+          }
+        ]
+      }
+    },
+    "bubble": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bubble_coral_fan"
+          }
+        ]
+      }
+    },
+    "fire": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:fire_coral_fan"
+          }
+        ]
+      }
+    },
+    "horn": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:horn_coral_fan"
+          }
+        ]
+      }
+    },
+    "dead_tube": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_tube_coral_fan"
+          }
+        ]
+      }
+    },
+    "dead_brain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_brain_coral_fan"
+          }
+        ]
+      }
+    },
+    "dead_bubble": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_bubble_coral_fan"
+          }
+        ]
+      }
+    },
+    "dead_fire": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_fire_coral_fan"
+          }
+        ]
+      }
+    },
+    "dead_horn": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_horn_coral_fan"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 40
+  }
+}

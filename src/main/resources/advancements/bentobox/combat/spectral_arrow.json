@@ -1,0 +1,31 @@
+{
+  "parent": "bentobox:combat/special_arrow",
+  "display": {
+    "icon": {
+      "id": "minecraft:spectral_arrow"
+    },
+    "title": "Magic injection applied",
+    "description": "Shoot something with a spectral arrow",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "spectral_arrow": {
+      "trigger": "minecraft:player_hurt_entity",
+      "conditions": {
+        "damage": {
+          "type": {
+            "tags": [
+              {
+                "id": "#minecraft:is_projectile",
+                "expected": true
+              }
+            ],
+            "direct_entity": {
+              "minecraft:entity_type": "minecraft:spectral_arrow"
+            }
+          }
+        }
+      }
+    }
+  }
+}

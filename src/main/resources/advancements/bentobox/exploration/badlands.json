@@ -1,0 +1,62 @@
+{
+  "parent": "bentobox:exploration/husk",
+  "display": {
+    "icon": {
+      "id": "minecraft:terracotta"
+    },
+    "title": "Disco Mountains",
+    "description": "Enter the badlands",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "badlands": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:badlands"
+            }
+          }
+        }
+      }
+    },
+    "eroded_badlands": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:eroded_badlands"
+            }
+          }
+        }
+      }
+    },
+    "wooded_badlands": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:wooded_badlands"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "badlands",
+      "eroded_badlands",
+      "wooded_badlands"
+    ]
+  ]
+}

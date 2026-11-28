@@ -1,0 +1,28 @@
+{
+  "parent": "bentobox:exploration/tame_parrot",
+  "display": {
+    "icon": {
+      "id": "minecraft:cookie"
+    },
+    "title": "It Has Ceased to Be!",
+    "description": "Poison a parrot with a cookie",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "poison": {
+      "trigger": "minecraft:player_interacted_with_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:parrot"
+          }
+        },
+        "item": {
+          "items": "minecraft:cookie"
+        }
+      }
+    }
+  }
+}

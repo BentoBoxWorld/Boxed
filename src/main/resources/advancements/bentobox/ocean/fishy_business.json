@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:ocean/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:fishing_rod"
+    },
+    "title": {
+      "translate": "advancements.husbandry.fishy_business.title"
+    },
+    "description": {
+      "translate": "advancements.husbandry.fishy_business.description"
+    },
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "fish": {
+      "trigger": "minecraft:fishing_rod_hooked",
+      "conditions": {
+        "item": {
+          "items": "#minecraft:fishes"
+        }
+      }
+    }
+  }
+}

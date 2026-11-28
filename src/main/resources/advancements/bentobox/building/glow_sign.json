@@ -1,0 +1,39 @@
+{
+  "parent": "bentobox:building/sign_write",
+  "display": {
+    "icon": {
+      "id": "minecraft:glow_ink_sac"
+    },
+    "title": {
+      "translate": "advancements.husbandry.make_a_sign_glow.title"
+    },
+    "description": "Make the text on a sign glow",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "make_a_sign_glow": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {
+              "type": "minecraft:match_tool",
+              "predicate": {
+                "items": "minecraft:glow_ink_sac"
+              }
+            },
+            {
+              "type": "minecraft:location_check",
+              "predicate": {
+                "block": {
+                  "blocks": "#minecraft:all_signs"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

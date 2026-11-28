@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:pumpkin"
+    },
+    "title": "Pumpkin Patch",
+    "description": "Find and harvest a pumpkin",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "pumpkin": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:pumpkin"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,536 @@
+{
+  "parent": "bentobox:exploration/enter_structure",
+  "display": {
+    "icon": {
+      "id": "minecraft:structure_block"
+    },
+    "title": "Raidin' Master",
+    "description": "Discover every structure type",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "ancient_city": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ancient_city"
+            }
+          }
+        }
+      }
+    },
+    "bastion_remnant": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:bastion_remnant"
+            }
+          }
+        }
+      }
+    },
+    "buried_treasure": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:buried_treasure"
+            }
+          }
+        }
+      }
+    },
+    "desert_pyramid": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:desert_pyramid"
+            }
+          }
+        }
+      }
+    },
+    "end_city": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:end_city"
+            }
+          }
+        }
+      }
+    },
+    "fortress": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:fortress"
+            }
+          }
+        }
+      }
+    },
+    "igloo": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:igloo"
+            }
+          }
+        }
+      }
+    },
+    "jungle_pyramid": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:jungle_pyramid"
+            }
+          }
+        }
+      }
+    },
+    "mansion": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:mansion"
+            }
+          }
+        }
+      }
+    },
+    "mineshaft": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:mineshaft"
+            }
+          }
+        }
+      }
+    },
+    "mineshaft_mesa": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:mineshaft_mesa"
+            }
+          }
+        }
+      }
+    },
+    "monument": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:monument"
+            }
+          }
+        }
+      }
+    },
+    "nether_fossil": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:nether_fossil"
+            }
+          }
+        }
+      }
+    },
+    "ocean_ruin_cold": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ocean_ruin_cold"
+            }
+          }
+        }
+      }
+    },
+    "ocean_ruin_warm": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ocean_ruin_warm"
+            }
+          }
+        }
+      }
+    },
+    "pillager_outpost": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:pillager_outpost"
+            }
+          }
+        }
+      }
+    },
+    "ruined_portal": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal"
+            }
+          }
+        }
+      }
+    },
+    "ruined_portal_desert": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_desert"
+            }
+          }
+        }
+      }
+    },
+    "ruined_portal_jungle": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_jungle"
+            }
+          }
+        }
+      }
+    },
+    "ruined_portal_mountain": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_mountain"
+            }
+          }
+        }
+      }
+    },
+    "ruined_portal_nether": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_nether"
+            }
+          }
+        }
+      }
+    },
+    "ruined_portal_ocean": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_ocean"
+            }
+          }
+        }
+      }
+    },
+    "ruined_portal_swamp": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ruined_portal_swamp"
+            }
+          }
+        }
+      }
+    },
+    "shipwreck": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:shipwreck"
+            }
+          }
+        }
+      }
+    },
+    "shipwreck_beached": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:shipwreck_beached"
+            }
+          }
+        }
+      }
+    },
+    "stronghold": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:stronghold"
+            }
+          }
+        }
+      }
+    },
+    "swamp_hut": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:swamp_hut"
+            }
+          }
+        }
+      }
+    },
+    "village_desert": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_desert"
+            }
+          }
+        }
+      }
+    },
+    "village_plains": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_plains"
+            }
+          }
+        }
+      }
+    },
+    "village_savanna": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_savanna"
+            }
+          }
+        }
+      }
+    },
+    "village_snowy": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_snowy"
+            }
+          }
+        }
+      }
+    },
+    "village_taiga": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:village_taiga"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ancient_city"
+    ],
+    [
+      "bastion_remnant"
+    ],
+    [
+      "buried_treasure"
+    ],
+    [
+      "desert_pyramid"
+    ],
+    [
+      "end_city"
+    ],
+    [
+      "fortress"
+    ],
+    [
+      "igloo"
+    ],
+    [
+      "jungle_pyramid"
+    ],
+    [
+      "mansion"
+    ],
+    [
+      "mineshaft",
+      "mineshaft_mesa"
+    ],
+    [
+      "monument"
+    ],
+    [
+      "nether_fossil"
+    ],
+    [
+      "ocean_ruin_cold",
+      "ocean_ruin_warm"
+    ],
+    [
+      "pillager_outpost"
+    ],
+    [
+      "ruined_portal",
+      "ruined_portal_desert",
+      "ruined_portal_jungle",
+      "ruined_portal_mountain",
+      "ruined_portal_nether",
+      "ruined_portal_ocean",
+      "ruined_portal_swamp"
+    ],
+    [
+      "shipwreck",
+      "shipwreck_beached"
+    ],
+    [
+      "stronghold"
+    ],
+    [
+      "swamp_hut"
+    ],
+    [
+      "village_desert",
+      "village_plains",
+      "village_savanna",
+      "village_snowy",
+      "village_taiga"
+    ]
+  ],
+  "rewards": {
+    "experience": 500
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "values": [
+    "#minecraft:axolotl_hunt_targets",
+    "#bentobox:horses",
+    "#bentobox:llamas",
+    "minecraft:allay",
+    "minecraft:axolotl",
+    "minecraft:bat",
+    "minecraft:bee",
+    "minecraft:cat",
+    "minecraft:chicken",
+    "minecraft:cow",
+    "minecraft:dolphin",
+    "minecraft:fox",
+    "minecraft:frog",
+    "minecraft:goat",
+    "minecraft:mooshroom",
+    "minecraft:ocelot",
+    "minecraft:panda",
+    "minecraft:parrot",
+    "minecraft:pig",
+    "minecraft:polar_bear",
+    "minecraft:rabbit",
+    "minecraft:sheep",
+    "minecraft:strider",
+    "minecraft:turtle",
+    "minecraft:wolf"
+  ]
+}

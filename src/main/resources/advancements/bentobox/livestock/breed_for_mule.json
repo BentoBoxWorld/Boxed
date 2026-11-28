@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:livestock/tame_horse",
+  "display": {
+    "icon": {
+      "id": "minecraft:golden_carrot"
+    },
+    "title": "Artificial Selection",
+    "description": "Breed a horse and a donkey to make a mule",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "mule": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "parent": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:horse"
+          }
+        },
+        "partner": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:donkey"
+          }
+        }
+      }
+    }
+  }
+}

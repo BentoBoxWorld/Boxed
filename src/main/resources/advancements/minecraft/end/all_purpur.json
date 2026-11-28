@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:end/chorus_fruit",
+  "display": {
+    "icon": {
+      "id": "minecraft:purpur_pillar"
+    },
+    "title": "PurPurfect",
+    "description": "Craft all purpur variants",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "block": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:purpur_block"
+          }
+        ]
+      }
+    },
+    "pillar": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:purpur_pillar"
+          }
+        ]
+      }
+    },
+    "stairs": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:purpur_stairs"
+          }
+        ]
+      }
+    },
+    "slab": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:purpur_slab"
+          }
+        ]
+      }
+    }
+  }
+}

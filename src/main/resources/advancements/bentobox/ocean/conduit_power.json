@@ -1,0 +1,22 @@
+{
+  "parent": "bentobox:ocean/heart_and_soul",
+  "display": {
+    "icon": {
+      "id": "minecraft:conduit"
+    },
+    "title": "Open Your Eyes",
+    "description": "Discover the power of the conduit",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "conduit_power": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "effects": {
+          "minecraft:conduit_power": {}
+        }
+      }
+    }
+  }
+}

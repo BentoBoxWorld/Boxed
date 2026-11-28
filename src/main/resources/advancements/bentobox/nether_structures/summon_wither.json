@@ -1,0 +1,30 @@
+{
+  "parent": "bentobox:nether_structures/wither_skull",
+  "display": {
+    "icon": {
+      "id": "minecraft:nether_star"
+    },
+    "title": {
+      "translate": "advancements.nether.summon_wither.title"
+    },
+    "description": "Summon the wither",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "wither": {
+      "trigger": "minecraft:summoned_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:wither"
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 100
+  }
+}

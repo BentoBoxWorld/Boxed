@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:building/clay_have",
+  "display": {
+    "icon": {
+      "id": "minecraft:brick"
+    },
+    "title": "Brick",
+    "description": "Building Blocks of Childhood Fun!",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "brick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:brick"
+          }
+        ]
+      }
+    }
+  }
+}

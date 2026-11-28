@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/kill_an_animal",
+  "display": {
+    "icon": {
+      "id": "minecraft:feather"
+    },
+    "title": "Pillow Stuffer",
+    "description": "Kill a bird for its feathers",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "feather": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:feather"
+          }
+        ]
+      }
+    }
+  }
+}

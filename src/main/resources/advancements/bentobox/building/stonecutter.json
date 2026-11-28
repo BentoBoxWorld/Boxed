@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:building/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:stonecutter"
+    },
+    "title": "Stone Sculptor",
+    "description": "Create a block to cut stone with",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "stonecutter": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:stonecutter"
+          }
+        ]
+      }
+    }
+  }
+}

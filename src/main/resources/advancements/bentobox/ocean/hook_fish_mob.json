@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:ocean/tactical_fishing",
+  "display": {
+    "icon": {
+      "id": "minecraft:salmon"
+    },
+    "title": "Now This Is Fishing!",
+    "description": "Use your fishing rod to catch a live fish",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "fish": {
+      "trigger": "minecraft:fishing_rod_hooked",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#bentobox:fish"
+          }
+        }
+      }
+    }
+  }
+}

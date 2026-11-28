@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:combat/phantom_pains",
+  "display": {
+    "icon": {
+      "id": "minecraft:feather"
+    },
+    "title": "Float like a butterfly, sting like a bee.",
+    "description": "Drink a potion of Slow Falling",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "slow_falling": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "effects": {
+          "minecraft:slow_falling": {}
+        }
+      }
+    }
+  }
+}

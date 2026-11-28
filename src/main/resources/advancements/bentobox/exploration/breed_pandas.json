@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:exploration/jungle_tree",
+  "display": {
+    "icon": {
+      "id": "minecraft:bamboo"
+    },
+    "title": "Bamboo Baby",
+    "description": "Breed some pandas",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "breed_panda": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "parent": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:panda"
+          }
+        }
+      }
+    }
+  }
+}

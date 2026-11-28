@@ -1,0 +1,70 @@
+{
+  "parent": "bentobox:ocean/very_very_frightening",
+  "display": {
+    "icon": {
+      "id": "minecraft:blaze_powder"
+    },
+    "title": "Playing God",
+    "description": "Strike all mobs that transform when struck by lightning",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "villager": {
+      "trigger": "minecraft:channeled_lightning",
+      "conditions": {
+        "victims": [
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:villager"
+            }
+          }
+        ]
+      }
+    },
+    "pig": {
+      "trigger": "minecraft:channeled_lightning",
+      "conditions": {
+        "victims": [
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:pig"
+            }
+          }
+        ]
+      }
+    },
+    "creeper": {
+      "trigger": "minecraft:channeled_lightning",
+      "conditions": {
+        "victims": [
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:creeper"
+            }
+          }
+        ]
+      }
+    },
+    "mooshroom": {
+      "trigger": "minecraft:channeled_lightning",
+      "conditions": {
+        "victims": [
+          {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:entity_type": "minecraft:mooshroom"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

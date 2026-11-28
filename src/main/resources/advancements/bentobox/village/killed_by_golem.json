@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:village/build_iron_golem",
+  "display": {
+    "icon": {
+      "id": "minecraft:iron_block"
+    },
+    "title": "The Iron Giant",
+    "description": "Be killed by an iron golem defending its village",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "killed_by": {
+      "trigger": "minecraft:entity_killed_player",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:iron_golem"
+          }
+        }
+      }
+    }
+  }
+}

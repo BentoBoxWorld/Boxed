@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:ocean/monument",
+  "display": {
+    "icon": {
+      "id": "minecraft:dark_prismarine"
+    },
+    "title": "The Deep End",
+    "description": "Defeat an elder guardian",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "elder_guardian": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:elder_guardian"
+          }
+        }
+      }
+    }
+  }
+}

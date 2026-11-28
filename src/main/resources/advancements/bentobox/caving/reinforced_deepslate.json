@@ -1,0 +1,39 @@
+{
+  "parent": "bentobox:caving/enter_ancient_city",
+  "display": {
+    "icon": {
+      "id": "minecraft:reinforced_deepslate"
+    },
+    "title": "Bit by bit",
+    "description": "Slowly mine reinforced deepslate until it breaks",
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "spawner": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:mined",
+                  "stat": "minecraft:spawner",
+                  "value": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 50
+  }
+}

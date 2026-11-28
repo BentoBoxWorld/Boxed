@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:building/copper_block",
+  "display": {
+    "icon": {
+      "id": "minecraft:copper_bulb"
+    },
+    "title": "Copper Illuminated",
+    "description": "Obtain a copper bulb",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "copper_bulb": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:copper_bulb"
+          }
+        ]
+      }
+    }
+  }
+}

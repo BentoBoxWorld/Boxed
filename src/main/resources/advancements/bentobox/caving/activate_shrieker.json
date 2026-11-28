@@ -1,0 +1,29 @@
+{
+  "parent": "bentobox:caving/sneak_vibration",
+  "display": {
+    "icon": {
+      "id": "minecraft:sculk_shrieker"
+    },
+    "title": "Sculk Maestro",
+    "description": "Make a sculk shrieker stir the warden",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "warning_level": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:inverted",
+          "term": {
+            "type": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "minecraft:nbt": "{warden_spawn_tracker:{warning_level:0}}"
+            }
+          }
+        }
+      }
+    }
+  }
+}

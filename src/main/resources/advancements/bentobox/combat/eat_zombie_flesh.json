@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:combat/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:rotten_flesh"
+    },
+    "title": "Hmm, tasty!",
+    "description": "Eat rotten flesh",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "rotten_flesh": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:rotten_flesh"
+        }
+      }
+    }
+  }
+}

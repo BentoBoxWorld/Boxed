@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:caving/mushrooms",
+  "display": {
+    "icon": {
+      "id": "minecraft:suspicious_stew"
+    },
+    "title": "Looks tasty, I think!",
+    "description": "Drink a mysterious meal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "suspicious_stew": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:suspicious_stew"
+        }
+      }
+    }
+  }
+}

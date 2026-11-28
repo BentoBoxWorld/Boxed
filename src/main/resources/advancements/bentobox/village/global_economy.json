@@ -1,0 +1,114 @@
+{
+  "parent": "bentobox:village/trade_master",
+  "display": {
+    "icon": {
+      "id": "minecraft:lily_pad"
+    },
+    "title": "Global Economy",
+    "description": "Trade with a villager from each possible biome",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "desert": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:components": {
+              "minecraft:villager/variant": "minecraft:desert"
+            }
+          }
+        }
+      }
+    },
+    "jungle": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:components": {
+              "minecraft:villager/variant": "minecraft:jungle"
+            }
+          }
+        }
+      }
+    },
+    "plains": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:components": {
+              "minecraft:villager/variant": "minecraft:plains"
+            }
+          }
+        }
+      }
+    },
+    "savanna": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:components": {
+              "minecraft:villager/variant": "minecraft:savanna"
+            }
+          }
+        }
+      }
+    },
+    "snow": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:components": {
+              "minecraft:villager/variant": "minecraft:snow"
+            }
+          }
+        }
+      }
+    },
+    "swamp": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:components": {
+              "minecraft:villager/variant": "minecraft:swamp"
+            }
+          }
+        }
+      }
+    },
+    "taiga": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "villager": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:components": {
+              "minecraft:villager/variant": "minecraft:taiga"
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 150
+  }
+}

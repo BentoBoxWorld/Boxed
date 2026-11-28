@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/kill_an_animal",
+  "display": {
+    "icon": {
+      "id": "minecraft:beef"
+    },
+    "title": "Protein, Please!",
+    "description": "Kill an animal for its meat",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "meat": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:uncooked_meats"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:village/defeat_raid",
+  "display": {
+    "icon": {
+      "id": "minecraft:emerald",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "True Bravery",
+    "description": "Defeat a raid started with Bad Omen level 5",
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "hard_raid": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "effects": {
+          "minecraft:hero_of_the_village": {
+            "amplifier": {
+              "min": 4
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 500
+  }
+}

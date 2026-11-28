@@ -1,0 +1,19 @@
+{
+  "parent": "bentobox:building/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:scaffolding"
+    },
+    "title": "Sky-High Engineer",
+    "description": "Scaffold with scaffolding",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "scaffolding": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:scaffolding"
+      }
+    }
+  }
+}

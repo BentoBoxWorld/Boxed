@@ -1,0 +1,18 @@
+{
+  "parent": "bentobox:livestock/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:wheat"
+    },
+    "title": "The Parrots and the Bees",
+    "description": {
+      "translate": "advancements.husbandry.breed_an_animal.description"
+    },
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "breed_animals": {
+      "trigger": "minecraft:bred_animals"
+    }
+  }
+}

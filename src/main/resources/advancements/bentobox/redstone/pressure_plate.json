@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:redstone/button",
+  "display": {
+    "icon": {
+      "id": "minecraft:stone_pressure_plate"
+    },
+    "title": "Under Pressure",
+    "description": "Activate a pressure plate",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tripwire": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "block": {
+                "blocks": "#minecraft:pressure_plates",
+                "state": {
+                  "powered": "true"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

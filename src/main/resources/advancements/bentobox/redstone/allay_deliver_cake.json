@@ -1,0 +1,38 @@
+{
+  "parent": "bentobox:redstone/allay_deliver",
+  "display": {
+    "icon": {
+      "id": "minecraft:cake"
+    },
+    "title": {
+      "translate": "advancements.husbandry.allay_deliver_cake_to_note_block.title"
+    },
+    "description": "Have an allay drop a cake at a note block"
+  },
+  "criteria": {
+    "allay_deliver_cake_to_note_block": {
+      "trigger": "minecraft:allay_drop_item_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {
+              "type": "minecraft:match_tool",
+              "predicate": {
+                "items": "minecraft:cake"
+              }
+            },
+            {
+              "type": "minecraft:location_check",
+              "predicate": {
+                "block": {
+                  "blocks": "minecraft:note_block"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

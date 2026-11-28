@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:amethyst_block"
+    },
+    "title": "Amethyst Adept",
+    "description": "Collect an amethyst block",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "amethyst_block": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:amethyst_block"
+          }
+        ]
+      }
+    }
+  }
+}

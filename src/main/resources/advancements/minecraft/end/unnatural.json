@@ -1,0 +1,27 @@
+{
+  "parent": "minecraft:end/chorus_fruit",
+  "display": {
+    "icon": {
+      "id": "minecraft:chorus_flower"
+    },
+    "title": "Unnatural",
+    "description": "Replant a chorus tree in the Overworld",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "chorus_flower": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "dimension": "minecraft:overworld",
+            "block": {
+              "blocks": "minecraft:chorus_plant"
+            }
+          }
+        }
+      }
+    }
+  }
+}

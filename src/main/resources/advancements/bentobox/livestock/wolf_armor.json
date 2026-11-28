@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/armadillo",
+  "display": {
+    "icon": {
+      "id": "minecraft:wolf_armor"
+    },
+    "title": "Man's Best Bodyguard",
+    "description": "Craft wolf armor",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "wolf_armor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:wolf_armor"
+          }
+        ]
+      }
+    }
+  }
+}

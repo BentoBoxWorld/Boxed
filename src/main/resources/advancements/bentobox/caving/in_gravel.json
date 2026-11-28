@@ -1,0 +1,16 @@
+{
+  "parent": "bentobox:caving/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:gravel"
+    },
+    "title": "Gravel Graveyard",
+    "description": "Suffocate in gravel",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "boxed": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

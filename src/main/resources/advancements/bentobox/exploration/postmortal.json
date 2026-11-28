@@ -1,0 +1,24 @@
+{
+  "parent": "bentobox:exploration/vex",
+  "display": {
+    "icon": {
+      "id": "minecraft:totem_of_undying"
+    },
+    "title": {
+      "translate": "advancements.adventure.totem_of_undying.title"
+    },
+    "description": "Use a totem of undying to cheat death",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "used_totem": {
+      "trigger": "minecraft:used_totem",
+      "conditions": {
+        "item": {
+          "items": "minecraft:totem_of_undying"
+        }
+      }
+    }
+  }
+}

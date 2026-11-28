@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:village/kill_ravager",
+  "display": {
+    "icon": {
+      "id": "minecraft:firework_rocket"
+    },
+    "title": "Village Glory",
+    "description": {
+      "translate": "advancements.adventure.hero_of_the_village.description"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "hero_of_the_village": {
+      "trigger": "minecraft:hero_of_the_village"
+    }
+  },
+  "rewards": {
+    "experience": 100
+  }
+}

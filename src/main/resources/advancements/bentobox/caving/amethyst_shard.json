@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/amethyst_cluster",
+  "display": {
+    "icon": {
+      "id": "minecraft:amethyst_shard"
+    },
+    "title": "Shard Seeker",
+    "description": "Collect an amethyst shard",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "shard": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:amethyst_shard"
+          }
+        ]
+      }
+    }
+  }
+}

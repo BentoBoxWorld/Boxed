@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/leather",
+  "display": {
+    "icon": {
+      "id": "minecraft:rabbit_hide"
+    },
+    "title": "Tiny Leather",
+    "description": "Kill a rabbit for its hide",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "rabbit_hide": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:rabbit_hide"
+          }
+        ]
+      }
+    }
+  }
+}

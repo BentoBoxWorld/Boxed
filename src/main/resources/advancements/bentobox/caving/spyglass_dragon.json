@@ -1,0 +1,34 @@
+{
+  "parent": "bentobox:caving/spyglass_ghast",
+  "display": {
+    "icon": {
+      "id": "minecraft:dragon_head"
+    },
+    "title": {
+      "translate": "advancements.adventure.spyglass_at_dragon.title"
+    },
+    "description": "Look at the ender dragon through a spyglass",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "spyglass_at_dragon": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "looking_at": {
+                "minecraft:entity_type": "minecraft:ender_dragon"
+              }
+            }
+          }
+        },
+        "item": {
+          "items": "minecraft:spyglass"
+        }
+      }
+    }
+  }
+}

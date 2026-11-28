@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/safely_harvest_honey",
+  "display": {
+    "icon": {
+      "id": "minecraft:honey_bottle"
+    },
+    "title": "Sweet Cure",
+    "description": "Cure Poison with honey",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cure": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:honey_bottle"
+        },
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:effects": {
+              "minecraft:poison": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

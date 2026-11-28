@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/lead",
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_fence"
+    },
+    "title": "Oaken Corral",
+    "description": "Craft some fences to contain your livestock",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "fence": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:fences"
+          }
+        ]
+      }
+    }
+  }
+}

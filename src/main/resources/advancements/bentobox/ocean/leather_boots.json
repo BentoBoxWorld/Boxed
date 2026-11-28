@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:ocean/fishy_business",
+  "display": {
+    "icon": {
+      "id": "minecraft:leather_boots"
+    },
+    "title": "A Bit Cliche",
+    "description": "Reel in leather boots",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "leather_boots": {
+      "trigger": "minecraft:fishing_rod_hooked",
+      "conditions": {
+        "item": {
+          "items": "minecraft:leather_boots"
+        }
+      }
+    }
+  }
+}

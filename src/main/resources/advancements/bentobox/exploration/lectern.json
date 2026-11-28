@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:exploration/write_book",
+  "display": {
+    "icon": {
+      "id": "minecraft:lectern"
+    },
+    "title": "Published Author",
+    "description": "Place a lectern to display books",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lectern": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:lectern"
+            }
+          }
+        }
+      }
+    }
+  }
+}

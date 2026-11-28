@@ -1,0 +1,20 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:water_bucket"
+    },
+    "title": "Ocean",
+    "description": "Enter the deep",
+    "background": "minecraft:block/prismarine_bricks",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "water": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:water"
+      }
+    }
+  }
+}
