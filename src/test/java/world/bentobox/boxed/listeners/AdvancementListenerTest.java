@@ -83,6 +83,8 @@ class AdvancementListenerTest extends CommonTestSetup {
     @BeforeEach
     public void setUp() {
         super.setUp();
+        // Advancements are not on the server unless a test puts one there
+        mockedBukkit.when(() -> Bukkit.getAdvancement(any(NamespacedKey.class))).thenReturn(null);
 
         // Local User mock (parent only cached mockPlayer, not our local player mock)
         mockedUser = Mockito.mockStatic(User.class, Mockito.CALLS_REAL_METHODS);
@@ -421,5 +423,25 @@ class AdvancementListenerTest extends CommonTestSetup {
         when(progress.isDone()).thenReturn(true);
         AdvancementListener.giveAdv(player, advancement);
         verify(progress, never()).awardCriteria(anyString());
+    }
+
+    @Test
+    void testTheAdvancementsOwnTitleIsRead() {
+        NamespacedKey key = NamespacedKey.fromString("bentobox:caving/in_gravel");
+        // Not on the server
+        assertEquals("", AdvancementListener.title(key));
+        // An advancement of Boxed's has its title written out
+        Advancement built = mock(Advancement.class);
+        io.papermc.paper.advancement.AdvancementDisplay display = mock(io.papermc.paper.advancement.AdvancementDisplay.class);
+        when(display.title()).thenReturn(net.kyori.adventure.text.Component.text(" Gravel Graveyard "));
+        when(built.getDisplay()).thenReturn(display);
+        mockedBukkit.when(() -> Bukkit.getAdvancement(key)).thenReturn(built);
+        assertEquals("Gravel Graveyard", AdvancementListener.title(key));
+        // One of the game's own has a title that only the player's game can translate
+        when(display.title()).thenReturn(net.kyori.adventure.text.Component.translatable("advancements.story.mine_stone.title"));
+        assertEquals("", AdvancementListener.title(key));
+        // Some have nothing to show
+        when(built.getDisplay()).thenReturn(null);
+        assertEquals("", AdvancementListener.title(key));
     }
 }
