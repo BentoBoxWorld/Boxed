@@ -21,7 +21,7 @@
           "predicate": {
             "minecraft:equipment": {
               "feet": {
-                "items": "#bentobox:boots",
+                "items": "#minecraft:foot_armor",
                 "predicates": {
                   "minecraft:enchantments": [
                     {

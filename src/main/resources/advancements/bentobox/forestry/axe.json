@@ -14,7 +14,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#bentobox:axes"
+            "items": "#minecraft:axes"
           }
         ]
       }

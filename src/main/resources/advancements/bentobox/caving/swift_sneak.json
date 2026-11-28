@@ -24,7 +24,7 @@
             },
             "minecraft:equipment": {
               "legs": {
-                "items": "#bentobox:leggings",
+                "items": "#minecraft:leg_armor",
                 "predicates": {
                   "minecraft:enchantments": [
                     {

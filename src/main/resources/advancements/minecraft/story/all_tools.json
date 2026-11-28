@@ -15,7 +15,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#bentobox:shovels"
+            "items": "#minecraft:shovels"
           }
         ]
       }
@@ -35,7 +35,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#bentobox:axes"
+            "items": "#minecraft:axes"
           }
         ]
       }
@@ -45,7 +45,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#bentobox:hoes"
+            "items": "#minecraft:hoes"
           }
         ]
       }
@@ -55,7 +55,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#bentobox:swords"
+            "items": "#minecraft:swords"
           }
         ]
       }

@@ -14,7 +14,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#bentobox:swords"
+            "items": "#minecraft:swords"
           }
         ]
       }
