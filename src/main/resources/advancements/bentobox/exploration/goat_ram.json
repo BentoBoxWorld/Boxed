@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/mountain",
+  "display": {
+    "icon": {
+      "id": "minecraft:piston"
+    },
+    "title": "Download THIS Ram!",
+    "description": "Get rammed by a goat",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "goat_ram": {
+      "trigger": "minecraft:entity_hurt_player",
+      "conditions": {
+        "damage": {
+          "source_entity": {
+            "minecraft:entity_type": "minecraft:goat"
+          }
+        }
+      }
+    }
+  }
+}

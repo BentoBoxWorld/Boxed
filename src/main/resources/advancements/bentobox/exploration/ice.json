@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/snow_biome",
+  "display": {
+    "icon": {
+      "id": "minecraft:ice"
+    },
+    "title": "Ice Ice Baby",
+    "description": "Collect some ice",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "ice": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:ice"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:ocean/shipwreck",
+  "display": {
+    "icon": {
+      "id": "minecraft:filled_map"
+    },
+    "title": "Hidden Booty",
+    "description": "Use a treasure map to find buried treasure",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "buried_treasure": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:buried_treasure"
+            }
+          }
+        }
+      }
+    }
+  }
+}

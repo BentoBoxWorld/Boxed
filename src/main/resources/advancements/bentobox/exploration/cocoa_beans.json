@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:exploration/jungle_tree",
+  "display": {
+    "icon": {
+      "id": "minecraft:cocoa_beans"
+    },
+    "title": "Coocoo for Cocoa Beans",
+    "description": "Plant some cocoa beans",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cocoa_beans": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:cocoa"
+            }
+          }
+        }
+      }
+    }
+  }
+}

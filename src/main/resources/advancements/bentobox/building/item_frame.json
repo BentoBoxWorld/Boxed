@@ -1,0 +1,63 @@
+{
+  "parent": "bentobox:building/sign_write",
+  "display": {
+    "icon": {
+      "id": "minecraft:item_frame"
+    },
+    "title": "Frame Master",
+    "description": "Place an item frame to display your items",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "item_frame": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:used",
+                  "stat": "minecraft:item_frame",
+                  "value": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "glow_item_frame": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:used",
+                  "stat": "minecraft:glow_item_frame",
+                  "value": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "item_frame",
+      "glow_item_frame"
+    ]
+  ]
+}

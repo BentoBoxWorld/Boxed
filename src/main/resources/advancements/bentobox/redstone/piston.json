@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:piston"
+    },
+    "title": "Push...",
+    "description": "Craft and place a piston",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "piston": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:piston"
+            }
+          }
+        }
+      }
+    }
+  }
+}

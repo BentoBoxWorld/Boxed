@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:end/find_end_city",
+  "display": {
+    "icon": {
+      "id": "minecraft:dragon_head"
+    },
+    "title": "Off with His Head!",
+    "description": "Collect a dragon's head from an end ship",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "dragon_head": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dragon_head"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "parent": "bentobox:nether_structures/bastion",
+  "display": {
+    "icon": {
+      "id": "minecraft:chest"
+    },
+    "title": {
+      "translate": "advancements.nether.loot_bastion.title"
+    },
+    "description": "Loot a chest in a bastion remnant",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "boxed": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:building/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:copper_ingot"
+    },
+    "title": "Copper Capers",
+    "description": "Smelt raw copper to get an ingot",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "copper_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:copper_ingot"
+          }
+        ]
+      }
+    }
+  }
+}

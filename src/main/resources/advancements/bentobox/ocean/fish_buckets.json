@@ -1,0 +1,62 @@
+{
+  "parent": "bentobox:ocean/tactical_fishing",
+  "display": {
+    "icon": {
+      "id": "minecraft:pufferfish_bucket"
+    },
+    "title": "Live Catch",
+    "description": "Pick up everything in a bucket",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cod": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:cod_bucket"
+        }
+      }
+    },
+    "salmon": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:salmon_bucket"
+        }
+      }
+    },
+    "pufferfish": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:pufferfish_bucket"
+        }
+      }
+    },
+    "tropical_fish": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:tropical_fish_bucket"
+        }
+      }
+    },
+    "axolotl": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:axolotl_bucket"
+        }
+      }
+    },
+    "tadpole": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:tadpole_bucket"
+        }
+      }
+    }
+  }
+}

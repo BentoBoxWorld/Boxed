@@ -1,0 +1,115 @@
+{
+  "parent": "bentobox:collection/coral_block",
+  "display": {
+    "icon": {
+      "id": "minecraft:bubble_coral"
+    },
+    "title": "Coral Magnate",
+    "description": "Collect all 10 coral types"
+  },
+  "criteria": {
+    "tube": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:tube_coral"
+          }
+        ]
+      }
+    },
+    "brain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:brain_coral"
+          }
+        ]
+      }
+    },
+    "bubble": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bubble_coral"
+          }
+        ]
+      }
+    },
+    "fire": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:fire_coral"
+          }
+        ]
+      }
+    },
+    "horn": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:horn_coral"
+          }
+        ]
+      }
+    },
+    "dead_tube": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_tube_coral"
+          }
+        ]
+      }
+    },
+    "dead_brain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_brain_coral"
+          }
+        ]
+      }
+    },
+    "dead_bubble": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_bubble_coral"
+          }
+        ]
+      }
+    },
+    "dead_fire": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_fire_coral"
+          }
+        ]
+      }
+    },
+    "dead_horn": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:dead_horn_coral"
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 40
+  }
+}

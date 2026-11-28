@@ -1,0 +1,30 @@
+{
+  "parent": "bentobox:combat/ol_betsy",
+  "display": {
+    "icon": {
+      "id": "minecraft:firework_rocket"
+    },
+    "title": "Worth Trying Once",
+    "description": "Shoot a firework with a crossbow",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "firework": {
+      "trigger": "minecraft:shot_crossbow",
+      "conditions": {
+        "item": {
+          "items": "minecraft:crossbow",
+          "predicates": {
+            "minecraft:charged_projectiles": {
+              "contains": [
+                {
+                  "items": "minecraft:firework_rocket"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

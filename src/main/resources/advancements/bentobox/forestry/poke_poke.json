@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/planks",
+  "display": {
+    "icon": {
+      "id": "minecraft:stick"
+    },
+    "title": "Poke Poke",
+    "description": "Craft a stick",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "stick": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:stick"
+          }
+        ]
+      }
+    }
+  }
+}

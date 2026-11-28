@@ -1,0 +1,77 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:spruce_leaves"
+    },
+    "title": "Land of Christmas Trees",
+    "description": "Enter a taiga biome",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "taiga": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:taiga"
+            }
+          }
+        }
+      }
+    },
+    "snowy_taiga": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:snowy_taiga"
+            }
+          }
+        }
+      }
+    },
+    "old_growth_pine_taiga": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:old_growth_pine_taiga"
+            }
+          }
+        }
+      }
+    },
+    "old_growth_spruce_taiga": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:old_growth_spruce_taiga"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "taiga",
+      "snowy_taiga",
+      "old_growth_pine_taiga",
+      "old_growth_spruce_taiga"
+    ]
+  ]
+}

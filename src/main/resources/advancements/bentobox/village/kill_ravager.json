@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:village/start_raid",
+  "display": {
+    "icon": {
+      "id": "minecraft:saddle"
+    },
+    "title": "Mighty Foe",
+    "description": "Slay a ravager",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "kill_ravager": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:ravager"
+          }
+        }
+      }
+    }
+  }
+}

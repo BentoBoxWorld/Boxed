@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:building/torch",
+  "display": {
+    "icon": {
+      "id": "minecraft:lantern"
+    },
+    "title": "Lantern Luminary",
+    "description": "Light up the area with lanterns",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lantern": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:lantern"
+            }
+          }
+        }
+      }
+    }
+  }
+}

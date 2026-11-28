@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/swamp_find",
+  "display": {
+    "description": "Catch a tadpole in a bucket",
+    "icon": {
+      "id": "minecraft:tadpole_bucket"
+    },
+    "title": {
+      "translate": "advancements.husbandry.tadpole_in_a_bucket.title"
+    },
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tadpole_bucket": {
+      "trigger": "minecraft:filled_bucket",
+      "conditions": {
+        "item": {
+          "items": "minecraft:tadpole_bucket"
+        }
+      }
+    }
+  }
+}

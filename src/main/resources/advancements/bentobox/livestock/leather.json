@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/kill_an_animal",
+  "display": {
+    "icon": {
+      "id": "minecraft:leather"
+    },
+    "title": "Genuine Leather",
+    "description": "Kill an animal for its leather",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "leather": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:leather"
+          }
+        ]
+      }
+    }
+  }
+}

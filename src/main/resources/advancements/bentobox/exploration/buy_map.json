@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:exploration/cartography_table",
+  "display": {
+    "icon": {
+      "id": "minecraft:filled_map"
+    },
+    "title": "Now, How Do We Get There?",
+    "description": "Buy an explorer map from a cartographer",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "trade": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "item": {
+          "items": "minecraft:filled_map"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:exploration/lily_pad",
+  "display": {
+    "icon": {
+      "id": "minecraft:slime_ball"
+    },
+    "title": "Squishy Division",
+    "description": "'Kill' a slime",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "slime": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:slime"
+          }
+        }
+      }
+    }
+  }
+}

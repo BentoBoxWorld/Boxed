@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:exploration/taiga",
+  "display": {
+    "icon": {
+      "id": "minecraft:sweet_berries"
+    },
+    "title": "Sweets",
+    "description": "Eat some sweet berries",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "sweet_berries": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:sweet_berries"
+        }
+      }
+    }
+  }
+}

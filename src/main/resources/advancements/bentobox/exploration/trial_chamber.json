@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:trial_key"
+    },
+    "title": "Trial and Error",
+    "description": "Obtain a trial key from a trial chamber",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "trial_key": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:trial_key"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 package world.bentobox.boxed.listeners;
 
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.TextComponent;
 import world.bentobox.bentobox.managers.RanksManager;
 import world.bentobox.bentobox.api.events.island.IslandEnterEvent;
 import java.util.UUID;
@@ -243,9 +245,28 @@ public class AdvancementListener implements Listener {
     private String keyToString(User user, NamespacedKey key) {
         String adv = user.getTranslationOrNothing("boxed.advancements." + key.toString());
         if (adv.isEmpty()) {
+            adv = title(key);
+        }
+        if (adv.isEmpty()) {
             adv = Util.prettifyText(key.getKey().substring(key.getKey().lastIndexOf("/") + 1));
         }
         return adv;
+    }
+
+    /**
+     * Gets the title an advancement shows on the advancements screen, if it is written out
+     * in the advancement. The game's own advancements have titles that the player's game
+     * translates, which cannot be read here.
+     * @param key advancement
+     * @return the title, or an empty string if it cannot be read
+     */
+    static String title(NamespacedKey key) {
+        Advancement advancement = Bukkit.getAdvancement(key);
+        if (advancement != null && advancement.getDisplay() != null
+                && advancement.getDisplay().title() instanceof TextComponent text) {
+            return PlainTextComponentSerializer.plainText().serialize(text).strip();
+        }
+        return "";
     }
 
 

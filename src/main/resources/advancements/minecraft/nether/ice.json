@@ -1,0 +1,27 @@
+{
+  "parent": "minecraft:nether/ride_strider",
+  "display": {
+    "icon": {
+      "id": "minecraft:packed_ice"
+    },
+    "title": "It's Frozen Over",
+    "description": "Place ice in the Nether",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "ice": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "dimension": "minecraft:the_nether",
+            "block": {
+              "blocks": "minecraft:ice"
+            }
+          }
+        }
+      }
+    }
+  }
+}

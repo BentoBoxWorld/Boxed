@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:livestock/breed_an_animal",
+  "display": {
+    "icon": {
+      "id": "minecraft:iron_sword"
+    },
+    "title": "Depopulation",
+    "description": "Kill an animal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "animal": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "#bentobox:animals"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "parent": "bentobox:exploration/powder_snow",
+  "display": {
+    "icon": {
+      "id": "minecraft:leather_boots"
+    },
+    "title": {
+      "translate": "advancements.adventure.walk_on_powder_snow_with_leather_boots.title"
+    },
+    "description": "Walk on powder snow without sinking in it",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "powder_snow": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "predicate": {
+            "minecraft:stepping_on": {
+              "block": {
+                "blocks": "minecraft:powder_snow"
+              }
+            },
+            "minecraft:equipment": {
+              "feet": {
+                "items": "minecraft:leather_boots"
+              }
+            }
+          },
+          "entity": "this"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:nether/crimson_forest",
+  "display": {
+    "icon": {
+      "id": "minecraft:porkchop"
+    },
+    "title": "When Hogs Fly",
+    "description": "Successfully breed levitating hoglins",
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "hoglin": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "parent": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:hoglin",
+            "minecraft:effects": {
+              "minecraft:levitation": {}
+            }
+          }
+        },
+        "partner": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:hoglin",
+            "minecraft:effects": {
+              "minecraft:levitation": {}
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 250
+  }
+}

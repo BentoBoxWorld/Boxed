@@ -1,0 +1,39 @@
+{
+  "parent": "bentobox:nether_structures/brew_potion",
+  "display": {
+    "icon": {
+      "id": "minecraft:splash_potion",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:poison"
+        }
+      }
+    },
+    "title": "Taste of Your Own Medicine",
+    "description": "Kill a witch with a splash potion",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "splash_witch": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:witch"
+          }
+        },
+        "killing_blow": {
+          "tags": [
+            {
+              "id": "#minecraft:avoids_guardian_thorns",
+              "expected": true
+            }
+          ]
+        }
+      }
+    }
+  }
+}

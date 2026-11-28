@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:caving/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:moss_block"
+    },
+    "title": "Verdant Subterranea",
+    "description": "Enter a lush cave",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lush_cave": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:lush_caves"
+            }
+          }
+        }
+      }
+    }
+  }
+}

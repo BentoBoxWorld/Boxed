@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:caving/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:bat_spawn_egg"
+    },
+    "title": "Batty Vanquisher: Dark Wings, Dark Deeds!",
+    "description": "Kill a bat",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bat": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:bat"
+          }
+        }
+      }
+    }
+  }
+}

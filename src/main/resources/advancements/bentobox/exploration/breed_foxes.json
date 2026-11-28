@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:exploration/sweet_berries",
+  "display": {
+    "icon": {
+      "id": "minecraft:chicken"
+    },
+    "title": "Belyaevian",
+    "description": "Breed foxes with berries",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "breed_fox": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "parent": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:fox"
+          }
+        }
+      }
+    }
+  }
+}

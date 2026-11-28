@@ -1,0 +1,85 @@
+{
+  "parent": "minecraft:story/mending",
+  "display": {
+    "icon": {
+      "id": "minecraft:netherite_pickaxe",
+      "components": {
+        "minecraft:enchantment_glint_override": true
+      }
+    },
+    "title": "Master Miner",
+    "description": "Create a perfect pickaxe",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "perfect_pickaxe_fortune": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:netherite_pickaxe",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:efficiency",
+                  "levels": 5
+                },
+                {
+                  "enchantments": "minecraft:fortune",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:unbreaking",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:mending",
+                  "levels": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "perfect_pickaxe_silk_touch": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:netherite_pickaxe",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:efficiency",
+                  "levels": 5
+                },
+                {
+                  "enchantments": "minecraft:silk_touch",
+                  "levels": 1
+                },
+                {
+                  "enchantments": "minecraft:unbreaking",
+                  "levels": 3
+                },
+                {
+                  "enchantments": "minecraft:mending",
+                  "levels": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "perfect_pickaxe_fortune",
+      "perfect_pickaxe_silk_touch"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

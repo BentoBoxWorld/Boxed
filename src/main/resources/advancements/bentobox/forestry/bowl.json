@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/planks",
+  "display": {
+    "icon": {
+      "id": "minecraft:bowl"
+    },
+    "title": "Bowling",
+    "description": "Craft a bowl",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bowl": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:bowl"
+          }
+        ]
+      }
+    }
+  }
+}

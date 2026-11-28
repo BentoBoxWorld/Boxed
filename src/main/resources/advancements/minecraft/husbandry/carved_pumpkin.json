@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:husbandry/pumpkin",
+  "display": {
+    "icon": {
+      "id": "minecraft:carved_pumpkin"
+    },
+    "title": "Pumpkin Carving",
+    "description": "Carve a face into a pumpkin",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "carved_pumpkin": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:all_of",
+          "terms": [
+            {
+              "type": "minecraft:match_tool",
+              "predicate": {
+                "items": "minecraft:shears"
+              }
+            },
+            {
+              "type": "minecraft:location_check",
+              "predicate": {
+                "block": {
+                  "blocks": "minecraft:carved_pumpkin"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

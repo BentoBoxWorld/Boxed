@@ -1,0 +1,52 @@
+{
+  "parent": "minecraft:husbandry/cake",
+  "display": {
+    "icon": {
+      "id": "minecraft:cookie"
+    },
+    "title": "Treat Yourself",
+    "description": "Eat every dessert",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cake": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:custom",
+                  "stat": "minecraft:eat_cake_slice",
+                  "value": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "cookie": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:cookie"
+        }
+      }
+    },
+    "pie": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:pumpkin_pie"
+        }
+      }
+    }
+  }
+}

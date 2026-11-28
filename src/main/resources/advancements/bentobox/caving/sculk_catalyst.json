@@ -1,0 +1,18 @@
+{
+  "parent": "bentobox:caving/deep_dark",
+  "display": {
+    "icon": {
+      "id": "minecraft:sculk_catalyst"
+    },
+    "title": {
+      "translate": "advancements.adventure.kill_mob_near_sculk_catalyst.title"
+    },
+    "description": "Kill a mob near a sculk catalyst",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "kill_mob_near_sculk_catalyst": {
+      "trigger": "minecraft:kill_mob_near_sculk_catalyst"
+    }
+  }
+}

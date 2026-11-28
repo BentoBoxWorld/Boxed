@@ -1,0 +1,47 @@
+{
+  "parent": "bentobox:ocean/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:seagrass"
+    },
+    "title": "Green in the Blue",
+    "description": "Swim in sea grass and kelp",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "seagrass": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:seagrass"
+      }
+    },
+    "tall_seagrass": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:tall_seagrass"
+      }
+    },
+    "kelp": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:kelp"
+      }
+    },
+    "kelp_plant": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:kelp_plant"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "seagrass",
+      "tall_seagrass"
+    ],
+    [
+      "kelp",
+      "kelp_plant"
+    ]
+  ]
+}

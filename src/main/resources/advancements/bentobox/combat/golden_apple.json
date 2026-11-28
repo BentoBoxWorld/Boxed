@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:combat/shield",
+  "display": {
+    "icon": {
+      "id": "minecraft:golden_apple"
+    },
+    "title": "Golden Delicious",
+    "description": "Eat a golden apple",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "golden_apple": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:golden_apple"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:nether_structures/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:chiseled_polished_blackstone"
+    },
+    "title": {
+      "translate": "advancements.nether.find_bastion.title"
+    },
+    "description": "Explore the remnants of a bastion",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bastion": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "structures": "minecraft:bastion_remnant"
+          }
+        }
+      }
+    }
+  }
+}

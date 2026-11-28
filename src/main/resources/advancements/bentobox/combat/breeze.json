@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:combat/mace",
+  "display": {
+    "icon": {
+      "id": "minecraft:breeze_rod"
+    },
+    "title": "Trial by Combat",
+    "description": "Kill a breeze",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "breeze": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:breeze"
+          }
+        }
+      }
+    }
+  }
+}

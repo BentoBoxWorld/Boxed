@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:dark_oak_log"
+    },
+    "title": "Dimly Lit",
+    "description": "Enter a dark forest",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "dark_forest": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:dark_forest"
+            }
+          }
+        }
+      }
+    }
+  }
+}

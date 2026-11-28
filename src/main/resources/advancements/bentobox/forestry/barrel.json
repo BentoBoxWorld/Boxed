@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/chest",
+  "display": {
+    "icon": {
+      "id": "minecraft:barrel"
+    },
+    "title": "Barrels of Fun",
+    "description": "Craft a barrel",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "barrel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:barrel"
+          }
+        ]
+      }
+    }
+  }
+}

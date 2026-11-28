@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/at_diamond_level",
+  "display": {
+    "icon": {
+      "id": "minecraft:cobbled_deepslate"
+    },
+    "title": "Deepslate Diver",
+    "description": "Collect some deepslate from the bottom of the world",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "deepslate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:cobbled_deepslate"
+          }
+        ]
+      }
+    }
+  }
+}

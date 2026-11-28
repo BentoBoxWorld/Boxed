@@ -214,6 +214,18 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>advancements/**</exclude>
+                </excludes>
+            </resource>
+            <!-- The advancements that Boxed registers itself -->
+            <resource>
+                <directory>src/main/resources/advancements</directory>
+                <targetPath>./advancements</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.json</include>
+                </includes>
             </resource>
             <resource>
                 <directory>src/main/resources/structures</directory>

@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:building/brick",
+  "display": {
+    "icon": {
+      "id": "minecraft:bricks"
+    },
+    "title": "Bricklayer",
+    "description": "Use bricks to build",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bricks": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:bricks"
+            }
+          }
+        }
+      }
+    }
+  }
+}

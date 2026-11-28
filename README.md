@@ -19,7 +19,7 @@ The first time Boxed starts it builds its worlds from a hidden seed world and sa
 ### Quick Start
 
 1. Place Boxed addon into the BentoBox addons folder along with InvSwitcher and Border (use the latest versions!).
-2. (Optional) Install the Datapack for custom advancements - https://github.com/BentoBoxWorld/BoxedDataPack/
+2. There is no data pack to install. Boxed's extra advancements are built in. If you have the old BoxedDataPack in your world's `datapacks` folder, take it out: it does nothing on current versions of Minecraft.
 3. Restart the server - new worlds will be created. The first start takes a little longer.
 4. Login.
 5. Type `/boxed` to start.
@@ -151,7 +151,7 @@ There are settings at the top of the file:
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `settings.default-root-increase` | `0` | Score applied when a root (tab-opening) advancement is earned. Typically left at 0 to avoid rewarding players simply for unlocking a new tab. |
-| `settings.unknown-advancement-increase` | `1` | Default box increase for any advancement not listed in this file. Useful for custom advancements added via a data pack — you don't need to list every new advancement manually. |
+| `settings.unknown-advancement-increase` | `1` | Default box increase for any advancement not listed in this file. Useful for Boxed's own advancements and any you add — you don't need to list every new advancement manually. |
 | `settings.unknown-recipe-increase` | `0` | Default box increase for recipe advancements not listed in this file. |
 | `settings.automatic-scoring` | `true` | If `true`, uses a proprietary algorithm to automatically score advancements. If `false`, each advancement must be scored manually. |
 
@@ -538,11 +538,28 @@ The following PlaceholderAPI placeholders are registered by Boxed:
 | `%boxed_visited_island_advancements%` | The number of advancements earned by the island the player is currently standing on. |
 
 
-## Custom Advancements
-To find out how to add custom advancements to your server, watch the tutorial video [here](https://www.youtube.com/watch?v=zNzQvIbweQs)!
+## Boxed's own advancements
 
-Download the official [Boxed DataPack](https://github.com/BentoBoxWorld/BoxedDataPack) for extra custom advancements.
+Boxed comes with 415 advancements on top of the game's own: 347 in eleven tabs (building, caving, collection, combat, exploration, forestry, livestock, nether structures, ocean, redstone and villages) and 68 more in the game's tabs. They used to be a separate data pack. Now Boxed gives them to the server itself when it starts, so there is nothing to install and nothing is added to your world folder.
 
+Each one grows the box by `settings.unknown-advancement-increase` in `advancements.yml` (1 by default) unless you list it there with a score of its own, by the part of its name after the colon, for example `ocean/riptide`.
+
+### Changing them or adding your own
+
+Advancements are JSON files in the format of Minecraft 26.3. Put a file in Boxed's folder to add an advancement or replace one of Boxed's:
+
+```
+plugins/BentoBox/addons/Boxed/advancements/<namespace>/<tab>/<name>.json
+```
+
+For example `advancements/bentobox/ocean/riptide.json` replaces Boxed's `bentobox:ocean/riptide`, and `advancements/myserver/quests/first.json` adds `myserver:quests/first`. The files Boxed comes with are inside its jar, in the `advancements` folder, if you want one to start from. Restart the server, or run `/minecraft:reload`, to pick up changes.
+
+Some things to know:
+
+* **Lists.** A data pack can have tags, such as "every kind of boot". Boxed cannot make tags without a data pack, so it keeps lists of its own in `advancements/tags/item`, `tags/block` and `tags/entity_type`. Where an advancement says `"items": "#bentobox:boots"`, Boxed writes the list out in full before the server sees it. A list can name other lists and the game's own tags. You can add lists of your own in the same folders.
+* **An advancement the server already has is left alone.** If a data pack provides an advancement with the same name, the data pack's is used.
+* **Three are given by Boxed, not the game:** `caving/dripstone`, `caving/in_gravel` and `nether_structures/loot_bastion`. The game can only check the kind of damage or the loot in a chest for advancements that come from a data pack.
+* **A mistake in a file** is reported in the console when Boxed starts, and the other advancements still load.
 
 ## Reclaiming Disk Space (Deleted Island Chunks)
 

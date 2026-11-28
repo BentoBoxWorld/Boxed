@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:village/kill_pillager",
+  "display": {
+    "icon": {
+      "id": "minecraft:crossbow"
+    },
+    "title": "Pillaged",
+    "description": "Be killed by a patrolling pillager",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "killed_by": {
+      "trigger": "minecraft:entity_killed_player",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:pillager",
+            "minecraft:nbt": "{Patrolling:true}"
+          }
+        }
+      }
+    }
+  }
+}

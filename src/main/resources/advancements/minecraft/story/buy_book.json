@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:story/disenchanted",
+  "display": {
+    "icon": {
+      "id": "minecraft:emerald"
+    },
+    "title": "Magic Merchant",
+    "description": "Buy an enchanted book from a villager",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "book": {
+      "trigger": "minecraft:villager_trade",
+      "conditions": {
+        "item": {
+          "items": "minecraft:enchanted_book"
+        }
+      }
+    }
+  }
+}

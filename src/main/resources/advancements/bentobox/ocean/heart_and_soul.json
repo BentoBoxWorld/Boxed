@@ -1,0 +1,33 @@
+{
+  "parent": "bentobox:ocean/hidden_booty",
+  "display": {
+    "icon": {
+      "id": "minecraft:heart_of_the_sea"
+    },
+    "title": "Heart and Soul",
+    "description": "Collect a heart of the sea and a nautilus shell",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "heart_of_the_sea": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:heart_of_the_sea"
+          }
+        ]
+      }
+    },
+    "nautilus_shell": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:nautilus_shell"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:building/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:clay_ball"
+    },
+    "title": "Mudlark Maestro",
+    "description": "Dig up some clay from a lake",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "clay_ball": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:clay_ball"
+          }
+        ]
+      }
+    }
+  }
+}

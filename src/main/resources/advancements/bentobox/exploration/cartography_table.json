@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/map_create",
+  "display": {
+    "icon": {
+      "id": "minecraft:cartography_table"
+    },
+    "title": "Map Maker",
+    "description": "Create a cartography table",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cartography_table": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:cartography_table"
+          }
+        ]
+      }
+    }
+  }
+}

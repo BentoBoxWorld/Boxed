@@ -1,0 +1,28 @@
+{
+  "parent": "bentobox:exploration/mountain",
+  "display": {
+    "icon": {
+      "id": "minecraft:powder_snow_bucket"
+    },
+    "title": "Snowier Snow",
+    "description": "Freeze in powder snow",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "freeze": {
+      "trigger": "minecraft:entity_hurt_player",
+      "conditions": {
+        "damage": {
+          "type": {
+            "tags": [
+              {
+                "id": "#minecraft:is_freezing",
+                "expected": true
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

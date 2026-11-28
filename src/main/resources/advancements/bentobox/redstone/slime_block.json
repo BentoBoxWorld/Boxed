@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/sticky_piston",
+  "display": {
+    "icon": {
+      "id": "minecraft:slime_block"
+    },
+    "title": "...Stick...",
+    "description": "Craft and place a slime block",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "slime_block": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:slime_block"
+            }
+          }
+        }
+      }
+    }
+  }
+}

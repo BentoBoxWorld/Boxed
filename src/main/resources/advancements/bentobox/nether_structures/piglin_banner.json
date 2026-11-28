@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:nether_structures/pigstep",
+  "display": {
+    "icon": {
+      "id": "minecraft:piglin_banner_pattern"
+    },
+    "title": "Piglinsigia",
+    "description": "Make a banner with a snout banner pattern",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "banner": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:banners"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "parent": "bentobox:combat/deflect_arrow",
+  "display": {
+    "icon": {
+      "id": "minecraft:music_disc_cat"
+    },
+    "title": "Before streaming",
+    "description": "Obtain a music disc",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "music_disc": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:music_discs"
+          }
+        ]
+      }
+    }
+  }
+}

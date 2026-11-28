@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:village/kill_pillager",
+  "display": {
+    "icon": {
+      "id": "minecraft:black_dye"
+    },
+    "title": "The Captain's Curse",
+    "description": "Become a bad omen",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bad_omen": {
+      "trigger": "minecraft:effects_changed",
+      "conditions": {
+        "effects": {
+          "minecraft:bad_omen": {}
+        }
+      }
+    }
+  }
+}

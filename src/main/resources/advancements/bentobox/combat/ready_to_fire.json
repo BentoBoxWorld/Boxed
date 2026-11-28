@@ -1,0 +1,125 @@
+{
+  "parent": "bentobox:combat/shoot_firework",
+  "display": {
+    "icon": {
+      "id": "minecraft:crossbow"
+    },
+    "title": "Packing",
+    "description": "Have nine loaded crossbows in your hotbar",
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "crossbows": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:crossbow"
+          }
+        ],
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:slots": {
+              "hotbar.0": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.1": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.2": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.3": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.4": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.5": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.6": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.7": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              },
+              "hotbar.8": {
+                "items": "minecraft:crossbow",
+                "predicates": {
+                  "minecraft:charged_projectiles": {
+                    "size": {
+                      "min": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 25
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "parent": "bentobox:combat/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:creeper_head"
+    },
+    "title": "Heading for a blow up",
+    "description": "Get a monster's head from a charged creeper",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "head": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:creeper_heads"
+          }
+        ]
+      }
+    }
+  }
+}

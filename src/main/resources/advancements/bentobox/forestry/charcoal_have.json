@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:charcoal"
+    },
+    "title": "Renewable Energy",
+    "description": "Cook a log to get charcoal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "charcoal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:charcoal"
+          }
+        ]
+      }
+    }
+  }
+}

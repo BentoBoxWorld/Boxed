@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:caving/axolotl_bucket",
+  "display": {
+    "icon": {
+      "id": "minecraft:axolotl_bucket"
+    },
+    "title": "Can You Unleash Azure?",
+    "description": "Breed for a rare blue axolotl",
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "axolotl_bucket": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "child": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:axolotl",
+            "minecraft:components": {
+              "minecraft:axolotl/variant": "blue"
+            }
+          }
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 100
+  }
+}

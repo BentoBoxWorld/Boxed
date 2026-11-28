@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:ocean/green_in_the_blue",
+  "display": {
+    "icon": {
+      "id": "minecraft:seagrass"
+    },
+    "title": "Protective Parents",
+    "description": "Breed some turtles",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "breed_turtle": {
+      "trigger": "minecraft:bred_animals",
+      "conditions": {
+        "parent": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:turtle"
+          }
+        }
+      }
+    }
+  }
+}

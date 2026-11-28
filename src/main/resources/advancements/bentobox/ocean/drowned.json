@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:ocean/shipwreck",
+  "display": {
+    "icon": {
+      "id": "minecraft:player_head"
+    },
+    "title": "Sailors Forgotten",
+    "description": "Put a drowned sailor to rest",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "drowned": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:drowned"
+          }
+        }
+      }
+    }
+  }
+}

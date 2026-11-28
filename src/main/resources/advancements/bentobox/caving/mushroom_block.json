@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/mushrooms",
+  "display": {
+    "icon": {
+      "id": "minecraft:mushroom_stem"
+    },
+    "title": "Mushroom Maestro",
+    "description": "Grow a giant mushroom then harvest it with Silk Touch",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "mushroom_block": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:mushroom_blocks"
+          }
+        ]
+      }
+    }
+  }
+}

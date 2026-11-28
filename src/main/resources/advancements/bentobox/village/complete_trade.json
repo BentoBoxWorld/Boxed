@@ -1,0 +1,18 @@
+{
+  "parent": "bentobox:village/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:emerald"
+    },
+    "title": {
+      "translate": "advancements.adventure.trade.title"
+    },
+    "description": "Successfully trade with a villager",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "trade": {
+      "trigger": "minecraft:villager_trade"
+    }
+  }
+}

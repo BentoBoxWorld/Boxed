@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:exploration/jungle_in",
+  "display": {
+    "icon": {
+      "id": "minecraft:mossy_cobblestone"
+    },
+    "title": "Ancient Power",
+    "description": "Enter a jungle temple",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "jungle_pyramid": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:jungle_pyramid"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "parent": "bentobox:ocean/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:polished_granite"
+    },
+    "title": "Bits of Atlantis",
+    "description": "Find some oceanic ruins",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "ocean_ruin_cold": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ocean_ruin_cold"
+            }
+          }
+        }
+      }
+    },
+    "ocean_ruin_warm": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:ocean_ruin_warm"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ocean_ruin_cold",
+      "ocean_ruin_warm"
+    ]
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:jungle_leaves"
+    },
+    "title": "Welcome to the Jungle",
+    "description": "Enter a jungle biome",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "jungle": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:jungle"
+            }
+          }
+        }
+      }
+    },
+    "bamboo_jungle": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:bamboo_jungle"
+            }
+          }
+        }
+      }
+    },
+    "sparse_jungle": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:sparse_jungle"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "jungle",
+      "bamboo_jungle",
+      "sparse_jungle"
+    ]
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/map_create",
+  "display": {
+    "icon": {
+      "id": "minecraft:writable_book"
+    },
+    "title": "Captain's Log",
+    "description": "Create a book and quill to document your adventures",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "book_and_quill": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:writable_book"
+          }
+        ]
+      }
+    }
+  }
+}

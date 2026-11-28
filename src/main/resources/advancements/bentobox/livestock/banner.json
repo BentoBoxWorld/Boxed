@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/use_shears",
+  "display": {
+    "icon": {
+      "id": "minecraft:white_banner"
+    },
+    "title": "Banner Hammer",
+    "description": "Obtain a banner",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "banner": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:banners"
+          }
+        ]
+      }
+    }
+  }
+}

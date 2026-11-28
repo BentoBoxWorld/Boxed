@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:exploration/evoker_fangs",
+  "display": {
+    "icon": {
+      "id": "minecraft:iron_sword"
+    },
+    "title": "Etheral Soldiers",
+    "description": "Kill a vex",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "kill_vex": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:vex"
+          }
+        }
+      }
+    }
+  }
+}

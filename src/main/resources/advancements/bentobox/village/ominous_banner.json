@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:village/have_bad_omen",
+  "display": {
+    "icon": {
+      "id": "minecraft:white_banner"
+    },
+    "title": "Evil Decor",
+    "description": "Place the cursed banner",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "ominous_banner": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:white_banner",
+              "nbt": "{patterns:[{pattern:\"minecraft:rhombus\",color:\"cyan\"},{pattern:\"minecraft:stripe_bottom\",color:\"light_gray\"},{pattern:\"minecraft:stripe_center\",color:\"gray\"},{pattern:\"minecraft:border\",color:\"light_gray\"},{pattern:\"minecraft:stripe_middle\",color:\"black\"},{pattern:\"minecraft:half_horizontal\",color:\"light_gray\"},{pattern:\"minecraft:circle\",color:\"light_gray\"},{pattern:\"minecraft:border\",color:\"black\"}]}"
+            }
+          }
+        }
+      }
+    }
+  }
+}

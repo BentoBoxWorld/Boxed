@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:husbandry/pumpkin",
+  "display": {
+    "icon": {
+      "id": "minecraft:player_head"
+    },
+    "title": "Frosty",
+    "description": "Bring a snowman to life",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "snow_golem": {
+      "trigger": "minecraft:summoned_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:snow_golem"
+          }
+        }
+      }
+    }
+  }
+}

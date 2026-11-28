@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:forestry/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_sapling"
+    },
+    "title": "Arborist",
+    "description": "Collect a sapling",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "sapling": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:saplings"
+          }
+        ]
+      }
+    }
+  }
+}

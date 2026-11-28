@@ -1,0 +1,98 @@
+{
+  "parent": "bentobox:nether_structures/extend_potion",
+  "display": {
+    "icon": {
+      "id": "minecraft:glowstone_dust"
+    },
+    "title": "Power Up",
+    "description": "Use glowstone dust to make a potion stronger",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "leaping": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_leaping"
+        }
+      }
+    },
+    "swiftness": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_swiftness"
+        }
+      }
+    },
+    "slowness": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_slowness"
+        }
+      }
+    },
+    "turtle_master": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_turtle_master"
+        }
+      }
+    },
+    "healing": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_healing"
+        }
+      }
+    },
+    "harming": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_harming"
+        }
+      }
+    },
+    "poison": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_poison"
+        }
+      }
+    },
+    "regeneration": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_regeneration"
+        }
+      }
+    },
+    "strength": {
+      "trigger": "minecraft:brewed_potion",
+      "conditions": {
+        "potion": {
+          "potions": "minecraft:strong_strength"
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "leaping",
+      "swiftness",
+      "slowness",
+      "turtle_master",
+      "healing",
+      "harming",
+      "poison",
+      "regeneration",
+      "strength"
+    ]
+  ]
+}

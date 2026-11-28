@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:forestry/sapling",
+  "display": {
+    "icon": {
+      "id": "minecraft:jungle_sapling"
+    },
+    "title": "Restoration",
+    "description": "Help restore a forest by planting a sapling",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "plant_sapling": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "#minecraft:saplings"
+            }
+          }
+        }
+      }
+    }
+  }
+}

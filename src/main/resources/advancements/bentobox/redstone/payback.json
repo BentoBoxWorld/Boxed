@@ -1,0 +1,36 @@
+{
+  "parent": "bentobox:redstone/tnt",
+  "display": {
+    "icon": {
+      "id": "minecraft:gunpowder"
+    },
+    "title": "Payback",
+    "description": "Blow up a creeper",
+    "frame": "challenge"
+  },
+  "criteria": {
+    "explode_creeper": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:creeper"
+          }
+        },
+        "killing_blow": {
+          "tags": [
+            {
+              "id": "#minecraft:is_explosion",
+              "expected": true
+            }
+          ]
+        }
+      }
+    }
+  },
+  "rewards": {
+    "experience": 50
+  }
+}

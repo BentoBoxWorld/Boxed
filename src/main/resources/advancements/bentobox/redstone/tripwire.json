@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:redstone/pressure_plate",
+  "display": {
+    "icon": {
+      "id": "minecraft:tripwire_hook"
+    },
+    "title": "Watch Your Step",
+    "description": "Trigger a tripwire",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tripwire": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:tripwire",
+        "state": {
+          "attached": "true",
+          "disarmed": "false"
+        }
+      }
+    }
+  }
+}

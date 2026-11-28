@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:nether_structures/bastion",
+  "display": {
+    "icon": {
+      "id": "minecraft:gilded_blackstone"
+    },
+    "title": "Golden Gravel",
+    "description": "Obtain a block of gilded blackstone",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "gilded": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:gilded_blackstone"
+          }
+        ]
+      }
+    }
+  }
+}

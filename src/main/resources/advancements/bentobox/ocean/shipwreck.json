@@ -1,0 +1,47 @@
+{
+  "parent": "bentobox:ocean/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:spruce_boat"
+    },
+    "title": "Going Down",
+    "description": "Enter a shipwreck",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "shipwreck": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:shipwreck"
+            }
+          }
+        }
+      }
+    },
+    "shipwreck_beached": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:shipwreck_beached"
+            }
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "shipwreck",
+      "shipwreck_beached"
+    ]
+  ]
+}

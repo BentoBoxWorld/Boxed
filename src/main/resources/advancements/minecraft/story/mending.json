@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:story/anvil",
+  "display": {
+    "icon": {
+      "id": "minecraft:experience_bottle"
+    },
+    "title": "Magically Repairing Molecules",
+    "description": "Enchant your gear with Mending",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "mending": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "minecraft:mending"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

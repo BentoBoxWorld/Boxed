@@ -1,0 +1,33 @@
+{
+  "parent": "bentobox:exploration/badlands",
+  "display": {
+    "icon": {
+      "id": "minecraft:red_sand"
+    },
+    "title": "Sandstorm",
+    "description": "Collect both types of sand",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "sand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:sand"
+          }
+        ]
+      }
+    },
+    "red_sand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:red_sand"
+          }
+        ]
+      }
+    }
+  }
+}

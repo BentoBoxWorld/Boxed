@@ -1,0 +1,36 @@
+{
+  "parent": "bentobox:combat/phantom_pains",
+  "display": {
+    "icon": {
+      "id": "minecraft:red_bed"
+    },
+    "title": "A Week Without Sleep",
+    "description": "Don't sleep or die for an in-game week",
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "week": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:custom",
+                  "stat": "minecraft:time_since_rest",
+                  "value": {
+                    "min": 168000
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

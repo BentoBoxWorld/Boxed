@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:nether_structures/loot_bastion",
+  "display": {
+    "icon": {
+      "id": "minecraft:music_disc_pigstep"
+    },
+    "title": "Swine Song",
+    "description": "Find the \"Pigstep\" music disc",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "pigstep": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:music_disc_pigstep"
+          }
+        ]
+      }
+    }
+  }
+}

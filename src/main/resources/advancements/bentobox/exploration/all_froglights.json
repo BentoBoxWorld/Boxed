@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:exploration/leash_all_frogs",
+  "display": {
+    "description": "Have all froglights in your inventory",
+    "frame": "goal",
+    "icon": {
+      "id": "minecraft:verdant_froglight"
+    },
+    "title": {
+      "translate": "advancements.husbandry.froglights.title"
+    },
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "froglights": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:ochre_froglight"
+          },
+          {
+            "items": "minecraft:pearlescent_froglight"
+          },
+          {
+            "items": "minecraft:verdant_froglight"
+          }
+        ]
+      }
+    }
+  }
+}

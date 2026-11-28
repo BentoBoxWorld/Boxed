@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:building/copper_block",
+  "display": {
+    "icon": {
+      "id": "minecraft:oxidized_copper"
+    },
+    "title": "Patina Pro",
+    "description": "Fully oxidize a copper block and pick it up",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "copper": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:oxidized_copper"
+          }
+        ]
+      }
+    }
+  }
+}

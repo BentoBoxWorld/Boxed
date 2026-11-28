@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:ocean/breed_turtles",
+  "display": {
+    "icon": {
+      "id": "minecraft:turtle_egg"
+    },
+    "title": "Beach Baby",
+    "description": "Pick up a turtle egg",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "turtle_egg": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:turtle_egg"
+          }
+        ]
+      }
+    }
+  }
+}

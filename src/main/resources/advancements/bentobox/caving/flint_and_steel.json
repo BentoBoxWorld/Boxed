@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:caving/flint",
+  "display": {
+    "icon": {
+      "id": "minecraft:flint_and_steel"
+    },
+    "title": "Pyro Alchemist",
+    "description": "Combine flint and an iron ingot",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "flint_and_steel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:flint_and_steel"
+          }
+        ]
+      }
+    }
+  }
+}

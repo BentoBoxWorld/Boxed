@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:redstone/hopper",
+  "display": {
+    "icon": {
+      "id": "minecraft:hopper_minecart"
+    },
+    "title": "Moving Moving Storage",
+    "description": "Put a hopper in a minecart",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "hopper_minecart": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:hopper_minecart"
+          }
+        ]
+      }
+    }
+  }
+}

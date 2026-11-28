@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:exploration/ice",
+  "display": {
+    "icon": {
+      "id": "minecraft:packed_ice"
+    },
+    "title": "Heat-Resistant Cold",
+    "description": "Collect some packed ice",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "packed_ice": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:packed_ice"
+          }
+        ]
+      }
+    }
+  }
+}

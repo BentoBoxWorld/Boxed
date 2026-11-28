@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:exploration/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:mycelium"
+    },
+    "title": "This Smells",
+    "description": "Enter a mushroom fields biome",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "mushroom_fields": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "biomes": "minecraft:mushroom_fields"
+            }
+          }
+        }
+      }
+    }
+  }
+}

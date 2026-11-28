@@ -1,0 +1,27 @@
+{
+  "parent": "bentobox:caving/bat_kill",
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_planks"
+    },
+    "title": "What Lies Below?",
+    "description": "Enter an underground abandoned mineshaft",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "mineshaft": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:location": {
+              "structures": "minecraft:mineshaft"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:ocean/fishy_business",
+  "display": {
+    "icon": {
+      "id": "minecraft:cooked_cod"
+    },
+    "title": "Delicious Fish",
+    "description": "Catch, cook, and eat a fish",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "cooked_fish": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": "#bentobox:cooked_fish"
+        }
+      }
+    }
+  }
+}

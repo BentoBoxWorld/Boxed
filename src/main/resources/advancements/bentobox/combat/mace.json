@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:combat/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:mace"
+    },
+    "title": "Heavy Hitter",
+    "description": "Craft a mace",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "mace": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:mace"
+          }
+        ]
+      }
+    }
+  }
+}

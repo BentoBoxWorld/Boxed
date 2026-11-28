@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:exploration/jungle_tree",
+  "display": {
+    "icon": {
+      "id": "minecraft:wheat_seeds"
+    },
+    "title": "A Pirate's Best Friend",
+    "description": "Befriend a parrot",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "parrot": {
+      "trigger": "minecraft:tame_animal",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:parrot"
+          }
+        }
+      }
+    }
+  }
+}

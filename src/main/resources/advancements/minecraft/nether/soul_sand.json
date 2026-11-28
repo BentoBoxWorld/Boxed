@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:nether/soul_sand_valley",
+  "display": {
+    "icon": {
+      "id": "minecraft:soul_sand"
+    },
+    "title": "Spooky Sand",
+    "description": "Mine soul sand",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "soul_sand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:soul_sand"
+          }
+        ]
+      }
+    }
+  }
+}

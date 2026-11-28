@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:end/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:black_stained_glass_pane"
+    },
+    "title": "Call of the Void",
+    "description": "Take void damage",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "void": {
+      "trigger": "minecraft:entity_hurt_player",
+      "conditions": {
+        "damage": {
+          "type": {
+            "tags": [
+              {
+                "id": "#minecraft:bypasses_invulnerability",
+                "expected": true
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

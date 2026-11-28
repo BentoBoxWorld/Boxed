@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:combat/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:shield"
+    },
+    "title": "Come back with your shield - or on it!",
+    "description": "Protect yourself with a shield",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "block": {
+      "trigger": "minecraft:entity_hurt_player",
+      "conditions": {
+        "damage": {
+          "blocked": true
+        }
+      }
+    }
+  }
+}

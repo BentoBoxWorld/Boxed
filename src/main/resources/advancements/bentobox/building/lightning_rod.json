@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:building/copper",
+  "display": {
+    "icon": {
+      "id": "minecraft:lightning_rod"
+    },
+    "title": "Thunder Tamer",
+    "description": "Place a lightning rod to keep your buildings safe",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "lightning_rod": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:lightning_rod"
+            }
+          }
+        }
+      }
+    }
+  }
+}

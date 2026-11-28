@@ -1,0 +1,59 @@
+{
+  "parent": "bentobox:redstone/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:lever"
+    },
+    "title": "Flip the Switch!",
+    "description": "Activate a lever",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "not_sneaking": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:flags": {
+              "is_sneaking": false
+            }
+          }
+        },
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:lever"
+          }
+        }
+      }
+    },
+    "sneaking": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:flags": {
+              "is_sneaking": true
+            }
+          }
+        },
+        "location": {
+          "type": "minecraft:match_tool",
+          "predicate": {
+            "items": "minecraft:lever"
+          }
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "not_sneaking",
+      "sneaking"
+    ]
+  ]
+}

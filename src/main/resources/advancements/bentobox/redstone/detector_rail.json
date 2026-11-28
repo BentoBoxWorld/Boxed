@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:redstone/pressure_plate",
+  "display": {
+    "icon": {
+      "id": "minecraft:detector_rail"
+    },
+    "title": "Minecart Power",
+    "description": "Craft and place a detector rail",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "detector_rail": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:detector_rail"
+            }
+          }
+        }
+      }
+    }
+  }
+}

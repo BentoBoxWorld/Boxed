@@ -1,0 +1,35 @@
+{
+  "parent": "bentobox:building/item_frame",
+  "display": {
+    "icon": {
+      "id": "minecraft:armor_stand"
+    },
+    "title": "Armor Showcase",
+    "description": "Place an armor stand to display your armor",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "armor_stand": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:used",
+                  "stat": "minecraft:armor_stand",
+                  "value": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

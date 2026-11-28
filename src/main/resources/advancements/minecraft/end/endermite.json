@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:end/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:ender_pearl"
+    },
+    "title": "A Little Buggy",
+    "description": "Be hurt by an endermite",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "endermite": {
+      "trigger": "minecraft:entity_hurt_player",
+      "conditions": {
+        "damage": {
+          "source_entity": {
+            "minecraft:entity_type": "minecraft:endermite"
+          }
+        }
+      }
+    }
+  }
+}

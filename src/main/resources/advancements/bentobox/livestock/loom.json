@@ -1,0 +1,23 @@
+{
+  "parent": "bentobox:livestock/banner",
+  "display": {
+    "icon": {
+      "id": "minecraft:loom"
+    },
+    "title": "Looming Over You",
+    "description": "Craft a loom",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "loom": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:loom"
+          }
+        ]
+      }
+    }
+  }
+}

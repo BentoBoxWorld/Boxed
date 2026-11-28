@@ -1,0 +1,25 @@
+{
+  "parent": "bentobox:combat/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:bone"
+    },
+    "title": "Bogged Down",
+    "description": "Kill a bogged",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bogged": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:entity_type": "minecraft:bogged"
+          }
+        }
+      }
+    }
+  }
+}

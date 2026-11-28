@@ -1,0 +1,32 @@
+{
+  "parent": "bentobox:exploration/goat_ram",
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_boat"
+    },
+    "title": {
+      "translate": "advancements.husbandry.ride_a_boat_with_a_goat.title"
+    },
+    "description": "Get in a boat and float with a goat",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "ride_a_boat_with_a_goat": {
+      "trigger": "minecraft:started_riding",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "predicate": {
+            "minecraft:vehicle": {
+              "minecraft:entity_type": "#minecraft:boat",
+              "minecraft:passenger": {
+                "minecraft:entity_type": "minecraft:goat"
+              }
+            }
+          },
+          "entity": "this"
+        }
+      }
+    }
+  }
+}

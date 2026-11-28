@@ -1,0 +1,21 @@
+{
+  "parent": "bentobox:exploration/goat_ram",
+  "display": {
+    "icon": {
+      "id": "minecraft:goat_horn"
+    },
+    "title": "War Cry",
+    "description": "Blow a goat horn",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "goat_horn": {
+      "trigger": "minecraft:using_item",
+      "conditions": {
+        "item": {
+          "items": "minecraft:goat_horn"
+        }
+      }
+    }
+  }
+}

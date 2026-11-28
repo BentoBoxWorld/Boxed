@@ -1,0 +1,24 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:oak_log"
+    },
+    "title": "Forestry",
+    "description": "Logs and leaves",
+    "background": "minecraft:block/oak_log",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "log": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "#bentobox:normal_logs"
+          }
+        ]
+      }
+    }
+  }
+}

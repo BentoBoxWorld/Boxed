@@ -1,0 +1,35 @@
+{
+  "parent": "bentobox:building/sign_write",
+  "display": {
+    "icon": {
+      "id": "minecraft:painting"
+    },
+    "title": "Picasso Apprentice",
+    "description": "Paint a painting",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "painting": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "minecraft:type_specific/player": {
+              "stats": [
+                {
+                  "type": "minecraft:used",
+                  "stat": "minecraft:painting",
+                  "value": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

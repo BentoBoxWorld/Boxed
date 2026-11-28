@@ -1,0 +1,19 @@
+{
+  "parent": "bentobox:ocean/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:magma_block"
+    },
+    "title": "Pushed Around",
+    "description": "Enter a bubble column",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "bubble_column": {
+      "trigger": "minecraft:enter_block",
+      "conditions": {
+        "blocks": "minecraft:bubble_column"
+      }
+    }
+  }
+}

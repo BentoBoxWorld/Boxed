@@ -1,0 +1,26 @@
+{
+  "parent": "bentobox:nether_structures/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:nether_bricks"
+    },
+    "title": {
+      "translate": "advancements.nether.find_fortress.title"
+    },
+    "description": "Break your way into a nether fortress",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "fortress": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "structures": "minecraft:fortress"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:husbandry/carved_pumpkin",
+  "display": {
+    "icon": {
+      "id": "minecraft:jack_o_lantern"
+    },
+    "title": "Trick or Treat!",
+    "description": "Light up a carved pumpkin",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "jack_o_lantern": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:jack_o_lantern"
+          }
+        ]
+      }
+    }
+  }
+}

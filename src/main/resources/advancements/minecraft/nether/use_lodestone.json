@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:nether/obtain_ancient_debris",
+  "display": {
+    "icon": {
+      "id": "minecraft:lodestone"
+    },
+    "title": {
+      "translate": "advancements.nether.use_lodestone.title"
+    },
+    "description": "Set your compass to focus on a lodestone",
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "use_lodestone": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": "minecraft:lodestone"
+            }
+          }
+        }
+      }
+    }
+  }
+}
