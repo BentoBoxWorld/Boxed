@@ -51,17 +51,18 @@ public class BuiltInAdvancements implements Listener {
 
     private static final String TAGS = "tags/";
     private static final String CRITERION = "boxed";
+    private static final String NAMESPACE = "bentobox";
     /**
      * Advancements that the game cannot give without a data pack, because they depend on the
      * kind of damage taken. Boxed gives them.
      */
-    private static final NamespacedKey DRIPSTONE = new NamespacedKey("bentobox", "caving/dripstone");
-    private static final NamespacedKey IN_GRAVEL = new NamespacedKey("bentobox", "caving/in_gravel");
+    private static final NamespacedKey DRIPSTONE = new NamespacedKey(NAMESPACE, "caving/dripstone");
+    private static final NamespacedKey IN_GRAVEL = new NamespacedKey(NAMESPACE, "caving/in_gravel");
     /**
      * Opening a chest in a bastion. The server cannot check which loot a chest holds for an
      * advancement that did not come from a data pack, so Boxed gives this one too.
      */
-    private static final NamespacedKey LOOT_BASTION = new NamespacedKey("bentobox", "nether_structures/loot_bastion");
+    private static final NamespacedKey LOOT_BASTION = new NamespacedKey(NAMESPACE, "nether_structures/loot_bastion");
     private static final String BASTION_LOOT = "chests/bastion_";
 
     private final Boxed addon;
@@ -169,7 +170,7 @@ public class BuiltInAdvancements implements Listener {
         for (Map.Entry<Key, String> en : wanted.entrySet()) {
             try {
                 count += Bukkit.getUnsafe().loadAdvancements(Map.of(en.getKey(), en.getValue()), false).size();
-            } catch (RuntimeException e) {
+            } catch (RuntimeException _) {
                 failed.add(en.getKey().asString());
             }
         }
