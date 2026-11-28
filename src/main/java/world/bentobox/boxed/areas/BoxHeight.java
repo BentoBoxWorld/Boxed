@@ -16,6 +16,7 @@ import world.bentobox.bentobox.blueprints.Blueprint;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBlock;
 import world.bentobox.bentobox.blueprints.dataobjects.BlueprintBundle;
 import world.bentobox.boxed.Boxed;
+import world.bentobox.boxed.reach.StarterBounty;
 import world.bentobox.boxed.generators.template.Template;
 import world.bentobox.boxed.generators.template.TemplateChunk;
 
@@ -90,11 +91,23 @@ public class BoxHeight {
     }
 
     /**
+     * Works out what the starter blueprint of an area gives a new box.
+     * @param area an area
+     * @param reach how far above and below the spawn sign blocks are counted:
+     *              {@link StarterBounty#NEAR_SIGN} or {@link StarterBounty#WHOLE}
+     * @return the blocks of the blueprint and the items in its chests
+     */
+    public StarterBounty getBounty(Area area, int reach) {
+        Blueprint bp = getBlueprint(area);
+        return StarterBounty.of(bp, bp == null ? null : getSpawnSign(bp), reach);
+    }
+
+    /**
      * @param bp blueprint
      * @return position of the blueprint's spawn sign, or null if it has none
      */
     @Nullable
-    static Vector getSpawnSign(Blueprint bp) {
+    public static Vector getSpawnSign(Blueprint bp) {
         return Stream.of(bp.getAttached(), bp.getBlocks()).filter(m -> m != null).flatMap(m -> m.entrySet().stream())
                 .filter(en -> isSpawnSign(en.getValue())).map(Map.Entry::getKey).findFirst().orElse(null);
     }

@@ -2,16 +2,13 @@ package world.bentobox.boxed.reach;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.util.Vector;
 import org.eclipse.jdt.annotation.Nullable;
 
-import world.bentobox.bentobox.blueprints.Blueprint;
 import world.bentobox.boxed.Boxed;
 import world.bentobox.boxed.areas.Area;
 import world.bentobox.boxed.areas.BoxHeight;
@@ -33,8 +30,12 @@ public class AreaCheck {
      * @param survey what the land holds at each box size
      * @param result how the box grew
      * @param summary the result in a sentence
+     * @param bounty what the starter blueprint gives a new box
+     * @param fromBounty the advancements that can be earned with the starter blueprint alone,
+     *                   without anything from the land
      */
-    public record Outcome(LandSurvey survey, GrowthSimulator.Result result, String summary) {
+    public record Outcome(LandSurvey survey, GrowthSimulator.Result result, String summary, StarterBounty bounty,
+            List<String> fromBounty) {
     }
 
     private final Template normal;
@@ -42,7 +43,7 @@ public class AreaCheck {
     private final Requirements requirements;
     private final YamlConfiguration structures;
     private final Map<String, Integer> scores;
-    private final Map<Vector, String> starter;
+    private final StarterBounty starter;
     private final int startSize;
 
     /**
@@ -80,7 +81,8 @@ public class AreaCheck {
                 addon::logWarning);
         this.structures = structures;
         this.scores = getScores(folder);
-        this.starter = getStarterBlocks(addon, blueprintArea);
+        // The whole blueprint is in the box, down to its lowest block
+        this.starter = new BoxHeight(addon).getBounty(blueprintArea, StarterBounty.WHOLE);
         this.startSize = Math.max(1, addon.getSettings().getIslandProtectionRange());
     }
 
@@ -94,12 +96,24 @@ public class AreaCheck {
         if (nether != null) {
             survey.addTemplate(nether, true);
         }
-        survey.addBlueprint(starter);
+        starter.addTo(survey);
         survey.addStructures(structures.getConfigurationSection("normal"), false);
         survey.addStructures(structures.getConfigurationSection("nether"), true);
         requirements.applyTo(survey);
         GrowthSimulator.Result result = new GrowthSimulator(survey, requirements, scores, startSize).run();
-        return new Outcome(survey, result, ReachReport.summary(result));
+        return new Outcome(survey, result, ReachReport.summary(result), starter, fromBounty());
+    }
+
+    /**
+     * Plays out a box that has only the starter blueprint, to find what the blueprint gives
+     * away. The box still grows as it earns, so mobs that need room can turn up.
+     */
+    private List<String> fromBounty() {
+        LandSurvey only = new LandSurvey(normal.getSize() * 16);
+        starter.addTo(only);
+        requirements.applyTo(only);
+        return new GrowthSimulator(only, requirements, scores, startSize).run().earned().stream()
+                .map(GrowthSimulator.Earned::advancement).toList();
     }
 
     /**
@@ -118,14 +132,4 @@ public class AreaCheck {
     /**
      * @return the starter blocks of an area, by position relative to the centre of the box
      */
-    private static Map<Vector, String> getStarterBlocks(Boxed addon, Area area) {
-        Map<Vector, String> starter = new HashMap<>();
-        Blueprint bp = new BoxHeight(addon).getBlueprint(area);
-        if (bp != null) {
-            Vector bedrock = bp.getBedrock() == null ? new Vector() : bp.getBedrock();
-            Stream.of(bp.getBlocks(), bp.getAttached()).filter(Objects::nonNull).forEach(
-                    m -> m.forEach((pos, block) -> starter.put(pos.clone().subtract(bedrock), block.getBlockData())));
-        }
-        return starter;
-    }
 }

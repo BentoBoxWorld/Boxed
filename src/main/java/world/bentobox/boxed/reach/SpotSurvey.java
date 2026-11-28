@@ -131,8 +131,19 @@ public class SpotSurvey {
      * @return how good a start the place gives
      */
     public Score score() {
+        return score(StarterBounty.NONE);
+    }
+
+    /**
+     * @param bounty what the starter blueprint gives. A place does not need to have what a
+     *               new box is given anyway, so this counts as if it were in the land.
+     * @return how good a start the place gives
+     */
+    public Score score(StarterBounty bounty) {
         LandSurvey everything = toSurvey(all);
         LandSurvey near = toSurvey(nearSurface);
+        bounty.addTo(everything);
+        bounty.addTo(near);
         // The middle is the four columns of a box of size 1
         boolean centre = dryCentre == 4;
         int dryPercent = columns == 0 ? 0 : dry * 100 / columns;

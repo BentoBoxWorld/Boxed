@@ -41,6 +41,8 @@ import world.bentobox.bentobox.api.user.User;
 import world.bentobox.boxed.reach.FortressFinder;
 import world.bentobox.boxed.reach.FortressSpot;
 import world.bentobox.boxed.reach.LandSurvey;
+import world.bentobox.boxed.areas.BoxHeight;
+import world.bentobox.boxed.reach.StarterBounty;
 import world.bentobox.boxed.reach.SpotFinder;
 import world.bentobox.boxed.reach.SpotFinder.Candidate;
 import world.bentobox.boxed.reach.SpotScorer;
@@ -660,6 +662,8 @@ public class WorkshopManager {
         int land = addon.getSettings().getIslandDistance();
         int[] start = w.getCentre(Environment.NORMAL);
         SpotFinder finder = new SpotFinder((x, z) -> vanilla.getBiome(world, x, seaLevel, z).getKey().getKey(), land);
+        // A box that is given a tree can start where there are none
+        finder.setNeedWood(!getBounty(w).hasWood());
         Bukkit.getScheduler().runTaskAsynchronously(addon.getPlugin(), () -> {
             // The place the workshop starts at is always the first choice. The others are kept
             // far enough from it, and from each other, that their biomes do not overlap.
@@ -781,6 +785,18 @@ public class WorkshopManager {
         return points[Math.floorMod((int) Math.round(Math.atan2(dz, dx) / (Math.PI / 4)), 8)];
     }
 
+    /**
+     * Works out what a new box of the area being worked on will be given: the starter
+     * blueprint of the area the work started from, or of the default area for a new one.
+     */
+    private StarterBounty getBounty(Workshop w) {
+        Area area = w.getArea() == null ? null : addon.getAreas().getArea(w.getArea());
+        if (area == null) {
+            area = addon.getAreas().getDefaultArea();
+        }
+        return area == null ? StarterBounty.NONE : new BoxHeight(addon).getBounty(area, StarterBounty.NEAR_SIGN);
+    }
+
     private static Workshop.Spot unscored(Candidate c) {
         return new Workshop.Spot(c.x(), c.z(), c.biome(), -1, "");
     }
@@ -803,7 +819,7 @@ public class WorkshopManager {
         }
         int i = index;
         Workshop.Spot spot = spots.get(i);
-        SpotScorer.score(addon.getPlugin(), world, spot.x(), spot.z(), false).whenComplete((score, error) -> {
+        SpotScorer.score(addon.getPlugin(), world, spot.x(), spot.z(), false, getBounty(w)).whenComplete((score, error) -> {
             if (workshop != w || closing) {
                 return;
             }

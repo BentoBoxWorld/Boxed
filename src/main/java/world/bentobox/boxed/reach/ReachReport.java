@@ -27,10 +27,32 @@ public final class ReachReport {
      * @return the report, one line per entry
      */
     public static List<String> lines(String area, LandSurvey survey, Result result) {
+        return lines(area, survey, result, StarterBounty.NONE, List.of());
+    }
+
+    /**
+     * @param area name of the area
+     * @param survey the land that was surveyed
+     * @param result how the growth went
+     * @param bounty what the starter blueprint gives
+     * @param fromBounty advancements that can be earned with the starter blueprint alone
+     * @return the report, one line per entry
+     */
+    public static List<String> lines(String area, LandSurvey survey, Result result, StarterBounty bounty,
+            List<String> fromBounty) {
         List<String> out = new ArrayList<>();
         out.add("Reachability of area " + area);
         out.add("");
         out.add(summary(result));
+        if (!bounty.isEmpty()) {
+            out.add("");
+            out.add("== What the starter blueprint gives ==");
+            out.add("In its chests: " + (bounty.chest().isEmpty() ? "nothing" : describe(bounty.chest())));
+            out.add("Blocks: " + describe(bounty.totals()));
+            out.add("");
+            out.add("== Earned with the starter blueprint alone, whatever the land ==");
+            out.add(fromBounty.isEmpty() ? "  none" : "  " + String.join("\n  ", fromBounty));
+        }
         out.add("");
         out.add("== Growth, round by round ==");
         int round = 0;
@@ -59,6 +81,11 @@ public final class ReachReport {
             }
         }
         return out;
+    }
+
+    private static String describe(Map<String, Integer> things) {
+        return things.entrySet().stream().map(en -> en.getValue() + " " + en.getKey())
+                .collect(java.util.stream.Collectors.joining(", "));
     }
 
     /**

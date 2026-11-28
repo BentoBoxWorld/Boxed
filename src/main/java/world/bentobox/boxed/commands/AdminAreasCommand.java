@@ -427,7 +427,8 @@ public class AdminAreasCommand extends CompositeCommand {
                 AreaCheck.Outcome outcome = check.run();
                 String written;
                 try {
-                    Files.write(report.toPath(), ReachReport.lines(area.id(), outcome.survey(), outcome.result()));
+                    Files.write(report.toPath(), ReachReport.lines(area.id(), outcome.survey(), outcome.result(),
+                            outcome.bounty(), outcome.fromBounty()));
                     written = report.getPath();
                 } catch (IOException e) {
                     addon.logError("Could not write " + report + ": " + e.getMessage());

@@ -30,6 +30,8 @@ import world.bentobox.boxed.generators.biomes.SeedBiomeGenerator;
 import world.bentobox.boxed.generators.chunks.BoxedSeedChunkGenerator;
 import world.bentobox.boxed.reach.FortressFinder;
 import world.bentobox.boxed.reach.FortressSpot;
+import world.bentobox.boxed.areas.BoxHeight;
+import world.bentobox.boxed.reach.StarterBounty;
 import world.bentobox.boxed.reach.SpotFinder;
 import world.bentobox.boxed.reach.SpotScorer;
 import world.bentobox.boxed.reach.SpotFinder.Candidate;
@@ -85,6 +87,7 @@ public class AdminAreasFindCommand extends CompositeCommand {
         private World world;
         private World nether;
         private List<Candidate> spots = List.of();
+        private final StarterBounty bounty;
 
         Search(User user, Area area, long seed, int radius) {
             this.user = user;
@@ -92,6 +95,7 @@ public class AdminAreasFindCommand extends CompositeCommand {
             this.seed = seed;
             this.radius = radius;
             this.biomes = new SeedBiomeGenerator(getAddon(), area.biomes());
+            this.bounty = new BoxHeight(getAddon()).getBounty(area, StarterBounty.NEAR_SIGN);
         }
 
         /**
@@ -113,6 +117,8 @@ public class AdminAreasFindCommand extends CompositeCommand {
             int land = addon.getSettings().getIslandDistance();
             SpotFinder finder = new SpotFinder(
                     (x, z) -> vanilla.getBiome(world, x, seaLevel, z).getKey().getKey(), land);
+            // A box that is given a tree can start where there are none
+            finder.setNeedWood(!bounty.hasWood());
             Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () -> {
                 // Places are kept apart so that the custom biomes around each do not overlap
                 List<Candidate> found = new ArrayList<>(finder.find(radius, STEP, SPOTS, land * 4));
@@ -142,7 +148,7 @@ public class AdminAreasFindCommand extends CompositeCommand {
                 return;
             }
             Candidate spot = spots.get(index);
-            SpotScorer.score(getPlugin(), world, spot.x(), spot.z(), true).whenComplete((score, error) -> {
+            SpotScorer.score(getPlugin(), world, spot.x(), spot.z(), true, bounty).whenComplete((score, error) -> {
                 if (error != null) {
                     getAddon().logError("Could not generate the land at " + spot.x() + "," + spot.z() + ": " + error);
                 } else {

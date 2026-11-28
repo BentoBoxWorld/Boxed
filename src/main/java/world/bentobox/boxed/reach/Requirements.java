@@ -72,7 +72,7 @@ public class Requirements {
 
     private final Map<String, List<Need>> needs = new LinkedHashMap<>();
     private final List<Provides> provides = new ArrayList<>();
-    private final List<String> always = new ArrayList<>();
+    private final Map<String, Integer> always = new LinkedHashMap<>();
     private final String netherAdvancement;
 
     /**
@@ -81,7 +81,14 @@ public class Requirements {
      */
     public Requirements(ConfigurationSection config, Consumer<String> errorLog) {
         netherAdvancement = key(config.getString("nether-advancement", DEFAULT_NETHER));
-        always.addAll(config.getStringList("always"));
+        ConfigurationSection mobs = config.getConfigurationSection("always");
+        if (mobs != null) {
+            // Each mob with the box size that gives it room to turn up
+            mobs.getKeys(false).forEach(mob -> always.put(mob, Math.max(1, mobs.getInt(mob, 1))));
+        } else {
+            // The older form: a list of mobs that turn up in any box
+            config.getStringList("always").forEach(mob -> always.put(mob, 1));
+        }
         for (String rule : config.getStringList("provides")) {
             String[] sides = rule.split("->");
             Alternative from = sides.length == 2 ? alternative(sides[0], errorLog) : null;
@@ -203,8 +210,8 @@ public class Requirements {
     /**
      * @return mobs that turn up in any box, however small
      */
-    public List<String> getAlways() {
-        return always;
+    public Map<String, Integer> getAlways() {
+        return Map.copyOf(always);
     }
 
     /**
@@ -220,7 +227,7 @@ public class Requirements {
      * @param survey survey of an area's land
      */
     public void applyTo(LandSurvey survey) {
-        always.forEach(mob -> survey.add(Kind.ENTITY, mob, 1, 1));
+        always.forEach((mob, size) -> survey.add(Kind.ENTITY, mob, size, 1));
         for (Provides rule : provides) {
             int size = survey.sizeNeeded(rule.fromKind(), rule.fromNames(), 1);
             if (size > 0) {

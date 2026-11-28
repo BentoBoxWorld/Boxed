@@ -63,6 +63,7 @@ public class SpotFinder {
 
     private final BiomeLookup lookup;
     private final int landRadius;
+    private boolean needWood = true;
 
     /**
      * @param lookup the biomes of the seed
@@ -71,6 +72,15 @@ public class SpotFinder {
     public SpotFinder(BiomeLookup lookup, int landRadius) {
         this.lookup = lookup;
         this.landRadius = landRadius;
+    }
+
+    /**
+     * Says whether a place has to be wooded. It does not when the starter blueprint gives a
+     * new box its wood, which lets a box start in a desert or on a plain.
+     * @param needWood true to look only at wooded land, which is what happens if this is not called
+     */
+    public void setNeedWood(boolean needWood) {
+        this.needWood = needWood;
     }
 
     /**
@@ -133,7 +143,7 @@ public class SpotFinder {
         for (int x = -limit; x <= limit; x += grid) {
             for (int z = -limit; z <= limit; z += grid) {
                 String biome = lookup.biomeAt(x, z);
-                if (isWooded(biome) && isDryAround(x, z) && !isMountainNear(x, z)) {
+                if ((needWood ? isWooded(biome) : !isWater(biome)) && isDryAround(x, z) && !isMountainNear(x, z)) {
                     int water = waterDistance(x, z);
                     found.add(new Candidate(x, z, biome, water, 0, waterRating(water)));
                 }

@@ -219,4 +219,36 @@ class GrowthSimulatorTest {
             }
         }
     }
+
+    @Test
+    void testMobsNeedRoom() {
+        YamlConfiguration config = new YamlConfiguration();
+        try {
+            config.loadFromString("""
+                    always:
+                      zombie: 16
+                      bat: 0
+                    advancements:
+                      adventure/kill_a_mob:
+                        - entity:zombie
+                    """);
+        } catch (org.bukkit.configuration.InvalidConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
+        Requirements requirements = new Requirements(config, s -> {});
+        assertEquals(java.util.Map.of("zombie", 16, "bat", 1), requirements.getAlways());
+        LandSurvey survey = new LandSurvey(48);
+        requirements.applyTo(survey);
+        // No zombie until the box has room for one
+        assertEquals(16, survey.sizeNeeded(Kind.ENTITY, "zombie", 1));
+        assertEquals(1, survey.sizeNeeded(Kind.ENTITY, "bat", 1));
+        // A box of 1 that can earn nothing else never gets there
+        GrowthSimulator.Result stuck = new GrowthSimulator(survey, requirements,
+                java.util.Map.of("minecraft:adventure/kill_a_mob", 5), 1).run();
+        assertTrue(stuck.earned().isEmpty());
+        // One that starts big enough does
+        GrowthSimulator.Result roomy = new GrowthSimulator(survey, requirements,
+                java.util.Map.of("minecraft:adventure/kill_a_mob", 5), 16).run();
+        assertEquals(1, roomy.earned().size());
+    }
 }
