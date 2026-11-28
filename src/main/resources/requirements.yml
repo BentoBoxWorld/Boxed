@@ -6,7 +6,9 @@
 # to, not every crafting step, and some entries are simplified. Correct it for your server.
 #
 # Each advancement has a list of needs, and all of them must be met. A need is one of:
-#   block:<names>            a block in the box, e.g. block:iron_ore|deepslate_iron_ore
+#   block:<names>            a block in the box, e.g. block:iron_ore|deepslate_iron_ore. The
+#                            starter blueprint's blocks count, and so do the items in its
+#                            chests, by their names: block:coal is met by coal in the chest.
 #   biome:<names>            a biome in the box
 #   entity:<names>           a mob in the land or brought by a structure, see 'provides' below
 #   structure:<names>        a structure from the area's structures file
@@ -23,19 +25,25 @@
 # The advancement that has to be earned before anything in the nether counts
 nether-advancement: minecraft:story/enter_the_nether
 
-# Mobs that turn up in any box, however small
+# Mobs that turn up in any box, once the box is big enough to give them room. Boxed does not
+# let mobs spawn outside a box, and the game does not spawn a mob within 24 blocks of a
+# player, so a small box has none. The number is the box size at which the mob can be
+# counted on. These are estimates: correct them for your server.
 always:
-  - zombie
-  - skeleton
-  - spider
-  - creeper
-  - enderman
-  - witch
-  - slime
-  - phantom
-  - bat
-  - glow_squid
-  - wandering_trader
+  zombie: 16
+  skeleton: 16
+  spider: 16
+  creeper: 16
+  enderman: 24
+  witch: 24
+  bat: 24
+  # Needs three nights without sleep and open sky
+  phantom: 8
+  wandering_trader: 12
+  # Swamps and a few chunks elsewhere
+  slime: 32
+  # Only in dark water deep underground
+  glow_squid: 32
 
 # Things in the land that also count as something else. The mobs here are ones that spawn
 # in a biome or come with a structure, which a survey of the land's blocks cannot see.
@@ -98,7 +106,7 @@ sets:
   stone:
     - block:stone|cobblestone|deepslate|cobbled_deepslate|blackstone
   fuel:
-    - block:coal_ore|deepslate_coal_ore|*_log
+    - block:coal_ore|deepslate_coal_ore|*_log|coal|charcoal
   iron:
     - block:iron_ore|deepslate_iron_ore
   gold:
@@ -349,7 +357,9 @@ advancements:
     - set:redstone
 
   # ---- Adventure ----
-  adventure/kill_a_mob: []
+  adventure/kill_a_mob:
+    # Any monster will do, but there has to be one
+    - entity:zombie|skeleton|spider|creeper|enderman|witch|slime|drowned|husk|stray|pillager|silverfish|cave_spider|phantom
   adventure/kill_all_mobs:
     - never:needs mobs from the End, and there is no End in Boxed
   adventure/shoot_arrow:

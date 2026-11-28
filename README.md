@@ -185,12 +185,14 @@ The box stops growing at size 263 of 320. 48 advancements earned for 262 points,
 
 and writes the full report to `areas/<area>/reachability.txt`. The report lists:
 
+* what the starter blueprint gives a new box: its blocks and the items in its chests,
+* the advancements that can be earned with the starter blueprint alone, whatever the land is like. If this list is long, the start is too easy: take things out of the blueprint or its chest,
 * the advancements earned in each round and the box size at the time,
 * the advancements that were still out of reach when the box stopped growing, with what was missing and the box size at which it first appears,
 * the advancements that are impossible in the area, with the reason,
 * the box size at which each biome, mob and structure first comes into the box.
 
-What each advancement needs is set in `requirements.yml`, which is written to the Boxed folder the first time you run the command. It is a model written by hand: it lists the raw resources an advancement comes down to (blocks, biomes, mobs, structures, other advancements), not every crafting step, and some entries are simplified. Mobs cannot be seen in the land itself, so the file also says which biomes and structures bring which mobs. Correct it to suit your server and your data pack. The check takes around half a minute and does not slow the server down.
+What each advancement needs is set in `requirements.yml`, which is written to the Boxed folder the first time you run the command. It is a model written by hand: it lists the raw resources an advancement comes down to (blocks, biomes, mobs, structures, other advancements), not every crafting step, and some entries are simplified. Mobs cannot be seen in the land itself, so the file also says which biomes and structures bring which mobs. Monsters that turn up anywhere are listed under `always` with the box size that gives them room: Boxed does not let mobs spawn outside a box and the game does not spawn one within 24 blocks of a player, so a small box has none. Those sizes are estimates. Correct it to suit your server and your data pack. The check takes around half a minute and does not slow the server down.
 
 An advancement that scores points but can never be earned is worth either removing from `advancements.yml` or making possible, for example by placing a structure with `/boxadmin place`.
 
@@ -204,7 +206,7 @@ Every box in an area is a copy of the land around one place in the area's seed. 
 * with a seed it searches that seed, and with `random` it picks a new seed,
 * `radius` is how far from 0,0 to search in blocks. The default is 5000.
 
-The search looks for dry, wooded land with a river or the sea a short walk away. It then generates the land around the best dozen places in a temporary world, which is deleted afterwards, and gives each a score out of 100. The score is highest when the middle is dry land and a small box already holds logs, water at the surface, stone near the surface, iron ore and coal. The area's biomes file is used, so the land is what a box there would really have. It takes around 10 seconds.
+The search looks for dry land with a river or the sea a short walk away. If the starter blueprint has no tree and no sapling, it only looks at wooded land. It then generates the land around the best dozen places in a temporary world, which is deleted afterwards, and gives each a score out of 100. The score is highest when the middle is dry land and a small box already holds logs, water at the surface, stone near the surface, iron ore and coal. What the starter blueprint gives counts towards this: the items in its chests and its blocks within 20 blocks above or below the `[spawn_here]` sign. So a blueprint with a tree and some ore makes a desert or a plain as good a start as a forest. The area's biomes file is used, so the land is what a box there would really have. It takes around 10 seconds.
 
 The three best places are shown and the full list is written to `areas/<area>/spots.txt`:
 
@@ -249,7 +251,7 @@ You are then taken to the temporary world. While you are there:
 
 #### Picking the middle of the box
 
-As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. It looks for wooded, dry land with water a short walk away and no mountains within about 130 blocks, so that a new player can see what there is to reach. You can fly around while it works. You are told in chat when the first place is ready and when the search has finished. In between, progress is shown above the hotbar. The first ones arrive within a few seconds and there are up to thirteen.
+As soon as the world is made, Boxed starts looking through the seed for good places to start a box, in the same way as `/boxadmin areas find`. It looks for dry land with water a short walk away and no mountains within about 130 blocks, so that a new player can see what there is to reach. You can fly around while it works. You are told in chat when the first place is ready and when the search has finished. In between, progress is shown above the hotbar. The first ones arrive within a few seconds and there are up to thirteen.
 
 Press **F** (the swap hands key), click the message, or run `/boxadmin areas spots`, to see the places as numbered buttons with their coordinates and scores. Hover over a button to see what the score is made of. The first place is always where the workshop started: 0,0, or the middle of the area you started from.
 

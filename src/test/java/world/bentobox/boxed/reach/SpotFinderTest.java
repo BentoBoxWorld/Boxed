@@ -53,6 +53,18 @@ class SpotFinderTest {
         assertTrue(found.get(0).rating() >= found.get(1).rating());
     }
 
+    @Test
+    void testOpenLandWillDoWhenWoodIsNotNeeded() {
+        SpotFinder finder = new SpotFinder(SpotFinderTest::strip, 320);
+        finder.setNeedWood(false);
+        List<Candidate> found = finder.find(1000, 16, 50, 100);
+        // The plains west of the river are found now, and nothing is found in the water
+        assertTrue(found.stream().anyMatch(c -> c.biome().equals("plains")), found.toString());
+        assertTrue(found.stream().noneMatch(c -> c.biome().equals("river")));
+        finder.setNeedWood(true);
+        assertTrue(finder.find(1000, 16, 50, 100).stream().allMatch(c -> c.biome().equals("forest")));
+    }
+
     /**
      * The same strip, with mountains across it north of z = -200
      */
